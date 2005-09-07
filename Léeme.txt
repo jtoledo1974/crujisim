@@ -1,0 +1,98 @@
+SIMULADOR DE RUTA beta-5 (6/6/05)
+
+Ante todo, comentar que este simulador no pretende ser una copia del SACTA que utilizamos. Se parece bastante, 
+pero hay aspectos que son diferentes, as° como el modelo de vuelo que hace variar la velocidad en funci¢n de la altitud.
+
+Igualmente, comentaros que est† en fase evaluaci¢n, por lo que puede petar en alguna ocasi¢n...
+
+La informaci¢n que se presenta en las etiquetas es la siguiente:
+
+  INDICATIVO
+  NIVEL DE VUELO
+  RUMBO
+  VELOCIDAD (TAS ¢ Nß DE MACH) + ESTELA + CAMPO ECO
+  
+En el panel de botones podemos cambiar la presentaci¢n desplazando la pantalla o cambiando la escala. Las funciones incluidas son las siguientes:
+  
+  - Poner en marcha el ejercicio
+  - Parar el ejercicio
+  - Desplazar arriba/abajo/izquierda/derecha la presentaci¢n
+  - Ajuste de escala
+  - Retorno autom†tico a escala est†ndar y centrado
+  - Cambiar el tama§o de las etiquetas alternando peque§a/mediana/grande
+  - Ajuste del vector velocidad (hasta cinco minutos)
+  - Ajustar velocidad a la que corre el reloj
+  - Ver/ocultar el nombre de los fijos
+  - Terminar el vuelo seleccionado
+  - Ver datos del vuelo seleccionado
+  - Cambiar la ruta del vuelo seleccionado
+
+Aqu° va una lista de c¢mo hacer las cosas m†s usuales:
+
+VER / QUITAR PANEL CON BOTONES
+Tocar con bot¢n izquierdo sobre el reloj
+
+DESPLAZAR ETIQUETA
+Apretar bot¢n central sobre el indicativo y arrastrar la etiqueta
+
+SELECCIONAR / DESELECCIONAR UN VUELO
+Apretar bot¢n derecho sobre el indicativo cambia entre los dos estados
+
+CAMBIAR CFL / PFL
+Apretar bot¢n izquierdo sobre el nivel de vuelo
+
+CAMBIAR RATE ASCENSO/DESCENSO
+Apretar bot¢n derecho sobre el nivel de vuelo. Se debe introducir el valor sin signo (el sistema lo pone).
+En caso de que el rate propuesto sea mayor que el m†ximo, lo ajusta al m†ximo admisible
+
+RATE ASCENSO/DESCENSO ESTµNDAR
+Apretar bot¢n derecno sobre el nivel de vuelo y a continuaci¢n presionar la tecla 'Standar'
+
+CAMBIAR EL RUMBO
+Apretar bot¢n izquierdo sobre el rumbo
+
+MANTENER RUMBO
+Apretar bot¢n izquierdo sobre el rumbo y Aceptar sin cambiar el rumbo
+
+AJUSTAR VELOCIDAD
+Apretar bot¢n izquierdo sobre la velocidad. Se introduce la TAS en nudos. El n£mero de mach 
+se introduce como ".73" (o el n£mero que sea)
+
+AJUSTAR VELOCIDAD STANDAR
+En la ventana de ajustar velocidad, apretar el bot¢n 'Est†ndar'
+
+ALTERNAR PRESENTACI‡N NÈMERO DE MACH / TAS
+Apretar bot¢n central sobre la velocidad
+
+DAR DIRECTOS A UN PUNTO DE LA RUTA
+Apretar bot¢n derecho sobre la velocidad. Se visualiza el plan de vuelo y los puntos del mismo. 
+Seleccionado uno con bot¢n izquierdo, damos el directo, y se borra autom†ticamente el plan de vuelo y los puntos.
+Para borrar el plan de vuelo y los puntos sin dar el directo, volver a apretar el bot¢n derecho sobre la velocidad.
+Una vez dado el directo, se borran todos los puntos intermedios de la ruta, por lo que no podemos recuperarlos m†s tarde.
+
+DAR DIRECTOS A UN PUNTO CUALQUIERA
+Igual que dar directos, pero cambiando el nombre del punto que se ve en la casilla. Ese punto se a§ade como 
+primer punto de la ruta.
+
+VER / BORRAR PLAN DE VUELO
+Apretar bot¢n izquierdo sobre la traza (apretar cuando cambia el cursor)
+
+CREAR UN LAD
+Seleccionar un avi¢n con bot¢n central (al cambiar el cursor) y despuÇs el otro con el bot¢n derecho (al cambiar el cursor)
+
+QUITAR UN LAD
+Tocar con el bot¢n central sobre el texto del LAD
+
+CREAR / QUITAR UN SUPERLAD
+Una vez creado el LAD, tocar con el bot¢n izquierdo sobre el texto. El superlad nos da la posici¢n de los aviones 
+en el momento de menor distancia. Solamente podemos tener un superlad activo a la vez
+
+VER CFL Y PFL
+En los despegues los vemos si intentamos cambiarlos (bot¢n izquierdo sobre el nivel)
+
+INDICACI‡N DE PAC (Posible pÇrdida de separaci¢n)
+Se pone el cajet°n y la barra que los une en naranja
+
+INDICACI‡N DE VAC (PÇrdida de separaci¢n)
+Se pone el cajet°n, la barra que lo une y el contenido del cajet°n en rojo. Adem†s hay palotes...
+
