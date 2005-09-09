@@ -1,0 +1,11 @@
+[vuelos]
+kk1 = A320,M,LESA,LEMD,290,170,SNR,H110010F150V150,BLV,ARMIN
+ibe4118 = B737,M,LEBB,LEMD,270,150,LEBB,BLV,H110000F000V330,DGO,BAN
+
+[datos]
+fir = DGOx6
+sector = DGO X 6
+hora_inicio = 11:00
+comentario = ejemplo dgox6(2)
+viento = 000,00
+

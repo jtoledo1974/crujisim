@@ -1,7 +1,25 @@
 #!/usr/bin/python
-#-*- coding:"iso8859-15" -*-
+#-*- coding:iso8859-15 -*-
 
-# Movimiento de un móvil con velocidad uniforme
+# Movimiento de un mï¿½il con velocidad uniforme
+
+# (c) 2005 CrujiMaster (crujisim@yahoo.com)
+#
+# This file is part of CrujiSim.
+#
+# CrujiSim is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# CrujiSim is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Foobar; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from math import *
 from Tkinter import *
@@ -21,7 +39,7 @@ xm=ym=0
 escala=1.0
 centro_x = 10
 centro_y = 10
-
+wind = [0.0,0.0]
 speed_time = 0./60.
 
 seleccionado = None
@@ -31,14 +49,25 @@ def set_speed_time(new_speed_time):
 	global speed_time
 	speed_time = new_speed_time
 
-def set_canvas_info(_xm, _ym, _escala, _centro_x, _centro_y, _punto):
-	global xm, ym, escala, centro_x, centro_y, punto
-	xm = _xm
+def set_global_vars(_punto, _wind, _aeropuertos, _esperas_publicadas,_rwys,_rwyInUse,_procedimientos, _proc_app,_min_sep):
+  	global punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse, procedimientos, proc_app, min_sep
+        punto = _punto
+        wind = _wind
+        aeropuertos = _aeropuertos
+        esperas_publicadas = _esperas_publicadas
+        rwys = _rwys
+        rwyInUse = _rwyInUse
+        procedimientos = _procedimientos
+        proc_app = _proc_app
+        min_sep = _min_sep
+
+def set_canvas_info(_xm, _ym, _escala, _centro_x, _centro_y):
+	global xm, ym, escala, centro_x, centro_y
+     	xm = _xm
 	ym = _ym
 	escala = _escala
 	centro_x = _centro_x
 	centro_y = _centro_y
-        punto = _punto
 
 def set_label_font(new_font):
 	global label_font
@@ -89,31 +118,39 @@ def sgn(a):
     return 0
   
 def v(self):
-  #Devuelve TAS 
-  if not self.es_spd_std: # Velocidad máxima manteniedo IAS
+  #Devuelve TAS
+  if not self.es_spd_std: # Velocidad mï¿½ima manteniedo IAS
     ias_max=self.spd_max/(1+0.002*self.fl_max)
     tas_max=ias_max*(1+0.002*self.alt)
-    return min(tas_max,self.spd) # Se debe mejorar
-  inicio_app = 6.
-  trans_tma = 8.
+    self.ias = self.spd/(1.0+0.002 *self.alt)
+    if abs(self.ias_obj-self.ias)>1.:
+      self.ias = self.ias_obj
+    return min(tas_max, self.ias * (1.0+0.002 *self.alt))
+  inicio_app = 39.
+  trans_tma = 70.
   vel_tma = 153.
-  if self.alt<=inicio_app: # Velocidad de aproximación
+  if self.alt<=inicio_app: # Velocidad de aproximaciï¿½
     return self.spd_app
-  elif self.alt<=trans_tma: # Transición entre vel aprox y tma
+  elif self.alt<=trans_tma: # Transiciï¿½ entre vel aprox y tma
     p=(self.alt-inicio_app)/(trans_tma - inicio_app)
-    return self.spd_app*p+self.spd_tma*(1-p)
-  elif self.alt<=vel_tma:
-    return self.spd_tma
+    return self.spd_app*(1.-p)+self.spd_tma*p
+  elif self.alt<=vel_tma: # Transiciï¿½ entre ruta y tma
+    p=(self.alt-trans_tma)/(vel_tma - trans_tma)
+    ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
+    return self.spd_tma*(1.-p)+ias_std *(1.0+0.002*self.alt)*p
+#    return self.spd_tma
   else:
-    p=min((self.alt-vel_tma)/(self.fl_max-vel_tma),1.)
-    return min(self.spd_max * p + self.spd_tma * (1 - p),self.spd_std)
- 
+    ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
+    return min(ias_std * (1+0.002*self.alt),self.spd_max)
+#     p=min((self.alt-vel_tma)/(self.fl_max-vel_tma),1.)
+#     return min(self.spd_max * p + self.spd_tma * (1-p),self.spd_std)
+
 def mach(self):
-  # Devuelve el número de mach
+  # Devuelve el nmero de mach
   return self.spd/600
 
 def f_vert(self):
-  # Devuelve factor corrección de velocidad vertical
+  # Devuelve factor correcciï¿½ de velocidad vertical
   q=self.alt/self.fl_max
   if q<.75:
     return 1.0
@@ -123,8 +160,214 @@ def f_vert(self):
     return 0.60
   
 def mach_tas(perc):
-  # Transforma número de mach a IAS
+  # Transforma nmero de mach a IAS
   return perc*600
+
+def complete_flight_plan(self):
+  # Completa el plan de vuelo con la SID o STAR, si es que hay alguna publicada para origen y destino
+  if self.destino in rwys.keys(): # aplico la STAR que toque
+    (sid,star) = procedimientos[rwyInUse[self.destino]]
+    for i in range(len(self.route)):
+      [(x,y),fijo,hora] = self.route[i]
+      if fijo in star.keys():
+        self.route = self.route [:i]
+        for pto_star in star[fijo][1]:
+          self.route.append(pto_star)
+        break
+          
+  if self.origen in rwys.keys() and not self.is_flying(): # aplico la SID que toque
+    (sid,star) = procedimientos[rwyInUse[self.origen]]
+    for i in range(len(self.route)):
+      [(x,y),fijo,hora] = self.route[i]
+      if fijo in sid.keys():
+        aux_ruta = []
+        for pto_sid in sid[fijo][1]:
+          aux_ruta.append(pto_sid)
+        self.route = aux_ruta + self.route [i+1:]
+        break
+  
+  
+def get_hdg_obj(self,deriva,t):
+  # Da el rumbo objetivo en funciï¿½ de la demanda
+  if self.to_do == 'fpr': # Mantener plan de vuelo
+    self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+    self.vect=rp(r(self.pto,self.pos))
+    # Correciï¿½ de deriva
+    return self.vect[1] - deriva
+  elif self.to_do == 'hdg': # Mantener rumbo
+    self.vect=rp((2.0*self.ground_spd,self.track))
+    return self.to_do_aux[0]
+  elif self.to_do == 'hld': #Hacer esperas sobre un punto
+# self.to_do_aux = [[coord,nombre,estim],derrota_acerc, tiempo_alej,Tiempo en alejam. = 0.0,Esta en espera=False/True,giro I=-1.0/D=+1.0]
+    if not self.to_do_aux[4] and self.to_do_aux[0] in self.route: # An no ha llegado a la espera, sigue volando en ruta
+      self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+      self.vect=rp(r(self.pto,self.pos))
+      # Correciï¿½ de deriva
+      return self.vect[1] - deriva
+    else: # Estï¿½dentro de la espera, entramos bucle de la espera
+      self.to_do_aux[4] = True
+      if not self.to_do_aux[0] in self.route: # El fijo principal debe estar en la ruta. Si no estï¿½ se pone
+        self.route.insert(0,self.to_do_aux[0])
+      self.vect=rp((2.0*self.ground_spd,self.track)) # Con esta operaciï¿½ no nos borra el punto de la espera
+      if len(self.to_do_aux)== 6: # Vamos a definir el rumbo objetivo, aï¿½diï¿½dolo al final
+        r_acerc = ( self.to_do_aux[1] - deriva) %360.0
+        if self.hdg<180.0 and r_acerc>self.hdg+180.0:
+          r_acerc -= 360.0
+        elif self.hdg>180.0 and r_acerc<self.hdg-180.0:
+          r_acerc += 360.0
+        aux=r_acerc-self.hdg
+        if aux > -60.0 and aux < 120.0: # Entrada directa
+          r_obj = (self.to_do_aux[1] + 180.0  - deriva) %360. # Rumbo de alejamiento (con correcciï¿½ de deriva)
+        else:
+          r_obj = -((self.to_do_aux[1] + 180.0  -30.0 * self.to_do_aux[5] - deriva) %360.) # Rumbo de alejamiento (con correcciï¿½ de deriva)
+        self.to_do_aux.append(r_obj)
+      r_obj = self.to_do_aux[6]
+      if r_obj < 0.0:
+        r_obj = -r_obj
+      else:
+        if abs(r_obj - self.hdg)>60.0: 
+          r_obj = (self.hdg +90.0 * self.to_do_aux[5])%360.0
+      if self.to_do_aux[3] == 0.0 or self.to_do_aux[3] == -10.0: # Estï¿½en el viraje hacia el tramo de alejamiento
+        if abs(r_obj - self.hdg) < 1.: # Ha terminado el viraje
+          if self.to_do_aux[3] == -10.0:
+            self.to_do_aux[4] = False
+            self.to_do_aux[3] = 0.0
+            self.to_do_aux.pop(6)
+          else:
+            self.to_do_aux[3] = t
+      elif (t>self.to_do_aux[2] + self.to_do_aux[3]): # Comprobar tiempo que lleva en alejamiento y al terminar entra en acercamiento
+        self.to_do_aux[3] = -10.0
+        self.to_do_aux[6] = self.to_do_aux[1]
+    return r_obj
+  elif self.to_do == 'hdg<fix':
+    if self.to_do_aux[0] in self.route:
+      self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+      self.vect=rp(r(self.pto,self.pos))
+      # Correciï¿½ de deriva
+      return self.vect[1] - deriva
+    else:
+      self.vect=rp((2.0*self.ground_spd,self.track))
+      return self.to_do_aux[1]
+  elif self.to_do == 'int_rdl':
+    (rx,ry) = r(self.to_do_aux[0],self.pos) # Coordenadas relativas a la radioayuda
+    rdl_actual = rp((rx,ry))[1]
+    rdl = self.to_do_aux[1]
+    if rdl<180.0 and rdl_actual>rdl+180.0:
+      rdl_actual=rdl_actual-360.0
+    elif rdl>180.0 and rdl_actual<rdl-180.0:
+      rdl_actual=rdl_actual+360.0
+    ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posiciï¿½ actual
+    (rdlx,rdly)=pr((1.0,self.to_do_aux[1]))
+    dist_perp = abs(rx * rdly - ry * rdlx)
+    if dist_perp < 0.1: # Consideramos que estï¿½en el radial
+      self.vect=rp((2.0*self.ground_spd,self.track))
+      self.hold_hdg = self.to_do_aux[1]
+      return self.to_do_aux[1] - deriva
+    elif dist_perp<0.8:
+      self.vect=rp((2.0*self.ground_spd,self.track))
+      self.hold_hdg = (self.to_do_aux[1] - 20.0 * sgn(ang_aux))%360.0
+      return (self.to_do_aux[1] - deriva - 20.0 * sgn(ang_aux))%360.0
+    else:
+      self.vect=rp((2.0*self.ground_spd,self.track))
+      return (self.hold_hdg - deriva)%360.0
+#       return (self.to_do_aux[1] - deriva - 45.0 * sgn(ang_aux))%360.0
+  elif self.to_do == 'app':
+    (puntos_alt,llz,puntos_map) = proc_app[self.fijo_app]
+    [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
+    if len(self.route) == 0: # Es el primer acceso a app desde la espera. Se aï¿½den los puntos
+      for [a,b,c,h] in puntos_alt:
+        self.route.append([a,b,c])
+      self.route.append([xy_llz,'_LLZ',''])
+    if len (self.route) > 1: # An no estï¿½en el localizador, tocamos solamente la altitud y como plan de vuelo
+      if self._map and [xy_llz,'_LLZ',''] not in self.route: # Ya estï¿½frustrando
+        for [a,b,c,h] in puntos_map:
+          if [a,b,c] == self.route[0]:
+            self.cfl = h/100.
+            break
+      else:
+        for [a,b,c,h] in puntos_alt:
+          if [a,b,c] == self.route[0]:
+            self.cfl = h/100.
+            break
+      self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+      self.vect=rp(r(self.pto,self.pos))
+      # Correciï¿½ de deriva
+      return self.vect[1] - deriva
+    if len(self.route) == 1: # Interceptar localizador y senda de planeo
+      if self._map and [xy_llz,'_LLZ',''] not in self.route: # Ya estï¿½frustrando hacia el ltimo punto, asimilamos a plan de vuelo normal
+        self.to_do = 'fpr'
+        self.app_auth = False
+        self.app_fix = ''
+        self._map = False
+        self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+        self.vect=rp(r(self.pto,self.pos))
+        # Correciï¿½ de deriva
+        return self.vect[1] - deriva
+      else:
+        (rx,ry) = r(xy_llz,self.pos) # Coordenadas relativas a la radioayuda
+        # Primero intersecta la senda de planeo cuando es inferior. Solamente tocamos el rate de descenso
+        dist_thr = rp((rx,ry))[0]-dist_ayuda
+        derrota = rp((rx,ry))[1]
+        if abs(dist_thr) < 0.50: # Aviï¿½ aterrizado
+          if (self.alt-alt_pista/100.)>2.or abs(derrota-rdl)>90.: # En caso de estar 200 ft por encima, hace MAP o si ya ha pasado el LLZ
+            self._map = True 
+          if self._map: # Procedimiento de frustrada asignado
+            self.route = []
+            for [a,b,c,h] in puntos_map:
+              self.route.append([a,b,c])
+          else:
+            print "Aterrizando el ",self.name
+            self.kill_airplane(self.canvas,False)
+            self.esta_asumido = False
+            return 'Dead'
+        if self.esta_en_llz:
+          fl_gp = (alt_pista/100. + dist_thr * pdte_ayuda * 60.)
+          if fl_gp <= self.alt:
+            self.cfl = alt_pista/100.
+            rate = ((self.alt - fl_gp)*2.0 + self.ground_spd * pdte_ayuda )
+            self.set_rate_descend(rate*100.) # Unidades en ft/min
+            self.spd_std = True
+          else:
+            self.set_rate_descend(0.1)
+        # Ahora el movimiento en planta
+        rdl_actual = rp((rx,ry))[1]
+        if rdl<180.0 and rdl_actual>rdl+180.0:
+          rdl_actual=rdl_actual-360.0
+        elif rdl>180.0 and rdl_actual<rdl-180.0:
+          rdl_actual=rdl_actual+360.0
+        ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posiciï¿½ actual
+        (rdlx,rdly)=pr((1.0,rdl))
+        dist_perp = abs(rx * rdly - ry * rdlx)
+        if dist_perp < 0.1: # Consideramos que estï¿½en el radial
+          self.esta_en_llz = True
+          self.int_loc = False
+          self.vect=rp((2.0*self.ground_spd,self.track))
+          return rdl - deriva
+        elif dist_perp<0.8:
+          self.esta_en_llz = True
+          self.int_loc = False
+          self.vect=rp((2.0*self.ground_spd,self.track))
+          return (rdl - deriva - 20.0 * sgn(ang_aux))%360.0
+        else:
+          if self.int_loc:
+            rdl_actual = self.hdg
+            if rdl<180.0 and rdl_actual>rdl+180.0:
+              rdl_actual=rdl_actual-360.0
+            elif rdl>180.0 and rdl_actual<rdl-180.0:
+              rdl_actual=rdl_actual+360.0
+            ang_aux2=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posiciï¿½ actual
+            if ang_aux*ang_aux2 > 0.:
+              return self.hold_hdg - deriva
+            else:
+              self.int_loc = False
+              self.vect=rp((2.0*self.ground_spd,self.track))
+              self.hold_hdg = rdl- 45.0 * sgn(ang_aux)
+              return (rdl - deriva - 45.0 * sgn(ang_aux))%360.0
+          else:
+            self.vect=rp((2.0*self.ground_spd,self.track))
+            return (rdl - deriva - 45.0 * sgn(ang_aux))%360.0
+        
+      
 
 class Airplane:
   
@@ -135,10 +378,11 @@ class Airplane:
     self.origen='LEBB'
     self.destino='LEMD'
     self.pos=(0.0,0.0) #x,y
-    self.t=0.0 # último tiempo calculado
-    self.hist=[] #Histórico últimos 5 puntos
-    self.hist_t=0.0 # Tiempo del último punto
-    self.hdg=400.0 # Último rumbo calculado. Este valor es para saber la primera vez
+    self.t=0.0 # ltimo tiempo calculado
+    self.hist=[] #Histï¿½ico ltimos 5 puntos
+    self.hist_t=0.0 # Tiempo del ltimo punto
+    self.hdg=400.0 # ï¿½timo rumbo calculado. Este valor es para saber la primera vez
+    self.track = 400.0 # Derrota del aviï¿½
     self.hold_hdg=400.0 
     self.alt=350.0 # Altitud
     self.cfl=350.0 # Altitud autorizada
@@ -151,16 +395,20 @@ class Airplane:
     self.rate_desc_std=15.0/60.
     self.es_std=True
     self.rate=0.0 #Tasa de asc/desc.
-    self.spd=350.
+    self.spd=0.
+    self.ground_spd=350.
     self.spd_std=self.spd
     self.spd_max=self.spd
     self.spd_tma=200.
     self.spd_app=180.
     self.es_spd_std=True
     self.ias=300. # Velocidad indicada
+    self.ias_obj = 0.
     self.route=[[(-8.0,10.0),'punto','00:00']] #Ruta con los puntos
-    self.turn=3.0*60.*60. #Los máximos grados por segundo que vira el avión
-    self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo 
+    self.turn=3.0*60.*60. #Los mï¿½imos grados por segundo que vira el aviï¿½
+    self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo
+    self.to_do='fpr'
+    self.to_do_aux = ''
     self.label_heading = 27
     self.label_radius = 30
     self.label_x = self.label_radius * sin(radians(self.label_heading))
@@ -176,16 +424,22 @@ class Airplane:
     self.plotid = None
     self.last_lad = 0
     self.auto_separation = True
+    self.app_auth = False
+    self.fijo_app = ''
+    self._map = False
+    self.int_loc = False
+    self.esta_en_llz = False
 
 
   def next(self,t):
-    # Devuelve la posición en el tiempo t
+    global wind, aeropuertos
+    # Devuelve la posiciï¿½ en el tiempo t
     if t<self.t:
       self.se_pinta=False
       return self.se_pinta # Con esto activamos los vuelos a la hora inicial y se dejan
     else:
       self.se_pinta=1
-    # Cálculo de la altitud
+    # Cï¿½culo de la altitud
     if self.cfl>self.alt:
       if self.es_std:
         self.rate = self.rate_climb_std * f_vert(self)
@@ -203,39 +457,87 @@ class Airplane:
       self.es_std=True
     else:
       self.alt=self.alt+inch
-    # Iteración para encontrar la posición
+    # Iteraciï¿½ para encontrar la posiciï¿½
     while t>=self.t+1./60./60.:
-      self.spd=v(self)
-      if self.vfp:
-        self.pto=self.route[0][0] #Punto al que se dirige
+      aux_v = v(self)
+      inc_v_max = 1.5 * (t-self.t) * 60. * 60. #Inc. v = 90kts/min TAS
+      if abs(aux_v-self.spd)<inc_v_max or self.spd == 0.:
+        self.spd=aux_v
       else:
-        self.pto=s(self.pos,pr((2*self.spd,self.hold_hdg)))
-      self.vect=rp(r(self.pto,self.pos))
-      r_obj=self.vect[1]
-      if self.hdg<180 and r_obj>self.hdg+180:
-        r_obj=r_obj-360
-      elif self.hdg>180 and r_obj<self.hdg-180:
-        r_obj=r_obj+360
+        self.spd = self.spd + inc_v_max * sgn(aux_v - self.spd)
+      (vx,vy) = pr((1.0,self.track))
+      (wx,wy) = pr(wind)
+      wind_perp = wx*vy - wy*vx
+      wind_paral = wx * vx + wy * vy
+      self.ground_spd = self.spd + wind_paral
+      deriva = degrees(asin(wind_perp / self.spd))
+      r_obj = get_hdg_obj(self,deriva,t)
+      if r_obj == 'Dead':
+        return self.se_pinta
+      if self.hdg<180.0 and r_obj>self.hdg+180.0:
+        r_obj=r_obj-360.0
+      elif self.hdg>180.0 and r_obj<self.hdg-180.0:
+        r_obj=r_obj+360.0
       aux=r_obj-self.hdg
-      if abs(aux)<self.turn*(t-self.t) or self.hdg==400.0:
+      if abs(aux)<self.turn*(t-self.t):
         self.hdg=r_obj%360
       else:
         self.hdg=(self.hdg+(t-self.t)*self.turn*sgn(aux))%360
-      self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc. de t
+      self.track = (self.hdg + deriva)%360
+      self.salto=(self.ground_spd)*(t-self.t) # Distancia recorrida en este inc. de t incluyendo viento
       # Ha pasado el punto al que se dirige
       if self.salto>self.vect[0]:
         if len(self.route)==1:
-          self.vfp=False # Si es el último punto, mantiene el rumbo   
-          self.hold_hdg=self.hdg
+          if self.app_auth and self.destino in rwys.keys():
+            self.to_do = 'app'
+#             (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
+#             self.to_do_aux = app
+            self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc.de t sin viento
+            efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
+            self.t = t
+            self.route.pop(0)
+          elif self.route[0][1] in aeropuertos: # Si el ltimo punto estï¿½en la lista de aeropuertos, orbita sobre ï¿½
+            if self.to_do == 'fpr': # En caso de que llegue a ese punto en ruta
+              self.vfp=False
+              for [fijo_pub,rumbo,tiempo,lado] in esperas_publicadas: # Si hay espera publicada, la usa
+                if fijo_pub == self.route[0][1]:
+                  if lado.upper() == 'I':
+                    aux_lado = -1.0
+                  else:
+                    aux_lado = 1.0
+                  self.to_do = 'hld'
+                  self.to_do_aux = [self.route[0], rumbo, tiempo/60., 0.0, True, aux_lado]
+                  self.route.pop(0)
+                  break
+              if len(self.route)==1: # En caso contrario, hace una espera de 1 min 
+                self.to_do = 'hld'
+                self.to_do_aux = [self.route[0], self.hdg, 1./60., 0.0, True, 1.0]
+                self.route.pop(0)
+            else:
+              self.route.pop(0)
+            self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc.de t sin viento
+            efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
+            self.t = t
+          else:
+            self.vfp=False # Si es el ltimo punto, mantiene el rumbo
+            self.to_do = 'hdg'
+            self.to_do_aux = [self.hdg]
+            self.hold_hdg=self.hdg
+            self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc.de t sin viento
+            efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
+            self.t = t  
         else:
           self.route.pop(0) # Eliminamos el punto ya pasado de la ruta e iteramos
           perc=self.vect[0]/self.salto
           self.salto=self.spd*(t-self.t)*perc
+          efecto_viento = p((wx,wy),(t-self.t)*perc) # Deriva por el viento
           self.t=self.t+(t-self.t)*perc
       else:
+        self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc.de t sin viento
+        efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
         self.t=t #Almacenamos el tiempo
-      self.pos=s(self.pos,pr((self.salto,self.hdg))) #Cambiamos la posición
-    # Recálculo del histórico cada 5 segundos
+      self.pos=s(s(self.pos,pr((self.salto,self.hdg))),efecto_viento) #Cambiamos la posiciï¿½
+    # Recï¿½culo del histï¿½ico cada 5 segundos
     step=5./60./60.
     while self.t-self.hist_t>step:
       self.hist.pop(0)
@@ -244,7 +546,7 @@ class Airplane:
     return self.se_pinta
         
   def tas(h):
-    #Devuelve TAS en función de la altitud      
+    #Devuelve TAS en funciï¿½ de la altitud      
     if h>250:
       return self.ias*(1+0.002*h)
     elif h<200:
@@ -258,6 +560,7 @@ class Airplane:
     self.pto = self.route[0][0] #Punto al que se dirige
     self.vect = rp(r(self.pto,self.pos))
     self.hdg = self.vect[1]
+    self.track = self.vect[1]
   
   def set_coords(self, (x0, y0)):
     self.x0 = x0
@@ -284,18 +587,19 @@ class Airplane:
   def set_alt(self, alt):
     self.alt = alt
     
-  def set_spd(self,spd):
+  def set_spd(self,ias):
     self.es_spd_std = False
-    vel=float(spd)
-    if vel<1.:
-      vel = mach_tas(vel)
-    ias_max=self.spd_max/(1+0.002*self.fl_max)
-    tas_max=ias_max*(1+0.002*self.alt)
+    vel=float(ias)*(1.0+0.002*self.alt)
+    if float(ias)<1.:
+      vel = mach_tas(float(ias))
+      ias = vel / (1.+0.002*self.alt)
+    ias_max=self.spd_max/(1.+0.002*self.fl_max)
+    tas_max=ias_max*(1.+0.002*self.alt)
     if vel < tas_max:
-      self.spd = vel
+      self.ias_obj = float(ias)
       return True
     else:
-      self.spd = tas_max
+      self.ias_obj = ias_max
       return False
   
   def set_std_spd(self):
@@ -318,10 +622,14 @@ class Airplane:
   def set_heading(self, hdg):
     self.hold_hdg = hdg
     self.vfp = False
+    self.to_do = 'hdg'
+    self.to_do_aux = [hdg]
     
   def set_route(self,route):
     self.route = route
     self.vfp = True
+    self.to_do = 'fpr'
+    self.to_do_aux = []
     
   def set_initial_t(self,t):
     self.t = t
@@ -334,6 +642,7 @@ class Airplane:
     
   def set_vfp(self,vfp):
     self.vfp = vfp
+    self.to_do = 'fpr'
     
   def set_se_pinta(self,opci):
     self.se_pinta = opci
@@ -355,7 +664,7 @@ class Airplane:
     canvas.itemconfigure(self.name+'spd',fill='red')
     canvas.itemconfigure(self.name+'wake',fill='red')
     canvas.itemconfigure(self.name+'eco',fill='red')
-    
+      
   def set_asumido(self):
     self.esta_asumido = not self.esta_asumido
     
@@ -389,8 +698,11 @@ class Airplane:
   def get_heading(self):
     return self.hdg
   
+  def get_track(self):
+    return self.track
+  
   def get_ias(self):
-    return self.ias
+    return self.spd/(1.0+0.002*self.alt)
   
   def set_ias(self, ias):
     self.ias = ias
@@ -412,6 +724,13 @@ class Airplane:
         self.rate = -self.rate_desc_max
         return False
 
+  def set_app_fix(self):
+    self.fijo_app = 'N/A'
+    for i in range(len(self.route),0,-1):
+        if self.route[i-1][1] in proc_app.keys():
+          self.fijo_app = self.route[i-1][1]
+          break
+   
   def set_std_rate(self):
     self.es_std = True
     if self.rate>0:
@@ -425,11 +744,18 @@ class Airplane:
   def get_speed(self):
     return self.spd
   
+  def get_ias_max(self):
+    return self.spd_max/(1.0+0.002*self.fl_max)
+  
+  def get_ground_speed(self):
+    return self.ground_spd
+  
+  
   def se_debe_imprimir(self,t):
-    # Definimos cuánto tiempo antes nos sale la ficha y el tiempo de premanencia del mensaje
+    # Definimos cuï¿½to tiempo antes nos sale la ficha y el tiempo de permanencia del mensaje
     prevision=10./60.
     permanece=2./60.
-    if not self.ficha_imprimida and self.t_impresion-t<prevision:
+    if not self.ficha_imprimida and self.t-t<prevision:
       self.ficha_imprimida=True
       self.t_ficha=t
       return True
@@ -444,28 +770,37 @@ class Airplane:
     else:
       return False
     
-  def kill_airplane(self,canvas):
+  def kill_airplane(self,canvas,preguntar = True):
       # Display window offering "Terminar" and "Cancel" options.
-      global seleccionado
-      if seleccionado<>self:
-        return
-      print 'Ventana kilear avión',self.name
-      win = Frame(canvas)
-      but_kill = Button(win, text="Terminar "+self.name)
-      but_cancel = Button(win, text="Cancelar")
-      but_kill.pack(side=TOP)
-      but_cancel.pack(side=TOP)
-      win_identifier = canvas.create_window(do_scale(self.pos), window=win)
-      def close_win(ident=win_identifier):
-              canvas.delete(ident)
-      def kill_acft():
-              global seleccionado
-              self.t=self.t+10.
-              self.hist_t=self.hist_t+10.
-              seleccionado = None
-              close_win()
-      but_cancel['command'] = close_win
-      but_kill['command'] = kill_acft
+      if preguntar:
+        global seleccionado
+        if seleccionado<>self:
+          return
+        print 'Ventana kilear aviï¿½',self.name
+        win = Frame(canvas)
+        but_kill = Button(win, text="Terminar "+self.name)
+        but_cancel = Button(win, text="Cancelar")
+        but_kill.pack(side=TOP)
+        but_cancel.pack(side=TOP)
+        win_identifier = canvas.create_window(do_scale(self.pos), window=win)
+        def close_win(ident=win_identifier):
+                canvas.delete(ident)
+        def kill_acft():
+                global seleccionado
+                self.t=self.t+1000.
+                self.hist_t=self.hist_t+1000.
+                self.se_pinta = False
+                seleccionado = None
+                close_win()
+        but_cancel['command'] = close_win
+        but_kill['command'] = kill_acft
+      else:
+        self.t=self.t+1000.
+        self.hist_t=self.hist_t+1000.
+        self.se_pinta = False
+        if seleccionado == self:
+          seleccionado = None
+        
         
   def is_flying(self):
     return self.se_pinta
@@ -554,8 +889,9 @@ class Airplane:
             line=line+do_scale(self.pos)
           for a in self.route:
             pto=do_scale(a[0])
-            canvas.create_text(pto,text=a[1],fill='orange',tag=self.name+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-            canvas.create_text(pto,text=a[2],fill='orange',tag=self.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
+            if a[1][0] <> '_' or a[1] in proc_app.keys():
+              canvas.create_text(pto,text=a[1],fill='orange',tag=self.name+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
+              canvas.create_text(pto,text=a[2],fill='orange',tag=self.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
           if len(line)>3: canvas.create_line(line,fill='orange',tags=self.name+'fpr')
 
@@ -571,8 +907,9 @@ class Airplane:
             line=line+do_scale(self.pos)
           for a in self.route:
             pto=do_scale(a[0])
-            canvas.create_text(pto,text=a[1],fill='yellow',tag=self.name+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-            canvas.create_text(pto,text=a[2],fill='yellow',tag=self.name+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
+            if a[1][0] <> '_':
+              canvas.create_text(pto,text=a[1],fill='yellow',tag=self.name+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
+              canvas.create_text(pto,text=a[2],fill='yellow',tag=self.name+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
           if len(line)>3: canvas.create_line(line,fill='yellow',tags=self.name+'wp')
           size=2
@@ -615,7 +952,7 @@ class Airplane:
                           for i in range(len(self.route)):
                             if self.route[i][1] == pto.upper():
                               aux = self.route[i:]
-                          # Si no está en la ruta, insertamos el punto como nº 1
+                          # Si no estï¿½en la ruta, insertamos el punto como n 1
                           if aux == None:
                             for [nombre,coord] in punto:
                               if nombre == pto.upper():
@@ -685,7 +1022,7 @@ class Airplane:
       if self.see_mach:
         spd_text='.'+str(int(round(mach(self)*100)))
       else:
-        spd_text = str(int(self.spd/10))
+        spd_text = str(int(self.ground_spd/10))
       wake_text = self.estela+' '
       wake_desp = label_font.measure(spd_text)
       if self.estela=='H':
@@ -699,11 +1036,11 @@ class Airplane:
       # Heading string
       hdg_text='%03d'%(int(self.hdg))
       # Altitude text
-      alt_txt='%03d'%(int(self.alt))
+      alt_txt='%03d'%(int(self.alt+0.5))
       if self.cfl-self.alt>2.:
-        alt_txt2=chr(94)+'%03d'%(int(self.cfl))
+        alt_txt2=chr(94)+'%03d'%(int(self.cfl+0.5))
       elif self.cfl-self.alt<-3.:
-        alt_txt2=chr(118)+'%03d'%(int(self.cfl))
+        alt_txt2=chr(118)+'%03d'%(int(self.cfl+0.5))
       else:
         alt_txt2 = ''
       alt_desp = label_font.measure(alt_txt)
@@ -734,8 +1071,8 @@ class Airplane:
       	support_x0 = label_x0 + label_width
 	support_y0 = label_y0 + 10
       self.reposition_label(support_x0, support_y0)
-      canvas.tag_bind(self.name+'support', '<1>', self.rotate_label)
-      canvas.tag_bind(self.name+'support', '<3>', self.counter_rotate_label)
+#       canvas.tag_bind(self.name+'support', '<1>', self.rotate_label)
+#       canvas.tag_bind(self.name+'support', '<3>', self.counter_rotate_label)
       if color_normal_o_seleccionado=='yellow':
         canvas.create_rectangle(label_x0, label_y0, label_x0 + label_width, label_y0 + label_height, outline=color_normal_o_seleccionado, tags=self.name+'lblrect')
       txt_ident = canvas.create_text(label_x0+2, label_y0+2,text=self.name,fill=color_avo,tag=self.name+'ind',anchor=NW,font=label_font)
@@ -813,6 +1150,7 @@ class Airplane:
 	but_Acp.grid(row=3, column=0, columnspan=2,)
 	but_Can.grid(row=4, column=0, columnspan=2)
 	window_ident = canvas.create_window(e.x, e.y, window=win)
+        ent_CFL.focus_set()
 	def close_win(e=None, ident=window_ident, w=canvas):
                 w.unbind_all("<Return>")
                 w.unbind_all("<KP_Enter>")
@@ -830,7 +1168,8 @@ class Airplane:
                 else:
                   ent_CFL.delete(0,END)
                   ent_CFL.insert(0, str(abs(int(self.get_cfl()))))
-	          ent_CFL['bg'] = 'red'                 
+	          ent_CFL['bg'] = 'red'
+                  ent_CFL.focus_set()            
 	def comm():
 		cfl=pfl=ent_PFL.get()
 		print "New CFL=New PFL:", cfl
@@ -841,7 +1180,8 @@ class Airplane:
                 else:
                   ent_CFL.delete(0,END)
                   ent_CFL.insert(0, str(abs(int(self.get_cfl()))))
-	          ent_CFL['bg'] = 'red'                 
+	          ent_CFL['bg'] = 'red'
+                  ent_CFL.focus_set()              
 	but_Comm['command'] = comm
 	but_Acp['command'] = set_FLs
 	but_Can['command'] = close_win
@@ -864,6 +1204,7 @@ class Airplane:
 	but_Can.grid(row=2, column=0, columnspan=2)
 	but_Std.grid(row=3, column=0, columnspan=2)
 	window_ident = canvas.create_window(e.x, e.y, window=win)
+        ent_hdg.focus_set()
 	def close_win(e=None,ident=window_ident,w=canvas):
                 w.unbind_all("<Return>")
                 w.unbind_all("<KP_Enter>")
@@ -879,6 +1220,7 @@ class Airplane:
                   ent_hdg.delete(0,END)
                   ent_hdg.insert(0, str(abs(int(self.get_rate_descend()))))
 	          ent_hdg['bg'] = 'red'
+                  ent_hdg.focus_set()
 	def set_std():
                 print "Standard rate:"
                 self.set_std_rate()
@@ -903,6 +1245,7 @@ class Airplane:
 	but_Acp.grid(row=1, column=0, columnspan=2)
 	but_Can.grid(row=2, column=0, columnspan=2)
 	window_ident = canvas.create_window(e.x, e.y, window=win)
+        ent_hdg.focus_set()
 	def close_win(e=None,ident=window_ident,w=canvas):
                 w.unbind_all("<Return>")
                 w.unbind_all("<KP_Enter>")
@@ -924,7 +1267,7 @@ class Airplane:
       	win = Frame(canvas)
 	lbl_spd = Label(win, text="IAS:")
 	ent_spd = Entry(win, width=3)
-	ent_spd.insert(0, str(int(self.get_speed())))
+	ent_spd.insert(0, str(int(self.get_ias())))
 	but_Acp = Button(win, text="Aceptar")
 	but_Can = Button(win, text="Cancelar")
 	but_Std = Button(win, text="Estandar")
@@ -934,6 +1277,7 @@ class Airplane:
 	but_Can.grid(row=2, column=0, columnspan=2)
 	but_Std.grid(row=3, column=0, columnspan=2)
 	window_ident = canvas.create_window(e.x, e.y, window=win)
+        ent_spd.focus_set()
 	def close_win(e=None,ident=window_ident,w=canvas):
                 w.unbind_all("<Return>")
                 w.unbind_all("<KP_Enter>")
@@ -947,8 +1291,9 @@ class Airplane:
 		  close_win()
                 else:
                   ent_spd.delete(0,END)
-                  ent_spd.insert(0, str(abs(int(self.get_speed()))))
+                  ent_spd.insert(0, str(abs(int(self.get_ias_max()))))
 	          ent_spd['bg'] = 'red'
+                  ent_spd.focus_set()
 	def set_std():
                 self.set_std_spd()
                 print "Standard speed"
@@ -960,11 +1305,12 @@ class Airplane:
         canvas.bind_all("<KP_Enter>",set_speed)
         canvas.bind_all("<Escape>",close_win)
       canvas.tag_bind(spd_identifier, "<1>", change_speed)
+      
       canvas.tag_bind(self.plotid, "<Button-1>", show_hide_fpr)
       canvas.tag_bind(self.name+'eco', "<Button-3>",show_hide_way_point)
 
       # Speed vector
-      speed_pos = s(self.pos,pr((speed_time * self.spd,self.hdg)))
+      speed_pos = s(self.pos,pr((speed_time * self.ground_spd,self.track)))
       aux=do_scale(speed_pos)
       speed_x0=aux[0]
       speed_y0=aux[1]
@@ -977,23 +1323,21 @@ def dist_t(a,b,t):
   return rp(r(pos_a_t,pos_b_t))[0]
  
 def vac(a,b):
-  # Comprueba si es una violación de la separación
-  if not a.is_flying() or not b.is_flying():
+  # Comprueba si es una violaciï¿½ de la separaciï¿½
+  if not (a.esta_asumido and b.esta_asumido):
     return False
-  minsep=7.9  #MINIMA DE SEPARACIÓN HORIZONTAL
-  minvert=9.00 #MINIMA DE SEPARACIÓN VERTICAL
+  minvert=9.00 #MINIMA DE SEPARACIï¿½ VERTICAL
   t=max(a.t,b.t)
-  if dist_t(a,b,t)<minsep and abs(a.alt-b.alt)<minvert:
+  if dist_t(a,b,t)<min_sep and abs(a.alt-b.alt)<minvert:
     return True
   else:
     return False
   
 def pac(a,b):
-  # Aviso de pérdida de separación
-  if not a.is_flying() or not b.is_flying():
+  # Aviso de pï¿½dida de separaciï¿½
+  if not (a.esta_asumido and b.esta_asumido):
     return False
-  aviso=1.0/60.  # PARÁMETRO DE TIEMPO EN EL CUAL SE PREVÉ QUE HAY VAC (1 min)
-  minsep=7.9 # MINIMA DE SEPARACIÓN HORIZONTAL
+  aviso=1.0/60.  # PARï¿½ETRO DE TIEMPO EN EL CUAL SE PREVï¿½QUE HAY VAC (1 min)
   if a.rate==0. and b.rate==0:
     minvert=9.00
   else:
@@ -1001,6 +1345,6 @@ def pac(a,b):
   t=max(a.t,b.t) #Tiempo actual
   svert=a.alt+aviso*a.rate
   for i in range(1,2):
-    if dist_t(a,b,t+aviso*i/2)<minsep and abs(a.alt+aviso*a.rate*i/2-b.alt-aviso*b.rate*i/2)<minvert:
+    if dist_t(a,b,t+aviso*i/2)<min_sep and abs(a.alt+aviso*a.rate*i/2-b.alt-aviso*b.rate*i/2)<minvert:
       return True
   return False

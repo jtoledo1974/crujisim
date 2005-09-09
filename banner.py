@@ -1,3 +1,24 @@
+#!/usr/bin/python
+#-*- coding:iso8859-15 -*-
+
+# (c) 2005 CrujiMaster (crujisim@yahoo.com)
+#
+# This file is part of CrujiSim.
+#
+# CrujiSim is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# CrujiSim is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Foobar; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
 from Tix import *
 from Tkconstants import *
 import Image
@@ -21,7 +42,7 @@ def get_fires():
       for nombre in fir_uir:
         config.readfp(open(nombre,'r'))
         lista.append([config.get('datos','nombre'),nombre])
-    # Ahora s�lo hay que ordenarlos
+    # Ahora sólo hay que ordenarlos
     lista.sort()
     return lista
 
@@ -36,9 +57,9 @@ def get_sectores(fir):
     lista=[]
     config.readfp(open(archivo,'r'))
     for sector in config.sections():
-      if sector[0:6]=='SECTOR':
+      if sector[0:6]=='sector':
         lista.append([config.get(sector,'nombre'),sector])
-    # Ahora ordeno alfab�ticamente los sectores
+    # Ahora ordeno alfabéticamente los sectores
     lista.sort()
     return lista
 
@@ -52,7 +73,15 @@ def get_ejercicios(fir,sector):
       fir_eje=config.get('datos','fir')
       sector_eje=config.get('datos','sector')
       if fir_eje==fir and sector_eje==sector:
-        lista.append([config.get('datos','comentario'),a])
+        if config.has_option('datos','comentario'):
+          aux = config.get('datos','comentario')
+          if [aux,a] in lista:
+            print 'Comentario de archivo '+a+' ya está en otro archivo. Se ignora'
+          else:
+            lista.append([aux,a])
+        else:
+          print 
+          print 'Ejercicio '+a+' no tiene línea de comentario'
       aux=config.sections()
       for a in aux:
         config.remove_section(a)
@@ -70,7 +99,9 @@ def load_image(image_name):
         return tkimg
 
 def seleccion_usuario():
-	global sector_list, ejer_list
+	global sector_list, ejer_list, accion
+	accion = '' # Will indicate if user wishes to run ("ejecutar") / modify ("modificar") the
+	            # selected simulation, or create a new ("nueva") one.
 	
 	root = Tk()	
 	banner_image = load_image("banner")
@@ -113,8 +144,16 @@ def seleccion_usuario():
 		for e in ejer_list:
 			omEjercicio.add_command(e)
 
-	butAceptar = Button(root, text="Aceptar")
-	butAceptar.pack(side=TOP)
+	frmAcciones = Frame(root)
+	butAceptar = Button(frmAcciones, text="Practicar")
+	butAceptar.pack(side=LEFT)
+	
+	butModificar = Button(frmAcciones, text="Modificar")
+	butModificar.pack(side=LEFT)
+	
+	butCrear = Button(frmAcciones, text="Crear pasada")
+	butCrear.pack(side=LEFT)
+	frmAcciones.pack(side=TOP)
 
         def salir(e=None):
                 sys.exit(0)
@@ -163,11 +202,31 @@ def seleccion_usuario():
 	root.after_idle(set_splash_size)
 	
 	def devolver_seleccion(e=None):
+		global accion
 		ejercicio_elegido = varEjercicio.get()
 		print "Ejercicio: '"+ejercicio_elegido+"'"
 		if not(ejercicio_elegido in ["", "--------", '()']):
+			accion = "ejecutar"
 			root.destroy()
 	butAceptar['command'] = devolver_seleccion
+	
+	def devolver_modificar(e=None):
+		global accion
+		ejercicio_elegido = varEjercicio.get()
+		print "Ejercicio: '"+ejercicio_elegido+"'"
+		if not(ejercicio_elegido in ["", "--------", '()']):
+			accion = "modificar"
+			root.destroy()
+	butModificar['command'] = devolver_modificar
+	
+	def devolver_nueva(e=None):
+		global accion
+		ejercicio_elegido = varEjercicio.get()
+		print "Ejercicio: '"+ejercicio_elegido+"'"
+		if not(ejercicio_elegido in ["", "--------", '()']):
+			accion = "nueva"
+			root.destroy()
+	butCrear['command'] = devolver_nueva
 	
 	root.mainloop()
 	fir = varFIR.get()
@@ -183,4 +242,4 @@ def seleccion_usuario():
 	ejercicio_elegido = [x for x in get_ejercicios(fir, sector) if x[0]==ejercicio][0]
 	print 'Ejercicio elegido:',ejercicio_elegido
 	print "Exiting with selection:", (fir_elegido, sector_elegido, ejercicio_elegido)
-	return [fir_elegido, sector_elegido, ejercicio_elegido, 1]
+	return [accion, fir_elegido, sector_elegido, ejercicio_elegido, 1]
