@@ -71,7 +71,7 @@ _TMA6:130.50,33.75
 tma_bilbao: _BLV1,_BLV2,_BLV3,_BLV4,_BLV5,_BLV1
 tma_madrid: _TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6
 [sector1]
-nombre:DGO X 6
+nombre:DOMINGO
 min_sep = 0.1
 auto_departure = AUTO
 limites:_DGO1,PATEL,BELEN,_DGO2,ENDAY,IRATI,RONKO,LARDA,_DGO3,PINAR,_DGO4,CUCAS,BEMRA,FERMO,_DGO1
