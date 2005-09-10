@@ -225,7 +225,7 @@ def ejercicio():
     ent_viento = Entry (root, width=10, bg='white')
     ent_viento.insert(END, viento)
     def siguiente(e=None):
-      global fichero
+      global txt_nombre, txt_fir, txt_sector, txt_hora, fichero, txt_coment, txt_viento
       correcto = True
       viento = ent_viento.get()
       if viento == '' or len(viento.split(',')) ==2:
@@ -257,7 +257,6 @@ def ejercicio():
         ejer.set('datos','hora_inicio',(hora_inicio[0:2]+':'+hora_inicio[2:4]))
         ejer.set('datos','comentario',descrip)
         ejer.set('datos','viento',viento)
-        global txt_nombre, txt_fir, txt_sector, txt_hora, fichero, txt_coment, txt_viento
         txt_nombre['text'] = 'Fichero: '+fichero
         txt_fir['text'] = 'fir: '+ejer.get('datos','fir')
         txt_sector["text"] = 'sector: '+ejer.get('datos','sector')
