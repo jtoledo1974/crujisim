@@ -111,32 +111,35 @@ def seleccion_usuario():
 	root.wm_overrideredirect(1)
 	banner_canvas = Canvas(root, width=w, height=h)
 	banner_canvas.create_image(0, 0, image=banner_image, anchor=N+W)
-	banner_canvas.pack(side=TOP)
+	banner_canvas.grid(row=0,columnspan=2, sticky=N)
 	
+	Label(root, text="FIR:").grid(row=1,column=0, sticky=E)
 	fir_list = [x[0] for x in get_fires()]
 	print "FIRes:", fir_list
 	varFIR = StringVar()
-	omFIR = OptionMenu(root, label="FIR:", variable=varFIR)
-	omFIR.pack(side=TOP)
+	omFIR = OptionMenu(root, variable=varFIR)
+	omFIR.grid(row=1,column=1, sticky=W)
 	for f in fir_list:
 		omFIR.add_command(f)
 	
+	Label(root, text="Sector:").grid(row=2,column=0, sticky=E)
 	sector_list = ["--------"]
 	varSector = StringVar()
-	omSector = OptionMenu(root, label="Sector:", variable=varSector)
-	omSector.pack(side=TOP)
+	omSector = OptionMenu(root, variable=varSector)
+	omSector.grid(row=2, column=1, sticky=W)
 	for s in sector_list:
 		omSector.add_command(s)
 	
+	Label(root, text="Ejercicio:").grid(row=3,column=0, sticky=E)
 	ejer_list = ["--------"]
 	varEjercicio = StringVar()
 	if sys.platform.startswith('linux'):
-		omEjercicio = ComboBox(root, label="Ejercicio:", variable=varEjercicio)
+		omEjercicio = ComboBox(root, variable=varEjercicio)
 		omEjercicio.subwidget('listbox').configure(width=40)
 		omEjercicio.subwidget('entry').configure(width=40)
 	else:
-		omEjercicio = OptionMenu(root, label="Ejercicio:", variable=varEjercicio)
-	omEjercicio.pack(side=TOP)
+		omEjercicio = OptionMenu(root, variable=varEjercicio)
+	omEjercicio.grid(row=3, column=1, sticky=W)
 	if sys.platform.startswith('linux'):
 		for e in ejer_list:
 			omEjercicio.insert(END, e)
@@ -146,19 +149,19 @@ def seleccion_usuario():
 
 	frmAcciones = Frame(root)
 	butAceptar = Button(frmAcciones, text="Practicar")
-	butAceptar.pack(side=LEFT)
+	butAceptar.grid(row=0, column=0, padx=1)
 	
 	butModificar = Button(frmAcciones, text="Modificar")
-	butModificar.pack(side=LEFT)
+	butModificar.grid(row=0,column=1, padx=1)
 	
 	butCrear = Button(frmAcciones, text="Crear pasada")
-	butCrear.pack(side=LEFT)
-	frmAcciones.pack(side=TOP)
+	butCrear.grid(row=0,column=2, padx=1)
+	frmAcciones.grid(row=4, column=1, sticky=E, padx=5, pady=5)
 
         def salir(e=None):
                 sys.exit(0)
-        butSalir = Button(root, text="Salir", command=salir)
-        butSalir.pack(side=TOP)
+        butSalir = Button(frmAcciones, text="Salir", command=salir)
+        butSalir.grid(row=0, column=3, padx=1)
 
 	def change_fir(e=None):
 		global sector_list
