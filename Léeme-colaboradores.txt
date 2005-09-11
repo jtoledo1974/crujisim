@@ -17,12 +17,16 @@ biblioteca que se ajuste a la versión de Python instalada).
 El código fuente se guarda en un repositorio, un sistema de control de
 versiones. Esto significa que muchas personas pueden trabajar a la vez sobre
 el mismo proyecto sin interferirse, y puesto que cada cambio queda
-almacenado en caso de haber introuducido un error es trivial volver atrás a
+almacenado en caso de haber introducido un error es trivial volver atrás a
 una versión que sí funcionaba.
 
 El sistema de control de versiones es SVN. En windows es posible acceder a
 él directamente desde el explorador utilizando un pequeño programa
-disponible en http://tortoisesvn.tigris.org/ . El repositorio se almacena en
+disponible en http://tortoisesvn.tigris.org/ . En Linux hay también
+interfaces gráficos: el esvn está bastante bien, y el tksvn está un poco
+verde pero tiene buena pinta. Hay también un módulo para el editor emacs,
+que se llama psvn.
+El repositorio se almacena en
 http://lazaro.cable.nu:88/svn/crujisim/trunk , y es accesible en modo sólo
 lectura usando el usuario y contraseña crujisim/crujisim
 
@@ -33,7 +37,10 @@ trabajo con los cambios que hayan introducido el resto de compañeros, y
 hacer un commit cada vez que nosotros hagamos un cambio sobre un archivo
 para que los compañeros puedan verlo cuando ellos hagan un commit. No
 importa si dos personas han hecho cambios sobre un mismo archivo. El sistema
-integra ambos cambios.
+integra ambos cambios. (Si casualmente las dos personas han tocado en la
+misma parte de un archivo, el subversion informará al segundo de que no
+puede integrar automáticamente los cambios, para que lo haga él mismo
+a mano.)
 
 Existe un librito en línea que explica con más detalle el funcionamiento del
 sistema. Está disponible en español en 
