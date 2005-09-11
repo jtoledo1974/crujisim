@@ -1164,6 +1164,7 @@ class Airplane:
 		self.set_pfl(int(pfl))
 		flag = self.set_cfl(int(cfl))
 		if flag:
+                  self.redraw(canvas)
                   close_win()
                 else:
                   ent_CFL.delete(0,END)
@@ -1176,6 +1177,7 @@ class Airplane:
 		self.set_pfl(int(pfl))
 		flag = self.set_cfl(int(cfl))
 		if flag:
+                  self.redraw(canvas)
                   close_win()
                 else:
                   ent_CFL.delete(0,END)
