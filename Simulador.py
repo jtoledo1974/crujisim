@@ -70,7 +70,8 @@ set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,proce
 size=2
 
 root=Tk()
-root.wm_iconbitmap('crujisim.ico')
+if sys.platform.startswith('win'):
+	root.wm_iconbitmap('crujisim.ico')
 root.wm_title('Crujisim')
 
 var_vect_vel = IntVar()
