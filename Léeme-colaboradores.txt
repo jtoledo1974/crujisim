@@ -1,0 +1,44 @@
+GUÍA PARA NUEVOS COLABORADORES
+------------------------------
+
+
+1. Herramientas de Desarrollo
+
+El programa está desarrollado en Python, de modo que funciona tanto en
+Windows como Linux. Para poder trabajar en windows es necesario bajarse el
+intérprete desde http://www.python.org/download/ . Además hay que instalar
+también una biblioteca adicional, la Python Imaging Library, disponible en
+http://www.pythonware.com/products/pil/ (debe bajarse la versión de la
+biblioteca que se ajuste a la versión de Python instalada).
+
+
+2. Sistema de revisión de código
+
+El código fuente se guarda en un repositorio, un sistema de control de
+versiones. Esto significa que muchas personas pueden trabajar a la vez sobre
+el mismo proyecto sin interferirse, y puesto que cada cambio queda
+almacenado en caso de haber introuducido un error es trivial volver atrás a
+una versión que sí funcionaba.
+
+El sistema de control de versiones es SVN. En windows es posible acceder a
+él directamente desde el explorador utilizando un pequeño programa
+disponible en http://tortoisesvn.tigris.org/ . El repositorio se almacena en
+http://lazaro.cable.nu:88/svn/crujisim/trunk , y es accesible en modo sólo
+lectura usando el usuario y contraseña crujisim/crujisim
+
+El funcionamiento básico es tan simple que se puede explicar en un solo
+párrafo. Hacer un checkout para obtener una copia de trabajo de la última
+versión disponible. Hacer updates regularmente para actualizar la copia de
+trabajo con los cambios que hayan introducido el resto de compañeros, y
+hacer un commit cada vez que nosotros hagamos un cambio sobre un archivo
+para que los compañeros puedan verlo cuando ellos hagan un commit. No
+importa si dos personas han hecho cambios sobre un mismo archivo. El sistema
+integra ambos cambios.
+
+Existe un librito en línea que explica con más detalle el funcionamiento del
+sistema. Está disponible en español en 
+http://svnbook.red-bean.com/es/1.1/index.html
+
+
+--
+$Id$
