@@ -34,7 +34,7 @@ def tpv():
   rutas = []
   limites = []
   a_convertir = glob.glob('83*.eje')
-  #Elecciï¿½ del fir,sector y ejercicio
+  #Elección del fir,sector y ejercicio
   config=ConfigParser()
   config.readfp(open('Madrid.fir','r'))
   # Puntos del FIR

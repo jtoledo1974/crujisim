@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #-*- coding:iso8859-15 -*-
 
-# Movimiento de un mï¿½il con velocidad uniforme
+# Movimiento de un móvil con velocidad uniforme
 
 # (c) 2005 CrujiMaster (crujisim@yahoo.com)
 #
@@ -129,7 +129,7 @@ def v(self):
   inicio_app = 39.
   trans_tma = 70.
   vel_tma = 153.
-  if self.alt<=inicio_app: # Velocidad de aproximaciï¿½
+  if self.alt<=inicio_app: # Velocidad de aproximación
     return self.spd_app
   elif self.alt<=trans_tma: # Transiciï¿½ entre vel aprox y tma
     p=(self.alt-inicio_app)/(trans_tma - inicio_app)
@@ -256,7 +256,7 @@ def get_hdg_obj(self,deriva,t):
       rdl_actual=rdl_actual-360.0
     elif rdl>180.0 and rdl_actual<rdl-180.0:
       rdl_actual=rdl_actual+360.0
-    ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posiciï¿½ actual
+    ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posición actual
     (rdlx,rdly)=pr((1.0,self.to_do_aux[1]))
     dist_perp = abs(rx * rdly - ry * rdlx)
     if dist_perp < 0.1: # Consideramos que estï¿½en el radial
@@ -274,7 +274,7 @@ def get_hdg_obj(self,deriva,t):
   elif self.to_do == 'app':
     (puntos_alt,llz,puntos_map) = proc_app[self.fijo_app]
     [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
-    if len(self.route) == 0: # Es el primer acceso a app desde la espera. Se aï¿½den los puntos
+    if len(self.route) == 0: # Es el primer acceso a app desde la espera. Se añaden los puntos
       for [a,b,c,h] in puntos_alt:
         self.route.append([a,b,c])
       self.route.append([xy_llz,'_LLZ',''])
@@ -335,7 +335,7 @@ def get_hdg_obj(self,deriva,t):
           rdl_actual=rdl_actual-360.0
         elif rdl>180.0 and rdl_actual<rdl-180.0:
           rdl_actual=rdl_actual+360.0
-        ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posiciï¿½ actual
+        ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posición actual
         (rdlx,rdly)=pr((1.0,rdl))
         dist_perp = abs(rx * rdly - ry * rdlx)
         if dist_perp < 0.1: # Consideramos que estï¿½en el radial
@@ -355,7 +355,7 @@ def get_hdg_obj(self,deriva,t):
               rdl_actual=rdl_actual-360.0
             elif rdl>180.0 and rdl_actual<rdl-180.0:
               rdl_actual=rdl_actual+360.0
-            ang_aux2=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posiciï¿½ actual
+            ang_aux2=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posición actual
             if ang_aux*ang_aux2 > 0.:
               return self.hold_hdg - deriva
             else:
@@ -382,7 +382,7 @@ class Airplane:
     self.hist=[] #Histï¿½ico ltimos 5 puntos
     self.hist_t=0.0 # Tiempo del ltimo punto
     self.hdg=400.0 # ï¿½timo rumbo calculado. Este valor es para saber la primera vez
-    self.track = 400.0 # Derrota del aviï¿½
+    self.track = 400.0 # Derrota del avión
     self.hold_hdg=400.0 
     self.alt=350.0 # Altitud
     self.cfl=350.0 # Altitud autorizada
@@ -405,7 +405,7 @@ class Airplane:
     self.ias=300. # Velocidad indicada
     self.ias_obj = 0.
     self.route=[[(-8.0,10.0),'punto','00:00']] #Ruta con los puntos
-    self.turn=3.0*60.*60. #Los mï¿½imos grados por segundo que vira el aviï¿½
+    self.turn=3.0*60.*60. #Los mï¿½imos grados por segundo que vira el avión
     self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo
     self.to_do='fpr'
     self.to_do_aux = ''
@@ -433,13 +433,13 @@ class Airplane:
 
   def next(self,t):
     global wind, aeropuertos
-    # Devuelve la posiciï¿½ en el tiempo t
+    # Devuelve la posición en el tiempo t
     if t<self.t:
       self.se_pinta=False
       return self.se_pinta # Con esto activamos los vuelos a la hora inicial y se dejan
     else:
       self.se_pinta=1
-    # Cï¿½culo de la altitud
+    # Cálculo de la altitud
     if self.cfl>self.alt:
       if self.es_std:
         self.rate = self.rate_climb_std * f_vert(self)
@@ -457,7 +457,7 @@ class Airplane:
       self.es_std=True
     else:
       self.alt=self.alt+inch
-    # Iteraciï¿½ para encontrar la posiciï¿½
+    # Iteraciï¿½ para encontrar la posición
     while t>=self.t+1./60./60.:
       aux_v = v(self)
       inc_v_max = 1.5 * (t-self.t) * 60. * 60. #Inc. v = 90kts/min TAS
@@ -536,7 +536,7 @@ class Airplane:
         self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc.de t sin viento
         efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
         self.t=t #Almacenamos el tiempo
-      self.pos=s(s(self.pos,pr((self.salto,self.hdg))),efecto_viento) #Cambiamos la posiciï¿½
+      self.pos=s(s(self.pos,pr((self.salto,self.hdg))),efecto_viento) #Cambiamos la posición
     # Recï¿½culo del histï¿½ico cada 5 segundos
     step=5./60./60.
     while self.t-self.hist_t>step:
@@ -776,7 +776,7 @@ class Airplane:
         global seleccionado
         if seleccionado<>self:
           return
-        print 'Ventana kilear aviï¿½',self.name
+        print 'Ventana kilear avión',self.name
         win = Frame(canvas)
         but_kill = Button(win, text="Terminar "+self.name)
         but_cancel = Button(win, text="Cancelar")

@@ -117,7 +117,7 @@ set_label_font(label_font)
 set_label_font_size(label_font_size)
 
 
-# Definiciï¿½ de LAD's en el canvas
+# Definición de LAD's en el canvas
 class fix_point:
   def __init__(self,coord):
     self.pos = coord
@@ -161,7 +161,7 @@ def cancel_def_lad(e, canvas = w):
     # No se estaba definiendo un LAD. Ignorar evento
     return
   elif definiendo_lad == 1:
-    # Se estaba definiendo un LAD. Cancelar definiciï¿½.
+    # Se estaba definiendo un LAD. Cancelar definición.
     canvas.delete('lad_defined')
     canvas.unbind('<Motion>')
     canvas.delete('lad_defined')
@@ -218,10 +218,10 @@ def end_def_lad(e, canvas = w):
     # No se estaba definiendo un LAD. Ignorar evento
     return
   elif definiendo_lad == 1:
-    # Se estaba definiendo un LAD. Terminar definiciï¿½...
-#     # ... salvo que se haya tirado un LAD entre un aviï¿½ y ï¿½ mismo!
+    # Se estaba definiendo un LAD. Terminar definición...
+#     # ... salvo que se haya tirado un LAD entre un avión y ï¿½ mismo!
 #     if lad_origen == self:
-#           print "LAD entre un aviï¿½ y ï¿½ mismo. Ignorando..."
+#           print "LAD entre un avión y ï¿½ mismo. Ignorando..."
 #           return
     canvas.delete('lad_defined')
     canvas.unbind('<Motion>')
@@ -251,7 +251,7 @@ def see_hide_fpr(e, canvas = w):
   if acft.get_ground_speed()<50.:
     return
   else:
-    # Copia del cï¿½igo en avion.py
+    # Copia del código en avion.py
     if canvas.itemcget(acft.name+'fpr',"fill")=='orange':
       canvas.delete(acft.name+'fpr')
     else:
@@ -479,11 +479,11 @@ def manual_dep_window_update(t):
         win_datos = w.create_window(x,y,window=dep,anchor='nw')
         def despegue_avo(callsign=callsign,sid=sid):
           global listado_salidas,manual
-          # Ecoger el aviï¿½ a despegar
+          # Ecoger el avión a despegar
           for a in ejercicio:
             if a.get_callsign() == callsign:
               break
-          # Tomamos la sid escogida y la asignada automï¿½icamente
+          # Tomamos la sid escogida y la asignada automáticamente
           sid_final = combo_sid.cget('value')
           cfl = float(combo_cfl.cget('value'))
           if sid.upper() not in sid_final.upper():
@@ -496,7 +496,7 @@ def manual_dep_window_update(t):
                 a.route.insert(0,[(x,y),p,''])
                 complete_flight_plan(a)
                 break
-          # Ahora se depega el aviï¿½ y se elimina de la lista
+          # Ahora se depega el avión y se elimina de la lista
           a.t = last_update/60./60.
           a.t_ficha = last_update/60./60.-100.
           a.ficha_imprimida = True
@@ -672,7 +672,7 @@ def se_cortan (label_modif,i,j):
     (xip,yip) = do_scale(ejercicio[i].get_coords())
     xis , yis = xip + label_modif[i][0] , yip + label_modif[i][1]
     xii , yii = xis + ejercicio[i].label_width , yis + ejercicio[i].label_height
-    # Comprobamos las cuatro esquinas del aviï¿½ j y que no se corten los soportes de etiquetas, asï¿½como ningn plot
+    # Comprobamos las cuatro esquinas del avión j y que no se corten los soportes de etiquetas, asícomo ningn plot
     if ejercicio[j].is_flying():
       (xjp,yjp) = do_scale(ejercicio[j].get_coords())
       xjs , yjs = xjp + label_modif[j][0] , yjp + label_modif[j][1]
@@ -753,7 +753,7 @@ def timer():
           if se_cortan(labels,i,j):
             intersectan = intersectan + 1
             if (j not in moviendo) and (ejercicio[j].auto_separation) and len(moviendo)<10:
-#               print 'Aï¿½diendo ',ejercicio[j].get_callsign()
+#               print 'Añadiendo ',ejercicio[j].get_callsign()
               moviendo.append(j)
               cuenta.append(0)
               giro_min.append(0)
@@ -782,12 +782,12 @@ def timer():
           if intersectan_girado < menos_inter:
             menos_inter = intersectan_girado
             cuenta_menos_inter = cuenta
-          # Comprobamos que no estemos afectando a ningn otro aviï¿½ con el reciï¿½ girado. En caso contrario, se aï¿½de
+          # Comprobamos que no estemos afectando a ningn otro avión con el reciï¿½ girado. En caso contrario, se añade
           if intersectan_girado == 0:
             for k in moviendo:
               for j in range(len(ejercicio)):
                 if (j not in moviendo) and (len(moviendo)<10) and se_cortan(labels,j,k):
-#                   print 'Aï¿½diendo ',ejercicio[j].get_callsign()
+#                   print 'Añadiendo ',ejercicio[j].get_callsign()
                   intersectan_girado += 1
                   moviendo.append(j)
                   cuenta.append(0)
@@ -910,7 +910,7 @@ def b_standard():
 def b_inicio():
   global t0,reloj_funciona
   if not reloj_funciona:
-#     print 'Iniciando simulaciï¿½'
+#     print 'Iniciando simulación'
     t0=fact_t*time()-h_inicio
     reloj_funciona = True
 #   print reloj_funciona
@@ -918,7 +918,7 @@ def b_inicio():
 def b_parar():
   global h_inicio,reloj_funciona
   if reloj_funciona:
-#     print 'Parando la simulaciï¿½'
+#     print 'Parando la simulación'
     h_inicio=fact_t*time()-t0
     reloj_funciona=False
   
@@ -1059,7 +1059,7 @@ def define_holding():
               for i in range(len(sel.route)):
                 [a,b,c] = sel.route[i]
                 if b == fijo:
-                  if i == 0: # La espera se inicia en el siguiente punto del aviï¿½
+                  if i == 0: # La espera se inicia en el siguiente punto del avión
                     auxi = sel.pos
                   else:
                     auxi = sel.route[i-1][0]
@@ -1084,7 +1084,7 @@ def define_holding():
               sel.vfp = False
               sel.to_do = 'hld'
               sel.to_do_aux = [auxiliar, derrota_acerc, tiempo_alej, 0.0, False, giro]
-              # Cancelar posible autorizaciï¿½ de aproximaciï¿½
+              # Cancelar posible autorización de aproximación
               cancel_app_auth(sel)
               print "Holding pattern:", sel.to_do_aux
               close_win()
@@ -1177,7 +1177,7 @@ def hdg_after_fix():
         sel=a
     if sel == None:
       win = Frame(w)
-      txt_ruta0 = Label (win,text='Rumbo despuï¿½ de fijo')
+      txt_ruta0 = Label (win,text='Rumbo después de fijo')
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
       but_acept = Button(win, text="Aceptar")
       txt_ruta0.pack(side=TOP)
@@ -1195,7 +1195,7 @@ def hdg_after_fix():
         w.delete(vent_ident_procs)
         vent_ident_procs = None
         win = Frame(w)
-      title = Label(win, text = 'Rumbo despuï¿½ de fijo: '+sel.get_callsign())
+      title = Label(win, text = 'Rumbo después de fijo: '+sel.get_callsign())
       lbl_fix = Label(win, text="Fijo:")
       ent_fix = Entry(win, width=5)
       ent_fix.insert(0, str(sel.route[0][1]))
@@ -1365,9 +1365,9 @@ def b_execute_map():
         sel=a
     if sel == None or not sel.app_auth:
       win = Frame(w)
-      txt_ruta0 = Label (win,text='Asignar ejecuciï¿½ aproximaciï¿½ frustrada')
+      txt_ruta0 = Label (win,text='Asignar ejecuciï¿½ aproximación frustrada')
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      txt2_ruta = Label (win,text='O EL VUELO NO ESTï¿½AUTORIZADO APP ',fg='red')
+      txt2_ruta = Label (win,text='O EL VUELO NO ESTÁ AUTORIZADO APP ',fg='red')
       but_acept = Button(win, text="Aceptar")
       txt_ruta0.pack(side=TOP)
       txt_ruta.pack(side=LEFT)
@@ -1438,7 +1438,7 @@ def b_int_llz():
       if sel.fijo_app == 'N/A':
         win = Frame(w)
         txt_ruta0 = Label (win,text='Interceptar localizador y seguir senda de planeo')
-        txt_ruta = Label (win,text='VUELO SIN IAF, aï¿½da ruta al IAF y reintente ',fg='red')
+        txt_ruta = Label (win,text='VUELO SIN IAF, añada ruta al IAF y reintente ',fg='red')
         but_acept = Button(win, text="Aceptar")
         txt_ruta0.pack(side=LEFT)
         txt_ruta.pack(side=LEFT)
@@ -1480,7 +1480,7 @@ def b_int_llz():
               sel.route = [[xy_llz,'_LLZ','']]
               sel.int_loc = True
               (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
-              # En este paso se desciende el trï¿½ico y se aï¿½den los puntos
+              # En este paso se desciende el tráfico y se añaden los puntos
               print 'Altitud: ',puntos_alt[0][3]
               sel.set_cfl(puntos_alt[0][3]/100.)
               sel.set_std_rate()
@@ -1521,7 +1521,7 @@ def b_int_loc_no_GP():
       if sel.fijo_app == 'N/A':
         win = Frame(w)
         txt_ruta0 = Label (win,text='Interceptar localizador')
-        txt_ruta = Label (win,text='VUELO SIN IAF, aï¿½da ruta al IAF y reintente ',fg='red')
+        txt_ruta = Label (win,text='VUELO SIN IAF, añada ruta al IAF y reintente ',fg='red')
         but_acept = Button(win, text="Aceptar")
         txt_ruta0.pack(side=LEFT)
         txt_ruta.pack(side=LEFT)
@@ -1681,7 +1681,7 @@ def b_auth_approach():
         sel=a
     if sel == None:
       win = Frame(w)
-      txt_ruta0 = Label (win,text='Autorizar a aproximaciï¿½')
+      txt_ruta0 = Label (win,text='Autorizar a aproximación')
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
       but_acept = Button(win, text="Aceptar")
       txt_ruta0.pack(side=TOP)
@@ -1740,7 +1740,7 @@ def b_auth_approach():
               if avo.fijo_app == '': # No encuentra procedimiento de aprox.
                 pass
               (puntos_alt,llz,puntos_map) = proc_app[avo.fijo_app]
-              # En este paso se desciende el trï¿½ico y se aï¿½den los puntos
+              # En este paso se desciende el tráfico y se añaden los puntos
               print 'Altitud: ',puntos_alt[0][3]
               avo.set_cfl(puntos_alt[0][3]/100.)
               if avo.to_do == 'hld':
@@ -1754,7 +1754,7 @@ def b_auth_approach():
                 for [a,b,c,h] in puntos_alt:
                   avo.route.append([a,b,c])
                 avo.route.append([llz[0],'_LLZ',''])
-              print "Autorizado aproximaciï¿½: ", avo.route
+              print "Autorizado aproximación: ", avo.route
               win_identifier=None
               close_win()
       but_Acp['command'] = auth_app

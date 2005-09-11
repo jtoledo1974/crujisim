@@ -36,7 +36,7 @@ def tpv():
 
   h_inicio=0.
   imprimir_fichas=False
-  #Elecciï¿½ del fir,sector y ejercicio
+  #Elección del fir,sector y ejercicio
   [fir_elegido,sector_elegido,ejercicio_elegido,imprimir_fichas] = g_seleccion_usuario
   print 'Total escogido: ',fir_elegido,sector_elegido,ejercicio_elegido
   punto = []

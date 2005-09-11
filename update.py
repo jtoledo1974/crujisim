@@ -45,7 +45,7 @@ except:
 
 if online_version > current_version:
 	root = Tk()
-	lbl = Label(root, text="Hay una nueva versiï¿½ de los ejercicios en la web. Quieres que la descargue automï¿½icamente?")
+	lbl = Label(root, text="Hay una nueva versión de los ejercicios en la web. Quieres que la descargue automáticamente?")
 	def descarga(e=None):
 		try:
 			conn = httplib.HTTPConnection(server)
@@ -62,20 +62,20 @@ if online_version > current_version:
 				if test_result == None:
 					rename('tmp-ejercicios.zip', 'ejercicios.zip')
 				else:
-					mb = tkMessageBox.Message(type=tkMessageBox.OK, message="Pues parece que el archivo de ejercicios de la web es errï¿½eo... Seguimos con la versiï¿½ anterior!")
+					mb = tkMessageBox.Message(type=tkMessageBox.OK, message="Pues parece que el archivo de ejercicios de la web es erróneo... Seguimos con la versión anterior!")
 					mb.show()
 			else:
-					mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web... Seguimos con la versiï¿½ anterior!")
+					mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web... Seguimos con la versión anterior!")
 					mb.show()
 			conn.close()
 		except:
-			mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web, o el archivo es errï¿½eo... Seguimos con la versiï¿½ anterior!")
+			mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web, o el archivo es erróneo... Seguimos con la versión anterior!")
 			mb.show()
 		root.destroy()
-	butSi = Button(root, text="Sï¿½ esclavo", command=descarga)
+	butSi = Button(root, text="Sí esclavo", command=descarga)
 	def no_descarga(e=None):
 		root.destroy()
-	butNo = Button(root, text="No, gracias. Estoy bien asï¿½, command=no_descarga)
+	butNo = Button(root, text="No, gracias. Estoy bien así, command=no_descarga)
 	lbl.grid(row=0, column=0, columnspan=2)
 	butSi.grid(row=1, column=0)
 	butNo.grid(row=1, column=1)
