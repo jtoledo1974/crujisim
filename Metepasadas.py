@@ -80,7 +80,7 @@ def ejercicio():
   for l_sector in config_fir.sections():
     if l_sector[0:6]=='sector':
       lista_sectores.append(config_fir.get(l_sector,'nombre'))
-  # Ahora ordeno alfabÃ©ticamente los sectores
+  # Ahora ordeno alfabéticamente los sectores
   lista_sectores.sort()
   print lista_sectores
   # Recupero todos los puntos del FIR (solamente nombres)
@@ -115,7 +115,7 @@ def ejercicio():
   # Ahora empezamos introducir el ejercicio
   
   def datos_generales(ventana):
-    # DefiniciÃ³n de los datos generales
+    # Definición de los datos generales
     global fichero
     if  ejer.has_section('datos'):
       fir_elegido = ejer.get('datos','fir')
@@ -164,7 +164,7 @@ def ejercicio():
     
     root = Toplevel(ventana)
     txt_datos = Label (root, text = 'DATOS GENERALES EJERCICIO '+fichero)
-    txt_promo = Label(root,text = 'PromociÃ³n: ')
+    txt_promo = Label(root,text = 'Promoción: ')
     ent_promo = ComboBox(root, bg = 'white', editable = True)
     pick = 2
     for i in range(20,35):
@@ -218,7 +218,7 @@ def ejercicio():
     txt_hora_inicio = Label (root, text = 'Hora de inicio (hhmm):')
     ent_hora_inicio = Entry (root, width = 8, bg='white')
     ent_hora_inicio.insert(END, hora_inicio)
-    txt_descripcion = Label (root, text = 'DescripciÃ³n adicional ejercicio: ')
+    txt_descripcion = Label (root, text = 'Descripción adicional ejercicio: ')
     ent_descripcion = Entry (root, width = 40, bg='white')
     ent_descripcion.insert(END, '')
     txt_viento = Label(root, text = 'Viento (rumbo,intensidad):')
@@ -303,7 +303,7 @@ def ejercicio():
   
   
   def entrada(ind,root):
-    # DefiniciÃ³n de los datos
+    # Definición de los datos
     global ruta_escogida,txt_ruta_esc, otro_avo,grabar
     
     if ind == 'new':
@@ -372,7 +372,7 @@ def ejercicio():
       frame = Toplevel(root)
       txt_fijo_ruta = Label (frame, text = 'Fijo(s) en ruta:')
       ent_fijo_ruta = Label (frame, text = fijo_ruta)
-      txt_num_ruta = Label (frame, text = 'NÃºmero de la ruta')
+      txt_num_ruta = Label (frame, text = 'Número de la ruta')
       ent_num_ruta = Entry (frame, width = 2, bg='white')
       ent_num_ruta.focus_set()
       copia = []
@@ -383,7 +383,7 @@ def ejercicio():
           if fijo in aux:
             estan += 1
         if estan == len(fijo_ruta): 
-          # Comprobamos si los fijos estÃ¡n en orden de entrada, y los ponemos primero
+          # Comprobamos si los fijos están en orden de entrada, y los ponemos primero
           orden=0
           for fijo in fijo_ruta:
             for i in range(len(aux)):
@@ -394,10 +394,10 @@ def ejercicio():
                 else:
                   orden = i
           if orden>0:
-            if fijo[0] == aux[0] and orden == len(aux):# Coinciden el primer y el Ãºltimo punto. Van arriba de la lista
+            if fijo[0] == aux[0] and orden == len(aux):# Coinciden el primer y el último punto. Van arriba de la lista
               orden = 0 
-            elif fijo[0] == aux[0] or orden == len(aux):# Coincide el primer o el Ãºltimo punto. Van en segundo lugar
-              orden = 1 # Coincide el Ãºltimo punto
+            elif fijo[0] == aux[0] or orden == len(aux):# Coincide el primer o el último punto. Van en segundo lugar
+              orden = 1 # Coincide el último punto
             else: # Contiene todos los puntos, pero ni comienza ni termina por esos puntos. En tercer lugar
               orden = 2
           else: # No contiene todos los puntos. En cuarto lugar
@@ -441,8 +441,8 @@ def ejercicio():
               # Comprobamos que los puntos existan. En caso contrario avisa
               if pto_no_conocido <> '':
                 punto_desc = Toplevel(frame)
-                txt_att = Label (punto_desc, text = 'ATENCIÃ“N',fg='red')
-                txt_att2 = Label (punto_desc, text = 'Los siguientes puntos no estÃ¡n en ninguna ruta archivada: '+pto_no_conocido, fg='red')
+                txt_att = Label (punto_desc, text = 'ATENCIÓN',fg='red')
+                txt_att2 = Label (punto_desc, text = 'Los siguientes puntos no están en ninguna ruta archivada: '+pto_no_conocido, fg='red')
                 def acept (e=None):
                   punto_desc.destroy()
                 but_ok = Button (punto_desc, text = 'Roger', command = acept)
@@ -519,7 +519,7 @@ def ejercicio():
     txt_ind = Label (frame, text = 'Indicativo:')
     ent_ind = Entry (frame, width = 12, bg='white')
     ent_ind.insert(END,ind)
-    txt_tipo = Label (frame, text = 'Modelo aviÃ³n')
+    txt_tipo = Label (frame, text = 'Modelo avión')
     ent_tipo = Entry (frame, width = 6, bg='white')
     ent_tipo.insert(END,kind)
     txt_estela = Label (frame, text = 'Estela')
@@ -550,7 +550,7 @@ def ejercicio():
     txt_rfl = Label (frame, text = 'Nivel requerido (RFL):')
     ent_rfl = Entry (frame, width = 3, bg = 'white')
     ent_rfl.insert(END,p_rfl)
-    txt_fijo_eto = Label (frame, text = 'Fijo definiciÃ³n hora:')
+    txt_fijo_eto = Label (frame, text = 'Fijo definición hora:')
     ent_fijo_eto = Entry (frame, width = 7, bg = 'white')
     ent_fijo_eto.insert(END,p_fijo)
     txt_eto = Label (frame, text = 'ETO en fijo (hhmmss):')
@@ -787,7 +787,7 @@ def ejercicio():
       def quitar(e=None, call=ind):
         print 'Quitando ',call
         seguro = Toplevel(root)
-        txt_seguro = Label (seguro, text = 'Â¿ Quieres eliminar el '+call.upper()+ '?')
+        txt_seguro = Label (seguro, text = '¿ Quieres eliminar el '+call.upper()+ '?')
         def grabar():
           ejer.remove_option('vuelos',call)
           poner_vuelos(window)
@@ -855,7 +855,7 @@ def ejercicio():
       bye = Tk()
       txt_titulo = Label (bye, text = 'Ejercicio guardado en '+fichero)
       txt_titulo1 = Label (bye, text = 'Para que la puedas usar debes moverla al subdirectorio /pasadas/')
-      txt_titulo2 = Label (bye, text = 'Â¡AcuÃ©rdate de enviarlas al Crujimaster para ponerla en comÃºn!')
+      txt_titulo2 = Label (bye, text = '¡Acuérdate de enviarlas al Crujimaster para ponerla en común!')
       def salir():
         bye.destroy()
       but_salir = Button (bye, text = 'salir', command = salir)

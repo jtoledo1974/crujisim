@@ -42,7 +42,7 @@ def get_fires():
       for nombre in fir_uir:
         config.readfp(open(nombre,'r'))
         lista.append([config.get('datos','nombre'),nombre])
-    # Ahora s√≥lo hay que ordenarlos
+    # Ahora sÛlo hay que ordenarlos
     lista.sort()
     return lista
 
@@ -59,7 +59,7 @@ def get_sectores(fir):
     for sector in config.sections():
       if sector[0:6]=='sector':
         lista.append([config.get(sector,'nombre'),sector])
-    # Ahora ordeno alfab√©ticamente los sectores
+    # Ahora ordeno alfabÈticamente los sectores
     lista.sort()
     return lista
 
@@ -76,12 +76,12 @@ def get_ejercicios(fir,sector):
         if config.has_option('datos','comentario'):
           aux = config.get('datos','comentario')
           if [aux,a] in lista:
-            print 'Comentario de archivo '+a+' ya est√° en otro archivo. Se ignora'
+            print 'Comentario de archivo '+a+' ya est· en otro archivo. Se ignora'
           else:
             lista.append([aux,a])
         else:
           print 
-          print 'Ejercicio '+a+' no tiene l√≠nea de comentario'
+          print 'Ejercicio '+a+' no tiene lÌnea de comentario'
       aux=config.sections()
       for a in aux:
         config.remove_section(a)
