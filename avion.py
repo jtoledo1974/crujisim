@@ -119,7 +119,7 @@ def sgn(a):
   
 def v(self):
   #Devuelve TAS
-  if not self.es_spd_std: # Velocidad mï¿½ima manteniedo IAS
+  if not self.es_spd_std: # Velocidad mínima manteniedo IAS
     ias_max=self.spd_max/(1+0.002*self.fl_max)
     tas_max=ias_max*(1+0.002*self.alt)
     self.ias = self.spd/(1.0+0.002 *self.alt)
@@ -131,10 +131,10 @@ def v(self):
   vel_tma = 153.
   if self.alt<=inicio_app: # Velocidad de aproximación
     return self.spd_app
-  elif self.alt<=trans_tma: # Transiciï¿½ entre vel aprox y tma
+  elif self.alt<=trans_tma: # Transición entre vel aprox y tma
     p=(self.alt-inicio_app)/(trans_tma - inicio_app)
     return self.spd_app*(1.-p)+self.spd_tma*p
-  elif self.alt<=vel_tma: # Transiciï¿½ entre ruta y tma
+  elif self.alt<=vel_tma: # Transición entre ruta y tma
     p=(self.alt-trans_tma)/(vel_tma - trans_tma)
     ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
     return self.spd_tma*(1.-p)+ias_std *(1.0+0.002*self.alt)*p
@@ -150,7 +150,7 @@ def mach(self):
   return self.spd/600
 
 def f_vert(self):
-  # Devuelve factor correcciï¿½ de velocidad vertical
+  # Devuelve factor corrección de velocidad vertical
   q=self.alt/self.fl_max
   if q<.75:
     return 1.0
@@ -188,11 +188,11 @@ def complete_flight_plan(self):
   
   
 def get_hdg_obj(self,deriva,t):
-  # Da el rumbo objetivo en funciï¿½ de la demanda
+  # Da el rumbo objetivo en función de la demanda
   if self.to_do == 'fpr': # Mantener plan de vuelo
-    self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+    self.pto=self.route[0][0] #Punto al que se dirige con corrección de deriva
     self.vect=rp(r(self.pto,self.pos))
-    # Correciï¿½ de deriva
+    # Correción de deriva
     return self.vect[1] - deriva
   elif self.to_do == 'hdg': # Mantener rumbo
     self.vect=rp((2.0*self.ground_spd,self.track))
@@ -200,16 +200,16 @@ def get_hdg_obj(self,deriva,t):
   elif self.to_do == 'hld': #Hacer esperas sobre un punto
 # self.to_do_aux = [[coord,nombre,estim],derrota_acerc, tiempo_alej,Tiempo en alejam. = 0.0,Esta en espera=False/True,giro I=-1.0/D=+1.0]
     if not self.to_do_aux[4] and self.to_do_aux[0] in self.route: # An no ha llegado a la espera, sigue volando en ruta
-      self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+      self.pto=self.route[0][0] #Punto al que se dirige con corrección de deriva
       self.vect=rp(r(self.pto,self.pos))
-      # Correciï¿½ de deriva
+      # Correción de deriva
       return self.vect[1] - deriva
-    else: # Estï¿½dentro de la espera, entramos bucle de la espera
+    else: # Está dentro de la espera, entramos bucle de la espera
       self.to_do_aux[4] = True
-      if not self.to_do_aux[0] in self.route: # El fijo principal debe estar en la ruta. Si no estï¿½ se pone
+      if not self.to_do_aux[0] in self.route: # El fijo principal debe estar en la ruta. Si no está se pone
         self.route.insert(0,self.to_do_aux[0])
-      self.vect=rp((2.0*self.ground_spd,self.track)) # Con esta operaciï¿½ no nos borra el punto de la espera
-      if len(self.to_do_aux)== 6: # Vamos a definir el rumbo objetivo, aï¿½diï¿½dolo al final
+      self.vect=rp((2.0*self.ground_spd,self.track)) # Con esta operación no nos borra el punto de la espera
+      if len(self.to_do_aux)== 6: # Vamos a definir el rumbo objetivo, añadiéndolo al final
         r_acerc = ( self.to_do_aux[1] - deriva) %360.0
         if self.hdg<180.0 and r_acerc>self.hdg+180.0:
           r_acerc -= 360.0
@@ -217,9 +217,9 @@ def get_hdg_obj(self,deriva,t):
           r_acerc += 360.0
         aux=r_acerc-self.hdg
         if aux > -60.0 and aux < 120.0: # Entrada directa
-          r_obj = (self.to_do_aux[1] + 180.0  - deriva) %360. # Rumbo de alejamiento (con correcciï¿½ de deriva)
+          r_obj = (self.to_do_aux[1] + 180.0  - deriva) %360. # Rumbo de alejamiento (con corrección de deriva)
         else:
-          r_obj = -((self.to_do_aux[1] + 180.0  -30.0 * self.to_do_aux[5] - deriva) %360.) # Rumbo de alejamiento (con correcciï¿½ de deriva)
+          r_obj = -((self.to_do_aux[1] + 180.0  -30.0 * self.to_do_aux[5] - deriva) %360.) # Rumbo de alejamiento (con corrección de deriva)
         self.to_do_aux.append(r_obj)
       r_obj = self.to_do_aux[6]
       if r_obj < 0.0:
@@ -227,7 +227,7 @@ def get_hdg_obj(self,deriva,t):
       else:
         if abs(r_obj - self.hdg)>60.0: 
           r_obj = (self.hdg +90.0 * self.to_do_aux[5])%360.0
-      if self.to_do_aux[3] == 0.0 or self.to_do_aux[3] == -10.0: # Estï¿½en el viraje hacia el tramo de alejamiento
+      if self.to_do_aux[3] == 0.0 or self.to_do_aux[3] == -10.0: # Está en el viraje hacia el tramo de alejamiento
         if abs(r_obj - self.hdg) < 1.: # Ha terminado el viraje
           if self.to_do_aux[3] == -10.0:
             self.to_do_aux[4] = False
@@ -241,9 +241,9 @@ def get_hdg_obj(self,deriva,t):
     return r_obj
   elif self.to_do == 'hdg<fix':
     if self.to_do_aux[0] in self.route:
-      self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+      self.pto=self.route[0][0] #Punto al que se dirige con corrección de deriva
       self.vect=rp(r(self.pto,self.pos))
-      # Correciï¿½ de deriva
+      # Correción de deriva
       return self.vect[1] - deriva
     else:
       self.vect=rp((2.0*self.ground_spd,self.track))
@@ -256,10 +256,10 @@ def get_hdg_obj(self,deriva,t):
       rdl_actual=rdl_actual-360.0
     elif rdl>180.0 and rdl_actual<rdl-180.0:
       rdl_actual=rdl_actual+360.0
-    ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posición actual
+    ang_aux=rdl - rdl_actual #  Positivo, el radial estáa la izquierda de posición actual
     (rdlx,rdly)=pr((1.0,self.to_do_aux[1]))
     dist_perp = abs(rx * rdly - ry * rdlx)
-    if dist_perp < 0.1: # Consideramos que estï¿½en el radial
+    if dist_perp < 0.1: # Consideramos que estáen el radial
       self.vect=rp((2.0*self.ground_spd,self.track))
       self.hold_hdg = self.to_do_aux[1]
       return self.to_do_aux[1] - deriva
@@ -278,8 +278,8 @@ def get_hdg_obj(self,deriva,t):
       for [a,b,c,h] in puntos_alt:
         self.route.append([a,b,c])
       self.route.append([xy_llz,'_LLZ',''])
-    if len (self.route) > 1: # An no estï¿½en el localizador, tocamos solamente la altitud y como plan de vuelo
-      if self._map and [xy_llz,'_LLZ',''] not in self.route: # Ya estï¿½frustrando
+    if len (self.route) > 1: # An no estáen el localizador, tocamos solamente la altitud y como plan de vuelo
+      if self._map and [xy_llz,'_LLZ',''] not in self.route: # Ya estáfrustrando
         for [a,b,c,h] in puntos_map:
           if [a,b,c] == self.route[0]:
             self.cfl = h/100.
@@ -289,26 +289,26 @@ def get_hdg_obj(self,deriva,t):
           if [a,b,c] == self.route[0]:
             self.cfl = h/100.
             break
-      self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+      self.pto=self.route[0][0] #Punto al que se dirige con corrección de deriva
       self.vect=rp(r(self.pto,self.pos))
-      # Correciï¿½ de deriva
+      # Correción de deriva
       return self.vect[1] - deriva
     if len(self.route) == 1: # Interceptar localizador y senda de planeo
-      if self._map and [xy_llz,'_LLZ',''] not in self.route: # Ya estï¿½frustrando hacia el ltimo punto, asimilamos a plan de vuelo normal
+      if self._map and [xy_llz,'_LLZ',''] not in self.route: # Ya estáfrustrando hacia el ltimo punto, asimilamos a plan de vuelo normal
         self.to_do = 'fpr'
         self.app_auth = False
         self.app_fix = ''
         self._map = False
-        self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+        self.pto=self.route[0][0] #Punto al que se dirige con corrección de deriva
         self.vect=rp(r(self.pto,self.pos))
-        # Correciï¿½ de deriva
+        # Correción de deriva
         return self.vect[1] - deriva
       else:
         (rx,ry) = r(xy_llz,self.pos) # Coordenadas relativas a la radioayuda
         # Primero intersecta la senda de planeo cuando es inferior. Solamente tocamos el rate de descenso
         dist_thr = rp((rx,ry))[0]-dist_ayuda
         derrota = rp((rx,ry))[1]
-        if abs(dist_thr) < 0.50: # Aviï¿½ aterrizado
+        if abs(dist_thr) < 0.50: # Avión aterrizado
           if (self.alt-alt_pista/100.)>2.or abs(derrota-rdl)>90.: # En caso de estar 200 ft por encima, hace MAP o si ya ha pasado el LLZ
             self._map = True 
           if self._map: # Procedimiento de frustrada asignado
@@ -335,10 +335,10 @@ def get_hdg_obj(self,deriva,t):
           rdl_actual=rdl_actual-360.0
         elif rdl>180.0 and rdl_actual<rdl-180.0:
           rdl_actual=rdl_actual+360.0
-        ang_aux=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posición actual
+        ang_aux=rdl - rdl_actual #  Positivo, el radial estáa la izquierda de posición actual
         (rdlx,rdly)=pr((1.0,rdl))
         dist_perp = abs(rx * rdly - ry * rdlx)
-        if dist_perp < 0.1: # Consideramos que estï¿½en el radial
+        if dist_perp < 0.1: # Consideramos que estáen el radial
           self.esta_en_llz = True
           self.int_loc = False
           self.vect=rp((2.0*self.ground_spd,self.track))
@@ -355,7 +355,7 @@ def get_hdg_obj(self,deriva,t):
               rdl_actual=rdl_actual-360.0
             elif rdl>180.0 and rdl_actual<rdl-180.0:
               rdl_actual=rdl_actual+360.0
-            ang_aux2=rdl - rdl_actual #  Positivo, el radial estï¿½a la izquierda de posición actual
+            ang_aux2=rdl - rdl_actual #  Positivo, el radial estáa la izquierda de posición actual
             if ang_aux*ang_aux2 > 0.:
               return self.hold_hdg - deriva
             else:
@@ -379,9 +379,9 @@ class Airplane:
     self.destino='LEMD'
     self.pos=(0.0,0.0) #x,y
     self.t=0.0 # ltimo tiempo calculado
-    self.hist=[] #Histï¿½ico ltimos 5 puntos
+    self.hist=[] #Histórico ltimos 5 puntos
     self.hist_t=0.0 # Tiempo del ltimo punto
-    self.hdg=400.0 # ï¿½timo rumbo calculado. Este valor es para saber la primera vez
+    self.hdg=400.0 # Último rumbo calculado. Este valor es para saber la primera vez
     self.track = 400.0 # Derrota del avión
     self.hold_hdg=400.0 
     self.alt=350.0 # Altitud
@@ -405,7 +405,7 @@ class Airplane:
     self.ias=300. # Velocidad indicada
     self.ias_obj = 0.
     self.route=[[(-8.0,10.0),'punto','00:00']] #Ruta con los puntos
-    self.turn=3.0*60.*60. #Los mï¿½imos grados por segundo que vira el avión
+    self.turn=3.0*60.*60. #Los mínimos grados por segundo que vira el avión
     self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo
     self.to_do='fpr'
     self.to_do_aux = ''
@@ -457,7 +457,7 @@ class Airplane:
       self.es_std=True
     else:
       self.alt=self.alt+inch
-    # Iteraciï¿½ para encontrar la posición
+    # Iteración para encontrar la posición
     while t>=self.t+1./60./60.:
       aux_v = v(self)
       inc_v_max = 1.5 * (t-self.t) * 60. * 60. #Inc. v = 90kts/min TAS
@@ -496,7 +496,7 @@ class Airplane:
             efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
             self.t = t
             self.route.pop(0)
-          elif self.route[0][1] in aeropuertos: # Si el ltimo punto estï¿½en la lista de aeropuertos, orbita sobre ï¿½
+          elif self.route[0][1] in aeropuertos: # Si el ltimo punto estáen la lista de aeropuertos, orbita sobre él
             if self.to_do == 'fpr': # En caso de que llegue a ese punto en ruta
               self.vfp=False
               for [fijo_pub,rumbo,tiempo,lado] in esperas_publicadas: # Si hay espera publicada, la usa
@@ -537,7 +537,7 @@ class Airplane:
         efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
         self.t=t #Almacenamos el tiempo
       self.pos=s(s(self.pos,pr((self.salto,self.hdg))),efecto_viento) #Cambiamos la posición
-    # Recï¿½culo del histï¿½ico cada 5 segundos
+    # Recálculo del histórico cada 5 segundos
     step=5./60./60.
     while self.t-self.hist_t>step:
       self.hist.pop(0)
@@ -546,7 +546,7 @@ class Airplane:
     return self.se_pinta
         
   def tas(h):
-    #Devuelve TAS en funciï¿½ de la altitud      
+    #Devuelve TAS en función de la altitud      
     if h>250:
       return self.ias*(1+0.002*h)
     elif h<200:
@@ -752,7 +752,7 @@ class Airplane:
   
   
   def se_debe_imprimir(self,t):
-    # Definimos cuï¿½to tiempo antes nos sale la ficha y el tiempo de permanencia del mensaje
+    # Definimos cuánto tiempo antes nos sale la ficha y el tiempo de permanencia del mensaje
     prevision=10./60.
     permanece=2./60.
     if not self.ficha_imprimida and self.t-t<prevision:
@@ -952,7 +952,7 @@ class Airplane:
                           for i in range(len(self.route)):
                             if self.route[i][1] == pto.upper():
                               aux = self.route[i:]
-                          # Si no estï¿½en la ruta, insertamos el punto como n 1
+                          # Si no estáen la ruta, insertamos el punto como n 1
                           if aux == None:
                             for [nombre,coord] in punto:
                               if nombre == pto.upper():
@@ -1325,10 +1325,10 @@ def dist_t(a,b,t):
   return rp(r(pos_a_t,pos_b_t))[0]
  
 def vac(a,b):
-  # Comprueba si es una violaciï¿½ de la separaciï¿½
+  # Comprueba si es una violación de la separación
   if not (a.esta_asumido and b.esta_asumido):
     return False
-  minvert=9.00 #MINIMA DE SEPARACIï¿½ VERTICAL
+  minvert=9.00 #MINIMA DE SEPARACIÓN VERTICAL
   t=max(a.t,b.t)
   if dist_t(a,b,t)<min_sep and abs(a.alt-b.alt)<minvert:
     return True
@@ -1336,10 +1336,10 @@ def vac(a,b):
     return False
   
 def pac(a,b):
-  # Aviso de pï¿½dida de separaciï¿½
+  # Aviso de pérdida de separación
   if not (a.esta_asumido and b.esta_asumido):
     return False
-  aviso=1.0/60.  # PARï¿½ETRO DE TIEMPO EN EL CUAL SE PREVï¿½QUE HAY VAC (1 min)
+  aviso=1.0/60.  # PARÁMETRO DE TIEMPO EN EL CUAL SE PREVÉ QUE HAY VAC (1 min)
   if a.rate==0. and b.rate==0:
     minvert=9.00
   else:

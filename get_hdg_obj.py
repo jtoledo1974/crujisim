@@ -20,11 +20,11 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 def get_hdg_obj(self,deriva):
-  # Da el rumbo objetivo en funciï¿½ de la demanda
+  # Da el rumbo objetivo en función de la demanda
   if self.to_do = 'fpr':
-    self.pto=self.route[0][0] #Punto al que se dirige con correcciï¿½ de deriva
+    self.pto=self.route[0][0] #Punto al que se dirige con corrección de deriva
     self.vect=rp(r(self.pto,self.pos))
-    # Correciï¿½ de deriva
+    # Correción de deriva
     r_obj=self.vect[1] - deriva
   elif self.to_do = 'hdg':
     self.pto=s(self.pos,pr((2*self.ground_spd,self.hold_hdg)))

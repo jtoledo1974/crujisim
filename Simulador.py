@@ -155,7 +155,7 @@ def cancel_def_lad(e, canvas = w):
   if e.serial == latest_lad_event_processed:
       return
   latest_lad_event_processed = e.serial
-  # Cancelar creaciï¿½ de un LAD
+  # Cancelar creación de un LAD
   global definiendo_lad
   if definiendo_lad == 0:
     # No se estaba definiendo un LAD. Ignorar evento
@@ -212,16 +212,16 @@ def def_lad(e, canvas = w):
     canvas.bind('<Button-2>', cancel_def_lad)
 
 def end_def_lad(e, canvas = w):
-  # Fin de creaciï¿½ de un LAD con destino un AVO
+  # Fin de creación de un LAD con destino un AVO
   global definiendo_lad, lad_origen
   if definiendo_lad == 0:
     # No se estaba definiendo un LAD. Ignorar evento
     return
   elif definiendo_lad == 1:
     # Se estaba definiendo un LAD. Terminar definición...
-#     # ... salvo que se haya tirado un LAD entre un avión y ï¿½ mismo!
+#     # ... salvo que se haya tirado un LAD entre un avión y él mismo!
 #     if lad_origen == self:
-#           print "LAD entre un avión y ï¿½ mismo. Ignorando..."
+#           print "LAD entre un avión y él mismo. Ignorando..."
 #           return
     canvas.delete('lad_defined')
     canvas.unbind('<Motion>')
@@ -234,7 +234,7 @@ def end_def_lad(e, canvas = w):
 w.bind('<Button-2>', def_lad)
 w.bind('<Button-3>', end_def_lad)
 
-# Tratamiento del botï¿½ izquierdo con el plan de vuelo sobre el plot
+# Tratamiento del botón izquierdo con el plan de vuelo sobre el plot
 def see_hide_fpr(e, canvas = w):
   global latest_lad_event_processed
 #   print 'Definiendo ruta. Actual, anterior',e.serial,latest_lad_event_processed
@@ -548,7 +548,7 @@ def redraw_all():
   w.delete('reloj')
   w.delete('tmas')
   w.delete('deltas')
-  # Dibujar lï¿½ites del FIR
+  # Dibujar límites del FIR
   aux=()
   for a in limites:
     aux=aux+do_scale(a)
@@ -667,7 +667,7 @@ def set_vel_reloj(k):
   t0=fact_t*time()-h_inicio
 
 def se_cortan (label_modif,i,j):
-  # Devuelve si las etiquetas estï¿½ separadas entre los aviones i y j de ejercicio
+  # Devuelve si las etiquetas está separadas entre los aviones i y j de ejercicio
   if ejercicio[i].is_flying():
     (xip,yip) = do_scale(ejercicio[i].get_coords())
     xis , yis = xip + label_modif[i][0] , yip + label_modif[i][1]
@@ -690,7 +690,7 @@ def se_cortan (label_modif,i,j):
 #       ob_x_vperp = ob1 * v2 - ob2 * v1
 #       oa_x_v = oa1 * v1 + oa2 * v2
 #       ob_x_v = ob1 * v1 + ob2 * v2
-#       cond1 = oa_x_vperp * ob_x_vperp # Negativo si cada uno estï¿½a un lado
+#       cond1 = oa_x_vperp * ob_x_vperp # Negativo si cada uno estáa un lado
 #       if abs(oa_x_vperp) + abs(ob_x_vperp) > 0.:
 #         cond2 = (oa_x_v * abs(ob_x_vperp) + ob_x_v * abs(oa_x_vperp))/(abs(oa_x_vperp) + abs(ob_x_vperp))
 #       else:
@@ -718,7 +718,7 @@ def timer():
   # Subrutina que controla los refrescos de pantalla cada 5 segundos
   global last_update,t0
   refresco=5.
-  # Si el reloj estï¿½parado actualizamos t0 para ajustarque no corra el tiempo y no actualizamos.
+  # Si el reloj estáparado actualizamos t0 para ajustarque no corra el tiempo y no actualizamos.
   if not reloj_funciona:
     t0=fact_t*time()-h_inicio
 #     return
@@ -732,7 +732,7 @@ def timer():
     w.itemconfigure('reloj',text='%02d:%02d:%02d' % (ho, m, s))
   else:
     last_update=tlocal(t0)
-    # Mover los aviones con auto-separaciï¿½
+    # Mover los aviones con auto-separación
     for a in ejercicio:
       a.next(last_update/60./60.)
       a.redraw(w)
@@ -771,7 +771,7 @@ def timer():
               break
             elif cuenta[k]==8: 
               cuenta[k] = 0 
-          # Comprobamos si estï¿½ separados todos entre ellos
+          # Comprobamos si está separados todos entre ellos
           intersectan_girado = 0
           for j in range(len(moviendo)):
             for k in range(j+1,len(moviendo)):
@@ -782,7 +782,7 @@ def timer():
           if intersectan_girado < menos_inter:
             menos_inter = intersectan_girado
             cuenta_menos_inter = cuenta
-          # Comprobamos que no estemos afectando a ningn otro avión con el reciï¿½ girado. En caso contrario, se añade
+          # Comprobamos que no estemos afectando a ningn otro avión con el reción girado. En caso contrario, se añade
           if intersectan_girado == 0:
             for k in moviendo:
               for j in range(len(ejercicio)):
@@ -1042,7 +1042,7 @@ def define_holding():
             fijo = ent_hold.get().upper()
             lado = ent_side.get().upper()
             auxiliar = ''
-            # Si la espera estï¿½publicada, los datos de la espera
+            # Si la espera estápublicada, los datos de la espera
             for [fijo_pub,rumbo,tiempo,lado_pub] in esperas_publicadas:
               if fijo_pub == fijo:
                 lado = lado_pub.upper()
@@ -1365,7 +1365,7 @@ def b_execute_map():
         sel=a
     if sel == None or not sel.app_auth:
       win = Frame(w)
-      txt_ruta0 = Label (win,text='Asignar ejecuciï¿½ aproximación frustrada')
+      txt_ruta0 = Label (win,text='Asignar ejecución aproximación frustrada')
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
       txt2_ruta = Label (win,text='O EL VUELO NO ESTÁ AUTORIZADO APP ',fg='red')
       but_acept = Button(win, text="Aceptar")
@@ -1402,7 +1402,7 @@ def b_execute_map():
               w.delete(ident)
       def exe_map(e=None):
               sel._map = True
-              print "Ejecutarï¿½MAP"
+              print "Ejecutará MAP"
               close_win()
       but_Acp['command'] = exe_map
       but_Can['command'] = close_win
