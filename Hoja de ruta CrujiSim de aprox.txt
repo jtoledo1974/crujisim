@@ -5,7 +5,7 @@ Actualizado a 31/08/05
 ÚLTIMOS RETOQUES PARA CRUJISIM V1 RELEASE
 =========================================
 ERRORES
-MANUEL - Corregir el LAD. Al pinchar el LAD en el primer punto, el texto se superpone a la línea del LAD. Pero al terminar el LAD queda bien
+OK - Corregir el LAD. Al pinchar el LAD en el primer punto, el texto se superpone a la línea del LAD. Pero al terminar el LAD queda bien
 MANUEL - Corregir el error en los binds para el desplazamiento de la etiqueta
 OK - Comprobar los posibles errores en DGOx6.fir
 OK - Corregir procedimientos de entrada en la espera(entrada directa y gota)
