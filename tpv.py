@@ -123,7 +123,7 @@ def tpv():
       lista = config.items('sid_'+pista)
       for (nombre_sid,puntos_sid) in lista:
         last_point = puntos_sid.split(',')[-1]
-        # Cambiamos el formato de puntos para que se pueda aÃ±adir directamente al plan de vuelo
+        # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
         points_sid = []
         for nombre_punto in puntos_sid.split(','):
           punto_esta=False
@@ -141,7 +141,7 @@ def tpv():
       lista = config.items('star_'+pista)
       for (nombre_star,puntos_star) in lista:
         last_point = puntos_star.split(',')[0]
-        # Cambiamos el formato de puntos para que se pueda aÃ±adir directamente al plan de vuelo
+        # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
         points_star = []
         for nombre_punto in puntos_star.split(','):
           punto_esta=False
@@ -158,11 +158,11 @@ def tpv():
   print 'Lista de procedimientos',procedimientos
   print 'Pistas: ',rwys
   print 'Pistas en uso:',rwyInUse
-  # Procedimientos de aproximaciÃ³n
+  # Procedimientos de aproximación
   proc_app={}        
   for aerop in rwys.keys():
     for pista in rwys[aerop].split(','):
-      # Procedimientos aproximaciÃ³n
+      # Procedimientos aproximación
       procs_app=config.items('app_'+pista)
       for [fijo,lista] in procs_app:
         lista = lista.split(',')
@@ -212,7 +212,7 @@ def tpv():
             print 'Punto ',nombre_punto,' no encontrado en procedimiento  app_'+pista+' MAP'
         # Guardamos los procedimientos
         proc_app[fijo.upper()]=(points_app,llz_data,points_map)
-  print 'Lista de procedimientos de aproximaciÃ³n',proc_app
+  print 'Lista de procedimientos de aproximación',proc_app
   
   # Deltas del FIR
   if config.has_section('deltas'):
@@ -226,7 +226,7 @@ def tpv():
           if p==q[0]:
             aux2=aux2+q[1]
       deltas.append([aux2])
-  # LÃ­mites del sector
+  # Límites del sector
   aux2=config.get(sector_elegido[1],'limites').split(',')
   for a in aux2:
     auxi=True
@@ -235,18 +235,18 @@ def tpv():
         limites.append(q[1])
         auxi=False
     if auxi:
-      incidencias.append(('En el lÃ­mite de sector no encontrado el punto '+a))
-      print 'En lÃ­mite de sector no encontrado el punto ',a
+      incidencias.append(('En el límite de sector no encontrado el punto '+a))
+      print 'En límite de sector no encontrado el punto ',a
       
-  # SeparaciÃ³n mÃ­nima del sector
+  # Separación mínima del sector
   if config.has_option(sector_elegido[1],'min_sep'):
     min_sep=float(config.get(sector_elegido[1],'min_sep'))
   else:
-    incidencias.append(('No encontrada separaciÃ³n en sector '+config.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separaciÃ³n mÃ­nima.'))
-    print 'No encontrada separaciÃ³n en sector '+config.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separaciÃ³n mÃ­nima.'
+    incidencias.append(('No encontrada separación en sector '+config.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'))
+    print 'No encontrada separación en sector '+config.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'
     min_sep = 8.0
     
-  # Despegues automÃ¡ticos o manuales
+  # Despegues automáticos o manuales
   if config.has_option(sector_elegido[1],'auto_departure'):
     aux2=config.get(sector_elegido[1],'auto_departure').upper()
     if aux2 == 'AUTO':
@@ -254,15 +254,15 @@ def tpv():
     elif aux2 == 'MANUAL':
       auto_departures = False
     else:
-      incidencias.append(('Valor para despegues manual/automÃ¡tico para sector '+config.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automÃ¡tico'))
-      print 'Valor para despegues manual/automÃ¡tico para sector '+config.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automÃ¡tico'
+      incidencias.append(('Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automático'))
+      print 'Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automático'
       auto_departures = True
   else:
-    incidencias.append(('Valor para despegues manual/automÃ¡tico para sector '+config.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automÃ¡tico'))
-    print 'Valor para despegues manual/automÃ¡tico para sector '+config.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automÃ¡tico'
+    incidencias.append(('Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automático'))
+    print 'Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automático'
     auto_departures = True
   
-  # Fijos de impresiÃ³n primarios
+  # Fijos de impresión primarios
   fijos_impresion=[]
   aux2=config.get(sector_elegido[1],'fijos_de_impresion').split(',')
   for a in aux2:
@@ -272,10 +272,10 @@ def tpv():
         fijos_impresion.append(q[0])
         auxi=False
     if auxi:
-      incidencias.append(('No encontrado fijo de impresiÃ³n '+a))
-      print 'No encontrado el fijo de impresiÃ³n ',a
+      incidencias.append(('No encontrado fijo de impresión '+a))
+      print 'No encontrado el fijo de impresión ',a
   print
-  # Fijos de impresiÃ³n secundarios
+  # Fijos de impresión secundarios
   fijos_impresion_secundarios=[]
   if config.has_option(sector_elegido[1],'fijos_de_impresion_secundarios'):
     aux2=config.get(sector_elegido[1],'fijos_de_impresion_secundarios').split(',')
@@ -286,10 +286,10 @@ def tpv():
           fijos_impresion_secundarios.append(q[0])
           auxi=False
       if auxi:
-        incidencias.append(('No encontrado fijo secundario de impresiÃ³n '+a))
-        print 'No encontrado el fijo secundario de impresiÃ³n ',a
+        incidencias.append(('No encontrado fijo secundario de impresión '+a))
+        print 'No encontrado el fijo secundario de impresión ',a
   else:
-    print 'No hay fijos de impresiÃ³n secundarios (no hay problema)'
+    print 'No hay fijos de impresión secundarios (no hay problema)'
   
   aux=config.sections()
   for a in aux:
@@ -313,13 +313,13 @@ def tpv():
     wind = [intensidad,rumbo] #[intensidad * sin(rumbo), -intensidad * cos (rumbo)]
   else:
     wind = [0.0 , 0.0]
-  # InicializaciÃ³n de variables en aviÃ³n.py
+  # Inicialización de variables en avión.py
   set_canvas_info(1.0,1.0,1.0,1.0,1.0)
   set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos,proc_app,min_sep)
 
   aviones = config.items('vuelos')
   for (nombre,resto) in aviones:
-    print 'Leyendo aviÃ³n ',nombre.upper(),'...',
+    print 'Leyendo avión ',nombre.upper(),'...',
     auxi=False
     lista=resto.split(',')
     d=Airplane()
@@ -348,8 +348,8 @@ def tpv():
         d.set_initial_t(0.)  #
         d.set_hist_t(0.) #
       elif len(p)>10 and p[0]=='H':
-        incidencias.append(d.get_callsign()+': Grupo HhhmmssFfffVvvv no estÃ¡ comleto')
-        print 'Grupo HhhmmssFfffVvvv no estÃ¡ completo'
+        incidencias.append(d.get_callsign()+': Grupo HhhmmssFfffVvvv no está comleto')
+        print 'Grupo HhhmmssFfffVvvv no está completo'
         auxi=True
         return
       else:
@@ -378,7 +378,7 @@ def tpv():
     route.pop(0)
     d.set_route(route)
     d.set_initial_heading()
-    # Ahora incluimos las performances del aviÃ³n
+    # Ahora incluimos las performances del avión
     kind_aux =d.get_kind()
     while kind_aux[0].isdigit():
       kind_aux = kind_aux[1:]
@@ -394,8 +394,8 @@ def tpv():
       d.spd_tma = float(aux[8])
       d.spd_app = float(aux[9])
     else:
-      incidencias.append(d.get_callsign()+': No tengo parÃ¡metros del modelo ' + d.get_kind() + '. Usando datos estÃ¡ndar')
-      print 'No tengo parÃ¡metros del modelo ',d.get_kind(),'. Usando datos estÃ¡ndar'
+      incidencias.append(d.get_callsign()+': No tengo parámetros del modelo ' + d.get_kind() + '. Usando datos estándar')
+      print 'No tengo parámetros del modelo ',d.get_kind(),'. Usando datos estándar'
       if config.has_option('performances','estandar'+d.estela.upper()):
         aux=config.get('performances','estandar'+d.estela.upper()).split(',')
         d.fl_max = float(aux[1])
@@ -407,7 +407,7 @@ def tpv():
         d.spd_max = float(aux[7])
         d.spd_tma = float(aux[8])
         d.spd_app = float(aux[9])
-    # CÃ¡lculo del tiempo entre fijos
+    # Cálculo del tiempo entre fijos
     estimadas=[0.0]
     last_point=False
     t=0.
@@ -422,7 +422,7 @@ def tpv():
       if not d.to_do == 'fpr':
         estimadas.append(t)
         last_point = True
-    # CÃ¡lculo de la estimada ajustada
+    # Cálculo de la estimada ajustada
     print 'Datos del avo: GS-->',d.get_ground_speed()
     print ruta
     print estimadas
@@ -459,7 +459,7 @@ def tpv():
     d.set_app_fix()
     ejercicio.append(d)
     print 'ok'
-  # CÃ¡lculo de hora apariciÃ³n y ordenamiento
+  # Cálculo de hora aparición y ordenamiento
   orden=[]
   for s in range(len(ejercicio)):
     a=ejercicio[s]
@@ -482,12 +482,12 @@ def tpv():
             auxiliar = (a.route[i][2],s)
             aux = False
     if aux:
-      incidencias.append('El aviÃ³n ' + a.get_callsign() + ' no tiene fichas de impresiÃ³n en el sector, pero se crea ficha')
-      print 'El aviÃ³n ',a.get_callsign(),' no tiene fichas de impresiÃ³n en el sector, pero se crea ficha'
+      incidencias.append('El avión ' + a.get_callsign() + ' no tiene fichas de impresión en el sector, pero se crea ficha')
+      print 'El avión ',a.get_callsign(),' no tiene fichas de impresión en el sector, pero se crea ficha'
       auxiliar = (a.route[int(len(a.route)/2)][2],s)
     orden.append(auxiliar)
   orden.sort()
-  # Manejo de la impresiÃ³n de fichas
+  # Manejo de la impresión de fichas
   #if imprimir_fichas==1:     
   if True:
     parseraux=ConfigParser()
@@ -536,7 +536,7 @@ def tpv():
               next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
             # La variable callsign contiene el indicativo de llamada
             ss.draw_flight_data(callsign=a.name, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.spd, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
-      # Si no hay ficha de ningÃºn primario, saca ficha de los secundarios
+      # Si no hay ficha de ningún primario, saca ficha de los secundarios
       if es_secundario:
         for i in range(len(a.route)):
           for fijo in fijos_impresion_secundarios:
