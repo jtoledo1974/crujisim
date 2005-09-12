@@ -197,16 +197,19 @@ def def_lad(e, canvas = w):
           canvas.create_line(x0, y0,e.x, e.y, fill="orange", tags="lad_defined")
           lad_text1 = "A: %03d" % angulo
           lad_text2 = "D: %03d" % dist
+	  # Check if LAD begins in a point or in a plane
           if lad_origen.get_ground_speed() < 10.:
             lad_text3 = ""
+	    lad_lines = 2  # LAD will show 2 lines with information (Azimuth, Distance)
           else:
             lad_text3 = "T: %03d" % time_min
+	    lad_lines = 3  # LAD will show 3 lines with information (Azimuth, Distance and Time to reach)
           lad_rect_width = label_font.measure(lad_text1)
 #          lad_rect_width = max(label_font.measure(self.name) + 4,label_font.measure(spd_text+wake_text+eco_text) + 4)
           lad_line_height = label_font.metrics('linespace')
-          canvas.create_text(lad_center_x, lad_center_y - lad_line_height, text=lad_text1, fill="orange", tags="lad_defined")
-          canvas.create_text(lad_center_x, lad_center_y                  , text=lad_text2, fill="orange", tags="lad_defined")
-          canvas.create_text(lad_center_x, lad_center_y + lad_line_height, text=lad_text3, fill="orange", tags="lad_defined")
+          canvas.create_text(lad_center_x, lad_center_y - lad_lines * lad_line_height, text=lad_text1, fill="orange", tags="lad_defined")
+          canvas.create_text(lad_center_x, lad_center_y - (lad_lines-1) * lad_line_height , text=lad_text2, fill="orange", tags="lad_defined")
+          canvas.create_text(lad_center_x, lad_center_y - (lad_lines-2) * lad_line_height, text=lad_text3, fill="orange", tags="lad_defined")
           canvas.tag_lower('lad_defined', 'plot')
     canvas.bind('<Motion>', update_lad_being_defined)
     canvas.bind('<Button-2>', cancel_def_lad)
