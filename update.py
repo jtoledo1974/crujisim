@@ -75,7 +75,7 @@ if online_version > current_version:
 	butSi = Button(root, text="Sí esclavo", command=descarga)
 	def no_descarga(e=None):
 		root.destroy()
-	butNo = Button(root, text="No, gracias. Estoy bien así, command=no_descarga)
+	butNo = Button(root, text="No, gracias. Estoy bien así", command=no_descarga)
 	lbl.grid(row=0, column=0, columnspan=2)
 	butSi.grid(row=1, column=0)
 	butNo.grid(row=1, column=1)
