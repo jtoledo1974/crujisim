@@ -449,7 +449,7 @@ class Airplane:
         self.rate = min(self.rate_climb_max * f_vert(self),abs(self.rate))
     elif self.cfl<self.alt:
       if self.es_std:
-        self.rate = -self.rate_desc_std * f_vert(self)
+        self.rate = -min(self.spd/0.2/100.*60.,self.rate_desc_max * f_vert(self))
       else:
         self.rate = -min(self.rate_desc_max * f_vert(self),abs(self.rate))
     inch=self.rate*(t-self.t)
