@@ -519,7 +519,8 @@ def tpv():
       print a.name, nombre, callsign
       ruta=''
       for f in a.route:
-        ruta=ruta+' '+f[1]
+        if f[1][0]!='_':
+          ruta=ruta+' '+f[1]
       es_secundario = True
       # Fichas en los puntos principales
       for i in range(len(a.route)):
