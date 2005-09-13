@@ -126,9 +126,9 @@ def v(self):
     if abs(self.ias_obj-self.ias)>1.:
       self.ias = self.ias_obj
     return min(tas_max, self.ias * (1.0+0.002 *self.alt))
-  inicio_app = 39.
+  inicio_app = 20.
   trans_tma = 70.
-  vel_tma = 153.
+  vel_tma = 150.
   if self.alt<=inicio_app: # Velocidad de aproximación
     return self.spd_app
   elif self.alt<=trans_tma: # Transición entre vel aprox y tma
@@ -137,7 +137,7 @@ def v(self):
   elif self.alt<=vel_tma: # Transición entre ruta y tma
     p=(self.alt-trans_tma)/(vel_tma - trans_tma)
     ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
-    return self.spd_tma*(1.-p)+ias_std *(1.0+0.002*self.alt)*p
+    return self.spd_tma*(1.-p)+ias_std *(1.0+0.002*vel_tma)*p
 #    return self.spd_tma
   else:
     ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
@@ -312,6 +312,7 @@ def get_hdg_obj(self,deriva,t):
           if (self.alt-alt_pista/100.)>2.or abs(derrota-rdl)>90.: # En caso de estar 200 ft por encima, hace MAP o si ya ha pasado el LLZ
             self._map = True 
           if self._map: # Procedimiento de frustrada asignado
+            self.set_std_spd()
             self.route = []
             for [a,b,c,h] in puntos_map:
               self.route.append([a,b,c])
@@ -323,6 +324,7 @@ def get_hdg_obj(self,deriva,t):
         if self.esta_en_llz:
           fl_gp = (alt_pista/100. + dist_thr * pdte_ayuda * 60.)
           if fl_gp <= self.alt:
+            self.set_spd(self.spd_app/(1.0+0.002*self.alt))
             self.cfl = alt_pista/100.
             rate = ((self.alt - fl_gp)*2.0 + self.ground_spd * pdte_ayuda )
             self.set_rate_descend(rate*100.) # Unidades en ft/min
