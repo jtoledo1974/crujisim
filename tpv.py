@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #-*- coding:iso8859-15 -*-
+# $Id$
 
 # (c) 2005 CrujiMaster (crujisim@yahoo.com)
 #
@@ -26,6 +27,10 @@ from ConfigParser import *
 from avion import *
 import glob
 from Tkinter import *
+from Tix import *
+import Image
+import ImageTk
+import PngImagePlugin
 
 def set_seleccion_usuario(seleccion_usuario):
 	global g_seleccion_usuario
@@ -566,8 +571,9 @@ def tpv():
               # La variable callsign contiene el indicativo de llamada
               ss.draw_flight_data(callsign=a.name, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.spd, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
       
-  ss.save() 
-  
+  if not ss.save() :
+      while DlgPdfWriteError().result=='retry' and not ss.save():
+        pass  
   # Cerrar ficheros
   if len(incidencias) != 0:
     visual = Tk()
@@ -590,3 +596,41 @@ def tpv():
 
 
   return [punto,ejercicio,rutas,limites,deltas,tmas,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep]
+
+class DlgPdfWriteError:
+
+    def __init__(self):
+    
+        dlg=self.dlg=Tk()
+        f1=Frame(dlg)
+        f2=Frame(dlg)
+        texto=Label(f1,text='Ha sido imposible guardar el archivo de fichas (etiquetas.pdf)\n Es probable que tenga abierto el archivo.')
+        photo=ImageTk.PhotoImage(Image.open("stock_dialog-warning.png"))
+        icono=Label(f1, image=photo)
+        icono.photo=photo
+        butretry=Button(f2, text='     Reintentar    ', command=self.retry)
+        butcancel=Button(f2,text='      Cancelar      ', command=self.cancel)
+
+        f1.grid()
+        f2.grid(padx=5, pady=5)
+        texto.grid(row=0,column=1, padx=10, pady=5)
+        icono.grid(row=0,column=0, padx=10, pady=5)
+        butretry.grid(row=0,column=0, padx=10)
+        butcancel.grid(row=0,column=1, padx=10)
+
+        if sys.platform.startswith('win'):
+                dlg.wm_iconbitmap('crujisim.ico')
+        dlg.wm_title('Crujisim')
+
+        dlg.protocol("WM_DELETE_WINDOW", self.cancel)
+        dlg.focus_set()
+
+        dlg.mainloop()
+
+    def retry(self):
+        self.dlg.destroy()
+        self.result = 'retry'
+
+    def cancel(self):
+        self.dlg.destroy()
+        self.result = 'cancel'
