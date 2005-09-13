@@ -379,6 +379,12 @@ def tpv():
     d.set_route(route)
     d.set_initial_heading()
     # Ahora incluimos las performances del avión
+    if d.get_wake() == 'H':
+      d.turn = 2.4 * 60. * 60.
+    elif d.get_wake() == 'L':
+      d.turn = 3.75 * 60. * 60.
+    else:
+      d.turn = 3.0 * 60. * 60.
     kind_aux =d.get_kind()
     while kind_aux[0].isdigit():
       kind_aux = kind_aux[1:]
