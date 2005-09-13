@@ -126,7 +126,7 @@ def v(self):
     if abs(self.ias_obj-self.ias)>1.:
       self.ias = self.ias_obj
     return min(tas_max, self.ias * (1.0+0.002 *self.alt))
-  inicio_app = 20.
+  inicio_app = 00.
   trans_tma = 70.
   vel_tma = 150.
   if self.alt<=inicio_app: # Velocidad de aproximación
@@ -328,9 +328,8 @@ def get_hdg_obj(self,deriva,t):
             self.cfl = alt_pista/100.
             rate = ((self.alt - fl_gp)*2.0 + self.ground_spd * pdte_ayuda )
             self.set_rate_descend(rate*100.) # Unidades en ft/min
-            self.spd_std = True
           else:
-            self.set_rate_descend(0.1)
+            self.set_rate_descend(0.001)
         # Ahora el movimiento en planta
         rdl_actual = rp((rx,ry))[1]
         if rdl<180.0 and rdl_actual>rdl+180.0:
@@ -578,7 +577,10 @@ class Airplane:
     self.tipo = tipo
     
   def set_wake(self,wake):
-    self.estela = wake
+    self.estela = wake.upper()
+    
+  def get_wake(self):
+    return self.estela
     
   def set_origin(self,ori):
     self.origen = ori
