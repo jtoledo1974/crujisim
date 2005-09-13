@@ -30,12 +30,16 @@ from strips.PDF import PDFCanvas
 STRIPS_PER_PAGE = 11
 
 class StripSeries:
+
+        filename=''
+    
 	def __init__(self, exercise_name="", date="", output_file="strips.pdf"):
 		self.canvas = PDFCanvas(size=(500,815), name=output_file)
 		strips.stringformat.drawString(self.canvas, "Ejercicio:  "+str(exercise_name), 40, 40)
 		self.canvas.clear()
 		self.num_strips = 0
-
+		self.filename=output_file
+		
 	def draw_blank_strip(self, x, y):
 		canvas = self.canvas
 		canvas.drawLine(x, y, x+535, y, color=dimgray)
@@ -101,5 +105,13 @@ class StripSeries:
 		self.num_strips += 1
 
 	def save(self):
-		self.canvas.save()
+                #We try to open the file for writing and throw an exception if unable
+                try:
+                    f=open(self.filename,'wb')
+                    f.close()
+                    self.canvas.save()
+                    return True
+                except:
+                    print 'Failed printing flight strips. Unable to open '+self.filename+' for writing'
+                    return False
 
