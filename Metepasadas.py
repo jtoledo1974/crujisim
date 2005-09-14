@@ -108,8 +108,8 @@ def ejercicio():
         ruta = ruta[:-1]
       if ruta not in rutas:
         rutas.append(ruta)
-    for a in config_fir.sections():
-      config_fir.remove_section(a)
+      for a in config_fir.sections():
+        config_fir.remove_section(a)
   rutas.sort()
   print 'Total de rutas: ',len(rutas)
   # Ahora empezamos introducir el ejercicio
