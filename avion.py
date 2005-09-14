@@ -788,9 +788,12 @@ class Airplane:
         but_kill.pack(side=TOP)
         but_cancel.pack(side=TOP)
         win_identifier = canvas.create_window(do_scale(self.pos), window=win)
-        def close_win(ident=win_identifier):
+        def close_win(e=None,ident=win_identifier):
                 canvas.delete(ident)
-        def kill_acft():
+                canvas.unbind_all("<Return>")
+                canvas.unbind_all("<KP_Enter>")
+                canvas.unbind_all("<Escape>")
+        def kill_acft(e=None):
                 global seleccionado
                 self.t=self.t+1000.
                 self.hist_t=self.hist_t+1000.
@@ -800,6 +803,9 @@ class Airplane:
                 close_win()
         but_cancel['command'] = close_win
         but_kill['command'] = kill_acft
+        canvas.bind_all("<Return>",kill_acft)
+        canvas.bind_all("<KP_Enter>",kill_acft)
+        canvas.bind_all("<Escape>",close_win)
       else:
         self.t=self.t+1000.
         self.hist_t=self.hist_t+1000.
