@@ -1384,6 +1384,20 @@ def b_execute_map():
               win_identifier=None
               w.delete(ident)
       but_acept['command'] = close_win
+    elif sel.destino not in proc_app.keys():
+      win = Frame(w)
+      txt_ruta0 = Label (win,text='Autorizar a aproximación')
+      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
+      but_acept = Button(win, text="Aceptar")
+      txt_ruta0.pack(side=TOP)
+      txt_ruta.pack(side=LEFT)
+      but_acept.pack(side=LEFT)
+      win_identifier = w.create_window(ancho/2,alto-75, window=win)
+      def close_win(ident=win_identifier):
+              global win_identifier
+              win_identifier=None
+              w.delete(ident)
+      but_acept['command'] = close_win
     else:
       global vent_ident_maps
       if vent_ident_maps != None:
@@ -1431,6 +1445,20 @@ def b_int_llz():
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
       but_acept = Button(win, text="Aceptar")
       txt_ruta0.pack(side=LEFT)
+      txt_ruta.pack(side=LEFT)
+      but_acept.pack(side=LEFT)
+      win_identifier = w.create_window(ancho/2,alto-75, window=win)
+      def close_win(ident=win_identifier):
+              global win_identifier
+              win_identifier=None
+              w.delete(ident)
+      but_acept['command'] = close_win
+    elif sel.destino not in proc_app.keys():
+      win = Frame(w)
+      txt_ruta0 = Label (win,text='Autorizar a aproximación')
+      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
+      but_acept = Button(win, text="Aceptar")
+      txt_ruta0.pack(side=TOP)
       txt_ruta.pack(side=LEFT)
       but_acept.pack(side=LEFT)
       win_identifier = w.create_window(ancho/2,alto-75, window=win)
@@ -1515,6 +1543,20 @@ def b_int_loc_no_GP():
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
       but_acept = Button(win, text="Aceptar")
       txt_ruta0.pack(side=LEFT)
+      txt_ruta.pack(side=LEFT)
+      but_acept.pack(side=LEFT)
+      win_identifier = w.create_window(ancho/2,alto-75, window=win)
+      def close_win(ident=win_identifier):
+              global win_identifier
+              win_identifier=None
+              w.delete(ident)
+      but_acept['command'] = close_win
+    elif sel.destino not in proc_app.keys():
+      win = Frame(w)
+      txt_ruta0 = Label (win,text='Autorizar a aproximación')
+      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
+      but_acept = Button(win, text="Aceptar")
+      txt_ruta0.pack(side=TOP)
       txt_ruta.pack(side=LEFT)
       but_acept.pack(side=LEFT)
       win_identifier = w.create_window(ancho/2,alto-75, window=win)
@@ -1689,6 +1731,20 @@ def b_auth_approach():
       win = Frame(w)
       txt_ruta0 = Label (win,text='Autorizar a aproximación')
       txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
+      but_acept = Button(win, text="Aceptar")
+      txt_ruta0.pack(side=TOP)
+      txt_ruta.pack(side=LEFT)
+      but_acept.pack(side=LEFT)
+      win_identifier = w.create_window(ancho/2,alto-75, window=win)
+      def close_win(ident=win_identifier):
+              global win_identifier
+              win_identifier=None
+              w.delete(ident)
+      but_acept['command'] = close_win
+    elif sel.destino not in proc_app.keys():
+      win = Frame(w)
+      txt_ruta0 = Label (win,text='Autorizar a aproximación')
+      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
       but_acept = Button(win, text="Aceptar")
       txt_ruta0.pack(side=TOP)
       txt_ruta.pack(side=LEFT)
@@ -1961,6 +2017,9 @@ w.tag_bind('reloj','<Button-1>',ventana_auxiliar)
 ventana_auxiliar(None)
 
 get_scale()
+
+if not auto_departures:
+  manual_dep_window(last_update/60./60.)
 
 redraw_all()
 
