@@ -96,9 +96,9 @@ var_ver_tmas.set(0)
 ver_deltas = False
 var_ver_deltas = IntVar()
 var_ver_deltas.set(0)
-auto_sep = False
+auto_sep = True
 var_auto_sep = IntVar()
-var_auto_sep.set(0)
+var_auto_sep.set(1)
 
 w=Canvas(root,height=alto,width=ancho,bg='black')
 w.pack(expand=1,fill=BOTH)
