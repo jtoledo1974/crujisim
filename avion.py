@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #-*- coding:iso8859-15 -*-
+# $Id$
 
 # Movimiento de un móvil con velocidad uniforme
 
@@ -795,6 +796,7 @@ class Airplane:
                 self.hist_t=self.hist_t+1000.
                 self.se_pinta = False
                 seleccionado = None
+                self.redraw(canvas)
                 close_win()
         but_cancel['command'] = close_win
         but_kill['command'] = kill_acft
