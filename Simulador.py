@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #-*- coding:iso8859-15 -*-
+# $Id$
 
 # (c) 2005 CrujiMaster (crujisim@yahoo.com)
 #
@@ -72,6 +73,7 @@ size=2
 root=Tk()
 if sys.platform.startswith('win'):
 	root.wm_iconbitmap('crujisim.ico')
+	root.wm_state('zoomed')
 root.wm_title('Crujisim')
 
 var_vect_vel = IntVar()
