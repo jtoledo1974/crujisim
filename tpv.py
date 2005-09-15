@@ -37,7 +37,7 @@ def set_seleccion_usuario(seleccion_usuario):
 	g_seleccion_usuario = seleccion_usuario
 
 def tpv():
-  global h_inicio,fir_elegido,sector_elegido,ejercico_elegido, g_seleccion_usuario
+  global h_inicio,fir_elegido,sector_elegido,ejercico_elegido, g_seleccion_usuario,rwyInUse
 
   h_inicio=0.
   imprimir_fichas=False
@@ -119,6 +119,50 @@ def tpv():
     for (airp,total_rwys) in lista:
       rwys[airp.upper()] = total_rwys
       rwyInUse[airp.upper()] = total_rwys.split(',')[0] # La primera pista es la preferente
+  # En caso de haber más de una pista en algún aeropuerto, nos da a elegir la pista en uso
+  ask_tag = False
+  for airp in rwys.keys():
+    if len(rwys[airp].split(','))>1:
+      ask_tag = True
+      break
+  if ask_tag:
+	  rwy_chg = Tk()
+	  txt_titulo = Label (rwy_chg, text = 'ESPECIFIQUE PISTA(S) EN USO')
+	  txt_titulo.grid(column=0,row=0,columnspan=2)
+	  line = 1
+	  com_airp=[['',0]]
+	  for airp in rwys.keys():
+	    com_airp.append([airp,0.0])
+	    txt_airp = Label (rwy_chg, text = airp.upper())
+	    txt_airp.grid(column=0,row=line,sticky=W)
+	    com_airp[line][1] = ComboBox (rwy_chg, bg = 'white',editable = True)
+	    num = 0
+	    for pista in rwys[airp].split(','):
+	      com_airp[line][1].insert(num,pista)
+	      if pista == rwyInUse[airp]:
+		com_airp[line][1].pick(num)
+	      num=num+1
+	    com_airp[line][1].grid(column=1,row=line,sticky=W)
+	    line=line+1
+	  but_acept = Button(rwy_chg,text='Aceptar')
+	  but_acept.grid(column=0,row=line,columnspan=2)
+	  def close_rwy_chg(e=None,window=rwy_chg):
+	    global rwyInUse
+	    com_airp.pop(0)
+	    for [airp,num] in com_airp:
+	      print 'Pista en uso de ',airp,' es ahora: ',num.cget('value'),'. Cambiando los procedimientos'
+	      rwyInUse[airp] = num.cget('value')
+	      window.destroy()
+	  but_acept['command']= close_rwy_chg
+	  window_width = rwy_chg.winfo_reqwidth()
+	  window_height = rwy_chg.winfo_reqheight()
+	  screen_width = rwy_chg.winfo_screenwidth()
+	  screen_height = rwy_chg.winfo_screenheight()
+	  px = (screen_width - window_width) / 2
+	  py = (screen_height - window_height) / 2
+	  rwy_chg.wm_geometry("+%d+%d" % (px,py))
+	  rwy_chg.mainloop()
+
   
   # Lectura de los procedimientos SID y STAR
   for aerop in rwys.keys():
