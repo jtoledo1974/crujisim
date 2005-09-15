@@ -1,4 +1,4 @@
-Actualizado a 31/08/05
+Actualizado a 15/09/05
 
 
 
@@ -14,7 +14,7 @@ OK - Corregir que en la ventana de incidencias salga el 'Enter' seleccionado por
 
 NUEVAS CARACTERÍSTICAS
 OK - Hacer que al salir la pantalla de 'ningún vuelo seleccionado' se borre al apretar otra vez el botón.
-??- Incluir Metepasadas en el CrujiSim. Su pueden poner tres botones en la pantalla inicial. 
+OK- Incluir Metepasadas en el CrujiSim. Su pueden poner tres botones en la pantalla inicial. 
     1.- El botón 'Aceptar' sería 'Practicar pasada'
     2.- Nuevo botón 'Editar esta pasada'
     3.- Nuevo botón 'Crear nueva pasada'
@@ -24,6 +24,8 @@ OK - Botones pequeños en una barra inferior
 OK - Simulador a pantalla completa. Así ya no habría mucho problema de columna de botones a un lado o abajo, al ganarse mucho espacio
 ?? - Un solo botón tipo "Mapas" y que al pulsarlo dé la opción de ver Puntos Fijos, TMAs, Deltas...
 ?? - Añadir mapa de CB para practicar incidencias.
+- Corregir la altura de las fichas de prograsión de vuelo (son
+aprox. 1,5 mm cortas) para que entren bien en el portafichas
 
 RETOQUES PARA TERMINAR EL METEPASADAS
 =====================================
@@ -59,7 +61,7 @@ OK - Datos de esperas publicadas
 OK - Definir los puntos sobre los cuales se debe orbitar si no ha sido autorizado a más. En el resto de puntos debe mantener rumbo.
 OK - Dibujar las millas del ILS
 OK - En procedimiento ILS, poner fijos adicionales antes de interceptar ILS
-- Interceptar el localizador
+OK - Interceptar el localizador
 
 
 NUEVAS CARACTERÍSTICAS
@@ -79,17 +81,3 @@ En ARR
 OK - Asignar STAR (antes del fijo princ. aprox) Debería hacerse por defecto en función de la pista en uso
 OK - Autorización de aproximación. Mientras no se le dé, que haga esperes en el IAF ó IAP.
 OK - Asignar tráfico que ejecutará MAP (se supone que aterrizan siempre, salvo asignado).
-
-
-
-
-
-HOJA DE RUTA PARA EL CRUJISIM V.3
----------------------------------
----------------------------------
-
-- ¿Qué os parecería crear el plano, al igual que hemos creado los FIRes, del aeropuerto de CEANA? Así se podría practicar también TWR, aunque sea en 2D en vez de 3D.
-- Supongo que habría que poner que cuando la altitud (el FL) sea 000 el avo se pueda parar en el punto en que tú le digas.
-- También habría que tener en cuenta que, en rodaje, las velocidades tendrían acelerones, deceleraciones...
-- Habría que quitar también los crujidos a FL 000, e incluso entiendo que a cualquier altitud, puesto que la separación en TWR es visual.
-- Poner-quitar luces de pista
