@@ -1384,7 +1384,7 @@ def b_execute_map():
               win_identifier=None
               w.delete(ident)
       but_acept['command'] = close_win
-    elif sel.destino not in proc_app.keys():
+    elif sel.destino not in rwys.keys():
       win = Frame(w)
       txt_ruta0 = Label (win,text='Autorizar a aproximación')
       txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
@@ -1453,7 +1453,7 @@ def b_int_llz():
               win_identifier=None
               w.delete(ident)
       but_acept['command'] = close_win
-    elif sel.destino not in proc_app.keys():
+    elif sel.destino not in rwys.keys():
       win = Frame(w)
       txt_ruta0 = Label (win,text='Autorizar a aproximación')
       txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
@@ -1551,7 +1551,7 @@ def b_int_loc_no_GP():
               win_identifier=None
               w.delete(ident)
       but_acept['command'] = close_win
-    elif sel.destino not in proc_app.keys():
+    elif sel.destino not in rwys.keys():
       win = Frame(w)
       txt_ruta0 = Label (win,text='Autorizar a aproximación')
       txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
@@ -1671,11 +1671,11 @@ def ver_detalles():
         but_cerrar['command'] = close_win
 
 def b_rwy_change():
-#   global vent_ident_procs
-#   if vent_ident_procs != None:
-#     w.delete(vent_ident_procs)
-#     vent_ident_procs = None
-#     win = Frame(w)
+  global vent_ident_procs
+  if vent_ident_procs != None:
+    w.delete(vent_ident_procs)
+    vent_ident_procs = None
+    win = Frame(w)
   global win_identifier
   if win_identifier<>None:
     w.delete(win_identifier)
@@ -1699,8 +1699,8 @@ def b_rwy_change():
       num=num+1
     com_airp[line][1].grid(column=1,row=line,sticky=W)
     line=line+1
-  but_acept = Button(rwy_chg,text='Aceptar')
-  but_acept.grid(column=0,row=line,columnspan=2)
+  but_acept = Button(rwy_chg,text='Hecho')
+  but_acept.grid(column=0,row=line)
   win_identifier = w.create_window(400,400,window=rwy_chg)
   def close_rwy_chg(e=None,ident = win_identifier):
     global rwyInUse
@@ -1712,10 +1712,15 @@ def b_rwy_change():
         complete_flight_plan(avo)
         if avo.origen in rwys.keys() and not avo.is_flying():
           avo.route.pop(0)
-        avo.set_app_fix()
-    
+        avo.set_app_fix()   
     w.delete(ident)
   but_acept['command']= close_rwy_chg
+  
+  but_cancel = Button(rwy_chg,text='Descartar')
+  but_cancel.grid(column=1,row=line)
+  def discard_rwy_chg(e=None,ident = win_identifier):
+       w.delete(ident)
+  but_cancel['command']= discard_rwy_chg
   
 def b_auth_approach():
     global win_identifier
@@ -1741,7 +1746,7 @@ def b_auth_approach():
               win_identifier=None
               w.delete(ident)
       but_acept['command'] = close_win
-    elif sel.destino not in proc_app.keys():
+    elif sel.destino not in rwys.keys():
       win = Frame(w)
       txt_ruta0 = Label (win,text='Autorizar a aproximación')
       txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
@@ -1768,7 +1773,7 @@ def b_auth_approach():
       title = Label(win, text = 'Aut. app. '+sel.get_callsign())
       lbl_apt = Label(win, text="Aerop.:")
       ent_apt = Entry(win, width=5)
-      ent_apt.insert(0, a.destino)
+      ent_apt.insert(0, sel.destino)
       lbl_fix = Label(win, text="IAF:")
       ent_fix = Entry(win, width=6)
       ent_fix.insert(0, fijo_app)
@@ -1837,10 +1842,10 @@ def ventana_auxiliar(e):
       but_inicio.pack(side=LEFT,expand=1,fill=X)
       but_parar = Button(ventana,bitmap='@pause.xbm',command=b_parar)
       but_parar.pack(side=LEFT,expand=1,fill=X)
-      but_arriba = Button(ventana,bitmap='@up.xbm',command=b_arriba)
-      but_arriba.pack(side=LEFT,expand=1,fill=X)
       but_izq = Button(ventana,bitmap='@left.xbm',command=b_izquierda)
       but_izq.pack(side=LEFT,expand=1,fill=X)
+      but_arriba = Button(ventana,bitmap='@up.xbm',command=b_arriba)
+      but_arriba.pack(side=LEFT,expand=1,fill=X)
       but_abajo = Button(ventana,bitmap='@down.xbm',command=b_abajo)
       but_abajo.pack(side=LEFT,expand=1,fill=X)
       but_derecha = Button(ventana,bitmap='@right.xbm',command=b_derecha)
