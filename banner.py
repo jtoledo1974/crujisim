@@ -31,20 +31,27 @@ from ConfigParser import *
 import zipfile
 from os import rename
 
+exercises_root = 'pasadas'
+
 def get_fires():
-    # Devuleve una cadena con los fires disponibles y el nombre del fichero asociado
-    fir_uir=glob.glob('*.fir')
-    if len(fir_uir)==0:
-      print 'Error, no hay ficheros .fir en este directorio'
-    else:
-      config=ConfigParser()
-      lista=[]
-      for nombre in fir_uir:
-        config.readfp(open(nombre,'r'))
-        lista.append([config.get('datos','nombre'),nombre])
-    # Ahora sólo hay que ordenarlos
-    lista.sort()
-    return lista
+    # Devuelve una lista con los fires disponibles y los nombres de ficheros asociados
+    fir_list = []
+    directories_from_root = os.listdir(exercises_root)
+    for directory in directories_from_root:
+        fir_description_file = os.path.join(exercises_root,directory,directory+".fir")
+        if os.path.exists(fir_description_file):
+            print "FIR OK:", fir_description_file
+            # Extract FIR name from FIR description file
+            config = ConfigParser()
+            fir_file = open(fir_description_file, 'r')
+            config.readfp(fir_file)
+            fir_name = config.get('datos', 'nombre')
+            fir_file.close()
+            # Append name and file name to FIR list
+            fir_list.append([fir_name, fir_description_file])
+    # Sort FIR list
+    fir_list.sort()
+    return fir_list
 
 def get_sectores(fir):
     # para un FIR dado, ver sus sectores fir
@@ -63,32 +70,39 @@ def get_sectores(fir):
     lista.sort()
     return lista
 
-def get_ejercicios(fir,sector):
+def get_ejercicios(fir, sector):
     # Devuelve lista con los ejercicios que corresponden al fir y al sector
-    ejercicio_total=glob.glob('./pasadas/*.eje')
-    lista=[]
-    config=ConfigParser()
-    for a in ejercicio_total:
-      config.readfp(open(a))
+    # La lista contiene el comentario del ejercicio y el path del archivo
+
+    fir_list = get_fires()
+    fir_file = None
+    for (desc, file) in fir_list:
+        if fir == desc:
+            fir_file = file
+    if fir_file == None: return []
+
+    exercises_directory = os.path.dirname(fir_file)
+    fir_exercises = os.listdir(exercises_directory)
+    sector_exercises = []
+
+    for exercise_file_name in fir_exercises:
+      if os.path.splitext(exercise_file_name)[1].upper() != '.EJE': continue
+      config=ConfigParser()
+      exercise_file_path = os.path.join(exercises_directory, exercise_file_name)
+      exercise_filep = open(exercise_file_path, 'r')
+      config.readfp(exercise_filep)
+      exercise_filep.close()
       fir_eje=config.get('datos','fir')
       sector_eje=config.get('datos','sector')
-      if fir_eje==fir and sector_eje==sector:
+      if fir_eje.upper()==fir.upper() and sector_eje.upper()==sector.upper():
         if config.has_option('datos','comentario'):
-          aux = config.get('datos','comentario')
-          if [aux,a] in lista:
-            print 'Comentario de archivo '+a+' ya está en otro archivo. Se ignora'
-          else:
-            lista.append([aux,a])
+          exercise_description = config.get('datos','comentario')
         else:
-          print 
-          print 'Ejercicio '+a+' no tiene línea de comentario'
-      aux=config.sections()
-      for a in aux:
-        config.remove_section(a)
+          exercise_description = exercise_file_name
+        sector_exercises.append([exercise_description,exercise_file_path])
     # Ahora toca ordenarlos
-    lista.sort()
-    print "Ejercicios:", lista
-    return lista
+    sector_exercises.sort()
+    return sector_exercises
 
 
 images = {}
