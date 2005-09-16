@@ -26,6 +26,8 @@ from Tix import *
 import Image
 import ImageTk
 Image._initialized=2
+import banner
+
 #fichero = ''
 def ejercicio():
   # En primer lugar escojo el FIR
@@ -33,7 +35,7 @@ def ejercicio():
   global ruta_escogida,txt_ruta_esc
   global txt_nombre, txt_fir, txt_sector, txt_hora, fichero, txt_coment, txt_viento
   global fir_elegido,fichero_fir
-  fires = glob.glob('*.fir')
+  fires = [x[1] for x in banner.get_fires()]
   config_fir=ConfigParser()
   lista = []
   for a in fires:
