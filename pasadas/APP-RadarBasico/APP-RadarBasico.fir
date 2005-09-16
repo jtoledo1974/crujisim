@@ -2,6 +2,7 @@
 [datos]
 nombre: AppRadarBasico
 [puntos]
+VFR:0.0,0.0
 HIDRO:80.773,-119.857
 DEMOS:104.223,-274.889
 NARBO:155.467,-269.244
