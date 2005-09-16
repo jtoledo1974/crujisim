@@ -542,7 +542,7 @@ class Airplane:
           else:
             self.vfp=False # Si es el ltimo punto, mantiene el rumbo
             self.to_do = 'hdg'
-            self.to_do_aux = [self.hdg]
+            self.to_do_aux = [self.hdg,'ECON']
             self.hold_hdg=self.hdg
             self.salto=self.spd*(t-self.t) # Distancia recorrida en este inc.de t sin viento
             efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
