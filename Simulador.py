@@ -77,6 +77,10 @@ if sys.platform.startswith('win'):
 	root.wm_state('zoomed')
 root.wm_title('Crujisim - '+os.path.basename(g_seleccion_usuario[2][1]))  # Display exercise name in window title
 
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+root.wm_geometry("%dx%d+%d+%d" % (screen_width, screen_height, 0, 0))
+
 var_vect_vel = IntVar()
 var_vect_vel.set(0)
 var_vel_reloj = DoubleVar()
@@ -103,7 +107,7 @@ auto_sep = True
 var_auto_sep = IntVar()
 var_auto_sep.set(1)
 
-w=Canvas(root,height=alto,width=ancho,bg='black')
+w=Canvas(root,bg='black')
 w.pack(expand=1,fill=BOTH)
 root.update_idletasks()
 
