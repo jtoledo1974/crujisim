@@ -34,6 +34,7 @@ Image._initialized=2
 from time import time,sleep
 import lads
 from math import sqrt
+import os.path
 
 global wind
 punto = []
@@ -74,7 +75,7 @@ root=Tk()
 if sys.platform.startswith('win'):
 	root.wm_iconbitmap('crujisim.ico')
 	root.wm_state('zoomed')
-root.wm_title('Crujisim')
+root.wm_title('Crujisim - '+os.path.basename(g_seleccion_usuario[2][1]))  # Display exercise name in window title
 
 var_vect_vel = IntVar()
 var_vect_vel.set(0)
