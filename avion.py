@@ -24,6 +24,7 @@
 
 from math import *
 from Tkinter import *
+from Tix import *
 import tkFont
 import lads
 import sys
@@ -196,8 +197,26 @@ def get_hdg_obj(self,deriva,t):
     # Correción de deriva
     return self.vect[1] - deriva
   elif self.to_do == 'hdg': # Mantener rumbo
-    self.vect=rp((2.0*self.ground_spd,self.track))
-    return self.to_do_aux[0]
+        hdg_obj =  self.to_do_aux[0]
+        if self.hdg<180.0 and hdg_obj>self.hdg+180.0:
+          hdg_obj -= 360.0
+        elif self.hdg>180.0 and hdg_obj<self.hdg-180.0:
+          hdg_obj += 360.0
+	aux_hdg = self.hdg - hdg_obj
+	self.vect=rp((2.0*self.ground_spd,self.track))
+	if self.to_do_aux[1] == 'DCHA':
+		if aux_hdg > 0.: #El rumbo está a su izquierda
+			return (self.hdg+90.)%360.
+		else: # Está a su derecha o ya está en rumbo
+			return self.to_do_aux[0]
+	elif self.to_do_aux[1] == 'IZDA':
+		if aux_hdg < 0.: # El rumbo está a su derecha
+			return (self.hdg-90.)%360.
+		else: # Está a su izquierda o ya está en rumbo
+			return self.to_do_aux[0]
+	else:
+		return self.to_do_aux[0]
+	  
   elif self.to_do == 'hld': #Hacer esperas sobre un punto
 # self.to_do_aux = [[coord,nombre,estim],derrota_acerc, tiempo_alej,Tiempo en alejam. = 0.0,Esta en espera=False/True,giro I=-1.0/D=+1.0]
     if not self.to_do_aux[4] and self.to_do_aux[0] in self.route: # An no ha llegado a la espera, sigue volando en ruta
@@ -624,11 +643,12 @@ class Airplane:
   def set_rfl(self,rfl):
     self.rfl = rfl
     
-  def set_heading(self, hdg):
+  def set_heading(self, hdg, opt):
     self.hold_hdg = hdg
     self.vfp = False
     self.to_do = 'hdg'
-    self.to_do_aux = [hdg]
+    self.to_do_aux = [hdg,opt]
+    print self.to_do,self.to_do_aux
     
   def set_route(self,route):
     self.route = route
@@ -1252,10 +1272,17 @@ class Airplane:
 	lbl_hdg = Label(win, text="Heading:")
 	ent_hdg = Entry(win, width=3)
 	ent_hdg.insert(0, str(int(self.get_heading())))
+	ent_side = OptionMenu (win,bg='white')
+	num = 0
+	for opc in ['ECON','DCHA','IZDA']:
+		ent_side.add_command(opc)
+		num=num+1
+	ent_side['value'] = 'ECON'
 	but_Acp = Button(win, text="Aceptar")
 	but_Can = Button(win, text="Cancelar")
 	lbl_hdg.grid(row=0, column=0)
 	ent_hdg.grid(row=0, column=1)
+	ent_side.grid(row=3,column=0,columnspan=2)
 	but_Acp.grid(row=1, column=0, columnspan=2)
 	but_Can.grid(row=2, column=0, columnspan=2)
 	window_ident = canvas.create_window(e.x, e.y, window=win)
@@ -1267,8 +1294,9 @@ class Airplane:
 		canvas.delete(ident)
 	def set_heading(e=None):
 		hdg = ent_hdg.get()
-		print "New heading:", hdg
-		self.set_heading(int(hdg))
+		opt = ent_side.cget('value')
+		print "New heading:", hdg,opt
+		self.set_heading(int(hdg),opt)
 		close_win()
 	but_Acp['command'] = set_heading
 	but_Can['command'] = close_win
