@@ -1128,10 +1128,15 @@ def nueva_ruta():
       win = Frame(w)
       txt_ruta = Label (win,text='Nueva ruta '+sel.get_callsign()+':')
       ent_ruta = Entry(win,width=50)
+      txt_dest = Label (win,text='Destino')
+      ent_dest = Entry(win,width=5)
+      ent_dest.insert(END,sel.destino)
       but_acept = Button(win, text="Aceptar")
       but_cancel = Button(win, text="Cancelar")
       txt_ruta.pack(side=LEFT)
       ent_ruta.pack(side=LEFT)
+      txt_dest.pack(side=LEFT)
+      ent_dest.pack(side=LEFT)
       but_acept.pack(side=LEFT)
       but_cancel.pack(side=LEFT)
       win_identifier = w.create_window(ancho/2,alto-75, window=win)
@@ -1160,6 +1165,7 @@ def nueva_ruta():
                 ent_ruta['bg'] = 'red'
                 ent_ruta.focus_set()
               else:
+                sel.destino = ent_dest.get().upper()
                 cancel_app_auth(sel)
                 sel.set_route(aux)
                 print 'Cambiando plan de vuelo a ',aux
