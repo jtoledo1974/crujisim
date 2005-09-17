@@ -216,7 +216,11 @@ def get_hdg_obj(self,deriva,t):
 			return self.to_do_aux[0]
 	else:
 		return self.to_do_aux[0]
-	  
+  elif self.to_do == 'orbit': # Orbitar en presente posición
+	  if self.to_do_aux[0] == 'DCHA':
+		  return (self.hdg + 90.0)%360.0
+	  else:
+		  return (self.hdg - 90.0)%360.0
   elif self.to_do == 'hld': #Hacer esperas sobre un punto
 # self.to_do_aux = [[coord,nombre,estim],derrota_acerc, tiempo_alej,Tiempo en alejam. = 0.0,Esta en espera=False/True,giro I=-1.0/D=+1.0]
     if not self.to_do_aux[4] and self.to_do_aux[0] in self.route: # An no ha llegado a la espera, sigue volando en ruta

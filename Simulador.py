@@ -1681,6 +1681,72 @@ def ver_detalles():
                 w.delete(ident)
         but_cerrar['command'] = close_win
 
+def b_orbitar():
+      global vent_ident_procs
+      if vent_ident_procs != None:
+	w.delete(vent_ident_procs)
+	vent_ident_procs = None
+	win = Frame(w)
+      global win_identifier
+      if win_identifier<>None:
+        w.delete(win_identifier)
+        win_identifier=None
+        return
+      sel = None
+      for a in ejercicio:
+        if a.esta_seleccionado():
+          sel=a
+      if sel == None:
+        win = Frame(w)
+        txt_orbit0 = Label (win,text='Orbitar en presente posición')
+        txt_orbit = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
+        but_acept = Button(win, text="Aceptar")
+        txt_orbit0.pack(side=TOP)
+        txt_orbit.pack(side=LEFT)
+        but_acept.pack(side=LEFT)
+        win_identifier = w.create_window(ancho/2,alto-75, window=win)
+        def close_win(ident=win_identifier):
+                global win_identifier
+                win_identifier=None
+                w.delete(ident)
+        but_acept['command'] = close_win
+      else:
+        win = Frame(w)
+	lbl_orb = Label(win, text="Orbitar ahora")
+	ent_side = OptionMenu (win,bg='white')
+	num = 0
+	for opc in ['DCHA','IZDA']:
+		ent_side.add_command(opc)
+		num=num+1
+	ent_side['value'] = 'DCHA'
+	but_Acp = Button(win, text="Aceptar")
+	but_Can = Button(win, text="Cancelar")
+	lbl_orb.grid(row=0, column=0)
+	ent_side.grid(row=3,column=0,columnspan=2)
+	but_Acp.grid(row=1, column=0, columnspan=2)
+	but_Can.grid(row=2, column=0, columnspan=2)
+	window_ident = w.create_window(do_scale(sel.pos), window=win)
+        def close_win(e=None,ident=window_ident):
+                w.unbind_all("<Return>")
+                w.unbind_all("<KP_Enter>")
+                w.unbind_all("<Escape>")
+		w.delete(ident)
+	def set_orbit(e=None,sel=sel):
+		side_aux = ent_side.cget('value')
+		sel.to_do = 'orbit'
+		if side_aux.upper() == 'IZDA':
+			sel.to_do_aux = ['IZDA']
+		else:
+			sel.to_do_aux = ['DCHA']
+		print "Orbitando a ",side_aux
+		close_win()
+	but_Acp['command'] = set_orbit
+	but_Can['command'] = close_win
+        w.bind_all("<Return>",set_orbit)
+        w.bind_all("<KP_Enter>",set_orbit)
+        w.bind_all("<Escape>",close_win)
+      
+
 def b_rwy_change():
   global vent_ident_procs
   if vent_ident_procs != None:
@@ -1896,7 +1962,9 @@ def ventana_auxiliar(e):
         but_int_rdl.grid(column=0,row=2,sticky=E+W)
         but_chg_rwy = Button(ventana_procs, text = 'Cambio RWY', command = b_rwy_change)
         but_chg_rwy.grid(column=0,row=3,sticky=E+W)
-        vent_ident_procs=w.create_window(ventana.winfo_x()+but_ver_proc.winfo_x(),alto-ventana.winfo_height(),window=ventana_procs,anchor='sw')
+        but_orbit = Button(ventana_procs, text = 'Orbitar aquí', command = b_orbitar)
+        but_orbit.grid(column=0,row=4,sticky=E+W)
+	vent_ident_procs=w.create_window(ventana.winfo_x()+but_ver_proc.winfo_x(),alto-ventana.winfo_height(),window=ventana_procs,anchor='sw')
       but_ver_proc['command'] = procs_buttons
       but_ver_app = Button(ventana, text = 'APP')
       but_ver_app.pack(side=LEFT,expand=1,fill=X)
