@@ -32,6 +32,8 @@ import Image
 import ImageTk
 import PngImagePlugin
 
+import sys
+
 def set_seleccion_usuario(seleccion_usuario):
 	global g_seleccion_usuario
 	g_seleccion_usuario = seleccion_usuario
@@ -59,6 +61,7 @@ def tpv():
   proc_app={}
   auto_depatures = True
   min_sep = 8.0
+  local_maps = {}
   # Lectura de los datos del FIR
   config=ConfigParser()
   config.readfp(open(fir_elegido[1]))
@@ -94,6 +97,24 @@ def tpv():
           if p==q[0]:
             aux2=aux2+q[1]
       tmas.append([aux2])
+  # Mapas locales
+  try:
+    local_map_string = config.get('mapas_locales', 'mapas')
+    local_map_sections = local_map_string.split(',')
+    for map_section in local_map_sections:
+      if config.has_section(map_section):
+	map_name = config.get(map_section, 'nombre')
+	map_items = config.items(map_section)
+	print "Map items:", map_items
+	# Store map name and graphical objects in local_maps dictionary (key: map name)
+	map_objects = []
+	for item in map_items:
+	  print item[0].lower()
+	  if item[0].lower() != 'nombre':
+	    map_objects.append(item[1].split(','))
+	local_maps[map_name] = map_objects
+  except:
+    print "Exception processing local maps"
   # Aeropuertos del FIR
   if config.has_section('aeropuertos'):
     lista=config.items('aeropuertos')
@@ -639,7 +660,7 @@ def tpv():
     visual.mainloop()
 
 
-  return [punto,ejercicio,rutas,limites,deltas,tmas,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep]
+  return [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep]
 
 class DlgPdfWriteError:
 

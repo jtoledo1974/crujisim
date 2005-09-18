@@ -287,6 +287,20 @@ tma_madrid:_TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_TMA9,_TMA10,_TMA11,_
 tma_zaragoza:_TZZA1,_TZZA2,_TZZA3,_TZZA4,_TZZA5,_TZZA6,_TZZA7,_TZZA1
 [deltas]
 
+[mapas_locales]
+mapas=mapa1,mapa2
+
+[mapa1]
+nombre:Mapa Ejemplo 1
+objeto1:texto,342.0,-412.5,Esto es un texto de ejemplo,blue
+objeto4:ovalo,342.0,-410.0,350.0,-400.0,green
+
+[mapa2]
+nombre:Mapa Ejemplo 2
+objeto1:texto,430,-350,HOLA!
+objeto2:punto,415,-385,red
+
+
 [esperas_publicadas] ; fijo:rumbo acercamiento,tiempo de alejamiento y giros D/I
 ORBIS: 155,1.0,D
 CNR: 155,1.0,D

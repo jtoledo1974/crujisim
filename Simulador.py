@@ -43,6 +43,7 @@ rutas = []
 limites = []
 tmas = []
 deltas = []
+local_maps = {}
 h_inicio=1.
 wind = [0.0,0.0]
 aeropuertos = []
@@ -65,7 +66,7 @@ vent_ident_maps = None
 vent_ident_procs = None
 vent_ident_mapas = None
 
-[punto,ejercicio,rutas,limites,deltas,tmas,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv()
+[punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv()
 
 set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos, proc_app,min_sep)
 # Plot size
@@ -106,6 +107,12 @@ var_ver_deltas.set(0)
 auto_sep = True
 var_auto_sep = IntVar()
 var_auto_sep.set(1)
+
+local_maps_shown = []
+var_ver_localmap = {}
+for map_name in local_maps:
+	var_ver_localmap[map_name] = IntVar()
+	var_ver_localmap[map_name].set(0)
 
 w=Canvas(root,bg='black')
 w.pack(expand=1,fill=BOTH)
@@ -558,6 +565,7 @@ def redraw_all():
   w.delete('reloj')
   w.delete('tmas')
   w.delete('deltas')
+  w.delete('local_maps')
   # Dibujar límites del FIR
   aux=()
   for a in limites:
@@ -594,6 +602,71 @@ def redraw_all():
       for i in range(0,len(a[0]),2):
         aux=aux+do_scale((a[0][i],a[0][i+1]))
       w.create_line(aux,fill='gray25',tag='deltas')
+  # Dibujar mapas locales
+  for nombre_mapa in local_maps_shown:
+    objetos = local_maps[nombre_mapa]
+    for ob in objetos:
+      if ob[0] == 'linea':
+        cx0 = float(ob[1])
+	cy0 = float(ob[2])
+        cx1 = float(ob[3])
+	cy1 = float(ob[4])
+	if len(ob) > 5:
+	  col = ob[5]
+	else:
+	  col = 'white'
+	(px0, py0) = do_scale((cx0,cy0))
+	(px1, py1) = do_scale((cx1,cy1))
+	w.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
+      elif ob[0] == 'arco':
+        cx0 = float(ob[1])
+	cy0 = float(ob[2])
+        cx1 = float(ob[3])
+	cy1 = float(ob[4])
+        start_value = float(ob[5])
+	extent_value = float(ob[6])
+	if len(ob) > 7:
+	  col = ob[7]
+	else:
+	  col = 'white'
+	(px0, py0) = do_scale((cx0,cy0))
+	(px1, py1) = do_scale((cx1,cy1))
+	w.create_arc(px0, py0, px1, py1, start=start_value, extent=extent_value, outline=col, style='arc', tag='local_maps')
+      elif ob[0] == 'ovalo':
+        cx0 = float(ob[1])
+	cy0 = float(ob[2])
+        cx1 = float(ob[3])
+	cy1 = float(ob[4])
+	if len(ob) > 5:
+	  col = ob[5]
+	else:
+	  col = 'white'
+	(px0, py0) = do_scale((cx0,cy0))
+	(px1, py1) = do_scale((cx1,cy1))
+	w.create_oval(px0, py0, px1, py1, fill=col, tag='local_maps')
+      elif ob[0] == 'rectangulo':
+        cx0 = float(ob[1])
+	cy0 = float(ob[2])
+        cx1 = float(ob[3])
+	cy1 = float(ob[4])
+	if len(ob) > 5:
+	  col = ob[5]
+	else:
+	  col = 'white'
+	(px0, py0) = do_scale((cx0,cy0))
+	(px1, py1) = do_scale((cx1,cy1))
+	w.create_rectangle(px0, py0, px1, py1, fill=col, tag='local_maps')
+      elif ob[0] == 'texto':
+        x = float(ob[1])
+	y = float(ob[2])
+	txt = ob[3]
+	if len(ob) > 4:
+	  col = ob[4]
+	else:
+	  col = 'white'
+	(px, py) = do_scale((x,y))
+	w.create_text(px, py, text=txt, fill=col,tag='local_maps',anchor=SW,font='-*-Times-Bold-*--*-10-*-')
+
   w.delete('fichas')
   # Poner las fichas que se imprimen
   n=1
@@ -932,7 +1005,6 @@ def b_parar():
     h_inicio=fact_t*time()-t0
     reloj_funciona=False
   
-
 def b_tamano_etiquetas():
   global label_font_size, label_font, radius
   label_font_size += 2
@@ -941,6 +1013,15 @@ def b_tamano_etiquetas():
   label_font = tkFont.Font(family="Helvetica",size=label_font_size)
   set_label_font(label_font)
   set_label_font_size(label_font_size)
+  redraw_all()
+
+def b_show_hide_localmaps():
+  global local_maps_shown
+  local_maps_shown = []
+  for map_name in local_maps:
+    print var_ver_localmap[map_name].get()
+    if var_ver_localmap[map_name].get() != 0:
+      local_maps_shown.append(map_name)
   redraw_all()
 
 def b_show_hide_points():
@@ -2002,6 +2083,15 @@ def ventana_auxiliar(e):
         but_ver_tmas.grid(column=0,row=1,sticky=E+W)
         but_ver_deltas = Checkbutton(ventana_mapas, text = 'Deltas', variable = var_ver_deltas, command=b_show_hide_deltas)
         but_ver_deltas.grid(column=0,row=2,sticky=E+W)
+	
+	myrow = 3
+	map_name_list = local_maps.keys()
+	map_name_list.sort()
+	for map_name in map_name_list:
+          but_ver_local_map = Checkbutton(ventana_mapas, text = map_name, variable = var_ver_localmap[map_name], command=b_show_hide_localmaps)
+          but_ver_local_map.grid(column=0,row=myrow,sticky=E+W)
+	  myrow += 1
+	
         vent_ident_mapas=w.create_window(ventana.winfo_x()+but_ver_maps.winfo_x(),alto-ventana.winfo_height(),window=ventana_mapas,anchor='sw')
       but_ver_maps['command'] = mapas_buttons
       def cambia_vect_vel(e=None):
