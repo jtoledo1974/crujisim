@@ -96,7 +96,17 @@ def ejercicio():
 
   
   # Ahora creamos la base de datos con las rutas
-  a_extraer = glob.glob('./pasadas/*.eje')
+  sectores = banner.get_sectores(fir_elegido)
+  print 'Sectores: ',sectores
+  a_extraer = []
+  a_extraer_aux = []
+  for sect in sectores:
+    a_extraer_aux += banner.get_ejercicios(fir_elegido,sect[0])
+#  print 'A extraer: ',a_extraer_aux
+#  a_extraer = glob.glob('./pasadas/*.eje')
+  for [nombre,fich] in a_extraer_aux:
+    a_extraer.append(fich)
+  print 'Ejercicios: ',a_extraer
   rutas=[]
   for e in a_extraer:
     config_fir.readfp(open(e,'r'))
