@@ -51,4 +51,4 @@ son las coordenadas del rectángulo que rodea a la elipse, el ángulo inicial (en 
 se toma considerando el eje x como ángulo 0, y el ángulo subtendido se mide en grados.
 
 --
-$ Id $
+$Id$

@@ -93,6 +93,9 @@ En los despegues los vemos si intentamos cambiarlos (botón izquierdo sobre el ni
 INDICACIÓN DE PAC (Posible pérdida de separación)
 Se pone el cajetín y la barra que los une en naranja
 
-INDICACIÓN DE VAC (Pérdida de separación)
+INDICACIÓN DE VAC 
+(Pérdida de separación)
 Se pone el cajetín, la barra que lo une y el contenido del cajetín en rojo. Además hay palotes...
 
+--
+$Id$

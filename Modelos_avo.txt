@@ -1,4 +1,6 @@
-#Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
+﻿#Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,
+#$Id$
+Velocidad_TMA,Velocidad_aprox
 [performances]
 CONC:H,600,5.000,3000,5000,3000,540,560,280,180
 A330:H,390,3500,2000,3500,2000,465,480,280,160

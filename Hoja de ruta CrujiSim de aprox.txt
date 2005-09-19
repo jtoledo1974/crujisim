@@ -81,3 +81,5 @@ En ARR
 OK - Asignar STAR (antes del fijo princ. aprox) Debería hacerse por defecto en función de la pista en uso
 OK - Autorización de aproximación. Mientras no se le dé, que haga esperes en el IAF ó IAP.
 OK - Asignar tráfico que ejecutará MAP (se supone que aterrizan siempre, salvo asignado).
+
+$Id$
