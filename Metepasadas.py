@@ -118,8 +118,8 @@ def ejercicio():
           if len(punto)<7:
             ruta = ruta + punto.upper() + ','
         ruta = ruta[:-1]
-      if ruta not in rutas:
-        rutas.append(ruta)
+        if ruta not in rutas:
+          rutas.append(ruta)
       for a in config_fir.sections():
         config_fir.remove_section(a)
   rutas.sort()
