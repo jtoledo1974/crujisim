@@ -1,8 +1,7 @@
-# App Radar fase básica
+# App Radar fase bï¿½ica
 [datos]
 nombre: AppRadarBasico
 [puntos]
-VFR:0.0,0.0
 HIDRO:80.773,-119.857
 DEMOS:104.223,-274.889
 NARBO:155.467,-269.244
@@ -331,8 +330,8 @@ NVS1A: NVS,GE,PARLA,_2DME
 TLD1A: TLD,PARLA,_2DME
 VTB1A: VTB,_VTB1A1,PARLA,_2DME
 
-[app_LEMD33]; Procedimientos de aproximación (APP) y aproximación frustrada (MAP)
-PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Después viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorización aterrizaje y puntos MAP
+[app_LEMD33]; Procedimientos de aproximaciï¿½ (APP) y aproximaciï¿½ frustrada (MAP)
+PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Despuï¿½ viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaciï¿½ aterrizaje y puntos MAP
 _2DME = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
 [sector1]
 nombre:AppRadarBasico
