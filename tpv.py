@@ -38,6 +38,24 @@ def set_seleccion_usuario(seleccion_usuario):
 	global g_seleccion_usuario
 	g_seleccion_usuario = seleccion_usuario
 
+def calc_eto(d):
+    # Cálculo del tiempo entre fijos
+    estimadas=[0.0]
+    last_point=False
+    t=0.
+    n_puntos=len(d.route)
+    inc_t=15./60./60.
+    while not last_point:
+      t=t+inc_t
+      d.next(t)
+      if len(d.route)<n_puntos:
+        estimadas.append(t)
+        n_puntos=len(d.route)
+      if not d.to_do == 'fpr':
+        estimadas.append(t)
+        last_point = True
+    return estimadas
+	
 def tpv():
   global h_inicio,fir_elegido,sector_elegido,ejercico_elegido, g_seleccion_usuario,rwyInUse
 
@@ -408,10 +426,7 @@ def tpv():
         alt=float(p[8:11])
         d.set_alt(alt)
         spd=float(p[12:15])
-#         d.set_spd(spd)
-#         d.set_std_spd()
         ias=spd/(1.+0.002*d.rfl)
-#         d.set_ias(ias)
         d.set_std_spd()
         fijo=fijo_ant
         hora=float(p[1:3])+float(p[3:5])/60.+float(p[5:7])/60/60
@@ -435,19 +450,6 @@ def tpv():
           auxi=False
       if auxi:
         print 'ok'
-    d.route = ruta
-    complete_flight_plan(d)
-    ruta = d.route
-    pos=ruta[0][0]
-    d.set_position(pos)
-    for i in range(5):
-      d.hist.append(ruta[0][0])
-    route=[]
-    for a in ruta:
-      route.append(a)
-    route.pop(0)
-    d.set_route(route)
-    d.set_initial_heading()
     # Ahora incluimos las performances del avión
     if d.get_wake() == 'H':
       d.turn = 2.4 * 60. * 60.
@@ -483,28 +485,26 @@ def tpv():
         d.spd_max = float(aux[7])
         d.spd_tma = float(aux[8])
         d.spd_app = float(aux[9])
-    # Cálculo del tiempo entre fijos
-    estimadas=[0.0]
-    last_point=False
-    t=0.
-    n_puntos=len(d.route)
-    inc_t=15./60./60.
-    while not last_point:
-      t=t+inc_t
-      d.next(t)
-      if len(d.route)<n_puntos:
-        estimadas.append(t)
-        n_puntos=len(d.route)
-      if not d.to_do == 'fpr':
-        estimadas.append(t)
-        last_point = True
+    # Cálculo de la estimada al primer punto
+    d.route = ruta
+    pos=ruta[0][0]
+    print 'Antes del recálculo',fijo,hora,ruta
+    d.set_position(pos)
+    for i in range(5):
+      d.hist.append(ruta[0][0])
+    route=[]
+    for a in ruta:
+      route.append(a)
+    route.pop(0)
+    d.set_route(route)
+    d.set_initial_heading()
+    estimadas = calc_eto(d)
+    print 'Estimadas en primera vuelta', estimadas
     # Cálculo de la estimada ajustada
-    print 'Datos del avo: GS-->',d.get_ground_speed()
-    print ruta
-    print estimadas
     for i in range(len(ruta)):
       if ruta[i][1]==fijo:
         desfase=hora-estimadas[i]
+	break
     aux=[]
     for i in range(len(ruta)):
       eto=desfase+estimadas[i]
@@ -516,14 +516,54 @@ def tpv():
     d.set_alt(alt)
     d.set_cfl(cfl)
     d.spd = 0.0
-#     d.set_spd(spd)
-#     d.set_std_spd()
-#     d.set_ias(ias)
     d.set_std_spd()
     d.set_initial_t(desfase)
     d.set_hist_t(desfase)
     d.set_position(pos)
     d.set_initial_heading()
+    # Recálculo para el caso de que al aplicar las SIDs o STARs cambien los puntos de la ruta
+    # Mantendremos la eto sobre el primer punto de la ruta
+    fijo = ruta [0][1]
+    hora = d.t
+    d.set_initial_t(0.0)
+    print 'Después del recálculo',fijo,hora,ruta
+    d.route = ruta
+    complete_flight_plan(d)
+    ruta = d.route
+    pos=ruta[0][0]
+    d.set_position(pos)
+    for i in range(5):
+      d.hist.append(ruta[0][0])
+    route=[]
+    for a in ruta:
+      route.append(a)
+    route.pop(0)
+    d.set_route(route)
+    d.set_initial_heading()
+    estimadas = calc_eto(d)
+    print 'Estimadas en segunda vuelta: ',estimadas
+    # Cálculo de la estimada ajustada
+    for i in range(len(ruta)):
+      if ruta[i][1]==fijo:
+        desfase=hora-estimadas[i]
+	break
+    aux=[]
+    for i in range(len(ruta)):
+      eto=desfase+estimadas[i]
+      h=int(eto)
+      m=int((eto*60.+0.5)-h*60.)
+      aux.append([ruta[i][0],ruta[i][1],'%02d:%02d'%(h,m)])
+    aux.pop(0)
+    d.set_route(aux)
+    d.set_alt(alt)
+    d.set_cfl(cfl)
+    d.spd = 0.0
+    d.set_std_spd()
+    d.set_initial_t(desfase)
+    d.set_hist_t(desfase)
+    d.set_position(pos)
+    d.set_initial_heading()
+    
     hist=[]
     d.set_campo_eco(d.route[-1][1][0:3])
     for dest in aeropuertos:
