@@ -25,6 +25,8 @@ def set_latest_lad(num):
   print 'Set_latest_lad llamado. Antes despues', latest_lad_event_processed,num
   latest_lad_event_processed = num
 
+  
+# Modules to be imported  
 from avion import *
 from tpv import *
 from Tix import *
@@ -36,6 +38,8 @@ import lads
 from math import sqrt
 import os.path
 
+
+# Global variables
 global wind
 punto = []
 ejercicio = []
@@ -66,6 +70,10 @@ vent_ident_maps = None
 vent_ident_procs = None
 vent_ident_mapas = None
 
+# Constants
+IMGDIR='./img/'
+
+# Start loading data
 [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv()
 
 set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos, proc_app,min_sep)
@@ -1996,25 +2004,25 @@ def ventana_auxiliar(e):
   if ver_ventana_auxiliar:
     if ancho > 800.:
       ventana=Frame(w,bg='gray',width=ancho)
-      but_inicio = Button(ventana,bitmap='@start.xbm',command=b_inicio)
+      but_inicio = Button(ventana,bitmap='@'+IMGDIR+'start.xbm',command=b_inicio)
       but_inicio.pack(side=LEFT,expand=1,fill=X)
-      but_parar = Button(ventana,bitmap='@pause.xbm',command=b_parar)
+      but_parar = Button(ventana,bitmap='@'+IMGDIR+'pause.xbm',command=b_parar)
       but_parar.pack(side=LEFT,expand=1,fill=X)
-      but_izq = Button(ventana,bitmap='@left.xbm',command=b_izquierda)
+      but_izq = Button(ventana,bitmap='@'+IMGDIR+'left.xbm',command=b_izquierda)
       but_izq.pack(side=LEFT,expand=1,fill=X)
-      but_arriba = Button(ventana,bitmap='@up.xbm',command=b_arriba)
+      but_arriba = Button(ventana,bitmap='@'+IMGDIR+'up.xbm',command=b_arriba)
       but_arriba.pack(side=LEFT,expand=1,fill=X)
-      but_abajo = Button(ventana,bitmap='@down.xbm',command=b_abajo)
+      but_abajo = Button(ventana,bitmap='@'+IMGDIR+'down.xbm',command=b_abajo)
       but_abajo.pack(side=LEFT,expand=1,fill=X)
-      but_derecha = Button(ventana,bitmap='@right.xbm',command=b_derecha)
+      but_derecha = Button(ventana,bitmap='@'+IMGDIR+'right.xbm',command=b_derecha)
       but_derecha.pack(side=LEFT,expand=1,fill=X)
-      but_zoom_mas = Button(ventana,bitmap='@zoom.xbm',command=b_zoom_mas)
+      but_zoom_mas = Button(ventana,bitmap='@'+IMGDIR+'zoom.xbm',command=b_zoom_mas)
       but_zoom_mas.pack(side=LEFT,expand=1,fill=X)
-      but_zoom_menos = Button(ventana,bitmap='@unzoom.xbm',command=b_zoom_menos)
+      but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm',command=b_zoom_menos)
       but_zoom_menos.pack(side=LEFT,expand=1,fill=X)
-      but_standard = Button(ventana,bitmap='@center.xbm',command=b_standard)
+      but_standard = Button(ventana,bitmap='@'+IMGDIR+'center.xbm',command=b_standard)
       but_standard.pack(side=LEFT,expand=1,fill=X)
-      but_tamano_etiq = Button(ventana,bitmap='@labelsize.xbm',command=b_tamano_etiquetas)
+      but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_etiquetas)
       but_tamano_etiq.pack(side=LEFT,expand=1,fill=X)
       but_term = Button(ventana,text='Kill',command=kill_acft)
       but_term.pack(side=LEFT,expand=1,fill=X)
@@ -2111,25 +2119,25 @@ def ventana_auxiliar(e):
     else:
       ventana=Frame(w,bg='gray')
       button_width = 25 + (ancho - 804)/7
-      but_inicio = Button(ventana,bitmap='@start.xbm',command=b_inicio)
+      but_inicio = Button(ventana,bitmap='@'+IMGDIR+'start.xbm',command=b_inicio)
       but_inicio.grid(column=0,row=0,sticky=E+W)
-      but_parar = Button(ventana,bitmap='@pause.xbm',command=b_parar)
+      but_parar = Button(ventana,bitmap='@'+IMGDIR+'pause.xbm',command=b_parar)
       but_parar.grid(column=1,row=0,sticky=E+W)
-      but_arriba = Button(ventana,bitmap='@up.xbm',command=b_arriba)
+      but_arriba = Button(ventana,bitmap='@'+IMGDIR+'up.xbm',command=b_arriba)
       but_arriba.grid(column=1,row=1,sticky=E+W)
-      but_izq = Button(ventana,bitmap='@left.xbm',command=b_izquierda)
+      but_izq = Button(ventana,bitmap='@'+IMGDIR+'left.xbm',command=b_izquierda)
       but_izq.grid(column=0,row=1,sticky=E+W)
-      but_abajo = Button(ventana,bitmap='@down.xbm',command=b_abajo)
+      but_abajo = Button(ventana,bitmap='@'+IMGDIR+'down.xbm',command=b_abajo)
       but_abajo.grid(column=2,row=1,sticky=E+W)
-      but_derecha = Button(ventana,bitmap='@right.xbm',command=b_derecha)
+      but_derecha = Button(ventana,bitmap='@'+IMGDIR+'right.xbm',command=b_derecha)
       but_derecha.grid(column=3,row=1,sticky=E+W)
-      but_zoom_mas = Button(ventana,bitmap='@zoom.xbm',command=b_zoom_mas)
+      but_zoom_mas = Button(ventana,bitmap='@'+IMGDIR+'zoom.xbm',command=b_zoom_mas)
       but_zoom_mas.grid(column=4,row=1,sticky=E+W)
-      but_zoom_menos = Button(ventana,bitmap='@unzoom.xbm',command=b_zoom_menos)
+      but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm',command=b_zoom_menos)
       but_zoom_menos.grid(column=5,row=1,sticky=E+W)
-      but_standard = Button(ventana,bitmap='@center.xbm',command=b_standard)
+      but_standard = Button(ventana,bitmap='@'+IMGDIR+'center.xbm',command=b_standard)
       but_standard.grid(column=6,row=1,sticky=E+W)
-      but_tamano_etiq = Button(ventana,bitmap='@labelsize.xbm',command=b_tamano_etiquetas)
+      but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_etiquetas)
       but_tamano_etiq.grid(column=7,row=1)
       def cambia_vect_vel(e=None):
           set_speed_time(float(var_vect_vel.get())/60.)
