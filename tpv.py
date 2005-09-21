@@ -20,6 +20,7 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+# Module imports
 import warnings
 warnings.filterwarnings('ignore','.*',DeprecationWarning)
 from StripSeries import StripSeries
@@ -31,8 +32,10 @@ from Tix import *
 import Image
 import ImageTk
 import PngImagePlugin
-
 import sys
+
+# Constants
+IMGDIR='./img/'
 
 def set_seleccion_usuario(seleccion_usuario):
 	global g_seleccion_usuario
@@ -710,7 +713,7 @@ class DlgPdfWriteError:
         f1=Frame(dlg)
         f2=Frame(dlg)
         texto=Label(f1,text='Ha sido imposible guardar el archivo de fichas (etiquetas.pdf)\n Es probable que tenga abierto el archivo.')
-        photo=ImageTk.PhotoImage(Image.open("stock_dialog-warning.png"))
+        photo=ImageTk.PhotoImage(Image.open(IMGDIR+"stock_dialog-warning.png"))
         icono=Label(f1, image=photo)
         icono.photo=photo
         butretry=Button(f2, text='     Reintentar    ', command=self.retry)
