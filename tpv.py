@@ -36,6 +36,7 @@ import sys
 
 # Constants
 IMGDIR='./img/'
+CRUJISIMICO=IMGDIR+'crujisim.ico'
 
 def set_seleccion_usuario(seleccion_usuario):
 	global g_seleccion_usuario
@@ -727,7 +728,7 @@ class DlgPdfWriteError:
         butcancel.grid(row=0,column=1, padx=10)
 
         if sys.platform.startswith('win'):
-                dlg.wm_iconbitmap('crujisim.ico')
+                dlg.wm_iconbitmap(CRUJISIMICO)
         dlg.wm_title('Crujisim')
 
         dlg.protocol("WM_DELETE_WINDOW", self.cancel)

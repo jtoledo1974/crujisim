@@ -72,6 +72,7 @@ vent_ident_mapas = None
 
 # Constants
 IMGDIR='./img/'
+CRUJISIMICO=IMGDIR+'crujisim.ico'
 
 # Start loading data
 [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv()
@@ -82,7 +83,7 @@ size=2
 
 root=Tk()
 if sys.platform.startswith('win'):
-	root.wm_iconbitmap('crujisim.ico')
+	root.wm_iconbitmap(CRUJISIMICO)
 	root.wm_state('zoomed')
 root.wm_title('Crujisim - '+os.path.basename(g_seleccion_usuario[2][1]))  # Display exercise name in window title
 
