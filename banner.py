@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #-*- coding:iso8859-15 -*-
+# $Id$
 
 # (c) 2005 CrujiMaster (crujisim@yahoo.com)
 #
@@ -19,6 +20,7 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+# Module imports
 from Tix import *
 from Tkconstants import *
 import Image
@@ -31,7 +33,11 @@ from ConfigParser import *
 import zipfile
 from os import rename
 
+# Global variables
 exercises_root = 'pasadas'
+
+# Constants
+IMGDIR='./img/'
 
 def get_fires():
     # Devuelve una lista con los fires disponibles y los nombres de ficheros asociados
@@ -107,7 +113,7 @@ def get_ejercicios(fir, sector):
 
 images = {}
 def load_image(image_name):
-        new_img = Image.open(image_name+".gif").convert("RGBA")
+        new_img = Image.open(IMGDIR+image_name+".gif").convert("RGBA")
         tkimg = ImageTk.PhotoImage(image=new_img)
 	images[image_name] = tkimg
         return tkimg
