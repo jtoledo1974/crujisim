@@ -379,7 +379,7 @@ def draw_all_lads(canvas):
 palote_identifier=None
 images = {}
 def load_image(image_name):
-        new_img = Image.open(image_name+".gif").convert("RGBA")
+        new_img = Image.open(IMGDIR+image_name+".gif").convert("RGBA")
         tkimg = ImageTk.PhotoImage(image=new_img)
 	images[image_name] = tkimg
         return tkimg
