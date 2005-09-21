@@ -1,9 +1,20 @@
-SIMULADOR DE RUTA beta-5 (6/6/05)
+===============
+C R U J I S I M
+===============
 
-Ante todo, comentar que este simulador no pretende ser una copia del SACTA que utilizamos. Se parece bastante, 
-pero hay aspectos que son diferentes, así como el modelo de vuelo que hace variar la velocidad en función de la altitud.
+Introducción
+------------
 
-Igualmente, comentaros que está en fase evaluación, por lo que puede petar en alguna ocasión...
+Ante todo, comentar que este simulador no pretende ser una copia del SACTA que utilizamos. Se parece bastante, pero hay aspectos que son diferentes, así como el modelo de vuelo que hace variar la velocidad en función de la altitud.
+
+Aquí podrás leer sobre el método básico de funcionamiento del simulador.
+Para más información sobre cómo colaborar en el desarrollo del programa,
+definición de los archivos de sector y las pasadas, consulta los archivos
+del directorio "doc".
+
+
+Instrucciones Básicas de Uso
+----------------------------
 
 La información que se presenta en las etiquetas es la siguiente:
 
