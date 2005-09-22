@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding:iso8859-15 -*-
 
 # (c) 2005 CrujiMaster (crujisim@yahoo.com)
 #
@@ -18,6 +19,9 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#Constants
+
+
 import warnings
 warnings.filterwarnings('ignore','.*',DeprecationWarning)
 import sys
@@ -28,6 +32,10 @@ from strips.pid import Font
 from strips.PDF import PDFCanvas
 
 STRIPS_PER_PAGE = 11
+
+STRIP_X_SIZE=535    #define el tamaño horizontal de la ficha
+STRIP_Y_SIZE=68     #define el tamaño vertical de la ficha
+
 
 class StripSeries:
 
@@ -42,10 +50,11 @@ class StripSeries:
 		
 	def draw_blank_strip(self, x, y):
 		canvas = self.canvas
-		canvas.drawLine(x, y, x+535, y, color=dimgray)
-		canvas.drawLine(x, y+68, x+535, y+68, color=dimgray)
-		canvas.drawLine(x, y, x, y+68, color=dimgray)
-		canvas.drawLine(x+535, y, x+535, y+68, color=dimgray)
+                #Dibuja el contorno de la ficha
+		canvas.drawLine(x, y, x+STRIP_X_SIZE, y, color=dimgray)
+		canvas.drawLine(x, y+STRIP_Y_SIZE, x+STRIP_X_SIZE, y+STRIP_Y_SIZE, color=dimgray)
+		canvas.drawLine(x, y, x, y+STRIP_Y_SIZE, color=dimgray)
+		canvas.drawLine(x+STRIP_X_SIZE, y, x+STRIP_X_SIZE, y+STRIP_Y_SIZE, color=dimgray)
 		
 		canvas.drawLine(x+11, y+25, x+397, y+25)
 		canvas.drawLine(x+5, y+52, x+529, y+52)
@@ -70,7 +79,7 @@ class StripSeries:
 #	def draw_callsign(canvas, x, y, callsign):
 #		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=18, bold=1))
 
-	def draw_flight_data(self, callsign="",CIAcallsign="", model="", wake="", responder="", speed="", cssr="", origin="", destination="", fl="", cfl="", route="", rules="", prev_fix="", fix="", next_fix="", prev_fix_est="", fix_est="", next_fix_est=""):
+	def draw_flight_data(self, callsign="",ciacallsign="", model="", wake="", responder="", speed="", cssr="", origin="", destination="", fl="", cfl="", route="", rules="", prev_fix="", fix="", next_fix="", prev_fix_est="", fix_est="", next_fix_est=""):
 		x = 30
 		y = 40 + 68 * (self.num_strips % STRIPS_PER_PAGE)
 		canvas = self.canvas
@@ -84,9 +93,9 @@ class StripSeries:
 		if responder == "": responder = " "
 		if speed == "": speed = "    "
 		else: speed = "%04d" % int(speed)
-		if CIAcallsign=="": CIAcallsign = " "
+		if ciacallsign=="": ciacallsign = " "
 		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=16, bold=1))
-		strips.stringformat.drawString(canvas, CIAcallsign, x+15, y+10, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, ciacallsign, x+15, y+10, Font(face="monospaced", size=8, bold=1))
 		firstline = model + "/" + wake + "/" + responder + "/" + speed
 		strips.stringformat.drawString(canvas, firstline, x+16, y+35, Font(face="monospaced", size=8, bold=1))
 		secondline = origin + "      "+destination+"/"+fl
