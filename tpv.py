@@ -431,7 +431,7 @@ def tpv():
         alt=float(p[8:11])
         d.set_alt(alt)
         spd=float(p[12:15])
-        d.set_spd_PV(spd)
+        d.set_filed_tas(spd)
         ias=spd/(1.+0.002*d.rfl)
         d.set_std_spd()
         fijo=fijo_ant
@@ -658,7 +658,7 @@ def tpv():
               next=a.route[i+1][1]
               next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
             # La variable callsign contiene el indicativo de llamada
-            ss.draw_flight_data(callsign=a.name, CIAcallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.spd_PV, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
+            ss.draw_flight_data(callsign=a.name, CIAcallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
       # Si no hay ficha de ningún primario, saca ficha de los secundarios
       if es_secundario:
         for i in range(len(a.route)):

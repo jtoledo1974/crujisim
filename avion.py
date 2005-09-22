@@ -424,6 +424,7 @@ class Airplane:
     self.ground_spd=350.
     self.spd_std=self.spd
     self.spd_max=self.spd
+    self.filed_tas = 0.
     self.spd_tma=200.
     self.spd_app=180.
     self.es_spd_std=True
@@ -454,7 +455,6 @@ class Airplane:
     self._map = False
     self.int_loc = False
     self.esta_en_llz = False
-    self.spd_PV = 0.
 
 
   def next(self,t):
@@ -768,11 +768,11 @@ class Airplane:
     else:
       self.rate = -self.rate_desc_std
 
-  def set_spd_PV(self,spd_PV):
-    self.spd_PV=spd_PV
+  def set_filed_tas(self,filed_tas):
+    self.filed_tas=filed_tas
 
-  def get_spd_PV(self):
-    return self.spd_PV
+  def get_filed_tas(self):
+    return self.filed_tas
 
   def get_rate_descend(self):
     return self.rate/60.*100.
