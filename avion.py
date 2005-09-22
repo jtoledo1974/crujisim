@@ -454,6 +454,7 @@ class Airplane:
     self._map = False
     self.int_loc = False
     self.esta_en_llz = False
+    self.spd_PV = 0.
 
 
   def next(self,t):
@@ -766,7 +767,13 @@ class Airplane:
       self.rate = self.rate_climb_std * f_vert(self)
     else:
       self.rate = -self.rate_desc_std
-  
+
+  def set_spd_PV(self,spd_PV):
+    self.spd_PV=spd_PV
+
+  def get_spd_PV(self):
+    return self.spd_PV
+
   def get_rate_descend(self):
     return self.rate/60.*100.
     
