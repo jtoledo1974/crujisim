@@ -70,7 +70,7 @@ class StripSeries:
 #	def draw_callsign(canvas, x, y, callsign):
 #		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=18, bold=1))
 
-	def draw_flight_data(self, callsign="", model="", wake="", responder="", speed="", cssr="", origin="", destination="", fl="", cfl="", route="", rules="", prev_fix="", fix="", next_fix="", prev_fix_est="", fix_est="", next_fix_est=""):
+	def draw_flight_data(self, callsign="",CIAcallsign="", model="", wake="", responder="", speed="", cssr="", origin="", destination="", fl="", cfl="", route="", rules="", prev_fix="", fix="", next_fix="", prev_fix_est="", fix_est="", next_fix_est=""):
 		x = 30
 		y = 40 + 68 * (self.num_strips % STRIPS_PER_PAGE)
 		canvas = self.canvas
@@ -84,7 +84,9 @@ class StripSeries:
 		if responder == "": responder = " "
 		if speed == "": speed = "    "
 		else: speed = "%04d" % int(speed)
+		if CIAcallsign=="": CIAcallsign = " "
 		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=16, bold=1))
+		strips.stringformat.drawString(canvas, CIAcallsign, x+15, y+10, Font(face="monospaced", size=8, bold=1))
 		firstline = model + "/" + wake + "/" + responder + "/" + speed
 		strips.stringformat.drawString(canvas, firstline, x+16, y+35, Font(face="monospaced", size=8, bold=1))
 		secondline = origin + "      "+destination+"/"+fl
