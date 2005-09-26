@@ -33,8 +33,8 @@ from strips.PDF import PDFCanvas
 
 STRIPS_PER_PAGE = 11
 
-STRIP_X_SIZE=535    #define el tamaño horizontal de la ficha
-STRIP_Y_SIZE=68     #define el tamaño vertical de la ficha
+STRIP_X_SIZE=560    #define el tamaño horizontal de la ficha
+STRIP_Y_SIZE=70     #define el tamaño vertical de la ficha
 
 
 class StripSeries:
@@ -42,7 +42,7 @@ class StripSeries:
         filename=''
     
 	def __init__(self, exercise_name="", date="", output_file="strips.pdf"):
-		self.canvas = PDFCanvas(size=(500,815), name=output_file)
+		self.canvas = PDFCanvas(size=(560,815), name=output_file)
 		strips.stringformat.drawString(self.canvas, "Ejercicio:  "+str(exercise_name), 40, 40)
 		self.canvas.clear()
 		self.num_strips = 0
@@ -55,33 +55,39 @@ class StripSeries:
 		canvas.drawLine(x, y+STRIP_Y_SIZE, x+STRIP_X_SIZE, y+STRIP_Y_SIZE, color=dimgray)
 		canvas.drawLine(x, y, x, y+STRIP_Y_SIZE, color=dimgray)
 		canvas.drawLine(x+STRIP_X_SIZE, y, x+STRIP_X_SIZE, y+STRIP_Y_SIZE, color=dimgray)
-		
-		canvas.drawLine(x+11, y+25, x+397, y+25)
-		canvas.drawLine(x+5, y+52, x+529, y+52)
-		canvas.drawLine(x+142, y+11, x+142, y+52)
-		canvas.drawLine(x+184, y+12, x+184, y+52)
-		canvas.drawLine(x+225, y+12, x+225, y+52)
-		canvas.drawLine(x+279, y+12, x+279, y+52)
-		canvas.drawLine(x+334, y+12, x+334, y+52)
-		canvas.drawLine(x+389, y+12, x+389, y+52)
-		canvas.drawLine(x+142, y+52, x+184, y+25)
-		canvas.drawLine(x+184, y+38, x+225, y+38)
-		canvas.drawLine(x+255, y+25, x+255, y+52)
-		canvas.drawLine(x+255, y+52, x+279, y+25)
-		canvas.drawLine(x+310, y+25, x+310, y+52)
-		canvas.drawLine(x+310, y+52, x+334, y+25)
-		canvas.drawLine(x+364, y+25, x+364, y+52)
-		canvas.drawLine(x+364, y+52, x+389, y+25)
-		
-		canvas.drawLine(x+510, y+8, x+510, y+19)
-		canvas.drawLine(x+510, y+19, x+529, y+19)
+
+##		Primera linea horizontal: hacia arriba está el indicativo
+		canvas.drawLine(x+11, y+23, x+410, y+23)
+##		Segunda linea horizontal: hacia abajo está la ruta
+		canvas.drawLine(x+5, y+52, x+550, y+52)
+##		Seis Lineas verticales principales: hora 1 comunicación,respondedor,fijo anterior,fijo,fijo siguiente,instrucciones
+		canvas.drawLine(x+145, y+11, x+145, y+52)
+		canvas.drawLine(x+187, y+12, x+187, y+52)
+		canvas.drawLine(x+227, y+12, x+227, y+52)
+		canvas.drawLine(x+286, y+12, x+286, y+52)
+		canvas.drawLine(x+345, y+12, x+345, y+52)
+		canvas.drawLine(x+404, y+12, x+404, y+52)
+##		Linea diagonal casilla primera comunicación
+		canvas.drawLine(x+144, y+52, x+187, y+23)
+##		Linea horizontal divisoria casilla respondedor
+		canvas.drawLine(x+187, y+37, x+227, y+37)
+##		Lineas verticales y diagonales para las casillas de estimada piloto/hora de paso por el fijo
+		canvas.drawLine(x+257, y+23, x+257, y+52)
+		canvas.drawLine(x+257, y+52, x+286, y+23)
+		canvas.drawLine(x+316, y+23, x+316, y+52)
+		canvas.drawLine(x+316, y+52, x+345, y+23)
+		canvas.drawLine(x+375, y+23, x+375, y+52)
+		canvas.drawLine(x+375, y+52, x+404, y+23)
+##		Lineas Minuto de transferencia de comunicaciones		
+		canvas.drawLine(x+529, y+8, x+529, y+17,width=3)
+		canvas.drawLine(x+531, y+19, x+550, y+19)
 	
 #	def draw_callsign(canvas, x, y, callsign):
 #		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=18, bold=1))
 
-	def draw_flight_data(self, callsign="",ciacallsign="", model="", wake="", responder="", speed="", cssr="", origin="", destination="", fl="", cfl="", route="", rules="", prev_fix="", fix="", next_fix="", prev_fix_est="", fix_est="", next_fix_est=""):
-		x = 30
-		y = 40 + 68 * (self.num_strips % STRIPS_PER_PAGE)
+	def draw_flight_data(self, exercice_name="",callsign="",ciacallsign="", model="", wake="", responder="", speed="", cssr="", origin="", destination="", fl="", cfl="", route="", rules="", prev_fix="", fix="", next_fix="", prev_fix_est="", fix_est="", next_fix_est=""):
+		x = 25
+		y = 40 + STRIP_Y_SIZE * (self.num_strips % STRIPS_PER_PAGE)
 		canvas = self.canvas
 		if (self.num_strips > 0) and (self.num_strips % STRIPS_PER_PAGE) == 0:
 			canvas.flush()
@@ -94,25 +100,28 @@ class StripSeries:
 		if speed == "": speed = "    "
 		else: speed = "%04d" % int(speed)
 		if ciacallsign=="": ciacallsign = " "
-		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=16, bold=1))
+		if exercice_name=="": exercice_name= " "
+		strips.stringformat.drawString(canvas, callsign, x+30, y+22, Font(face="monospaced", size=20, bold=1))
 		strips.stringformat.drawString(canvas, ciacallsign, x+15, y+10, Font(face="monospaced", size=8, bold=1))
 		firstline = model + "/" + wake + "/" + responder + "/" + speed
-		strips.stringformat.drawString(canvas, firstline, x+16, y+35, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, firstline, x+16, y+35, Font(face="monospaced", size=9, bold=1))
 		secondline = origin + "      "+destination+"/"+fl
-		strips.stringformat.drawString(canvas, secondline, x+16, y+47, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, secondline, x+16, y+49, Font(face="monospaced", size=10, bold=1))
 		strips.stringformat.drawString(canvas, cssr, x+190, y+50, Font(face="monospaced", size=8, bold=1))
-		strips.stringformat.drawString(canvas, route, x+16, y+63, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, rules, x+200, y+23, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, prev_fix, x+240, y+23, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, prev_fix_est, x+230, y+40, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, route, x+16, y+61, Font(face="monospaced", size=10, bold=1))
+		strips.stringformat.drawString(canvas, rules, x+200, y+22, Font(face="monospaced", size=10, bold=1))
+
+		strips.stringformat.drawString(canvas, prev_fix, x+240, y+22, Font(face="monospaced", size=10, bold=1))
+		strips.stringformat.drawString(canvas, prev_fix_est, x+230, y+35, Font(face="monospaced", size=9, bold=1))
 		
-		strips.stringformat.drawString(canvas, fix, x+290, y+23, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, fix_est, x+280, y+40, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, fix, x+300, y+22, Font(face="monospaced", size=12, bold=1))
+		strips.stringformat.drawString(canvas, fix_est, x+286, y+50, Font(face="monospaced", size=12, bold=1))
 		
-		strips.stringformat.drawString(canvas, next_fix, x+345, y+23, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, next_fix_est, x+335, y+40, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, next_fix, x+358, y+22, Font(face="monospaced", size=10, bold=1))
+		strips.stringformat.drawString(canvas, next_fix_est, x+348, y+35, Font(face="monospaced", size=9, bold=1))
                 
-                strips.stringformat.drawString(canvas,cfl,x+400,y+23, Font(face="monospaced", size=10, bold=1))
+                strips.stringformat.drawString(canvas,cfl,x+405,y+22, Font(face="monospaced", size=12, bold=1))
+                strips.stringformat.drawString(canvas,exercice_name,x+5,y+68, Font(face="monospaced", size=6, bold=0))
 		self.num_strips += 1
 
 	def save(self):
