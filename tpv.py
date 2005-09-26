@@ -510,7 +510,7 @@ def tpv():
     for i in range(len(ruta)):
       if ruta[i][1]==fijo:
         desfase=hora-estimadas[i]
-	break
+        break
     aux=[]
     for i in range(len(ruta)):
       eto=desfase+estimadas[i]
@@ -534,6 +534,9 @@ def tpv():
     d.set_initial_t(0.0)
     print 'Después del recálculo',fijo,hora,ruta
     d.route = ruta
+    d.set_se_pinta(False)   # Some previous function has incorrectly set this to True
+                            # We need it to be false so that SID and STARs are
+                            # added correctly
     complete_flight_plan(d)
     ruta = d.route
     pos=ruta[0][0]
