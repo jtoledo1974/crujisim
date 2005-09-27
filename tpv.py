@@ -640,12 +640,23 @@ def tpv():
       for f in a.route:
         if f[1][0]!='_':
           ruta=ruta+' '+f[1]
-      es_secundario = True
-      # Fichas en los puntos principales
+
+      # Flight Strip creation
+      
+      # First we determine whether this flight will pass any of the
+      # primary flight strip printing points. If it doesn't, then
+      # it will use the secondary flight strip printing points instead
+      current_printing_fixes = fijos_impresion_secundarios
       for i in range(len(a.route)):
-        for fijo in fijos_impresion:
+        for fix in fijos_impresion:
+          if a.route[i][1]==fix:
+	    current_printing_fixes = fijos_impresion
+
+      # Print a flight strip for every route point which is any of the
+      # current_printing_fixes
+      for i in range(len(a.route)):
+        for fijo in current_printing_fixes:
           if a.route[i][1]==fijo:
-            es_secundario = False
             if i>0:
               prev=a.route[i-1][1]
               prev_t=a.route[i-1][2][0:2]+a.route[i-1][2][3:5]
@@ -662,28 +673,6 @@ def tpv():
               next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
             # La variable callsign contiene el indicativo de llamada
             ss.draw_flight_data(callsign=a.name,exercice_name=name, ciacallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
-      # Si no hay ficha de ningún primario, saca ficha de los secundarios
-      if es_secundario:
-        for i in range(len(a.route)):
-          for fijo in fijos_impresion_secundarios:
-            if a.route[i][1]==fijo:
-              es_secundario = False
-              if i>0:
-                prev=a.route[i-1][1]
-                prev_t=a.route[i-1][2][0:2]+a.route[i-1][2][3:5]
-              else:
-                prev=''
-                prev_t=''
-              fijo=a.route[i][1]
-              fijo_t=a.route[i][2][0:2]+a.route[i][2][3:5]
-              if i==len(a.route)-1:
-                next=''
-                next_t=''
-              else:
-                next=a.route[i+1][1]
-                next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
-              # La variable callsign contiene el indicativo de llamada
-              ss.draw_flight_data(callsign=a.name,exercice_name=name, ciacallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
       
   if not ss.save() :
       while DlgPdfWriteError().result=='retry' and not ss.save():
