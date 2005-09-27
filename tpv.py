@@ -23,7 +23,7 @@
 # Module imports
 import warnings
 warnings.filterwarnings('ignore','.*',DeprecationWarning)
-from StripSeries import StripSeries
+from StripSeries import StripSeries, FlightData
 from ConfigParser import *
 from avion import *
 import glob
@@ -687,9 +687,30 @@ def tpv():
               next=a.route[i+1][1]
               next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
             # La variable callsign contiene el indicativo de llamada
+
+            fd=FlightData()
+            fd.callsign=a.name
+            fd.exercice_name=name
+            fd.ciacallsign=callsign
+            fd.prev_fix=prev
+            fd.fix=fijo
+            fd.next_fix=next
+            fd.prev_fix_est=prev_t
+            fd.fix_est=fijo_t
+            fd.next_fix_est=next_t
+            fd.model=a.tipo
+            fd.wake=a.estela
+            fd.speed=a.filed_tas
+            fd.responder="C"
+            fd.origin=a.origen
+            fd.destination=a.destino
+            fd.fl=str(int(a.rfl))
+            fd.cfl=str(int(a.cfl))
+            fd.cssr="----"
+            fd.route=ruta
+            fd.rules=""
             
-            ss.draw_flight_data(callsign=a.name,exercice_name=name, ciacallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
-            #ss.draw_flight_data(callsign=a.name,exercice_name=name, ciacallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
+            ss.draw_flight_data(fd)
       
   if not ss.save() :
       while DlgPdfWriteError().result=='retry' and not ss.save():
