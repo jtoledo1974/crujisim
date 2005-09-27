@@ -455,6 +455,8 @@ class Airplane:
     self._map = False
     self.int_loc = False
     self.esta_en_llz = False
+    self.sector_entry_fix = ''	# First route point within our sector
+    self.sector_entry_time = 0.	# Estimated ETO over our sector entry point
 
 
   def next(self,t):

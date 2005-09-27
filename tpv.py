@@ -621,6 +621,10 @@ def tpv():
       name = parseraux.get('datos','comentario')
     else:
       name = ejercicio_elegido[1]
+    
+    firdef = ConfigParser()
+    firdef.readfp(open(fir_elegido[1],'r'))
+    
     ss = StripSeries(exercise_name = name, output_file="etiquetas.pdf")
     for (aux,s) in orden:
       a = ejercicio[s]
@@ -654,7 +658,14 @@ def tpv():
 
       # Print a flight strip for every route point which is any of the
       # current_printing_fixes
+      
+      initial_printing_time = None	# We keep track of when a flight strip will be first printed
       for i in range(len(a.route)):
+	# Check whether the current route point is the first in our sector, so as to calculate
+	# the initial printing time
+        if a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(','):
+          print "Punto de entrada a nuestro sector es "+a.route[i][1]
+	  
         for fijo in current_printing_fixes:
           if a.route[i][1]==fijo:
             if i>0:
