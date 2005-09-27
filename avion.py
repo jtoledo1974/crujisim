@@ -430,7 +430,9 @@ class Airplane:
     self.es_spd_std=True
     self.ias=300. # Velocidad indicada
     self.ias_obj = 0.
-    self.route=[[(-8.0,10.0),'punto','00:00']] #Ruta con los puntos
+    # A list containig all the route points [ (coords), nombre, eto_ascii, eto ]
+    # ETO is defined as the number of hours since 00:00. Minutes and seconds are fractions of the hour
+    self.route=[[(-8.0,10.0),'punto','00:00',0.]] 
     self.turn=3.0*60.*60. #Los mínimos grados por segundo que vira el avión
     self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo
     self.to_do='fpr'
@@ -455,8 +457,8 @@ class Airplane:
     self._map = False
     self.int_loc = False
     self.esta_en_llz = False
-    self.sector_entry_fix = ''	# First route point within our sector
-    self.sector_entry_time = 0.	# Estimated ETO over our sector entry point
+    self.sector_entry_fix = None  # First route point within our sector
+    self.sector_entry_time = None # Estimated ETO over our sector entry point
 
 
   def next(self,t):
@@ -787,6 +789,18 @@ class Airplane:
   
   def get_ground_speed(self):
     return self.ground_spd
+
+  def get_sector_entry_fix(self):
+    return self.sector_entry_fix
+
+  def set_sector_entry_fix(self,fix):
+    self.sector_entry_fix=fix
+
+  def get_sector_entry_time(self):
+    return self.sector_entry_time
+
+  def set_sector_entry_time(self,time):
+    self.sector_entry_time=time
   
   
   def se_debe_imprimir(self,t):

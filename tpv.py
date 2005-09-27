@@ -516,7 +516,7 @@ def tpv():
       eto=desfase+estimadas[i]
       h=int(eto)
       m=int((eto*60.+0.5)-h*60.)
-      aux.append([ruta[i][0],ruta[i][1],'%02d:%02d'%(h,m)])
+      aux.append([ruta[i][0],ruta[i][1],'%02d:%02d'%(h,m),eto])
     aux.pop(0)
     d.set_route(aux)
     d.set_alt(alt)
@@ -561,7 +561,7 @@ def tpv():
       eto=desfase+estimadas[i]
       h=int(eto)
       m=int((eto*60.+0.5)-h*60.)
-      aux.append([ruta[i][0],ruta[i][1],'%02d:%02d'%(h,m)])
+      aux.append([ruta[i][0],ruta[i][1],'%02d:%02d'%(h,m),eto])
     aux.pop(0)
     d.set_route(aux)
     d.set_alt(alt)
@@ -654,18 +654,22 @@ def tpv():
       for i in range(len(a.route)):
         for fix in fijos_impresion:
           if a.route[i][1]==fix:
-	    current_printing_fixes = fijos_impresion
+            current_printing_fixes = fijos_impresion
 
       # Print a flight strip for every route point which is any of the
       # current_printing_fixes
       
-      initial_printing_time = None	# We keep track of when a flight strip will be first printed
       for i in range(len(a.route)):
-	# Check whether the current route point is the first in our sector, so as to calculate
-	# the initial printing time
-        if a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(','):
-          print "Punto de entrada a nuestro sector es "+a.route[i][1]
-	  
+
+        # Check whether the current route point is the first in our sector, so as to calculate
+        # the initial printing time
+        if a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(',') \
+           and a.get_sector_entry_fix()==None:
+          a.set_sector_entry_fix(a.route[i][1])
+          a.set_sector_entry_time(a.route[i][2])
+          print "Sector entry point is "+a.get_sector_entry_fix()+" time "+a.route[i][2]
+          
+
         for fijo in current_printing_fixes:
           if a.route[i][1]==fijo:
             if i>0:
@@ -683,7 +687,9 @@ def tpv():
               next=a.route[i+1][1]
               next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
             # La variable callsign contiene el indicativo de llamada
+            
             ss.draw_flight_data(callsign=a.name,exercice_name=name, ciacallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
+            #ss.draw_flight_data(callsign=a.name,exercice_name=name, ciacallsign=callsign, prev_fix=prev, fix=fijo, next_fix=next, prev_fix_est=prev_t, fix_est=fijo_t, next_fix_est=next_t, model=a.tipo, wake=a.estela, responder="C", speed=a.filed_tas, origin=a.origen, destination=a.destino, fl=str(int(a.rfl)), cfl=str(int(a.cfl)),cssr="----", route=ruta, rules="")
       
   if not ss.save() :
       while DlgPdfWriteError().result=='retry' and not ss.save():
