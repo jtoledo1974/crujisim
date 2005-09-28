@@ -605,9 +605,9 @@ def tpv():
         a.set_sector_entry_time(a.route[0][3])  # If all else fails, use the first ETO
     # Set the flight strip printing time
     if a.get_eobt()<>None:
-      a.t_impresion=a.get_eobt()-10/60  # 10min before EOBT
+      a.t_impresion=a.get_eobt()-10./60.  # 10min before EOBT
     else:
-      a.t_impresion=a.get_sector_entry_time()-10/60  # 10min before sector entry time
+      a.t_impresion=a.get_sector_entry_time()-10./60.  # 10min before sector entry time
     orden.append((a.t_impresion,s))
   orden.sort()
   
@@ -695,7 +695,7 @@ def tpv():
             fd.cssr="----"
             fd.route=ruta
             fd.rules=""
-            #fd.printing_time=a.get_sector_entry_time()-10/60 # 10 Minutes before the sector entry time
+            fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
 
             ss.draw_flight_data(fd)
       

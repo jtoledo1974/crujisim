@@ -144,6 +144,7 @@ class StripSeries:
                 
                 strips.stringformat.drawString(canvas,fd.cfl,x+405,y+22, Font(face="monospaced", size=12, bold=1))
                 strips.stringformat.drawString(canvas,fd.exercice_name,x+5,y+68, Font(face="monospaced", size=6, bold=0))
+                strips.stringformat.drawString(canvas,fd.print_time,x+490,y+61, Font(face="monospaced", size=10, bold=1))
 		self.num_strips += 1
 
 	def save(self):
