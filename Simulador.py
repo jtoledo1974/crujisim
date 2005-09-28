@@ -699,7 +699,7 @@ def redraw_all():
           (sid,star) = procedimientos[rwyInUse[a.origen]]
           sid_auto = ''
           for i in range(len(a.route)):
-            [(x,y),fijo,hora] = a.route[i]
+            [(x,y),fijo,hora,auxeto] = a.route[i]
             if fijo in sid.keys():
               sid_auto = sid[fijo][0]
               break
@@ -943,7 +943,7 @@ def timer():
             (sid,star) = procedimientos[rwyInUse[a.origen]]
             sid_auto = ''
             for i in range(len(a.route)):
-              [(x,y),fijo,hora] = a.route[i]
+              [(x,y),fijo,hora,auxeto] = a.route[i]
               if fijo in sid.keys():
                 sid_auto = sid[fijo][0]
                 break
