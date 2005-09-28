@@ -46,6 +46,7 @@ class FlightData:
      speed=""
      cssr=""
      origin=""
+     eobt=""
      destination=""
      fl=""
      cfl=""
@@ -58,6 +59,7 @@ class FlightData:
      fix_est=""
      next_fix_est=""
      print_time=0.
+     fs_type="enroute"
     
 class StripSeries:
 
@@ -70,7 +72,7 @@ class StripSeries:
 		self.num_strips = 0
 		self.filename=output_file
 		
-	def draw_blank_strip(self, x, y):
+	def draw_blank_strip(self, x, y, fs_type):
 		canvas = self.canvas
                 #Dibuja el contorno de la ficha
 		canvas.drawLine(x, y, x+STRIP_X_SIZE, y, color=dimgray)
@@ -103,6 +105,12 @@ class StripSeries:
 ##		Lineas Minuto de transferencia de comunicaciones		
 		canvas.drawLine(x+529, y+8, x+529, y+17,width=3)
 		canvas.drawLine(x+531, y+19, x+550, y+19)
+
+		if fs_type=="coord":
+                    polypoints=[(x+504,y+52),(x+504,y+30),
+                                (x+498,y+30),(x+507,y+24),(x+516,y+30),
+                                (x+510,y+30),(x+510,y+52)]
+                    canvas.drawPolygon (polypoints, fillColor=black, closed=1)
 	
 #	def draw_callsign(canvas, x, y, callsign):
 #		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=18, bold=1))
@@ -114,7 +122,7 @@ class StripSeries:
 		if (self.num_strips > 0) and (self.num_strips % STRIPS_PER_PAGE) == 0:
 			canvas.flush()
 			canvas.clear()
-		self.draw_blank_strip(x, y)
+		self.draw_blank_strip(x, y, fd.fs_type)
 		if len(fd.model) < 6: fd.model = fd.model + " "*(6-len(fd.model))
 		elif len(fd.model) > 6: fd.model = fd.model[:6]
 		if fd.wake=="": fd.wake = " "
@@ -127,7 +135,10 @@ class StripSeries:
 		strips.stringformat.drawString(canvas, fd.ciacallsign, x+15, y+10, Font(face="monospaced", size=8, bold=1))
 		firstline = fd.model + "/" + fd.wake + "/" + fd.responder + "/" + fd.speed
 		strips.stringformat.drawString(canvas, firstline, x+16, y+35, Font(face="monospaced", size=9, bold=1))
-		secondline = fd.origin + "      "+fd.destination+"/"+fd.fl
+		if fd.eobt=="":
+                    secondline = fd.origin + "      "+fd.destination+"/"+fd.fl
+                else:
+                    secondline = fd.origin + "/" + eobt + "  "+fd.destination+"/"+fd.fl
 		strips.stringformat.drawString(canvas, secondline, x+16, y+49, Font(face="monospaced", size=10, bold=1))
 		strips.stringformat.drawString(canvas, fd.cssr, x+190, y+50, Font(face="monospaced", size=8, bold=1))
 		strips.stringformat.drawString(canvas, fd.route, x+16, y+61, Font(face="monospaced", size=10, bold=1))
@@ -145,6 +156,10 @@ class StripSeries:
                 strips.stringformat.drawString(canvas,fd.cfl,x+405,y+22, Font(face="monospaced", size=12, bold=1))
                 strips.stringformat.drawString(canvas,fd.exercice_name,x+5,y+68, Font(face="monospaced", size=6, bold=0))
                 strips.stringformat.drawString(canvas,fd.print_time,x+490,y+61, Font(face="monospaced", size=10, bold=1))
+
+                if fd.fs_type=="coord":
+                    strips.stringformat.drawString(canvas, 'COORD', x+150, y+23, Font(face="monospaced", size=10, bold=1))
+                    
 		self.num_strips += 1
 
 	def save(self):

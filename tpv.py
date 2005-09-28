@@ -652,6 +652,28 @@ def tpv():
           if a.route[i][1]==fix:
             current_printing_fixes = fijos_impresion
 
+      # Print a coord flight strip if it's a departure from an AD we have to release
+      if firdef.has_option(sector_elegido[1],'released_required_ads') and \
+         a.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
+        fd=FlightData()
+        fd.callsign=a.name
+        fd.exercice_name=name
+        fd.ciacallsign=callsign
+        fd.prev_fix='testing'
+        fd.model=a.tipo
+        fd.wake=a.estela
+        fd.speed=a.filed_tas
+        fd.responder="C"
+        fd.origin=a.origen
+        fd.destination=a.destino
+        fd.fl=str(int(a.rfl))
+        fd.cssr="----"
+        fd.route=ruta
+        fd.rules=""
+        fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
+        fd.fs_type="coord"
+        ss.draw_flight_data(fd)
+        
       # Print a flight strip for every route point which is any of the
       # current_printing_fixes
       for i in range(len(a.route)):
@@ -696,7 +718,6 @@ def tpv():
             fd.route=ruta
             fd.rules=""
             fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
-
             ss.draw_flight_data(fd)
       
   if not ss.save() :
