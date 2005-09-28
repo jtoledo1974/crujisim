@@ -433,7 +433,7 @@ class Airplane:
     # A list containig all the route points [ (coords), nombre, eto_ascii, eto ]
     # ETO is defined as the number of hours since 00:00. Minutes and seconds are fractions of the hour
     self.route=[[(-8.0,10.0),'punto','00:00',0.]]
-    self.eobt=0.  # Estimated off block time in fractional hours since midnight
+    self.eobt=None  # Estimated off block time in fractional hours since midnight
     self.turn=3.0*60.*60. #Los mínimos grados por segundo que vira el avión
     self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo
     self.to_do='fpr'
@@ -791,7 +791,7 @@ class Airplane:
   def get_ground_speed(self):
     return self.ground_spd
 
-  def get_eobt():
+  def get_eobt(self):
     return self.eobt
 
   def set_eobt(self,eobt):

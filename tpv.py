@@ -85,10 +85,10 @@ def tpv():
   min_sep = 8.0
   local_maps = {}
   # Lectura de los datos del FIR
-  config=ConfigParser()
-  config.readfp(open(fir_elegido[1]))
+  firdef = ConfigParser()
+  firdef.readfp(open(fir_elegido[1],'r'))
   # Puntos del FIR
-  lista=config.items('puntos')
+  lista=firdef.items('puntos')
   for (nombre,coord) in lista:
     print 'Leyendo punto ',nombre.upper(),
     (x,y)=coord.split(',')
@@ -97,7 +97,7 @@ def tpv():
     punto.append([nombre.upper(),(x,y)])
     print '...ok'
   # Rutas del FIR
-  lista=config.items('rutas')
+  lista=firdef.items('rutas')
   for (num,aux) in lista:
     print 'Leyendo ruta ',num,
     linea=aux.split(',')
@@ -108,8 +108,8 @@ def tpv():
           aux2=aux2+q[1]
     rutas.append([aux2])
   # Tma del FIR
-  if config.has_section('tmas'):
-    lista=config.items('tmas')
+  if firdef.has_section('tmas'):
+    lista=firdef.items('tmas')
     for (num,aux) in lista:
       print 'Leyendo tma ',num,
       linea=aux.split(',')
@@ -121,12 +121,12 @@ def tpv():
       tmas.append([aux2])
   # Mapas locales
   try:
-    local_map_string = config.get('mapas_locales', 'mapas')
+    local_map_string = firdef.get('mapas_locales', 'mapas')
     local_map_sections = local_map_string.split(',')
     for map_section in local_map_sections:
-      if config.has_section(map_section):
-	map_name = config.get(map_section, 'nombre')
-	map_items = config.items(map_section)
+      if firdef.has_section(map_section):
+	map_name = firdef.get(map_section, 'nombre')
+	map_items = firdef.items(map_section)
 	print "Map items:", map_items
 	# Store map name and graphical objects in local_maps dictionary (key: map name)
 	map_objects = []
@@ -138,8 +138,8 @@ def tpv():
   except:
     print "Exception processing local maps"
   # Aeropuertos del FIR
-  if config.has_section('aeropuertos'):
-    lista=config.items('aeropuertos')
+  if firdef.has_section('aeropuertos'):
+    lista=firdef.items('aeropuertos')
     aeropuertos = []
     for (num,aux) in lista:
       print 'Leyendo aeropuertos ',num,
@@ -147,8 +147,8 @@ def tpv():
         aeropuertos.append(a)
       print aeropuertos
   # Esperas publicadas
-  if config.has_section('esperas_publicadas'):
-    lista=config.items('esperas_publicadas')
+  if firdef.has_section('esperas_publicadas'):
+    lista=firdef.items('esperas_publicadas')
     esperas_publicadas = []
     for (fijo,datos) in lista:
       print 'Leyendo espera de ',fijo,
@@ -157,8 +157,8 @@ def tpv():
       esperas_publicadas.append([fijo.upper(),rumbo,tiempo_alej,lado])
       print rumbo,tiempo_alej
   # Lectura de las pistas de los aeropuertos con procedimientos
-  if config.has_section('aeropuertos_con_procedimientos'):
-    lista=config.items('aeropuertos_con_procedimientos')
+  if firdef.has_section('aeropuertos_con_procedimientos'):
+    lista=firdef.items('aeropuertos_con_procedimientos')
     for (airp,total_rwys) in lista:
       rwys[airp.upper()] = total_rwys
       rwyInUse[airp.upper()] = total_rwys.split(',')[0] # La primera pista es la preferente
@@ -212,7 +212,7 @@ def tpv():
     for pista in rwys[aerop].split(','):
       # Procedimientos SID
       sid = {}
-      lista = config.items('sid_'+pista)
+      lista = firdef.items('sid_'+pista)
       for (nombre_sid,puntos_sid) in lista:
         last_point = puntos_sid.split(',')[-1]
         # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
@@ -230,7 +230,7 @@ def tpv():
         sid[last_point] = (nombre_sid,points_sid)
       # Procedimientos STAR
       star = {}
-      lista = config.items('star_'+pista)
+      lista = firdef.items('star_'+pista)
       for (nombre_star,puntos_star) in lista:
         last_point = puntos_star.split(',')[0]
         # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
@@ -255,7 +255,7 @@ def tpv():
   for aerop in rwys.keys():
     for pista in rwys[aerop].split(','):
       # Procedimientos aproximación
-      procs_app=config.items('app_'+pista)
+      procs_app=firdef.items('app_'+pista)
       for [fijo,lista] in procs_app:
         lista = lista.split(',')
         print pista,'Datos APP ',fijo,' son ',lista
@@ -307,8 +307,8 @@ def tpv():
   print 'Lista de procedimientos de aproximación',proc_app
   
   # Deltas del FIR
-  if config.has_section('deltas'):
-    lista=config.items('deltas')
+  if firdef.has_section('deltas'):
+    lista=firdef.items('deltas')
     for (num,aux) in lista:
       print 'Leyendo delta ',num,
       linea=aux.split(',')
@@ -319,7 +319,7 @@ def tpv():
             aux2=aux2+q[1]
       deltas.append([aux2])
   # Límites del sector
-  aux2=config.get(sector_elegido[1],'limites').split(',')
+  aux2=firdef.get(sector_elegido[1],'limites').split(',')
   for a in aux2:
     auxi=True
     for q in punto:
@@ -331,32 +331,32 @@ def tpv():
       print 'En límite de sector no encontrado el punto ',a
       
   # Separación mínima del sector
-  if config.has_option(sector_elegido[1],'min_sep'):
-    min_sep=float(config.get(sector_elegido[1],'min_sep'))
+  if firdef.has_option(sector_elegido[1],'min_sep'):
+    min_sep=float(firdef.get(sector_elegido[1],'min_sep'))
   else:
-    incidencias.append(('No encontrada separación en sector '+config.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'))
-    print 'No encontrada separación en sector '+config.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'
+    incidencias.append(('No encontrada separación en sector '+firdef.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'))
+    print 'No encontrada separación en sector '+firdef.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'
     min_sep = 8.0
     
   # Despegues automáticos o manuales
-  if config.has_option(sector_elegido[1],'auto_departure'):
-    aux2=config.get(sector_elegido[1],'auto_departure').upper()
+  if firdef.has_option(sector_elegido[1],'auto_departure'):
+    aux2=firdef.get(sector_elegido[1],'auto_departure').upper()
     if aux2 == 'AUTO':
       auto_departures = True
     elif aux2 == 'MANUAL':
       auto_departures = False
     else:
-      incidencias.append(('Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automático'))
-      print 'Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automático'
+      incidencias.append(('Valor para despegues manual/automático para sector '+firdef.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automático'))
+      print 'Valor para despegues manual/automático para sector '+firdef.get(sector_elegido[1],'nombre')+' debe ser "AUTO" o "MANUAL". Se asume automático'
       auto_departures = True
   else:
-    incidencias.append(('Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automático'))
-    print 'Valor para despegues manual/automático para sector '+config.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automático'
+    incidencias.append(('Valor para despegues manual/automático para sector '+firdef.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automático'))
+    print 'Valor para despegues manual/automático para sector '+firdef.get(sector_elegido[1],'nombre')+' no encontrado. Se asume automático'
     auto_departures = True
   
   # Fijos de impresión primarios
   fijos_impresion=[]
-  aux2=config.get(sector_elegido[1],'fijos_de_impresion').split(',')
+  aux2=firdef.get(sector_elegido[1],'fijos_de_impresion').split(',')
   for a in aux2:
     auxi=True
     for q in punto:
@@ -369,8 +369,8 @@ def tpv():
   print
   # Fijos de impresión secundarios
   fijos_impresion_secundarios=[]
-  if config.has_option(sector_elegido[1],'fijos_de_impresion_secundarios'):
-    aux2=config.get(sector_elegido[1],'fijos_de_impresion_secundarios').split(',')
+  if firdef.has_option(sector_elegido[1],'fijos_de_impresion_secundarios'):
+    aux2=firdef.get(sector_elegido[1],'fijos_de_impresion_secundarios').split(',')
     for a in aux2:
       auxi=True
       for q in punto:
@@ -383,11 +383,10 @@ def tpv():
   else:
     print 'No hay fijos de impresión secundarios (no hay problema)'
   
-  aux=config.sections()
-  for a in aux:
-    config.remove_section(a)
-
   # Lectura del fichero de performances
+  config=ConfigParser()
+  config.readfp(open(fir_elegido[1]))
+
   config.readfp(open('Modelos_avo.txt','r'))
   
   # Ahora se crean los planes de vuelo del ejercicio
@@ -584,34 +583,34 @@ def tpv():
     d.set_app_fix()
     ejercicio.append(d)
     print 'ok'
-  # Cálculo de hora aparición y ordenamiento
+    
+  # Set the EOBT, calculate the sector entry time and sort aircraft by
+  # their flight strip printing time
   orden=[]
   for s in range(len(ejercicio)):
     a=ejercicio[s]
-    aux = True
-    a.t_impresion=48.
+    # Set EOBT
+    if firdef.has_option(sector_elegido[1],'released_required_ads') and \
+       a.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
+      # As of revision 326 there is no place where to store the EOBT of a departing flight,
+      # so the ETO of the first route point is taken
+      a.set_eobt(a.route[0][3])
+    # Calculate sector entry time
     for i in range(len(a.route)):
-      for fijo in fijos_impresion:
-        if a.route[i][1]==fijo:
-          t_impresion=float(a.route[i][2][0:2])+float(a.route[i][2][3:5])/60.
-          if a.t_impresion > t_impresion:
-            a.t_impresion=t_impresion
-            auxiliar = (a.route[i][2],s)
-            aux = False
-    for i in range(len(a.route)):
-      for fijo in fijos_impresion_secundarios:
-        if a.route[i][1]==fijo:
-          t_impresion=float(a.route[i-1][2][0:2])+float(a.route[i-1][2][3:5])/60.
-          if a.t_impresion > t_impresion:
-            a.t_impresion=t_impresion
-            auxiliar = (a.route[i][2],s)
-            aux = False
-    if aux:
-      incidencias.append('El avión ' + a.get_callsign() + ' no tiene fichas de impresión en el sector, pero se crea ficha')
-      print 'El avión ',a.get_callsign(),' no tiene fichas de impresión en el sector, pero se crea ficha'
-      auxiliar = (a.route[int(len(a.route)/2)][2],s)
-    orden.append(auxiliar)
+      if a.get_sector_entry_fix()==None and \
+         a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(','):
+        a.set_sector_entry_fix(a.route[i][1])
+        a.set_sector_entry_time(a.route[i][3])  # The ETO over the point
+    if a.get_sector_entry_time()==None:
+        a.set_sector_entry_time(a.route[0][3])  # If all else fails, use the first ETO
+    # Set the flight strip printing time
+    if a.get_eobt()<>None:
+      a.t_impresion=a.get_eobt()-10/60  # 10min before EOBT
+    else:
+      a.t_impresion=a.get_sector_entry_time()-10/60  # 10min before sector entry time
+    orden.append((a.t_impresion,s))
   orden.sort()
+  
   # Manejo de la impresión de fichas
   #if imprimir_fichas==1:     
   if True:
@@ -621,10 +620,7 @@ def tpv():
       name = parseraux.get('datos','comentario')
     else:
       name = ejercicio_elegido[1]
-    
-    firdef = ConfigParser()
-    firdef.readfp(open(fir_elegido[1],'r'))
-    
+        
     ss = StripSeries(exercise_name = name, output_file="etiquetas.pdf")
     for (aux,s) in orden:
       a = ejercicio[s]
@@ -658,17 +654,7 @@ def tpv():
 
       # Print a flight strip for every route point which is any of the
       # current_printing_fixes
-      
       for i in range(len(a.route)):
-
-        # Check whether the current route point is the first in our sector, so as to calculate
-        # the initial printing time
-        if a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(',') \
-           and a.get_sector_entry_fix()==None:
-          a.set_sector_entry_fix(a.route[i][1])
-          a.set_sector_entry_time(a.route[i][2])
-          print "Sector entry point is "+a.get_sector_entry_fix()+" time "+a.route[i][2]
-          
 
         for fijo in current_printing_fixes:
           if a.route[i][1]==fijo:
@@ -709,7 +695,8 @@ def tpv():
             fd.cssr="----"
             fd.route=ruta
             fd.rules=""
-            
+            #fd.printing_time=a.get_sector_entry_time()-10/60 # 10 Minutes before the sector entry time
+
             ss.draw_flight_data(fd)
       
   if not ss.save() :

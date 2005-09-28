@@ -110,6 +110,7 @@ Los datos de los distintos sectores se dan en las secciones [sector%i], donde %i
    5.1.- Fijos de impresión: son los principales del sector.
    5.2.- Fijos de impresión secundarios: se utilizan únicamente en el caso de que el vuelo no pase por ningún fijo principal.
 Nota: En el caso de que un avión no pasase por ninguno de los fijos anteriores, el programa saca ficha de un fijo intermedio del avión.
+6.- Aeropuertos cuyas salidas requieren un suelto del controlador. Hace que las salidas aparezcan en la lista de despegues y que se imprima la ficha de coordinación
 
 [sector1]
 nombre:APPCONV

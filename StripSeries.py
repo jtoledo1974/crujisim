@@ -57,6 +57,7 @@ class FlightData:
      prev_fix_est=""
      fix_est=""
      next_fix_est=""
+     print_time=0.
     
 class StripSeries:
 

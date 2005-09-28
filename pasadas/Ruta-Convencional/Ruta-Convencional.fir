@@ -136,6 +136,7 @@ SNR = _LEXJ29APP1,6000,_LEXJ29APP2,4100,_LEXJ29APP3,4100,_LEXJ29APP4,4100,_LEXJ2
 [tmas]
 tma_bilbao: _BLV1,_BLV2,_BLV3,_BLV4,_BLV5,_BLV1
 tma_madrid: _TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6
+
 [sector1]
 nombre:DOMINGO
 min_sep = 0.1
@@ -143,3 +144,7 @@ auto_departure = MANUAL
 limites:_DGO1,PATEL,BELEN,_DGO2,ENDAY,IRATI,RONKO,LARDA,_DGO3,PINAR,_DGO4,CUCAS,BEMRA,FERMO,_DGO1
 fijos_de_impresion:PATEL,SNR,BLV,OLTRE,NEA,DGO,PPN,ARMIN,DOBAN,ENDAY
 fijos_de_impresion_secundarios:BELEN,IRATI,RONKO,LARDA,PINAR,CUCAS,BEMRA,FERMO
+
+# IFR departures from this airport will always require a release from ATC
+# A Coord flight strip will be printed
+released_required_ads:LEXJ,LEBB
