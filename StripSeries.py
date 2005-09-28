@@ -138,7 +138,7 @@ class StripSeries:
 		if fd.eobt=="":
                     secondline = fd.origin + "      "+fd.destination+"/"+fd.fl
                 else:
-                    secondline = fd.origin + "/" + eobt + "  "+fd.destination+"/"+fd.fl
+                    secondline = fd.origin + "/" + fd.eobt + "  "+fd.destination+"/"+fd.fl
 		strips.stringformat.drawString(canvas, secondline, x+16, y+49, Font(face="monospaced", size=10, bold=1))
 		strips.stringformat.drawString(canvas, fd.cssr, x+190, y+50, Font(face="monospaced", size=8, bold=1))
 		strips.stringformat.drawString(canvas, fd.route, x+16, y+61, Font(face="monospaced", size=10, bold=1))
