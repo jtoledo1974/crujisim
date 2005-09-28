@@ -531,13 +531,13 @@ def tpv():
     fijo = ruta [0][1]
     hora = d.t
     d.set_initial_t(0.0)
-    print 'Después del recálculo',fijo,hora,ruta
     d.route = ruta
     d.set_se_pinta(False)   # Some previous function has incorrectly set this to True
                             # We need it to be false so that SID and STARs are
                             # added correctly
     complete_flight_plan(d)
     ruta = d.route
+    print 'Después del recálculo',fijo,hora,ruta
     pos=ruta[0][0]
     d.set_position(pos)
     for i in range(5):
@@ -545,7 +545,14 @@ def tpv():
     route=[]
     for a in ruta:
       route.append(a)
-    route.pop(0)
+    # I'm not sure why by default we want to eliminate the first element of the route,
+    # but certainly we do not want to be doing that with our departures
+    if firdef.has_option(sector_elegido[1],'released_required_ads') and \
+       d.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
+      pass
+      print "local dep, not popping route point"
+    else:
+      route.pop(0)
     d.set_route(route)
     d.set_initial_heading()
     estimadas = calc_eto(d)
@@ -659,7 +666,6 @@ def tpv():
         fd.callsign=a.name
         fd.exercice_name=name
         fd.ciacallsign=callsign
-        fd.prev_fix='testing'
         fd.model=a.tipo
         fd.wake=a.estela
         fd.speed=a.filed_tas
@@ -670,55 +676,60 @@ def tpv():
         fd.cssr="----"
         fd.route=ruta
         fd.rules=""
-        fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
+        t=a.t_impresion
+        fd.print_time='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
+        t=a.get_eobt()
+        fd.eobt='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
         fd.fs_type="coord"
         ss.draw_flight_data(fd)
         
       # Print a flight strip for every route point which is any of the
       # current_printing_fixes
+      
+      if firdef.has_option(sector_elegido[1],'released_required_ads') and \
+         a.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
+          prev=a.get_origin()
+          t=a.get_eobt()
+          prev_t='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
+      else:
+          prev=prev_t=''
       for i in range(len(a.route)):
+        if a.route[i][1] in current_printing_fixes:
+          fijo=a.route[i][1]
+          fijo_t=a.route[i][2][0:2]+a.route[i][2][3:5]
+          if i==len(a.route)-1:
+            next=''
+            next_t=''
+          else:
+            next=a.route[i+1][1]
+            next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
 
-        for fijo in current_printing_fixes:
-          if a.route[i][1]==fijo:
-            if i>0:
-              prev=a.route[i-1][1]
-              prev_t=a.route[i-1][2][0:2]+a.route[i-1][2][3:5]
-            else:
-              prev=''
-              prev_t=''
-            fijo=a.route[i][1]
-            fijo_t=a.route[i][2][0:2]+a.route[i][2][3:5]
-            if i==len(a.route)-1:
-              next=''
-              next_t=''
-            else:
-              next=a.route[i+1][1]
-              next_t=a.route[i+1][2][0:2]+a.route[i+1][2][3:5]
-            # La variable callsign contiene el indicativo de llamada
+          fd=FlightData()
+          fd.callsign=a.name
+          fd.exercice_name=name
+          fd.ciacallsign=callsign
+          fd.prev_fix=prev
+          fd.fix=fijo
+          fd.next_fix=next
+          fd.prev_fix_est=prev_t
+          fd.fix_est=fijo_t
+          fd.next_fix_est=next_t
+          fd.model=a.tipo
+          fd.wake=a.estela
+          fd.speed=a.filed_tas
+          fd.responder="C"
+          fd.origin=a.origen
+          fd.destination=a.destino
+          fd.fl=str(int(a.rfl))
+          fd.cfl=str(int(a.cfl))
+          fd.cssr="----"
+          fd.route=ruta
+          fd.rules=""
+          fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
+          ss.draw_flight_data(fd)
 
-            fd=FlightData()
-            fd.callsign=a.name
-            fd.exercice_name=name
-            fd.ciacallsign=callsign
-            fd.prev_fix=prev
-            fd.fix=fijo
-            fd.next_fix=next
-            fd.prev_fix_est=prev_t
-            fd.fix_est=fijo_t
-            fd.next_fix_est=next_t
-            fd.model=a.tipo
-            fd.wake=a.estela
-            fd.speed=a.filed_tas
-            fd.responder="C"
-            fd.origin=a.origen
-            fd.destination=a.destino
-            fd.fl=str(int(a.rfl))
-            fd.cfl=str(int(a.cfl))
-            fd.cssr="----"
-            fd.route=ruta
-            fd.rules=""
-            fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
-            ss.draw_flight_data(fd)
+          prev=fijo
+          prev_t=fijo_t
       
   if not ss.save() :
       while DlgPdfWriteError().result=='retry' and not ss.save():
