@@ -694,11 +694,23 @@ def tpv():
       else:
           prev=prev_t=''
       for i in range(len(a.route)):
+        if prev=='' and a.route[i][1] in fijos_impresion_secundarios:
+          prev=a.route[i][1]
+          prev_t=a.route[i][2][0:2]+a.route[i][2][3:5]
+        elif prev=='':
+          prev='ENTRAD'
+          prev_t=''
         if a.route[i][1] in current_printing_fixes:
+          # Main flight strip fix 
           fijo=a.route[i][1]
           fijo_t=a.route[i][2][0:2]+a.route[i][2][3:5]
-          if i==len(a.route)-1:
-            next=''
+          # Calculate next flight strip fix
+          if i==len(a.route)-1 and firdef.has_option(sector_elegido[1],'local_ads') and \
+            a.get_destination() in firdef.get(sector_elegido[1],'local_ads').split(','):
+            next=a.get_destination()
+            next_t=''
+          elif i==len(a.route)-1:
+            next='SALIDA'
             next_t=''
           else:
             next=a.route[i+1][1]
