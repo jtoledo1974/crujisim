@@ -605,18 +605,25 @@ def tpv():
     # Calculate sector entry time
     for i in range(len(a.route)):
       if a.get_sector_entry_fix()==None and \
-         a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(','):
+        a.route[i][1] in firdef.get(sector_elegido[1],'limites').split(','):
+        a.set_sector_entry_fix(a.route[i][1])
+        a.set_sector_entry_time(a.route[i][3])  # The ETO over the point
+      elif a.get_sector_entry_fix()==None and \
+        a.route[i][1] in fijos_impresion_secundarios:
         a.set_sector_entry_fix(a.route[i][1])
         a.set_sector_entry_time(a.route[i][3])  # The ETO over the point
     if a.get_sector_entry_time()==None:
         a.set_sector_entry_time(a.route[0][3])  # If all else fails, use the first ETO
+        print "No sector entry FIX found"
     # Set the flight strip printing time
     if a.get_eobt()<>None:
       a.t_impresion=a.get_eobt()-10./60.  # 10min before EOBT
     else:
       a.t_impresion=a.get_sector_entry_time()-10./60.  # 10min before sector entry time
     orden.append((a.t_impresion,s))
+    print "DEBUG: "+a.name+"\tSector entry:\t"+a.get_sector_entry_fix()
   orden.sort()
+
   
   # Manejo de la impresión de fichas
   #if imprimir_fichas==1:     
@@ -642,7 +649,6 @@ def tpv():
         callsign = config.get('indicativos_de_compania',nombre)
       else:
         callsign = ''
-      print a.name, nombre, callsign
       ruta=''
       for f in a.route:
         if f[1][0]!='_':
