@@ -1,85 +1,19 @@
-Actualizado a 15/09/05
+Actualizado a 30/09/05
 
 
 
-ÚLTIMOS RETOQUES PARA CRUJISIM V1 RELEASE
-=========================================
+TODO's CRUJISIM
+===============
 ERRORES
-OK - Corregir el LAD. Al pinchar el LAD en el primer punto, el texto se superpone a la línea del LAD. Pero al terminar el LAD queda bien
-MANUEL - Corregir el error en los binds para el desplazamiento de la etiqueta
-OK - Comprobar los posibles errores en DGOx6.fir
-OK - Corregir procedimientos de entrada en la espera(entrada directa y gota)
-OK - Corregir las velocidades en función de la altitud
-OK - Corregir que en la ventana de incidencias salga el 'Enter' seleccionado por defecto
+- Corregir la altura de las fichas de progresión de vuelo (son aprox. 1,5 mm cortas) para que entren bien en el portafichas
+- Corrección de algunos parámetros de aviones lentos en aproximación radar
+- Al entrar en aprox. convencional (LECE) hay error al dar el punto de entrada al asector
 
-NUEVAS CARACTERÍSTICAS
-OK - Hacer que al salir la pantalla de 'ningún vuelo seleccionado' se borre al apretar otra vez el botón.
-OK- Incluir Metepasadas en el CrujiSim. Su pueden poner tres botones en la pantalla inicial. 
-    1.- El botón 'Aceptar' sería 'Practicar pasada'
-    2.- Nuevo botón 'Editar esta pasada'
-    3.- Nuevo botón 'Crear nueva pasada'
-    4.- Botón 'Cancelar'
-    Al seleccionar un botón banner.py devuelve un parámetro adicional que en Simulador.py decide qué hacer.
-OK - Botones pequeños en una barra inferior
-OK - Simulador a pantalla completa. Así ya no habría mucho problema de columna de botones a un lado o abajo, al ganarse mucho espacio
-?? - Un solo botón tipo "Mapas" y que al pulsarlo dé la opción de ver Puntos Fijos, TMAs, Deltas...
-?? - Añadir mapa de CB para practicar incidencias.
-- Corregir la altura de las fichas de prograsión de vuelo (son
-aprox. 1,5 mm cortas) para que entren bien en el portafichas
 
-RETOQUES PARA TERMINAR EL METEPASADAS
+
+TODO's METEPASADAS
 =====================================
 ERRORES
-OK - Al introducir ruta nueva, comprobar que el punto existe en el correspondiente .fir
-OK - Al grabar cada avión, borrar todos los espacios que haya en la cadena.
-OK - Comprobar que están todos los datos generales al grabar.
-OK - Comprobar que el .eje está en el nombre del ejercicio. En caso negativo, se añade manualmente
-OK - Centrar las pantallas de introducción de datos de cada vuelo y la de introducir ruta en pantalla
-OK - La ventana general del Metepasadas no está activa cuando aparece
-OK - La ventana final después de grabar la pasada (recuerda enviarla al CrujiMaster, etc.) tampoco aparece activa
-OK - Cambiar el formato de entrada de datos a Promoción - fase - dia
-OK - Con los datos anteriores metidos, crear automáticamente nombre de fichero
-OK - Comprobar dónde se guardan las pasadas que han sido modificadas
-- Comprobar los fallos que ha notado Nano.
-
-NUEVAS CARACTERÍSTICAS
-OK - En datos generales, si no introducimos comentario, lo hace igual al nombre del archivo
-- Opción de enviar la pasada por e-mail automáticamente (en ese caso la pasada se graba en ./pasadas)
+- Corregir error al guardar las pasadas modificadas. Hace falta adecuarlo al nuevo árbol de directorios
 
 
-
-
-
-HOJA DE RUTA PARA EL CRUJISIM v2 (INCLUYE APROX)
-================================================
-
-DATOS ADICIONALES A CARGAR
-
-OK - Leer procedimientos de entrada y salida (SID's y STAR's) para las pistas en uso
-OK - Leer procedimientos de aproximación frustrada (MAPT)
-OK - Datos de esperas publicadas
-OK - Definir los puntos sobre los cuales se debe orbitar si no ha sido autorizado a más. En el resto de puntos debe mantener rumbo.
-OK - Dibujar las millas del ILS
-OK - En procedimiento ILS, poner fijos adicionales antes de interceptar ILS
-OK - Interceptar el localizador
-
-
-NUEVAS CARACTERÍSTICAS
-
-OK - Definir pista en uso
-OK - Ejecutar procedimiento de aproximación (incluye el MAP), y bandera para aterrizar/MAPT
-OK - Interceptar localizador después de ser vectoreado
-OK - Separación mínima definida para cada sector de trabajo
-OK - Disminución paulatina de la velocidad
-
-En DEP's 
-OK - Asignar SID's automáticamente y despegue automático
-OK - Definición de despegues manuales o automáticos
-OK - Crear botones en colores amarillo (preactivo) y verde (listo) para despegues manuales con posibilidad de cambiar la SID asignada 
-    
-En ARR
-OK - Asignar STAR (antes del fijo princ. aprox) Debería hacerse por defecto en función de la pista en uso
-OK - Autorización de aproximación. Mientras no se le dé, que haga esperes en el IAF ó IAP.
-OK - Asignar tráfico que ejecutará MAP (se supone que aterrizan siempre, salvo asignado).
-
-$Id$
