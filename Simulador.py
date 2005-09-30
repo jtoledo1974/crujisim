@@ -376,6 +376,44 @@ def draw_all_lads(canvas):
 			canvas.tag_lower("crosspoint", "lad")
 	canvas.tag_lower('lad', 'plot')
 
+def draw_print_list():
+  n=1
+  for a in ejercicio:
+    if a.se_debe_imprimir(last_update/60./60.):
+      if not auto_departures and a.origen in rwys.keys():
+        if a.origen in listado_salidas.keys():
+          aux = listado_salidas[a.origen]
+        else:
+          aux = {}
+          listado_salidas[a.origen]=aux
+        if a.get_callsign() in listado_salidas[a.origen].keys():
+          pass
+        else:
+          ho=int(a.t)
+          m=int(a.t*60.)-ho*60.
+          s=int(a.t*60.*60.)-60.*60.*ho-60.*m
+          etd = '%02d:%02d:%02d' % (ho, m, s)
+          a.t +=  100.
+          a.t_ficha -= 100.
+          (sid,star) = procedimientos[rwyInUse[a.origen]]
+          sid_auto = ''
+          for i in range(len(a.route)):
+            [(x,y),fijo,hora,auxeto] = a.route[i]
+            if fijo in sid.keys():
+              sid_auto = sid[fijo][0]
+              break
+          if sid_auto == '':
+            print 'No hay SID',a.get_callsign()
+            print 'RUTA: ',a.route
+            print 'SIDs',sid.keys()
+          aux[a.get_callsign()] = (etd,sid_auto)
+          listado_salidas[a.origen] = aux
+          manual_dep_window(last_update/60./60.)
+          # listado_salidas = {{'LEBB',{'IB4148';('10:18:15','NORTA1A'),'BAW317':('10:23:15','ROKIS1B'),...}
+      else:
+        w.create_text(ancho-10,n*13,text=a.get_callsign(),fill='yellow',tag='fichas',anchor=NE,font='-*-Helvetica-*--*-12-*-')
+        n=n+1
+
 
 palote_identifier=None
 images = {}
@@ -678,42 +716,7 @@ def redraw_all():
 
   w.delete('fichas')
   # Poner las fichas que se imprimen
-  n=1
-  for a in ejercicio:
-    if a.se_debe_imprimir(last_update/60./60.):
-      if not auto_departures and a.origen in rwys.keys():
-        if a.origen in listado_salidas.keys():
-          aux = listado_salidas[a.origen]
-        else:
-          aux = {}
-          listado_salidas[a.origen]=aux
-        if a.get_callsign() in listado_salidas[a.origen].keys():
-          pass
-        else:
-          ho=int(a.t)
-          m=int(a.t*60.)-ho*60.
-          s=int(a.t*60.*60.)-60.*60.*ho-60.*m
-          etd = '%02d:%02d:%02d' % (ho, m, s)
-          a.t +=  100.
-          a.t_ficha -= 100.
-          (sid,star) = procedimientos[rwyInUse[a.origen]]
-          sid_auto = ''
-          for i in range(len(a.route)):
-            [(x,y),fijo,hora,auxeto] = a.route[i]
-            if fijo in sid.keys():
-              sid_auto = sid[fijo][0]
-              break
-          if sid_auto == '':
-            print 'No hay SID',a.get_callsign()
-            print 'RUTA: ',a.route
-            print 'SIDs',sid.keys()
-          aux[a.get_callsign()] = (etd,sid_auto)
-          listado_salidas[a.origen] = aux
-          manual_dep_window(last_update/60./60.)
-          # listado_salidas = {{'LEBB',{'IB4148';('10:18:15','NORTA1A'),'BAW317':('10:23:15','ROKIS1B'),...}
-      else:
-        w.create_text(ancho-10,n*13,text=a.get_callsign(),fill='yellow',tag='fichas',anchor=NE,font='-*-Helvetica-*--*-12-*-')
-        n=n+1
+  draw_print_list()
   # Dibujar los aviones
   for a in ejercicio:
     a.redraw(w)
@@ -922,41 +925,8 @@ def timer():
   # Poner las fichas que se imprimen
   w.delete('fichas')
   # Poner las fichas que se imprimen
-  n=1
-  for a in ejercicio:
-    if a.se_debe_imprimir(last_update/60./60.):
-      if not auto_departures and a.origen in rwys.keys():
-          if a.origen in listado_salidas.keys():
-            aux = listado_salidas[a.origen]
-          else:
-            aux = {}
-            listado_salidas[a.origen]=aux
-          if a.get_callsign() in listado_salidas[a.origen].keys():
-            pass
-          else:
-            ho=int(a.t)
-            m=int(a.t*60.)-ho*60.
-            s=int(a.t*60.*60.)-60.*60.*ho-60.*m
-            etd = '%02d:%02d:%02d' % (ho, m, s)
-            a.t +=  100.
-            a.t_ficha -= 100.
-            (sid,star) = procedimientos[rwyInUse[a.origen]]
-            sid_auto = ''
-            for i in range(len(a.route)):
-              [(x,y),fijo,hora,auxeto] = a.route[i]
-              if fijo in sid.keys():
-                sid_auto = sid[fijo][0]
-                break
-            if sid_auto == '':
-              print 'No hay SID',a.get_callsign()
-              print 'RUTA: ',a.route
-              print 'SIDs',sid.keys()
-            aux[a.get_callsign()] = (etd,sid_auto)
-            listado_salidas[a.origen] = aux
-            manual_dep_window(last_update/60./60.)
-      else:
-        w.create_text(ancho-10,n*13,text=a.get_callsign(),fill='yellow',tag='fichas',anchor=NE,font='-*-Helvetica-*--*-12-*-')
-        n=n+1
+  draw_print_list()
+  
   if auto_departures == False:
     manual_dep_window_update(last_update/60./60.)
 
