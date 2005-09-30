@@ -1,11 +1,8 @@
 Actualizado a 30/09/05
 
-
-
 TODO's CRUJISIM
 ===============
 ERRORES
-- Corregir la altura de las fichas de progresión de vuelo (son aprox. 1,5 mm cortas) para que entren bien en el portafichas
 - Corrección de algunos parámetros de aviones lentos en aproximación radar
 - Al entrar en aprox. convencional (LECE) hay error al dar el punto de entrada al asector
 
@@ -16,4 +13,4 @@ TODO's METEPASADAS
 ERRORES
 - Corregir error al guardar las pasadas modificadas. Hace falta adecuarlo al nuevo árbol de directorios
 
-
+$Id$
