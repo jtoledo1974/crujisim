@@ -925,7 +925,7 @@ def timer():
   n=1
   for a in ejercicio:
     if a.se_debe_imprimir(last_update/60./60.):
-      if not auto_departures and a.origen in listado_salidas.keys():
+      if not auto_departures and a.origen in rwys.keys():
           if a.origen in listado_salidas.keys():
             aux = listado_salidas[a.origen]
           else:
