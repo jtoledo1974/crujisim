@@ -33,6 +33,7 @@ import Image
 import ImageTk
 import PngImagePlugin
 import sys
+import logging
 
 # Constants
 IMGDIR='./img/'
@@ -621,7 +622,7 @@ def tpv():
     else:
       a.t_impresion=a.get_sector_entry_time()-10./60.  # 10min before sector entry time
     orden.append((a.t_impresion,s))
-    print "DEBUG: "+a.name+"\tSector entry:\t"+a.get_sector_entry_fix()
+    logging.debug (a.name+"\tSector entry:\t"+a.get_sector_entry_fix())
   orden.sort()
 
   
@@ -649,6 +650,7 @@ def tpv():
         callsign = config.get('indicativos_de_compania',nombre)
       else:
         callsign = ''
+      logging.debug (a.name+'\t'+nombre+'\t'+callsign)
       ruta=''
       for f in a.route:
         if f[1][0]!='_':

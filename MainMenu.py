@@ -23,6 +23,9 @@
 import banner
 import Metepasadas
 import tpv
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
 
