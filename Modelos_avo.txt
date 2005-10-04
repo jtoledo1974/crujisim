@@ -1,5 +1,8 @@
-#Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
-#$Id$
+# Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
+# $Id$
+# 
+# To find current callsigns use http://www.airlinecodes.co.uk/
+
 [performances]
 A300:H,350,3000,2000,3000,2000,460,460,280,160
 A306:H,350,3000,2000,3000,2000,460,460,280,160
@@ -141,6 +144,7 @@ AAN:OASIS
 AAT:AUSTRIAN CHARTER
 ABB:AIR BELGIUM
 ABX:ABEX
+ABD:ATLANTA
 ACA:AIR CANADA
 ACF:AIR CHARTER
 ADG:AEREA TRAINING
@@ -296,6 +300,7 @@ IBT:IBERTRANS
 IBE:IBERIA
 ICE:ICEAIR
 ICL:CAL
+IFA:FRANKEN-AIR
 IFT:INTERFLIGHT
 IRA:IRANAIR
 IRL:IRISH
@@ -350,6 +355,7 @@ MYT:KESTRELL
 NAY:NAYSA
 NBA:NEBA
 NJE:NOVEMBER JULIET ECHO
+NVR:NAVIGATOR
 NVY:NAVY
 OAL:OLYMPIC
 OOE:AIROPS
@@ -362,6 +368,7 @@ PGA:PORTUGALIA
 PJS:JETAVIATION
 PNA:PACIFIC NORTHERN
 PNR:SKYJET
+PTI:PRIVATAIR
 PUA:PLUNA
 QAH:QUICK
 QAT:AIR QUASAR
