@@ -28,6 +28,7 @@ def set_latest_lad(num):
   
 # Modules to be imported  
 from avion import *
+from RaDisplay import *
 from tpv import *
 from Tix import *
 import Image
@@ -37,7 +38,6 @@ from time import time,sleep
 import lads
 from math import sqrt
 import os.path
-
 
 # Global variables
 global wind
@@ -496,7 +496,7 @@ def manual_dep_window(t):
       boton.grid(column=0,row=line)
       avo.append([boton,etd,callsign,sid])
       line=line+1
-  win_manual = w.create_window(0,30,window=manual,anchor='nw')
+  win_manual = w.create_window(0,60,window=manual,anchor='nw')
   manual.update_idletasks()
   manual_dep_window_update(t)
   
@@ -609,7 +609,6 @@ def redraw_all():
   w.delete('puntos')
   w.delete('nombres_puntos')
   w.delete('rutas')
-  w.delete('reloj')
   w.delete('tmas')
   w.delete('deltas')
   w.delete('local_maps')
@@ -745,7 +744,6 @@ def redraw_all():
   ho=int(t/60/60)
   m=int(t/60)-ho*60
   s=int(t)-60*60*ho-60*m
-  w.create_text(10,5,text='%02d:%02d:%02d' % (ho, m, s),fill='yellow',tag='reloj',anchor=NW,font='-*-Times-Bold-*--*-20-*-')
  
 fact_t=1.0
 t0=fact_t*time()-h_inicio
@@ -824,7 +822,8 @@ def timer():
     ho=int(t/60/60)
     m=int(t/60)-ho*60
     s=int(t)-60*60*ho-60*m
-    w.itemconfigure('reloj',text='%02d:%02d:%02d' % (ho, m, s))
+    clock.configure({'time':'%02d:%02d:%02d' % (ho, m, s)})
+
   else:
     last_update=tlocal(t0)
     # Mover los aviones con auto-separación
@@ -2085,7 +2084,7 @@ def ventana_auxiliar(e):
       
       vent_ident=w.create_window(0,alto,width=ancho,window=ventana,anchor='sw')
       ventana.update_idletasks()
-      print ventana.winfo_width()
+      logging.debug ('Auxiliary window width: '+str(ventana.winfo_width()))
     
     else:
       ventana=Frame(w,bg='gray')
@@ -2164,10 +2163,9 @@ def ventana_auxiliar(e):
     
   ver_ventana_auxiliar = not ver_ventana_auxiliar
   
-
-w.tag_bind('reloj','<Button-1>',ventana_auxiliar)
-
 ventana_auxiliar(None)
+clock=RaClock(w)
+clock.bind('<Button-1>',ventana_auxiliar)
 
 get_scale()
 

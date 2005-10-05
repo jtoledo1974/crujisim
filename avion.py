@@ -25,9 +25,11 @@
 from math import *
 from Tkinter import *
 from Tix import *
+from RaDisplay import *
 import tkFont
 import lads
 import sys
+import logging
 
 all_lads = []
 definiendo_lad = 0
@@ -835,18 +837,7 @@ class Airplane:
         global seleccionado
         if seleccionado<>self:
           return
-        print 'Ventana kilear avión',self.name
-        win = Frame(canvas)
-        but_kill = Button(win, text="Terminar "+self.name)
-        but_cancel = Button(win, text="Cancelar")
-        but_kill.pack(side=TOP)
-        but_cancel.pack(side=TOP)
-        win_identifier = canvas.create_window(do_scale(self.pos), window=win)
-        def close_win(e=None,ident=win_identifier):
-                canvas.delete(ident)
-                canvas.unbind_all("<Return>")
-                canvas.unbind_all("<KP_Enter>")
-                canvas.unbind_all("<Escape>")
+        logging.debug (self.name+'\tCreating kill window')
         def kill_acft(e=None):
                 global seleccionado
                 self.t=self.t+1000.
@@ -854,12 +845,17 @@ class Airplane:
                 self.se_pinta = False
                 seleccionado = None
                 self.redraw(canvas)
-                close_win()
-        but_cancel['command'] = close_win
+                f.close()
+        f = RaFrame(canvas,{'position':do_scale(self.pos),
+                                 'label':'Cancel '+self.name,
+                                 'ok_callback':kill_acft,
+                                 'esc_closes':True})
+        but_kill = Button(f.contents, text="Terminar "+self.name, default='active', background=f.bd)
+        but_cancel = Button(f.contents, text="Cancelar", background=f.bd)
+        but_kill.grid(column=0, row=0, padx=10)
+        but_cancel.grid(column=1, row=0, padx=5)
+        but_cancel['command'] = f.close
         but_kill['command'] = kill_acft
-        canvas.bind_all("<Return>",kill_acft)
-        canvas.bind_all("<KP_Enter>",kill_acft)
-        canvas.bind_all("<Escape>",close_win)
       else:
         self.t=self.t+1000.
         self.hist_t=self.hist_t+1000.
