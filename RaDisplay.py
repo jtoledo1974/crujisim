@@ -23,9 +23,8 @@ class RaFrame:
 
         logging.debug('RaFrame.__init__')
         self._canvas=canvas
-        self._label=None
+        self._closebutton=self._label=None
         self.bd,self.bg,self.fg='#006c35','#003d1e','#006c35'
-        self._closebutton=None
         self._bindings=[]
 
         # Build the frame
@@ -52,8 +51,10 @@ class RaFrame:
             self._y=e.y_root
         def drag_select(e=None):
             if self._label<>None:
-                self._label.bind('<Motion>',drag_frame)
-            self.container.bind('<Motion>',drag_frame)
+                i=self._label.bind('<Motion>',drag_frame)
+                self._bindings.append((self._label,i,'<Motion>'),)
+            i=self.container.bind('<Motion>',drag_frame)
+            self._bindings.append((self._label,i,'<Motion>'),)
             self._x=e.x_root
             self._y=e.y_root
         def drag_unselect(e=None):
@@ -61,14 +62,19 @@ class RaFrame:
                 self._label.unbind('<Motion>')
             self.container.unbind('<Motion>')
         if self._label<>None:
-            self._label.bind('<Button-2>',drag_select)
-            self._label.bind('<ButtonRelease-2>',drag_unselect)
-        self.container.bind('<Button-2>',drag_select)
-        self.container.bind('<ButtonRelease-2>',drag_unselect)
-
+            i=self._label.bind('<Button-2>',drag_select)
+            j=self._label.bind('<ButtonRelease-2>',drag_unselect)
+            self._bindings.append((self._label,i,'<Button-2>'),)
+            self._bindings.append((self._label,j,'<ButtonRelease-2>'),)
+        i=self.container.bind('<Button-2>',drag_select)
+        j=self.container.bind('<ButtonRelease-2>',drag_unselect)
+        self._bindings.append((self.container,i,'<Button-2>'),)
+        self._bindings.append((self.container,j,'<ButtonRelease-2>'),)
+            
         # Close button
         if self._closebutton<>None:
-            self._closebutton.bind('<Button-1>',self.close)
+            i=self._closebutton.bind('<Button-1>',self.close)
+            self._bindings.append((self._closebutton,i,"<Button-1>"),)
         
         # Global bindings
         if options.has_key('ok_callback'):
@@ -99,6 +105,10 @@ class RaFrame:
 
     def close(self,e=None):
         logging.debug('RaFrame.close')
+
+        for t,i,ev in self._bindings:
+            t.unbind(ev,i)
+        
         if self._label<>None:
             self._label.unbind('<Motion>')
             self._label.unbind('<Button-2>')
@@ -114,15 +124,17 @@ class RaFrame:
         if self._esc_closes:
             self._canvas.unbind_all("<Escape>")
 
-        for event in self._bindings:
-            def unbind_children(wid, event):
-                wid.unbind(event)
-                for w in wid.winfo_children():
-                    bind_children(w, event)
-            unbind_children(self.container,event)
+##        for event in self._bindings:
+##            def unbind_children(wid, event):
+##                wid.unbind(event)
+##                for w in wid.winfo_children():
+##                    bind_children(w, event)
+##            unbind_children(self.container,event)
             
         self._canvas.delete(self._canvas_ident)
 
+        if self._ok_callback: self._ok_callback=None
+        
     def __del__(self):
         logging.debug("RaFrame.__del__")
 
@@ -163,6 +175,7 @@ class RaKillPlane(RaFrame):
                 'esc_closes':True}
         def_opt.update(options)
         RaFrame.__init__(self, canvas, def_opt)
+        def_opt={}
 
         but_kill = Button(self.contents, text="Terminar "+options['acft_name'], default='active', background=self.bd)
         but_cancel = Button(self.contents, text="Cancelar", background=self.bd)
@@ -170,3 +183,7 @@ class RaKillPlane(RaFrame):
         but_cancel.grid(column=1, row=0, padx=5)
         but_cancel['command'] = self.close
         but_kill['command'] = options['ok_callback']        
+
+    def __del__(self):
+        print "RaKillPlane.__del__"
+        RaFrame.__del__(self)
