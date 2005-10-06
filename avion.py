@@ -846,16 +846,8 @@ class Airplane:
                 seleccionado = None
                 self.redraw(canvas)
                 f.close()
-        f = RaFrame(canvas,{'position':do_scale(self.pos),
-                                 'label':'Cancel '+self.name,
-                                 'ok_callback':kill_acft,
-                                 'esc_closes':True})
-        but_kill = Button(f.contents, text="Terminar "+self.name, default='active', background=f.bd)
-        but_cancel = Button(f.contents, text="Cancelar", background=f.bd)
-        but_kill.grid(column=0, row=0, padx=10)
-        but_cancel.grid(column=1, row=0, padx=5)
-        but_cancel['command'] = f.close
-        but_kill['command'] = kill_acft
+        f = RaKillPlane(canvas,{'acft_name':self.name,
+                             'ok_callback':kill_acft})
       else:
         self.t=self.t+1000.
         self.hist_t=self.hist_t+1000.

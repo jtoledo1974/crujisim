@@ -18,15 +18,17 @@ class RaFrame:
                 to call this function when enter is pressed
             esc_closes -- If true, a global binding is defined
                 to close the frame when escape is pressed. Default true
+            type -- if 'command' the frame is positioned on the bottom left corner
         """
 
+        logging.debug('RaFrame.__init__')
         self._canvas=canvas
         self._label=None
         self.bd,self.bg,self.fg='#006c35','#003d1e','#006c35'
         self._closebutton=None
         self._bindings=[]
-        logging.debug('RaFrame.__init__')
-        
+
+        # Build the frame
         self.container=Frame(canvas,background=self.bd)
         self.contents=Frame(self.container,background=self.bg,borderwidth=5)
         self.contents.grid(column=0,row=1,padx=5,pady=5,columnspan=2)
@@ -37,6 +39,9 @@ class RaFrame:
             self._closebutton=Label(self.container,text='X',background=self.bd)
             self._closebutton.grid(column=1,row=0,sticky=E)
 
+        # Place it
+        if not options.has_key('position') and options.has_key('type') and options['type']=='command':
+            options['position']=(5, canvas.winfo_height()-100)
         self._canvas_ident = canvas.create_window(options['position'], window=self.container)
 
         # Frame dragging
@@ -118,13 +123,21 @@ class RaFrame:
             
         self._canvas.delete(self._canvas_ident)
 
+    def __del__(self):
+        logging.debug("RaFrame.__del__")
 
 class RaClock(RaFrame):
-    """Create an unclosable frame displaying the clock time"""
+    """Create an unclosable frame displaying the clock time
 
-    def __init__(self, canvas):
-        RaFrame.__init__(self, canvas, {'position':(50,22),
-                                        'closebutton':False})
+    SPECIFIC OPTIONS
+    time -- a text string to display
+    """
+
+    def __init__(self, canvas, options={}):
+        def_opt={'position':(50,22),'closebutton':False}
+        def_opt.update(options)
+        RaFrame.__init__(self, canvas, def_opt)
+
         self._time=Label(self.contents,
                     font='-*-Times-Bold-*--*-20-*-',
                     foreground='Yellow',
@@ -135,3 +148,25 @@ class RaClock(RaFrame):
         RaFrame.configure(self,options)
         if options.has_key('time'):
             self._time['text']=options['time']
+
+class RaKillPlane(RaFrame):
+    """Create a Cancel Plane dialog
+
+    Options:
+        acft_name -- Is used in the frame title
+        ok_command -- the callback to call when killing the plane
+    """
+    def __init__(self,canvas,options={}):
+        def_opt={'type':'command',
+                'label':'Cancel '+options['acft_name'],
+                'ok_callback':options['ok_callback'],
+                'esc_closes':True}
+        def_opt.update(options)
+        RaFrame.__init__(self, canvas, def_opt)
+
+        but_kill = Button(self.contents, text="Terminar "+options['acft_name'], default='active', background=self.bd)
+        but_cancel = Button(self.contents, text="Cancelar", background=self.bd)
+        but_kill.grid(column=0, row=0, padx=10)
+        but_cancel.grid(column=1, row=0, padx=5)
+        but_cancel['command'] = self.close
+        but_kill['command'] = options['ok_callback']        
