@@ -846,8 +846,8 @@ class Airplane:
                 seleccionado = None
                 self.redraw(canvas)
                 f.close()
-        f = RaKillPlane(canvas,{'acft_name':self.name,
-                             'ok_callback':kill_acft})
+        f = RaKillPlane(canvas,acft_name=self.name,
+                             ok_callback=kill_acft)
       else:
         self.t=self.t+1000.
         self.hist_t=self.hist_t+1000.
