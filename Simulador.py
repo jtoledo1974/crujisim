@@ -1240,6 +1240,72 @@ def nueva_ruta():
       w.bind_all("<KP_Enter>",change_fpr)
       w.bind_all("<Escape>",close_win)
         
+def cambiar_viento():
+	global win_identifier
+	if win_identifier<>None:
+		w.delete(win_identifier)
+		win_identifier=None
+		return
+	win = Frame(w)
+	txt_title = Label (win,text='Definir viento')
+	txt_dir = Label (win,text='Dirección')
+	ent_dir = Entry(win,width=5)
+	ent_dir.insert(END,int((wind[1]+180.0)%360.0))
+	txt_int = Label (win,text='Intensidad (kts)')
+	ent_int = Entry(win,width=4)
+	ent_int.insert(END,int(wind[0]))
+	but_acept = Button(win, text="Aceptar")
+	but_cancel = Button(win, text="Cancelar")
+	txt_title.grid(column=0,row=0,columnspan=2)
+	txt_dir.grid(column=0,row=1)
+	ent_dir.grid(column=1,row=1)
+	txt_int.grid(column=0,row=2)
+	ent_int.grid(column=1,row=2)
+	but_acept.grid(column=0,row=3,columnspan=2)
+	but_cancel.grid(column=0,row=4,columnspan=2)
+	win_identifier = w.create_window(ancho/2,alto-100, window=win)
+	ent_dir.focus_set()
+	def close_win(e=None,ident=win_identifier):
+	      global win_identifier
+	      w.unbind_all("<Return>")
+	      w.unbind_all("<KP_Enter>")
+	      w.unbind_all("<Escape>")
+	      win_identifier=None
+	      w.delete(ident)
+	def change_wind(e=None):
+		global wind, vent_ident_procs
+		int=ent_int.get()
+		dir=ent_dir.get()
+		fallo = False
+		if dir.isdigit():
+			rumbo = (float(dir)+180.0) % 360.0
+		else:
+			ent_dir['bg'] = 'red'
+			ent_dir.focus_set()
+			fallo = True
+		if int.isdigit():
+			intensidad = float(int)
+		else:
+			ent_int['bg'] = 'red'
+			ent_int.focus_set()
+			fallo = True
+		if not fallo:
+			if vent_ident_procs != None:
+				w.delete(vent_ident_procs)
+				vent_ident_procs = None
+			# Cambiamos el viento en todos los módulos
+			wind = [intensidad,rumbo]
+			set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos,proc_app,min_sep)
+
+			print 'Viento ahora es (int,rumbo)', wind
+			close_win()
+	but_cancel['command'] = close_win
+	but_acept['command'] = change_wind
+	w.bind_all("<Return>",change_wind)
+	w.bind_all("<KP_Enter>",change_wind)
+	w.bind_all("<Escape>",close_win)
+
+
 def hdg_after_fix():
     global win_identifier
     if win_identifier<>None:
@@ -1269,7 +1335,7 @@ def hdg_after_fix():
       if vent_ident_procs != None:
         w.delete(vent_ident_procs)
         vent_ident_procs = None
-        win = Frame(w)
+      win = Frame(w)
       title = Label(win, text = 'Rumbo después de fijo: '+sel.get_callsign())
       lbl_fix = Label(win, text="Fijo:")
       ent_fix = Entry(win, width=5)
@@ -2023,6 +2089,8 @@ def ventana_auxiliar(e):
         but_chg_rwy.grid(column=0,row=3,sticky=E+W)
         but_orbit = Button(ventana_procs, text = 'Orbitar aquí', command = b_orbitar)
         but_orbit.grid(column=0,row=4,sticky=E+W)
+	but_wind = Button(ventana_procs, text = 'Cambiar viento', command = cambiar_viento)
+        but_wind.grid(column=0,row=5,sticky=E+W)
 	vent_ident_procs=w.create_window(ventana.winfo_x()+but_ver_proc.winfo_x(),alto-ventana.winfo_height(),window=ventana_procs,anchor='sw')
       but_ver_proc['command'] = procs_buttons
       but_ver_app = Button(ventana, text = 'APP')
