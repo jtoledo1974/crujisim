@@ -1,6 +1,9 @@
 # $Id$
 """Classes useful for designing a radar display"""
 
+# TODO 2005-08-25 bind_alls are creating leaks. unbind_alls don't seem to work
+#                   (the objects are not being garbage collected)
+
 from Tkinter import *
 import logging
 
@@ -126,14 +129,29 @@ class RaFrame:
     def __del__(self):
         logging.debug("RaFrame.__del__")
 
-class RaClock(RaFrame):
-    """Create an unclosable frame displaying the clock time
-
-    SPECIFIC OPTIONS
-    time -- a text string to display
-    """
+class RaDialog(RaFrame):
+    """A frame whith OK and Cancel buttons"""
 
     def __init__(self, canvas, **kw):
+        """Create a frame on the lower left corner and associate OK and Cancel bindings"""
+
+        logging.debug ("RaDialog.__init__")
+        def_opt={'position':(100,100)}
+        def_opt.update(kw)
+        RaFrame.__init__self(canvas,def_opt)
+
+    def __del__(self):
+        logging.debug ("RaDialog.__del__")
+
+class RaClock(RaFrame):
+    """An uncloseable, moveable frame with adjustable text inside"""
+    
+    def __init__(self, canvas, **kw):
+        """Create an unclosable frame displaying the clock time
+
+        SPECIFIC OPTIONS
+        time -- a text string to display
+        """
         def_opt={'position':(50,22), 'closebutton':False}
         def_opt.update(kw)
         RaFrame.__init__(self, canvas, def_opt)
