@@ -25,7 +25,9 @@ import Metepasadas
 import tpv
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+# Define which logging level messages will be output
+logging.getLogger('').setLevel(logging.DEBUG)
+
 
 [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
 
