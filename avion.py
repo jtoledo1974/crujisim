@@ -815,9 +815,8 @@ class Airplane:
   
   def se_debe_imprimir(self,t):
     # Definimos cuánto tiempo antes nos sale la ficha y el tiempo de permanencia del mensaje
-    prevision=10./60.
     permanece=2./60.
-    if not self.ficha_imprimida and self.t-t<prevision:
+    if not self.ficha_imprimida and self.t_impresion<t:
       self.ficha_imprimida=True
       self.t_ficha=t
       return True
