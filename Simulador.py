@@ -73,6 +73,7 @@ vent_ident_mapas = None
 # Constants
 IMGDIR='./img/'
 CRUJISIMICO=IMGDIR+'crujisim.ico'
+SNDDIR='./snd/'
 
 # Start loading data
 [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv()
@@ -412,6 +413,7 @@ def draw_print_list():
           # listado_salidas = {{'LEBB',{'IB4148';('10:18:15','NORTA1A'),'BAW317':('10:23:15','ROKIS1B'),...}
       else:
         w.create_text(ancho-10,n*13,text=a.get_callsign(),fill='yellow',tag='fichas',anchor=NE,font='-*-Helvetica-*--*-12-*-')
+        print_fs(a.get_callsign()) # Play the printing sound if necessary
         n=n+1
 
 
@@ -600,7 +602,26 @@ def manual_dep_window_update(t):
       button['bg'] = 'yellow'
       button['command'] = datos_avo
 
-  
+
+
+def print_fs(callsign):
+    """Simulate the printing of a flight strip"""
+    import winsound
+    try:
+        print_fs._callsigns=print_fs._callsigns
+    except:
+        print_fs._callsigns={}
+    if print_fs._callsigns.has_key(callsign) and print_fs._callsigns[callsign]==3:
+        return
+    if sys.platform=='win32':
+        try:
+            winsound.PlaySound("*", winsound.SND_ALIAS|winsound.SND_NOSTOP|winsound.SND_ASYNC)
+#            winsound.PlaySound(SNDDIR+'/printer.wav', winsound.SND_NOSTOP|winsound.SND_ASYNC)
+        except:
+            return
+        if not print_fs._callsigns.has_key(callsign):
+            print_fs._callsigns[callsign]=0
+        print_fs._callsigns[callsign]+=1
   
 def redraw_all():
   # Dibujar las rutas y nombre de los puntos
