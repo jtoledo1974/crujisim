@@ -24,8 +24,8 @@
 
 from math import *
 from Tkinter import *
-from Tix import *
 from RaDisplay import *
+from Tix import *
 import tkFont
 import lads
 import sys
