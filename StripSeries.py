@@ -67,6 +67,9 @@ class StripSeries:
     
 	def __init__(self, exercise_name="", date="", output_file="strips.pdf"):
 		self.canvas = PDFCanvas(size=(560,815), name=output_file)
+                # For some strange reason the flight strips will not
+                # print correctly on the first page, so we need a dummy
+                # first page prior to the actual flight strips
 		strips.stringformat.drawString(self.canvas, "Ejercicio:  "+str(exercise_name), 40, 40)
 		self.canvas.clear()
 		self.num_strips = 0
