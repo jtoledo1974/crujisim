@@ -347,7 +347,7 @@ def get_hdg_obj(self,deriva,t):
             self.kill_airplane(self.canvas,False)
             self.esta_asumido = False
             return 'Dead'
-        if self.esta_en_llz:
+        if self.esta_en_llz: # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = spd_app
           fl_gp = (alt_pista/100. + dist_thr * pdte_ayuda * 60.)
           if fl_gp <= self.alt:
             self.set_spd(self.spd_app/(1.0+0.002*self.alt))
@@ -366,7 +366,8 @@ def get_hdg_obj(self,deriva,t):
         (rdlx,rdly)=pr((1.0,rdl))
         dist_perp = abs(rx * rdly - ry * rdlx)
         if dist_perp < 0.1: # Consideramos que estáen el radial
-          self.esta_en_llz = True
+          if abs(self.alt-self.cfl)<002.0:
+		self.esta_en_llz = True
           self.int_loc = False
           self.vect=rp((2.0*self.ground_spd,self.track))
           return rdl - deriva
