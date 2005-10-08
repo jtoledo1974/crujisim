@@ -615,8 +615,8 @@ def print_fs(callsign):
         return
     if sys.platform=='win32':
         try:
-            winsound.PlaySound("*", winsound.SND_ALIAS|winsound.SND_NOSTOP|winsound.SND_ASYNC)
-#            winsound.PlaySound(SNDDIR+'/printer.wav', winsound.SND_NOSTOP|winsound.SND_ASYNC)
+#            winsound.PlaySound("*", winsound.SND_ALIAS|winsound.SND_NOSTOP|winsound.SND_ASYNC)
+            winsound.PlaySound(SNDDIR+'/printer.wav', winsound.SND_NOSTOP|winsound.SND_ASYNC)
         except:
             return
         if not print_fs._callsigns.has_key(callsign):
