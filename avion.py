@@ -131,7 +131,7 @@ def v(self):
       self.ias = self.ias_obj
     return min(tas_max, self.ias * (1.0+0.002 *self.alt))
   inicio_app = 00.
-  trans_tma = 70.
+  trans_tma = 50.
   vel_tma = 150.
   if self.alt<=inicio_app: # Velocidad de aproximación
     return self.spd_app
@@ -141,7 +141,7 @@ def v(self):
   elif self.alt<=vel_tma: # Transición entre ruta y tma
     p=(self.alt-trans_tma)/(vel_tma - trans_tma)
     ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
-    return self.spd_tma*(1.-p)+ias_std *(1.0+0.002*vel_tma)*p
+    return self.spd_tma*(1.-p)+ias_std *(1.0+0.002*self.alt)*p
 #    return self.spd_tma
   else:
     ias_std=self.spd_std/(1+0.002*self.fl_max*0.90)
@@ -205,7 +205,7 @@ def get_hdg_obj(self,deriva,t):
         elif self.hdg>180.0 and hdg_obj<self.hdg-180.0:
           hdg_obj += 360.0
 	aux_hdg = self.hdg - hdg_obj
-	self.vect=rp((2.0*self.ground_spd,self.track))
+	self.vect=rp((2.0*self.ground_spd,hdg_obj))
 	if self.to_do_aux[1] == 'DCHA':
 		if aux_hdg > 0.: #El rumbo está a su izquierda
 			return (self.hdg+90.)%360.
