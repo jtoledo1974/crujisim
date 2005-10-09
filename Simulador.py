@@ -606,7 +606,7 @@ def manual_dep_window_update(t):
 
 def print_fs(callsign):
     """Simulate the printing of a flight strip"""
-    import winsound
+    #import winsound
     try:
         print_fs._callsigns=print_fs._callsigns
     except:
@@ -614,6 +614,7 @@ def print_fs(callsign):
     if print_fs._callsigns.has_key(callsign) and print_fs._callsigns[callsign]==3:
         return
     if sys.platform=='win32':
+	import winsound
         try:
             if reloj_funciona:  # Avoid the annoying sound at the beginning
 #                winsound.PlaySound("*", winsound.SND_ALIAS|winsound.SND_NOSTOP|winsound.SND_ASYNC)
