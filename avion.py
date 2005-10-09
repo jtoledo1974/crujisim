@@ -372,7 +372,8 @@ def get_hdg_obj(self,deriva,t):
           self.vect=rp((2.0*self.ground_spd,self.track))
           return rdl - deriva
         elif dist_perp<0.8:
-          self.esta_en_llz = True
+          if abs(self.alt-self.cfl)<002.0:
+		self.esta_en_llz = True
           self.int_loc = False
           self.vect=rp((2.0*self.ground_spd,self.track))
           return (rdl - deriva - 20.0 * sgn(ang_aux))%360.0
