@@ -344,7 +344,7 @@ def get_hdg_obj(self,deriva,t):
               self.route.append([a,b,c])
           else:
             print "Aterrizando el ",self.name
-            self.kill_airplane(self.canvas,False)
+            self.kill()
             self.esta_asumido = False
             return 'Dead'
         if self.esta_en_llz: # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = spd_app
@@ -832,30 +832,17 @@ class Airplane:
     else:
       return False
     
-  def kill_airplane(self,canvas,preguntar = True):
-      # Display window offering "Terminar" and "Cancel" options.
-      if preguntar:
-        global seleccionado
-        if seleccionado<>self:
-          return
-        logging.debug (self.name+'\tCreating kill window')
-        def kill_acft(e=None):
-                global seleccionado
-                self.t=self.t+1000.
-                self.hist_t=self.hist_t+1000.
-                self.se_pinta = False
-                seleccionado = None
-                self.redraw(canvas)
-                f.close()
-        f = RaKillPlane(canvas,acft_name=self.name,
-                             ok_callback=kill_acft)
-      else:
-        self.t=self.t+1000.
-        self.hist_t=self.hist_t+1000.
-        self.se_pinta = False
-        if seleccionado == self:
-          seleccionado = None
-        
+  def kill(self):
+      """Kills aircraft
+
+      Currently it just forces the plane not to be painted any more
+      """
+      global seleccionado
+      self.t=self.t+1000.
+      self.hist_t=self.hist_t+1000.
+      self.se_pinta = False
+      seleccionado = None
+      self.redraw(self.canvas)
         
   def is_flying(self):
     return self.se_pinta

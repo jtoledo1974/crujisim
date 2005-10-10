@@ -845,7 +845,7 @@ def timer():
     ho=int(t/60/60)
     m=int(t/60)-ho*60
     s=int(t)-60*60*ho-60*m
-    clock.configure({'time':'%02d:%02d:%02d' % (ho, m, s)})
+    clock.configure(time='%02d:%02d:%02d' % (ho, m, s))
 
   else:
     last_update=tlocal(t0)
@@ -1046,7 +1046,8 @@ def b_auto_separation():
   
 def kill_acft():
   for a in ejercicio:
-    a.kill_airplane(w)
+    if a.esta_seleccionado():
+        d=RaDialog(w,label='Cancel '+str(a.name), ok_callback=a.kill)
   
 def quitar_fpr():
   for a in ejercicio:
@@ -1187,81 +1188,42 @@ def define_holding():
     w.bind_all("<Escape>",close_win)
       
 def nueva_ruta():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
+      if a.esta_seleccionado(): sel=a
     if sel == None:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Definir nueva ruta')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    else:
-      win = Frame(w)
-      txt_ruta = Label (win,text='Nueva ruta '+sel.get_callsign()+':')
-      ent_ruta = Entry(win,width=50)
-      txt_dest = Label (win,text='Destino')
-      ent_dest = Entry(win,width=5)
-      ent_dest.insert(END,sel.destino)
-      but_acept = Button(win, text="Aceptar")
-      but_cancel = Button(win, text="Cancelar")
-      txt_ruta.pack(side=LEFT)
-      ent_ruta.pack(side=LEFT)
-      txt_dest.pack(side=LEFT)
-      ent_dest.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      but_cancel.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      ent_ruta.focus_set()
-      def close_win(e=None,ident=win_identifier):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def change_fpr(e=None):
-              pts=ent_ruta.get().split(' ')
-#               print 'Puntos son:'
-              aux=[]
-              fallo=False
-              for a in pts:
-                hay_pto=False
-                for b in punto:
-                  if a.upper() == b[0]:
-                    aux.append([b[1],b[0],''])
-                    hay_pto=True
-                if not hay_pto:
-                  fallo=True
-              if fallo:
-                ent_ruta['bg'] = 'red'
-                ent_ruta.focus_set()
-              else:
-                sel.destino = ent_dest.get().upper()
-                cancel_app_auth(sel)
-                sel.set_route(aux)
-                print 'Cambiando plan de vuelo a ',aux
-                sel.set_app_fix()
-                close_win()
-      but_cancel['command'] = close_win
-      but_acept['command'] = change_fpr
-      w.bind_all("<Return>",change_fpr)
-      w.bind_all("<KP_Enter>",change_fpr)
-      w.bind_all("<Escape>",close_win)
+      d=RaDialog(w, label='Nueva ruta',
+                 text='No hay ningún vuelo seleccionado')
+      return
+    def change_fpr(e=None,entries=None):
+      pts=nueva_ruta.route.get().split(' ')
+      logging.debug ('Input route points: '+str(pts))
+      aux=[]
+      fallo=False
+      for a in pts:
+        hay_pto=False
+        for b in punto:
+          if a.upper() == b[0]:
+            aux.append([b[1],b[0],''])
+            hay_pto=True
+        if not hay_pto:
+          fallo=True
+      if fallo:
+        entries['Ruta:']['bg'] = 'red'
+        entries['Ruta:'].focus_set()
+        return False
+      else:
+        sel.destino = nueva_ruta.dest.get().upper()
+        cancel_app_auth(sel)
+        sel.set_route(aux)
+        logging.info ('Cambiando plan de vuelo a '+str(aux))
+        sel.set_app_fix()
+    # Build the GUI Dialog
+    entries,nueva_ruta.route,nueva_ruta.dest=[],StringVar(),StringVar()
+    entries.append({'label':'Ruta:','width':50,'textvariable':nueva_ruta.route})
+    entries.append({'label':'Destino:','width':5,'def_value':sel.destino,'textvariable':nueva_ruta.dest})
+    RaDialog(w,label=sel.get_callsign()+': Nueva ruta',
+                          ok_callback=change_fpr,entries=entries)    
         
 def cambiar_viento():
 	global win_identifier
