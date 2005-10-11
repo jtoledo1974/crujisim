@@ -802,7 +802,10 @@ class Airplane:
     self.eobt=eobt
 
   def get_sector_entry_fix(self):
-    return self.sector_entry_fix
+    if self.sector_entry_fix==None:
+        return ''
+    else:
+        return self.sector_entry_fix
 
   def set_sector_entry_fix(self,fix):
     self.sector_entry_fix=fix
