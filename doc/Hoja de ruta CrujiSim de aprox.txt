@@ -5,6 +5,7 @@ TODO's CRUJISIM
 ERRORES
 - Corrección de algunos parámetros de aviones lentos en aproximación radar
 - Al entrar en aprox. convencional (LECE) hay error al dar el punto de entrada al asector
+- Al soltar un despegue, el avión aparece en ascenso para otro nivel de vuelo distinto
 
 
 
