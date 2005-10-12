@@ -332,6 +332,8 @@ def ejercicio():
       p_fijo = ''
       p_hora = ''
       fijo_ant = ''
+      hora_inc = ''
+      inc = ''
     else:
       resto = ejer.get('vuelos',ind)
       lista=resto.split(',')
@@ -354,6 +356,15 @@ def ejercicio():
             ruta_escogida = p.upper()
           else:
             ruta_escogida += ','+p.upper()
+      if ejer.has_section('req') and ejer.has_option('req',ind):
+        incidencia=ejer.get('req',ind)
+        hora_inc=incidencia[:4]
+        inc=incidencia[5:]
+        if (inc[0]=='"' and inc[-1]=='"') or (inc[0]=="'" and inc[-1]=="'"):
+            inc=inc[1:-1]
+      else:
+        hora_inc=''
+        inc=''
     def definir_ruta(root):
       # Ahora vamos a por las rutas
       frame1 = Toplevel(root)
@@ -568,11 +579,18 @@ def ejercicio():
     txt_eto = Label (frame, text = 'ETO en fijo (hhmmss):')
     ent_eto = Entry (frame, width = 6, bg = 'white')
     ent_eto.insert(END,p_hora)
+    txt_hora_inc = Label (frame, text= 'Hora incidencia (hhmm):')
+    ent_hora_inc = Entry (frame, width=4, bg = 'white')
+    ent_hora_inc.insert(END,hora_inc)
+    txt_inc = Label (frame, text = 'Incidencia:')
+    ent_inc = Entry (frame, width = 10, bg = 'white')
+    ent_inc.insert(END,inc)
     grabar = False
     otro_avo = False
     def comprobar():
       global indicativo,tipo,estela,fijo_ruta,origen,destino
       global fl_one,cfl,rfl,fijo_eto,eto,grabar,vel, otro_avo
+      global incidencia
       bueno = True
       vel = ent_velocidad.get()
       if len(vel) <> 3:
@@ -651,6 +669,21 @@ def ejercicio():
         ent_ind.focus_set()
       else:
         ent_ind['bg'] = 'white'
+      hora_inc=ent_hora_inc.get()
+      if (hora_inc<>'' and len(hora_inc)==4 and hora_inc.isdigit()) or hora_inc=='':
+        ent_hora_inc['bg']='white'
+      else:
+        ent_hora_inc['bg']='red'
+        ent_hora_inc.focus_set()
+        bueno=False
+      inc=ent_inc.get()
+      if (hora_inc<>'' and inc==''):
+        ent_inc['bg']='red'
+        ent_inc.focus_set()
+        bueno=False
+      else:
+        ent_inc['bg']='white'
+      incidencia=hora_inc+','+'"'+inc+'"'
       return bueno
     def terminar():
       if comprobar():
@@ -693,8 +726,12 @@ def ejercicio():
     ent_fijo_eto.grid(column=1,row=12,sticky=W)
     txt_eto.grid(column=0,row=13,sticky=W)
     ent_eto.grid(column=1,row=13,sticky=W)
-    but_otro_mas.grid(column=0, row=14, sticky=W)
-    but_terminar.grid(column=1,row=14,sticky = E)
+    txt_hora_inc.grid(column=0,row=14,sticky=W)
+    ent_hora_inc.grid(column=1,row=14,sticky=W)
+    txt_inc.grid(column=0,row=15,sticky=W)
+    ent_inc.grid(column=1,row=15,sticky=W)
+    but_otro_mas.grid(column=0,row=16,sticky=W)
+    but_terminar.grid(column=1,row=16,sticky=E)
     def set_window_size():
 	window_width = root.winfo_reqwidth()
 	window_height = root.winfo_reqheight()
@@ -732,6 +769,8 @@ def ejercicio():
     ejer.set('datos','viento','')
   if not ejer.has_section('vuelos'):
     ejer.add_section('vuelos')
+  if not ejer.has_section('req'):
+    ejer.add_section('req')
   vuelos = []
   root = Tk()
 
@@ -796,6 +835,10 @@ def ejercicio():
             ejer.remove_option('vuelos',call)
           ejer.set('vuelos',indicativo,ruta)
           poner_vuelos(window)
+          if incidencia<>',""':
+              ejer.set('req',indicativo,incidencia)
+          else:
+              ejer.remove_option('req',indicativo)
       def quitar(e=None, call=ind):
         print 'Quitando ',call
         seguro = Toplevel(root)
@@ -836,6 +879,11 @@ def ejercicio():
       if guardar:
         ejer.set('vuelos',indicativo,ruta)
         poner_vuelos(window)
+        if incidencia<>',""':
+          ejer.set('req',indicativo,incidencia)
+        else:
+          ejer.remove_option('req',indicativo)
+
   but_nuevo_vuelo = Button(root, text = 'Nuevo vuelo',command = mas)
   but_nuevo_vuelo.grid(column=3,row=7)
   def terminar(e=None):
@@ -861,7 +909,8 @@ def ejercicio():
             break
           else:
             coment = coment[:-1]
-      ejer.set('datos','comentario',coment+'('+str(num_eje)+')')     
+      ejer.set('datos','comentario',coment+'('+str(num_eje)+')')
+      if len(ejer.items('req'))==0: ejer.remove_section('req')
       ejer.write(open(fichero,'w'))
       root.destroy()
       bye = Tk()
