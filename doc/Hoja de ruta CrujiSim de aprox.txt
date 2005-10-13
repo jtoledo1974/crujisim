@@ -12,6 +12,7 @@ ERRORES
 TODO's METEPASADAS
 =====================================
 ERRORES
+- Cambiar la forma de insertar los [REQ]. Ahora aparece en la ventana de introducir los datos de cada avión, cambiarlo a la ventana de Datos Generales.
 - Corregir error al guardar las pasadas modificadas. Hace falta adecuarlo al nuevo árbol de directorios
 
 $Id$
