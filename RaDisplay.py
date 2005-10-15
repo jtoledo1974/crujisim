@@ -1,9 +1,6 @@
 # $Id$
 """Classes useful for designing a radar display"""
 
-# TODO 2005-08-25 bind_alls are creating leaks. unbind_alls don't seem to work
-#                   (the objects are not being garbage collected)
-
 from Tkinter import *
 import logging
 
@@ -21,7 +18,6 @@ class RaFrame:
             closebutton -- True or False (default true)
         """
 
-        logging.debug('RaFrame.__init__ '+str(kw))
         self._master=master
         self._closebutton=self._label=None
         self.bd,self.bg,self.fg='#006c35','#003d1e','#bde20B'
@@ -30,13 +26,13 @@ class RaFrame:
         # Build the frame
         self.container=Frame(master,background=self.bd)
         self.contents=Frame(self.container,background=self.bg,borderwidth=5)
-        self.contents.grid(column=0,row=1,padx=5,pady=5,columnspan=2)
+        self.contents.pack(padx=5,pady=5,side=BOTTOM,fill=BOTH,expand=1)
         if kw.has_key('label') and kw['label']<>'':
             self._label=Label(self.container,text=kw['label'],background=self.bd,foreground='Black')
-            self._label.grid(column=0,row=0,sticky=W,padx=5)
+            self._label.pack(side=LEFT,padx=5)
         if not kw.has_key('closebutton') or kw['closebutton']:
             self._closebutton=Label(self.container,text='X',background=self.bd,foreground='Black')
-            self._closebutton.grid(column=1,row=0,sticky=E)
+            self._closebutton.pack(side=RIGHT)
 
         # Place it
         if not kw.has_key('position'):
@@ -91,11 +87,8 @@ class RaFrame:
             for w in wid.winfo_children():
                 bind_children(w, event, callback)
         bind_children(self.container,event,callback)
-        logging.debug('RaFrame.bind')
 
     def close(self,e=None):
-        logging.debug('RaFrame.close')
-
         for t,i,ev in self._bindings:
             t.unbind(ev,i)
                         
@@ -103,6 +96,7 @@ class RaFrame:
         self.contents.destroy()
         
     def __del__(self):
+        # Print a message to make sure we are freing the memory
         logging.debug("RaFrame.__del__")
 
 class RaDialog(RaFrame):
@@ -157,62 +151,89 @@ class RaDialog(RaFrame):
         
         # Dialog elements
         f0 = Frame(self.contents, **self._frame_colors) # Text
-        f0.grid(column=0, row=0, pady=1)        
+        f0.pack(side=TOP, pady=1, fill=BOTH)        
         f1 = Frame(self.contents, **self._frame_colors) # Dialog contents
-        f1.grid(column=0, row=1, pady=1)
-        f2 = Frame(self.contents, **self._frame_colors) # Default dialog buttons
-        f2.grid(column=0, row=2, sticky=E)
+        f1.pack(side=TOP, pady=1, fill=BOTH)
+        f2a = Frame(self.contents, **self._frame_colors) # aux frame
+        f2a.pack(side=BOTTOM, fill=BOTH)
+        f2 = Frame(f2a, **self._frame_colors) # Default dialog buttons
+        f2.pack(side=RIGHT, fill=BOTH)
 
         if kw.has_key('text'):
             l=Label(f0,text=kw['text'], **self._label_colors)
-            l.grid()        
+            l.grid(sticky=W)        
         but_accept = Button(f2, text="Aceptar", default='active', **self._button_colors)
-        but_accept.grid(column=0, row=0, padx=5, sticky=E)
+        but_accept.pack(side=LEFT)
         but_accept['command'] = self.accept
         if kw.has_key('ok_callback'):
+            Label(f2,text=' ', **self._label_colors).pack(side=LEFT)
             but_cancel = Button(f2, text="Cancelar", **self._button_colors)
-            but_cancel.grid(column=1, row=0, padx=5, sticky=E)
+            but_cancel.pack(side=LEFT)
             but_cancel['command'] = self.close
             
         # Dialog entries
         if kw.has_key('entries'):
             self.entries={}
             first=None
+            spacer=None
             for e in kw['entries']:
                 e_label=e['label']
                 entry=None
                 Label(f1,text=e_label,**self._label_colors).pack(side=LEFT)
                 del e['label']
-                if e.has_key('options'):
-                    pass
+                if e.has_key('def_value'):
+                    def_value=e['def_value']
+                    del e['def_value']
                 else:
-                    if e.has_key('def_value'):
-                        def_value=e['def_value']
-                        del e['def_value']
-                    else:
-                        def_value=''
+                    def_value=''
+                if e.has_key('values'):
+                    import Tix
+                    entry=Tix.ComboBox(f1,editable=True)
+                    maxwidth=0
+                    for i in e['values']:
+                        if len(i)>maxwidth: maxwidth=len(i)
+                        entry.append_history(i)
+                    entry.entry['width']=maxwidth
+                    entry.slistbox.listbox.configure(width=maxwidth+1,
+                                                     height=len(e['values']),
+                                                     bg=self.bg,
+                                                     fg=self.fg)
+                    # We need the master since we can't set the color of the
+                    # frame containing the entry and the arrow
+                    entry.entry.master['bg']=self.bg
+                    entry.label.configure(**self._label_colors)
+                    entry.entry.configure(**self._entry_colors)
+                    entry.slistbox.configure(**self._frame_colors)
+                    entry.arrow.configure(**self._button_colors)
+                    entry['value']=def_value
+                else:
                     e.update(self._entry_colors)
                     entry=Entry(f1,**e)
                     entry.insert(END,def_value)
-                    entry.pack(side=LEFT)
+                entry.pack(side=LEFT)
                 if first==None:  
                     first=entry
                 if entry:  # Store the entry widgets to make them available
                     self.entries[e_label]=entry
+                spacer=Label(f1,text=' ',**self._label_colors)
+                spacer.pack(side=LEFT)
             first.focus_set()  # Place the focus on the first entry
+            spacer.destroy()  # The last spacer is unnecesary
         else:
             self.entries=None
 
         # Global bindings
         self._ok_callback=self._esc_closes=False
+        i=self._master.bind_all("<Return>",self.accept)
+        j=self._master.bind_all("<KP_Enter>",self.accept)
+        self._bindings.append((self._master,i,'<Return>'),)
+        self._bindings.append((self._master,j,'<KP_Enter>'),)
         if kw.has_key('ok_callback'):
             self._ok_callback=kw['ok_callback']
-            self._master.bind_all("<Return>",self.accept)
-            self._master.bind_all("<KP_Enter>",self.accept)
 
         if not kw.has_key('esc_closes') or kw['esc_closes']:  
-            self._master.unbind_all("<Escape>")
-            self._master.bind_all("<Escape>",self.close)
+            i=self._master.bind_all("<Escape>",self.close)
+            self._bindings.append((self._master,i,'<Escape>'),)
             self._esc_closes=True
 
         self.place_dialog()
@@ -243,21 +264,8 @@ class RaDialog(RaFrame):
         self.configure(position=(x,y))
 
     def close(self, e=None):
-        logging.debug ("RaDialog.close")
         del _radialogs[self._label['text']]
-        if self._ok_callback:
-            print 'unbinding callback'
-            self._master.unbind_all("<Return>")
-            self._master.unbind_all("<KP_Enter>")
-            self._ok_callback=None
-        if self._esc_closes:
-            print 'Unbinding escape'
-            self._master.unbind_all("<Escape>")        
         RaFrame.close(self,e)
-
-    def __del__(self):
-        logging.debug ("RaDialog.__del__")
-        RaFrame.__del__(self)
 
 class RaClock(RaFrame):
     """An uncloseable, moveable frame with adjustable text inside"""
@@ -282,26 +290,3 @@ class RaClock(RaFrame):
         RaFrame.configure(self,**options)
         if options.has_key('time'):
             self._time['text']=options['time']
-
-##class RaKillPlane(RaDialog):
-##    """Cancel Plane Dialog"""
-##    def __init__(self,master,**kw):
-##        """Create a Cancel Plane dialog
-##
-##        Options:
-##            acft_name -- Is used in the frame title
-##            ok_callback -- the callback to call when killing the plane
-##        """
-##        logging.debug ("RaKillPlane.__init__ "+str(kw))
-##        def_opt={'label':'Cancel '+kw['acft_name']}
-##        kw.update(def_opt)
-##        RaDialog.__init__(self, master, **kw)
-##        self.place_dialog()
-##
-##    def close(self,e=None):
-##        logging.debug('RaKillPlane.close')
-##        RaDialog.close(self,e)
-##        
-##    def __del__(self):
-##        logging.debug ("RaKillPlane.__del__")
-##        RaDialog.__del__(self)

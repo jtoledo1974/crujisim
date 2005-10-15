@@ -221,13 +221,13 @@ def def_lad(e, canvas = w):
           canvas.create_line(x0, y0,e.x, e.y, fill="orange", tags="lad_defined")
           lad_text1 = "A: %03d" % angulo
           lad_text2 = "D: %03d" % dist
-	  # Check if LAD begins in a point or in a plane
+          # Check if LAD begins in a point or in a plane
           if lad_origen.get_ground_speed() < 10.:
             lad_text3 = ""
-	    lad_lines = 2  # LAD will show 2 lines with information (Azimuth, Distance)
+            lad_lines = 2  # LAD will show 2 lines with information (Azimuth, Distance)
           else:
             lad_text3 = "T: %03d" % time_min
-	    lad_lines = 3  # LAD will show 3 lines with information (Azimuth, Distance and Time to reach)
+            lad_lines = 3  # LAD will show 3 lines with information (Azimuth, Distance and Time to reach)
           lad_rect_width = label_font.measure(lad_text1)
 #          lad_rect_width = max(label_font.measure(self.name) + 4,label_font.measure(spd_text+wake_text+eco_text) + 4)
           lad_line_height = label_font.metrics('linespace')
@@ -350,7 +350,7 @@ def draw_all_lads(canvas):
 			canvas.tag_bind(lad.text_id4, '<1>', set_superlad)
 		def remove_lad(e=None, lad_to_remove = lad):
 			global all_lads, superlad,latest_lad_event_processed
-                        latest_lad_event_processed = e.serial
+			latest_lad_event_processed = e.serial
 			if lad_to_remove.line_id != None: canvas.delete(lad_to_remove.line_id)
 			if lad_to_remove.text_id1 != None: canvas.delete(lad_to_remove.text_id1)
 			if lad_to_remove.text_id2 != None: canvas.delete(lad_to_remove.text_id2)
@@ -422,7 +422,7 @@ images = {}
 def load_image(image_name):
         new_img = Image.open(IMGDIR+image_name+".gif").convert("RGBA")
         tkimg = ImageTk.PhotoImage(image=new_img)
-	images[image_name] = tkimg
+        images[image_name] = tkimg
         return tkimg
 
 
@@ -614,7 +614,7 @@ def print_fs(callsign):
     if print_fs._callsigns.has_key(callsign) and print_fs._callsigns[callsign]==3:
         return
     if sys.platform=='win32':
-	import winsound
+        import winsound
         try:
             if reloj_funciona:  # Avoid the annoying sound at the beginning
 #                winsound.PlaySound("*", winsound.SND_ALIAS|winsound.SND_NOSTOP|winsound.SND_ASYNC)
@@ -1076,127 +1076,92 @@ def cancel_app_auth(sel):
         break
 
 def define_holding():
-  global win_identifier
-  if win_identifier<>None:
-    w.delete(win_identifier)
-    win_identifier=None
-    return
+  """Show a dialog to set the selected aircraft in a holding pattern over the selected fix"""
   sel = None
   for a in ejercicio:
-    if a.esta_seleccionado():
-      sel=a
+    if a.esta_seleccionado(): sel=a
   if sel == None:
-    win = Frame(w)
-    txt_ruta0 = Label (win,text='Entrar en una espera')
-    txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-    but_acept = Button(win, text="Aceptar")
-    txt_ruta0.pack(side=TOP)
-    txt_ruta.pack(side=LEFT)
-    but_acept.pack(side=LEFT)
-    win_identifier = w.create_window(ancho/2,alto-75, window=win)
-    def close_win(ident=win_identifier):
-            global win_identifier
-            win_identifier=None
-            w.delete(ident)
-    but_acept['command'] = close_win
-  else:
-    global vent_ident_procs
-    if vent_ident_procs != None:
-      w.delete(vent_ident_procs)
-      vent_ident_procs = None
-    win = Frame(w)
-    title = Label(win, text = 'Espera: '+sel.get_callsign())
-    lbl_hold = Label(win, text="Fijo principal:")
-    ent_hold = Entry(win, width=5)
-    ent_hold.insert(0, str(sel.route[0][1]))
-    lbl_side = Label (win, text = 'Virajes (I/D):')
-    ent_side = Entry(win,width=1)
-    ent_side.insert(0, 'D')
-    but_Acp = Button(win, text="Aceptar")
-    but_Can = Button(win, text="Cancelar")
-    title.grid(row=0,column=0, columnspan=2)
-    lbl_hold.grid(row=1, column=0)
-    ent_hold.grid(row=1, column=1)
-    lbl_side.grid(row=2, column=0)
-    ent_side.grid(row=2, column=1)
-    but_Acp.grid(row=3, column=0, columnspan=2)
-    but_Can.grid(row=4, column=0, columnspan=2)
-    win_identifier = w.create_window(do_scale(sel.pos), window=win)
-    ent_hold.focus_set()
-    def close_win(e=None,ident=win_identifier,w=w):
-            global win_identifier
-            w.unbind_all("<Return>")
-            w.unbind_all("<KP_Enter>")
-            w.unbind_all("<Escape>")
-            win_identifier=None
-            w.delete(ident)
-    def set_holding(e=None):
-            error = True
-            fijo = ent_hold.get().upper()
-            lado = ent_side.get().upper()
-            auxiliar = ''
-            # Si la espera estápublicada, los datos de la espera
-            for [fijo_pub,rumbo,tiempo,lado_pub] in esperas_publicadas:
-              if fijo_pub == fijo:
-                lado = lado_pub.upper()
-                derrota_acerc = rumbo
-                tiempo_alej = tiempo/60.0
-                for i in range(len(sel.route)):
-                  [a,b,c] = sel.route[i]
-                  if b == fijo:
-                    auxiliar = [a,b,c]
-                    error = False
-                    break
-            # En caso contrario, TRK acerc = TRK de llegada y tiempo = 1 min
-            if auxiliar == '':
-              for i in range(len(sel.route)):
-                [a,b,c] = sel.route[i]
-                if b == fijo:
-                  if i == 0: # La espera se inicia en el siguiente punto del avión
-                    auxi = sel.pos
-                  else:
-                    auxi = sel.route[i-1][0]
-                  aux1 = r(a,auxi)
-                  derrota_acerc = rp(aux1)[1]
-                  auxiliar = [a,b,c]
-                  error = False
-                  tiempo_alej = 1.0/60.0
-                  break
-            if error:
-              ent_hold['bg'] = 'red'
-              ent_hold.focus_set()
-            if lado == 'I':
-              giro = -1.0
-            elif lado == 'D':
-              giro = +1.0
-            else:
-              ent_side['bg'] = 'red'
-              ent_side.focus_set()
-              error = True
-            if not error:
-              sel.vfp = False
-              sel.to_do = 'hld'
-              sel.to_do_aux = [auxiliar, derrota_acerc, tiempo_alej, 0.0, False, giro]
-              # Cancelar posible autorización de aproximación
-              cancel_app_auth(sel)
-              print "Holding pattern:", sel.to_do_aux
-              close_win()
-    but_Acp['command'] = set_holding
-    but_Can['command'] = close_win
-    w.bind_all("<Return>",set_holding)
-    w.bind_all("<KP_Enter>",set_holding)
-    w.bind_all("<Escape>",close_win)
+    RaDialog(w, label='Poner en espera',
+                 text='No hay ningún vuelo seleccionado')
+    return
+
+  global vent_ident_procs
+  if vent_ident_procs != None:
+    w.delete(vent_ident_procs)
+    vent_ident_procs = None
+
+  def set_holding(e=None,entries=None):
+        error = True
+        ent_hold=entries['Fijo Principal:']
+        ent_side=entries['Virajes (I/D):']
+        fijo = ent_hold.get().upper()
+        lado = ent_side.get().upper()
+        auxiliar = ''
+        # Si la espera está publicada, los datos de la espera
+        for [fijo_pub,rumbo,tiempo,lado_pub] in esperas_publicadas:
+          if fijo_pub == fijo:
+            lado = lado_pub.upper()
+            derrota_acerc = rumbo
+            tiempo_alej = tiempo/60.0
+            for i in range(len(sel.route)):
+              [a,b,c] = sel.route[i]
+              if b == fijo:
+                auxiliar = [a,b,c]
+                error = False
+                break
+        # En caso contrario, TRK acerc = TRK de llegada y tiempo = 1 min
+        if auxiliar == '':
+          for i in range(len(sel.route)):
+            [a,b,c,d] = sel.route[i]
+            if b == fijo:
+              if i == 0: # La espera se inicia en el siguiente punto del avión
+                auxi = sel.pos
+              else:
+                auxi = sel.route[i-1][0]
+              aux1 = r(a,auxi)
+              derrota_acerc = rp(aux1)[1]
+              auxiliar = [a,b,c,d]
+              error = False
+              tiempo_alej = 1.0/60.0
+              break
+        if error:
+          ent_hold['bg'] = 'red'
+          ent_hold.focus_set()
+        if lado == 'I':
+          giro = -1.0
+        elif lado == 'D':
+          giro = +1.0
+        else:
+          ent_side['bg'] = 'red'
+          ent_side.focus_set()
+          error=True
+        if error:
+          return False  # Not validated correctly
+        sel.vfp = False
+        sel.to_do = 'hld'
+        sel.to_do_aux = [auxiliar, derrota_acerc, tiempo_alej, 0.0, False, giro]
+        # Cancelar posible autorización de aproximación
+        cancel_app_auth(sel)
+        logging.debug ("Holding pattern: "+str(sel.to_do_aux))
+
+  # Build the GUI Dialog
+  entries=[]
+  entries.append({'label':'Fijo Principal:','width':5,'def_value':sel.route[0][1]})
+  entries.append({'label':'Virajes (I/D):','width':1,'def_value':'D'})
+  RaDialog(w,label=sel.get_callsign()+': Poner en espera',ok_callback=set_holding,entries=entries)    
       
 def nueva_ruta():
+    """Ask the user to set a new route and destination airdrome for the currently selected aircraft"""
     sel = None
     for a in ejercicio:
       if a.esta_seleccionado(): sel=a
     if sel == None:
-      d=RaDialog(w, label='Nueva ruta',
-                 text='No hay ningún vuelo seleccionado')
+      RaDialog(w, label='Nueva ruta',
+               text='No hay ningún vuelo seleccionado')
       return
     def change_fpr(e=None,entries=None):
-      pts=nueva_ruta.route.get().split(' ')
+      ent_route,ent_destino=entries['Ruta:'],entries['Destino:']
+      pts=ent_route.get().split(' ')
       logging.debug ('Input route points: '+str(pts))
       aux=[]
       fallo=False
@@ -1204,658 +1169,315 @@ def nueva_ruta():
         hay_pto=False
         for b in punto:
           if a.upper() == b[0]:
-            aux.append([b[1],b[0],''])
+            aux.append([b[1],b[0],'',0])
             hay_pto=True
         if not hay_pto:
           fallo=True
       if fallo:
-        entries['Ruta:']['bg'] = 'red'
-        entries['Ruta:'].focus_set()
-        return False
-      else:
-        sel.destino = nueva_ruta.dest.get().upper()
-        cancel_app_auth(sel)
-        sel.set_route(aux)
-        logging.info ('Cambiando plan de vuelo a '+str(aux))
-        sel.set_app_fix()
+        ent_route['bg'] = 'red'
+        ent_route.focus_set()
+        return False  # Validation failed
+      sel.destino = ent_destino.get().upper()
+      cancel_app_auth(sel)
+      sel.set_route(aux)
+      logging.info ('Cambiando plan de vuelo a '+str(aux))
+      sel.set_app_fix()
     # Build the GUI Dialog
-    entries,nueva_ruta.route,nueva_ruta.dest=[],StringVar(),StringVar()
-    entries.append({'label':'Ruta:','width':50,'textvariable':nueva_ruta.route})
-    entries.append({'label':'Destino:','width':5,'def_value':sel.destino,'textvariable':nueva_ruta.dest})
+    entries=[]
+    entries.append({'label':'Ruta:','width':50})
+    entries.append({'label':'Destino:','width':5,'def_value':sel.destino})
     RaDialog(w,label=sel.get_callsign()+': Nueva ruta',
                           ok_callback=change_fpr,entries=entries)    
         
 def cambiar_viento():
-	global win_identifier
-	if win_identifier<>None:
-		w.delete(win_identifier)
-		win_identifier=None
-		return
-	win = Frame(w)
-	txt_title = Label (win,text='Definir viento')
-	txt_dir = Label (win,text='Dirección')
-	ent_dir = Entry(win,width=5)
-	ent_dir.insert(END,int((wind[1]+180.0)%360.0))
-	txt_int = Label (win,text='Intensidad (kts)')
-	ent_int = Entry(win,width=4)
-	ent_int.insert(END,int(wind[0]))
-	but_acept = Button(win, text="Aceptar")
-	but_cancel = Button(win, text="Cancelar")
-	txt_title.grid(column=0,row=0,columnspan=2)
-	txt_dir.grid(column=0,row=1)
-	ent_dir.grid(column=1,row=1)
-	txt_int.grid(column=0,row=2)
-	ent_int.grid(column=1,row=2)
-	but_acept.grid(column=0,row=3,columnspan=2)
-	but_cancel.grid(column=0,row=4,columnspan=2)
-	win_identifier = w.create_window(ancho/2,alto-100, window=win)
-	ent_dir.focus_set()
-	def close_win(e=None,ident=win_identifier):
-	      global win_identifier
-	      w.unbind_all("<Return>")
-	      w.unbind_all("<KP_Enter>")
-	      w.unbind_all("<Escape>")
-	      win_identifier=None
-	      w.delete(ident)
-	def change_wind(e=None):
-		global wind, vent_ident_procs
-		int=ent_int.get()
-		dir=ent_dir.get()
-		fallo = False
-		if dir.isdigit():
-			rumbo = (float(dir)+180.0) % 360.0
-		else:
-			ent_dir['bg'] = 'red'
-			ent_dir.focus_set()
-			fallo = True
-		if int.isdigit():
-			intensidad = float(int)
-		else:
-			ent_int['bg'] = 'red'
-			ent_int.focus_set()
-			fallo = True
-		if not fallo:
-			if vent_ident_procs != None:
-				w.delete(vent_ident_procs)
-				vent_ident_procs = None
-			# Cambiamos el viento en todos los módulos
-			wind = [intensidad,rumbo]
-			set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos,proc_app,min_sep)
+    """Show a dialog to allow the user to change the wind in real time"""
+    def change_wind(e=None,entries=None):
+        global wind, vent_ident_procs
+        ent_dir=entries['Dirección:']
+        ent_int=entries['Intensidad (kts):']
+        int=ent_int.get()
+        dir=ent_dir.get()
+        fallo = False
+        if dir.isdigit():
+            rumbo = (float(dir)+180.0) % 360.0
+        else:
+            ent_dir['bg'] = 'red'
+            ent_dir.focus_set()
+            fallo = True
+        if int.isdigit():
+            intensidad = float(int)
+        else:
+            ent_int['bg'] = 'red'
+            ent_int.focus_set()
+            fallo = True
+        if fallo:
+            return False  # Validation failed
 
-			print 'Viento ahora es (int,rumbo)', wind
-			close_win()
-	but_cancel['command'] = close_win
-	but_acept['command'] = change_wind
-	w.bind_all("<Return>",change_wind)
-	w.bind_all("<KP_Enter>",change_wind)
-	w.bind_all("<Escape>",close_win)
+        if vent_ident_procs != None:
+            w.delete(vent_ident_procs)
+            vent_ident_procs = None
+        # Cambiamos el viento en todos los módulos
+        wind = [intensidad,rumbo]
+        set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos,proc_app,min_sep)
+        logging.debug('Viento ahora es (int,rumbo) '+str(wind))
+        
+    # Build the GUI Dialog
+    entries=[]
+    entries.append({'label':'Dirección:','width':3,'def_value':int((wind[1]+180.0)%360.0)})
+    entries.append({'label':'Intensidad (kts):','width':2,'def_value':int(wind[0])})
+    RaDialog(w,label='Definir viento',
+            ok_callback=change_wind,entries=entries)    
 
 
 def hdg_after_fix():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
+    """Show a dialog to command the selected aircraft to follow a heading after a certain fix"""
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
+      if a.esta_seleccionado(): sel=a
     if sel == None:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Rumbo después de fijo')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    else:
-      global vent_ident_procs
-      if vent_ident_procs != None:
-        w.delete(vent_ident_procs)
-        vent_ident_procs = None
-      win = Frame(w)
-      title = Label(win, text = 'Rumbo después de fijo: '+sel.get_callsign())
-      lbl_fix = Label(win, text="Fijo:")
-      ent_fix = Entry(win, width=5)
-      ent_fix.insert(0, str(sel.route[0][1]))
-      lbl_hdg = Label (win, text = 'Rumbo:')
-      ent_hdg = Entry(win,width=3)
-      but_Acp = Button(win, text="Aceptar")
-      but_Can = Button(win, text="Cancelar")
-      title.grid(row=0,column=0, columnspan=2)
-      lbl_fix.grid(row=1, column=0)
-      ent_fix.grid(row=1, column=1)
-      lbl_hdg.grid(row=2, column=0)
-      ent_hdg.grid(row=2, column=1)
-      but_Acp.grid(row=3, column=0, columnspan=2)
-      but_Can.grid(row=4, column=0, columnspan=2)
-      win_identifier = w.create_window(do_scale(sel.pos), window=win)
-      ent_hdg.focus_set()
-      def close_win(e=None,ident=win_identifier,w=w):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def set_fix_hdg(e=None):
-              error = True
-              fijo = ent_fix.get().upper()
-              hdg = ent_hdg.get().upper()
-              for i in range(len(sel.route)):
-                [a,b,c] = sel.route[i]
-                if b == fijo:
-                  auxiliar = [a,b,c]
-                  error = False
-                  break
-              if error:
-                ent_fix['bg'] = 'red'
-                ent_fix.focus_set()
-              if not hdg.isdigit():
-                ent_hdg['bg'] = 'red'
-                ent_hdg.focus_set()
-                error = True
-              else: 
-                hdg = float(hdg)
-              if not error:
-                sel.vfp = False
-                sel.to_do = 'hdg<fix'
-                sel.to_do_aux = [auxiliar, hdg]
-                print "Heading after fix:", sel.to_do_aux
-                cancel_app_auth(sel)
-                close_win()
-      but_Acp['command'] = set_fix_hdg
-      but_Can['command'] = close_win
-      w.bind_all("<Return>",set_fix_hdg)
-      w.bind_all("<KP_Enter>",set_fix_hdg)
-      w.bind_all("<Escape>",close_win)
+      RaDialog(w, label='Rumbo después de fijo',
+               text='No hay ningún vuelo seleccionado')
+      return
+
+    global vent_ident_procs
+    if vent_ident_procs != None:
+      w.delete(vent_ident_procs)
+      vent_ident_procs = None
+
+    def set_fix_hdg(e=None,entries=None):
+      error = True
+      ent_fix=entries['Fijo:']
+      ent_hdg=entries['Rumbo:']
+      fijo = ent_fix.get().upper()
+      hdg = ent_hdg.get().upper()
+      for i in range(len(sel.route)):
+        [a,b,c,d] = sel.route[i]
+        if b == fijo:
+          auxiliar = [a,b,c,d]
+          error = False
+          break
+      if error:
+        ent_fix['bg'] = 'red'
+        ent_fix.focus_set()
+      if not hdg.isdigit():
+        ent_hdg['bg'] = 'red'
+        ent_hdg.focus_set()
+        error = True
+      else: 
+        hdg = float(hdg)
+      if error:
+          return False  # Validation failed
+      sel.vfp = False
+      sel.to_do = 'hdg<fix'
+      sel.to_do_aux = [auxiliar, hdg]
+      logging.debug("Heading after fix: "+str(sel.to_do_aux))
+      cancel_app_auth(sel)
+    # Build the GUI Dialog
+    entries=[]
+    entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0][1])})
+    entries.append({'label':'Rumbo:','width':3})
+    RaDialog(w,label=sel.get_callsign()+': Rumbo después de fijo',
+            ok_callback=set_fix_hdg,entries=entries)    
         
 def int_rdl():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
+      if a.esta_seleccionado(): sel=a
     if sel == None:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Interceptar radial')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
+        RaDialog(w, label='Rumbo después de fijo',
+               text='No hay ningún vuelo seleccionado')
+        return
     else:
       global vent_ident_procs
       if vent_ident_procs != None:
         w.delete(vent_ident_procs)
         vent_ident_procs = None
-        win = Frame(w)
-      win = Frame(w)
-      title = Label(win, text = 'Interceptar radial: '+sel.get_callsign())
-      lbl_fix = Label(win, text="Fijo:")
-      ent_fix = Entry(win, width=5)
-      ent_fix.insert(0, str(sel.route[0][1]))
-      lbl_rdl = Label (win, text = 'Radial:')
-      ent_rdl = Entry(win,width=3)
-      lbl_d_h = Label (win, text= 'Desde/Hacia (D/H)')
-      ent_d_h = Entry(win,width=1)
-      ent_d_h.insert(0,str('D'))
-      but_Acp = Button(win, text="Aceptar")
-      but_Can = Button(win, text="Cancelar")
-      title.grid(row=0,column=0, columnspan=2)
-      lbl_fix.grid(row=1, column=0)
-      ent_fix.grid(row=1, column=1)
-      lbl_rdl.grid(row=2, column=0)
-      ent_rdl.grid(row=2, column=1)
-      lbl_d_h.grid(row=3, column=0)
-      ent_d_h.grid(row=3, column=1)
-      but_Acp.grid(row=4, column=0, columnspan=2)
-      but_Can.grid(row=5, column=0, columnspan=2)
-      win_identifier = w.create_window(do_scale(sel.pos), window=win)
-      ent_fix.focus_set()
-      def close_win(e=None,ident=win_identifier,w=w):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def set_rdl(e=None):
-              error = True
-              fijo = ent_fix.get().upper()
-              rdl = ent_rdl.get().upper()
-              d_h = ent_d_h.get().upper()
-              for [nombre,coord] in punto:
-                if nombre == fijo:
-                  auxiliar = coord
-                  error = False
-                  break
-              if error:
-                ent_fix['bg'] = 'red'
-                ent_fix.focus_set()
-              if not rdl.isdigit():
-                ent_rdl['bg'] = 'red'
-                ent_rdl.focus_set()
-                error = True
-              else: 
-                rdl = float(rdl)
-              if d_h == 'H':
-                correccion = 180.
-              elif d_h == 'D':
-                correccion = 0.
-              else:
-                ent_d_h['bg'] = 'red'
-                ent_d_h.focus_set()
-                error = True
-              if not error:
-                if sel.to_do <> 'hdg':
-                  sel.hold_hdg = sel.hdg
-                sel.vfp = False
-                sel.to_do = 'int_rdl'
-                sel.to_do_aux = [auxiliar, (rdl + correccion)% 360.]
-                print "Intercep radial:", sel.to_do_aux
-                cancel_app_auth(sel)
-                close_win()
-      but_Acp['command'] = set_rdl
-      but_Can['command'] = close_win
-      w.bind_all("<Return>",set_rdl)
-      w.bind_all("<KP_Enter>",set_rdl)
-      w.bind_all("<Escape>",close_win)
+    def set_rdl(e=None,entries=None):
+        error = True
+        ent_fix=entries['Fijo:']
+        ent_rdl=entries['Radial:']
+        ent_d_h=entries['Desde/Hacia (D/H)']
+        fijo = ent_fix.get().upper()
+        rdl = ent_rdl.get().upper()
+        d_h = ent_d_h.get().upper()
+        for [nombre,coord] in punto:
+            if nombre == fijo:
+              auxiliar = coord
+              error = False
+              break
+        if error:
+            ent_fix['bg'] = 'red'
+            ent_fix.focus_set()
+        if not rdl.isdigit():
+            ent_rdl['bg'] = 'red'
+            ent_rdl.focus_set()
+            error = True
+        else: 
+            rdl = float(rdl)
+        if d_h == 'H':
+            correccion = 180.
+        elif d_h == 'D':
+            correccion = 0.
+        else:
+            ent_d_h['bg'] = 'red'
+            ent_d_h.focus_set()
+            error = True
+        if error:
+            return False  # Validation failed
+        if sel.to_do <> 'hdg':
+            sel.hold_hdg = sel.hdg
+        sel.vfp = False
+        sel.to_do = 'int_rdl'
+        sel.to_do_aux = [auxiliar, (rdl + correccion)% 360.]
+        logging.debug("Intercep radial: "+str(sel.to_do_aux))
+        cancel_app_auth(sel)
+    # Build the GUI Dialog
+    entries=[]
+    entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0][1])})
+    entries.append({'label':'Radial:','width':3})
+    entries.append({'label':'Desde/Hacia (D/H)','width':1,'def_value':'D'})
+    RaDialog(w,label=sel.get_callsign()+': Interceptar radial',
+            ok_callback=set_rdl,entries=entries)    
 
 def b_execute_map():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
+      if a.esta_seleccionado(): sel=a
     if sel == None or not sel.app_auth:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Asignar ejecución aproximación frustrada')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      txt2_ruta = Label (win,text='O EL VUELO NO ESTÁ AUTORIZADO APP ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      txt2_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    elif sel.destino not in rwys.keys():
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Autorizar a aproximación')
-      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    else:
-      global vent_ident_maps
-      if vent_ident_maps != None:
-        w.delete(vent_ident_maps)
-        vent_ident_maps = None
-      win = Frame(w)
-      title = Label(win, text = 'Ejecutar MAP: '+sel.get_callsign())
-      but_Acp = Button(win, text="Aceptar")
-      but_Can = Button(win, text="Cancelar")
-      title.grid(row=0,column=0, columnspan=2)
-      but_Acp.grid(row=1, column=0, columnspan=2)
-      but_Can.grid(row=2, column=0, columnspan=2)
-      win_identifier = w.create_window(do_scale(sel.pos), window=win)
-      but_Acp.focus_set()
-      def close_win(e=None,ident=win_identifier,w=w):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def exe_map(e=None):
-              sel._map = True
-              print "Ejecutará MAP"
-              close_win()
-      but_Acp['command'] = exe_map
-      but_Can['command'] = close_win
-      w.bind_all("<Return>",exe_map)
-      w.bind_all("<KP_Enter>",exe_map)
-      w.bind_all("<Escape>",close_win)
+        RaDialog(w, label='Ejecutar MAP',
+               text='No hay ningún vuelo seleccionado\no el vuelo no está autorizado APP')
+        return
+    if sel.destino not in rwys.keys():
+        RaDialog(w, label='Ejecutar MAP',
+                 text='Aeropuerto de destino sin procedimientos de APP')
+        return
+    global vent_ident_maps
+    if vent_ident_maps != None:
+      w.delete(vent_ident_maps)
+      vent_ident_maps = None
 
-def b_int_llz():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
+    def exe_map(e=None):
+        sel._map = True
+        logging.debug(sel.get_callsign()+": make MAP")
+    RaDialog(w,label=sel.get_callsign()+': Ejecutar MAP',
+             text='Ejecutar MAP', ok_callback=exe_map)
+
+def b_int_ils():
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
+        if a.esta_seleccionado(): sel=a
     if sel == None:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Interceptar localizador')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=LEFT)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
+      RaDialog(w,label='Interceptar ILS',text='No hay ningún vuelo seleccionado')
+      return
     elif sel.destino not in rwys.keys():
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Autorizar a aproximación')
-      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    else:
-      if sel.fijo_app == 'N/A':
-        win = Frame(w)
-        txt_ruta0 = Label (win,text='Interceptar localizador y seguir senda de planeo')
-        txt_ruta = Label (win,text='VUELO SIN IAF, añada ruta al IAF y reintente ',fg='red')
-        but_acept = Button(win, text="Aceptar")
-        txt_ruta0.pack(side=LEFT)
-        txt_ruta.pack(side=LEFT)
-        but_acept.pack(side=LEFT)
-        win_identifier = w.create_window(ancho/2,alto-75, window=win)
-        def close_win(ident=win_identifier):
-                global win_identifier
-                win_identifier=None
-                w.delete(ident)
-        but_acept['command'] = close_win
+        RaDialog(w, label=sel.get_callsign()+': Interceptar ILS',
+                 text='Aeropuerto de destino sin procedimientos de APP')
         return
-      global vent_ident_maps
-      if vent_ident_maps != None:
+    elif sel.fijo_app == 'N/A':
+        RaDialog(w,label=sel.get_callsign()+': Interceptar ILS',
+                 text='Vuelo sin IAF. Añada la ruta hasta el IAF y reintente')
+        return
+    global vent_ident_maps
+    if vent_ident_maps != None:
         w.delete(vent_ident_maps)
         vent_ident_maps = None
-      win = Frame(w)
-      title = Label(win, text = 'Int. LLZ + GP: '+sel.get_callsign())
-      but_Acp = Button(win, text="Aceptar")
-      but_Can = Button(win, text="Cancelar")
-      title.grid(row=0,column=0, columnspan=2)
-      but_Acp.grid(row=1, column=0, columnspan=2)
-      but_Can.grid(row=2, column=0, columnspan=2)
-      win_identifier = w.create_window(do_scale(sel.pos), window=win)
-      but_Acp.focus_set()
-      def close_win(e=None,ident=win_identifier,w=w):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def int_llz(e=None):
-              if sel.to_do <> 'hdg':
-                sel.hold_hdg = sel.hdg
-              # Se supone que ha sido autorizado previamente
-              sel.to_do = 'app'
-              sel.app_auth = True
-              (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
-              [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
-              sel.route = [[xy_llz,'_LLZ','']]
-              sel.int_loc = True
-              (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
-              # En este paso se desciende el tráfico y se añaden los puntos
-              print 'Altitud: ',puntos_alt[0][3]
-              sel.set_cfl(puntos_alt[0][3]/100.)
-              sel.set_std_rate()
-              print sel.get_callsign()+'Interceptando ILS'
-              close_win()
-      but_Acp['command'] = int_llz
-      but_Can['command'] = close_win
-      w.bind_all("<Return>",int_llz)
-      w.bind_all("<KP_Enter>",int_llz)
-      w.bind_all("<Escape>",close_win)
 
-def b_int_loc_no_GP():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
+    def int_ils(e=None):
+        if sel.to_do <> 'hdg':
+            sel.hold_hdg = sel.hdg
+        # Se supone que ha sido autorizado previamente
+        sel.to_do = 'app'
+        sel.app_auth = True
+        (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
+        [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
+        sel.route = [[xy_llz,'_LLZ','']]
+        sel.int_loc = True
+        (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
+        # En este paso se desciende el tráfico y se añaden los puntos
+        logging.debug('Altitud: '+str(puntos_alt[0][3]))
+        sel.set_cfl(puntos_alt[0][3]/100.)
+        sel.set_std_rate()
+        logging.debug(sel.get_callsign()+': Intercepting ILS')
+    RaDialog(w,label=sel.get_callsign()+': Interceptar ILS',
+             text='Interceptar ILS', ok_callback=int_ils)
+
+def b_llz():
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
-        break
+        if a.esta_seleccionado():
+            sel=a
+            break
     if sel == None:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Interceptar localizador')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=LEFT)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    elif sel.destino not in rwys.keys():
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Autorizar a aproximación')
-      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    else:
-      if sel.fijo_app == 'N/A':
-        win = Frame(w)
-        txt_ruta0 = Label (win,text='Interceptar localizador')
-        txt_ruta = Label (win,text='VUELO SIN IAF, añada ruta al IAF y reintente ',fg='red')
-        but_acept = Button(win, text="Aceptar")
-        txt_ruta0.pack(side=LEFT)
-        txt_ruta.pack(side=LEFT)
-        but_acept.pack(side=LEFT)
-        win_identifier = w.create_window(ancho/2,alto-75, window=win)
-        def close_win(ident=win_identifier):
-                global win_identifier
-                win_identifier=None
-                w.delete(ident)
-        but_acept['command'] = close_win
+        RaDialog(w,label='Interceptar LLZ',text='No hay ningún vuelo seleccionado')
         return
-      global vent_ident_maps
-      if vent_ident_maps != None:
+    elif sel.destino not in rwys.keys():
+        RaDialog(w, label=sel.get_callsign()+': Interceptar LLZ',
+                 text='Aeropuerto de destino sin procedimientos de APP')
+        return
+    elif sel.fijo_app == 'N/A':
+        RaDialog(w,label=sel.get_callsign()+': Interceptar LLZ',
+                 text='Vuelo sin IAF. Añada la ruta hasta el IAF y reintente')
+        return
+    global vent_ident_maps
+    if vent_ident_maps != None:
         w.delete(vent_ident_maps)
         vent_ident_maps = None
-      win = Frame(w)
-      title = Label(win, text = 'Interceptar LLZ: '+sel.get_callsign())
-      but_Acp = Button(win, text="Aceptar")
-      but_Can = Button(win, text="Cancelar")
-      title.grid(row=0,column=0, columnspan=2)
-      but_Acp.grid(row=1, column=0, columnspan=2)
-      but_Can.grid(row=2, column=0, columnspan=2)
-      win_identifier = w.create_window(do_scale(sel.pos), window=win)
-      but_Acp.focus_set()
-      def close_win(e=None,ident=win_identifier,w=w):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def int_llz(e=None):
-              if sel.to_do <> 'hdg':
-                sel.hold_hdg = sel.hdg
-              # Se supone que ha sido autorizado previamente
-              (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
-              [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
-              sel.to_do = 'int_rdl'
-              sel.to_do_aux = [xy_llz, rdl]
-              print sel.get_callsign()+'Interceptando LLZ'
-              close_win()
-      but_Acp['command'] = int_llz
-      but_Can['command'] = close_win
-      w.bind_all("<Return>",int_llz)
-      w.bind_all("<KP_Enter>",int_llz)
-      w.bind_all("<Escape>",close_win)
+    def int_llz(e=None):
+        if sel.to_do <> 'hdg':
+            sel.hold_hdg = sel.hdg
+        # Se supone que ha sido autorizado previamente
+        (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
+        [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
+        sel.to_do = 'int_rdl'
+        sel.to_do_aux = [xy_llz, rdl]
+        logging.debug(sel.get_callsign()+': Intercepting LLZ')
+    RaDialog(w,label=sel.get_callsign()+': Interceptar LLZ',
+             text='Interceptar LLZ', ok_callback=int_llz)
   
 def ver_detalles():
-      global win_identifier
-      if win_identifier<>None:
-        w.delete(win_identifier)
-        win_identifier=None
-        return
-      sel = None
-      for a in ejercicio:
+    sel = None
+    for a in ejercicio:
         if a.esta_seleccionado():
-          sel=a
-      if sel == None:
-        win = Frame(w)
-        txt_ruta0 = Label (win,text='Ver detalles de vuelo')
-        txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-        but_acept = Button(win, text="Aceptar")
-        txt_ruta0.pack(side=TOP)
-        txt_ruta.pack(side=LEFT)
-        but_acept.pack(side=LEFT)
-        win_identifier = w.create_window(ancho/2,alto-75, window=win)
-        def close_win(ident=win_identifier):
-                global win_identifier
-                win_identifier=None
-                w.delete(ident)
-        but_acept['command'] = close_win
-      else:
-        win = Frame(w)
-        txt_ind = Label(win,text=sel.get_callsign())
-        txt_ind.grid(column=0,row=0,columnspan=4,sticky=E+W)
-        txt_origen = Label(win,text='Origen: ')
-        txt_origen.grid(column=0,row=1,sticky=E)
-        txt_origen2 = Label(win,text=sel.get_origin())
-        txt_origen2.grid(column=1,row=1,sticky=E)
-        txt_destino = Label(win,text='Destino: ')
-        txt_destino.grid(column=2,row=1,sticky=E)
-        txt_destino2 = Label(win,text=sel.get_destination())
-        txt_destino2.grid(column=3,row=1,sticky=E)
-        txt_tipo = Label(win,text='Tipo: ')
-        txt_tipo.grid(column=0,row=2,sticky=E)
-        txt_tipo2 = Label(win,text=sel.get_kind())
-        txt_tipo2.grid(column=1,row=2,sticky=E)
-        txt_rfl = Label(win,text='RFL: ')
-        txt_rfl.grid(column=2,row=2,sticky=E)
-        txt_rfl2 = Label(win,text=str(int(sel.rfl)))
-        txt_rfl2.grid(column=3,row=2,sticky=E)
-        but_cerrar = Button(win, text="Cerrar ventana")
-        but_cerrar.grid(column=1,row=3,columnspan=2)
-        win_identifier = w.create_window(ancho/2,alto-75, window=win)
-        def close_win(ident=win_identifier):
-                global win_identifier
-                win_identifier=None
-                w.delete(ident)
-        but_cerrar['command'] = close_win
+            sel=a
+            break
+    if sel == None:
+        RaDialog(w,label='Ver Detalles',text='No hay ningún vuelo seleccionado')
+        return
+    # TODO The RaDialog should probably export the contents frame
+    # and we could use it here to build the contents using a proper grid
+    RaDialog(w, label=sel.get_callsign()+': Detalles',
+             text='Origen: '+sel.get_origin()+
+             '\tDestino: '+sel.get_destination()+
+             '\nTipo:   '+sel.get_kind().ljust(4)+
+             '\tRFL:     '+str(int(sel.rfl)))
 
 def b_orbitar():
-      global vent_ident_procs
-      if vent_ident_procs != None:
-	w.delete(vent_ident_procs)
-	vent_ident_procs = None
-	win = Frame(w)
-      global win_identifier
-      if win_identifier<>None:
-        w.delete(win_identifier)
-        win_identifier=None
-        return
-      sel = None
-      for a in ejercicio:
+    global vent_ident_procs
+    if vent_ident_procs != None:
+      w.delete(vent_ident_procs)
+      vent_ident_procs = None
+      win = Frame(w)
+    sel = None
+    for a in ejercicio:
         if a.esta_seleccionado():
-          sel=a
-      if sel == None:
-        win = Frame(w)
-        txt_orbit0 = Label (win,text='Orbitar en presente posición')
-        txt_orbit = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-        but_acept = Button(win, text="Aceptar")
-        txt_orbit0.pack(side=TOP)
-        txt_orbit.pack(side=LEFT)
-        but_acept.pack(side=LEFT)
-        win_identifier = w.create_window(ancho/2,alto-75, window=win)
-        def close_win(ident=win_identifier):
-                global win_identifier
-                win_identifier=None
-                w.delete(ident)
-        but_acept['command'] = close_win
-      else:
-        win = Frame(w)
-	lbl_orb = Label(win, text="Orbitar ahora")
-	ent_side = OptionMenu (win,bg='white')
-	num = 0
-	for opc in ['DCHA','IZDA']:
-		ent_side.add_command(opc)
-		num=num+1
-	ent_side['value'] = 'DCHA'
-	but_Acp = Button(win, text="Aceptar")
-	but_Can = Button(win, text="Cancelar")
-	lbl_orb.grid(row=0, column=0)
-	ent_side.grid(row=3,column=0,columnspan=2)
-	but_Acp.grid(row=1, column=0, columnspan=2)
-	but_Can.grid(row=2, column=0, columnspan=2)
-	window_ident = w.create_window(do_scale(sel.pos), window=win)
-        def close_win(e=None,ident=window_ident):
-                w.unbind_all("<Return>")
-                w.unbind_all("<KP_Enter>")
-                w.unbind_all("<Escape>")
-		w.delete(ident)
-	def set_orbit(e=None,sel=sel):
-		side_aux = ent_side.cget('value')
-		sel.to_do = 'orbit'
-		if side_aux.upper() == 'IZDA':
-			sel.to_do_aux = ['IZDA']
-		else:
-			sel.to_do_aux = ['DCHA']
-		print "Orbitando a ",side_aux
-		close_win()
-	but_Acp['command'] = set_orbit
-	but_Can['command'] = close_win
-        w.bind_all("<Return>",set_orbit)
-        w.bind_all("<KP_Enter>",set_orbit)
-        w.bind_all("<Escape>",close_win)
-      
+            sel=a
+    if sel == None:
+        RaDialog(w,label='Orbita inmediata',text='No hay ningún vuelo seleccionado')
+        return
+    def set_orbit(e=None,sel=sel,entries=None):
+        side_aux = entries['Orbitar hacia:']['value']
+        sel.to_do = 'orbit'
+        if side_aux.upper() == 'IZDA':
+            sel.to_do_aux = ['IZDA']
+        else:
+            sel.to_do_aux = ['DCHA']
+        logging.debug(sel.get_callsign()+": Orbittting "+str(side_aux))
+    entries=[]
+    entries.append({'label':'Orbitar hacia:',
+                    'values':('IZDA','DCHA'),
+                    'def_value':'IZDA'})
+    RaDialog(w,label=sel.get_callsign()+': Orbitar',
+             ok_callback=set_orbit, entries=entries)      
 
 def b_rwy_change():
   global vent_ident_procs
@@ -2089,9 +1711,9 @@ def ventana_auxiliar(e):
         ventana_maps = Frame(w,bg='gray')
         but_app_proc = Button(ventana_maps, text = 'APP PROC.', command = b_auth_approach)
         but_app_proc.grid(column=0,row=0,sticky=E+W)
-        but_ils_vec = Button(ventana_maps, text = 'ILS (vectores)', command = b_int_llz)
+        but_ils_vec = Button(ventana_maps, text = 'ILS (vectores)', command = b_int_ils)
         but_ils_vec.grid(column=0,row=1,sticky=E+W)
-        but_loc = Button(ventana_maps, text = 'LOCALIZADOR', command = b_int_loc_no_GP)
+        but_loc = Button(ventana_maps, text = 'LOCALIZADOR', command = b_llz)
         but_loc.grid(column=0,row=2,sticky=E+W)
         but_exe_map = Button(ventana_maps, text = 'EJECUTAR MAP', command = b_execute_map)
         but_exe_map.grid(column=0,row=3,sticky=E+W)
@@ -2195,7 +1817,7 @@ def ventana_auxiliar(e):
 #       but_int_rdl.grid(column=17,row=1)
       but_int_rdl = Button(ventana, text = 'APP', command = b_auth_approach)
       but_int_rdl.grid(column=18,row=1)
-      but_int_rdl = Button(ventana, text = 'LLZ', command = b_int_llz)
+      but_int_rdl = Button(ventana, text = 'ILS', command = b_int_ils)
       but_int_rdl.grid(column=17,row=1)
       but_int_rdl = Button(ventana, text = 'MAP', command = b_execute_map)
       but_int_rdl.grid(column=18,row=0)
