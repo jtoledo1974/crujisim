@@ -172,7 +172,7 @@ def complete_flight_plan(self):
   if self.destino in rwys.keys(): # aplico la STAR que toque
     (sid,star) = procedimientos[rwyInUse[self.destino]]
     for i in range(len(self.route)):
-      [(x,y),fijo,hora] = self.route[i]
+      fijo = self.route[i][1]
       if fijo in star.keys():
         self.route = self.route [:i]
         for pto_star in star[fijo][1]:
@@ -182,7 +182,7 @@ def complete_flight_plan(self):
   if self.origen in rwys.keys() and not self.is_flying(): # aplico la SID que toque
     (sid,star) = procedimientos[rwyInUse[self.origen]]
     for i in range(len(self.route)):
-      [(x,y),fijo,hora] = self.route[i]
+      fijo = self.route[i][1]
       if fijo in sid.keys():
         aux_ruta = []
         for pto_sid in sid[fijo][1]:
