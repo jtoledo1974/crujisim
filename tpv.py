@@ -614,6 +614,7 @@ def tpv():
         a.set_sector_entry_fix(a.route[i][1])
         a.set_sector_entry_time(a.route[i][3])  # The ETO over the point
     if a.get_sector_entry_time()==None:
+        a.set_sector_entry_fix(a.route[0][1])
         a.set_sector_entry_time(a.route[0][3])  # If all else fails, use the first ETO
         print "No sector entry FIX found"
     # Set the flight strip printing time
