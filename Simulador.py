@@ -1280,6 +1280,7 @@ def hdg_after_fix():
             ok_callback=set_fix_hdg,entries=entries)    
         
 def int_rdl():
+    """Show a dialog to command the selected aircraft to intercept a radial"""
     sel = None
     for a in ejercicio:
       if a.esta_seleccionado(): sel=a
@@ -1340,6 +1341,7 @@ def int_rdl():
             ok_callback=set_rdl,entries=entries)    
 
 def b_execute_map():
+    """Show a dialog to command the selected aircraft to miss the approach"""
     sel = None
     for a in ejercicio:
       if a.esta_seleccionado(): sel=a
@@ -1363,6 +1365,7 @@ def b_execute_map():
              text='Ejecutar MAP', ok_callback=exe_map)
 
 def b_int_ils():
+    """Show a dialog to command the selected aircraft to intercept and follow the ILS"""
     sel = None
     for a in ejercicio:
         if a.esta_seleccionado(): sel=a
@@ -1402,6 +1405,8 @@ def b_int_ils():
              text='Interceptar ILS', ok_callback=int_ils)
 
 def b_llz():
+    """Show a dialog to command the selected aircraft to intercept and follow \
+    the LLZ (not the GP)"""
     sel = None
     for a in ejercicio:
         if a.esta_seleccionado():
@@ -1435,6 +1440,7 @@ def b_llz():
              text='Interceptar LLZ', ok_callback=int_llz)
   
 def ver_detalles():
+    """Show a dialog to view details of the selected flight"""
     sel = None
     for a in ejercicio:
         if a.esta_seleccionado():
@@ -1452,6 +1458,7 @@ def ver_detalles():
              '\tRFL:     '+str(int(sel.rfl)))
 
 def b_orbitar():
+    """Show a dialog to command the selected aircraft to make orbits"""    
     global vent_ident_procs
     if vent_ident_procs != None:
       w.delete(vent_ident_procs)
@@ -1532,113 +1539,61 @@ def b_rwy_change():
   but_cancel['command']= discard_rwy_chg
   
 def b_auth_approach():
-    global win_identifier
-    if win_identifier<>None:
-      w.delete(win_identifier)
-      win_identifier=None
-      return
     sel = None
     for a in ejercicio:
-      if a.esta_seleccionado():
-        sel=a
+        if a.esta_seleccionado(): sel=a
     if sel == None:
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Autorizar a aproximación')
-      txt_ruta = Label (win,text='NO HAY NINGUN VUELO SELECCIONADO ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
+        RaDialog(w,label='Autorizar a aproximación',text='No hay ningún vuelo seleccionado')
+        return
     elif sel.destino not in rwys.keys():
-      win = Frame(w)
-      txt_ruta0 = Label (win,text='Autorizar a aproximación')
-      txt_ruta = Label (win,text='AEROPUERTO DE DESTINO SIN PROCEDIMIENTOS APP ',fg='red')
-      but_acept = Button(win, text="Aceptar")
-      txt_ruta0.pack(side=TOP)
-      txt_ruta.pack(side=LEFT)
-      but_acept.pack(side=LEFT)
-      win_identifier = w.create_window(ancho/2,alto-75, window=win)
-      def close_win(ident=win_identifier):
-              global win_identifier
-              win_identifier=None
-              w.delete(ident)
-      but_acept['command'] = close_win
-    else:
-      global vent_ident_maps
-      if vent_ident_maps != None:
+        RaDialog(w, label=sel.get_callsign()+': Autorizar a aproximación',
+                 text='Aeropuerto de destino sin procedimientos de APP')
+        return
+
+    global vent_ident_maps
+    if vent_ident_maps != None:
         w.delete(vent_ident_maps)
         vent_ident_maps = None
-      for i in range(len(sel.route),0,-1):
-        if sel.route[i-1][1] in proc_app.keys():
-          fijo_app = sel.route[i-1][1]
-          break
-      win = Frame(w)
-      title = Label(win, text = 'Aut. app. '+sel.get_callsign())
-      lbl_apt = Label(win, text="Aerop.:")
-      ent_apt = Entry(win, width=5)
-      ent_apt.insert(0, sel.destino)
-      lbl_fix = Label(win, text="IAF:")
-      ent_fix = Entry(win, width=6)
-      ent_fix.insert(0, fijo_app)
-      but_Acp = Button(win, text="Aceptar")
-      but_Can = Button(win, text="Cancelar")
-      title.grid(row=0,column=0, columnspan=2)
-      lbl_apt.grid(row=1, column=0)
-      ent_apt.grid(row=1, column=1)
-      lbl_fix.grid(row=2, column=0)
-      ent_fix.grid(row=2, column=1)
-      but_Acp.grid(row=3, column=0, columnspan=2)
-      but_Can.grid(row=4, column=0, columnspan=2)
-      win_identifier = w.create_window(do_scale(sel.pos), window=win)
-      ent_fix.focus_set()
-      def close_win(e=None,ident=win_identifier,w=w):
-              global win_identifier
-              w.unbind_all("<Return>")
-              w.unbind_all("<KP_Enter>")
-              w.unbind_all("<Escape>")
-              win_identifier=None
-              w.delete(ident)
-      def auth_app(e=None,avo=sel):
-              global win_identifier
-              avo.app_auth = True
-              avo._map = False
-              avo.fijo_app = ''
-              for i in range(len(avo.route),0,-1):
-                if avo.route[i-1][1] in proc_app.keys():
-                  avo.fijo_app = avo.route[i-1][1]
-                  break
-              if avo.fijo_app == '': # No encuentra procedimiento de aprox.
-                pass
-              (puntos_alt,llz,puntos_map) = proc_app[avo.fijo_app]
-              # En este paso se desciende el tráfico y se añaden los puntos
-              print 'Altitud: ',puntos_alt[0][3]
-              avo.set_cfl(puntos_alt[0][3]/100.)
-              if avo.to_do == 'hld':
-                pass
-              else:
-                avo.to_do = 'app'
-                for i in range(len(avo.route),0,-1):
-                  if avo.route[i-1][1] == avo.fijo_app:
+
+    def auth_app(e=None,avo=sel, entries=None):
+        # TODO Currently we are not checking which destination the
+        # user asked for, and just clear for approach to the current destination
+        avo.app_auth = True
+        avo._map = False
+        avo.fijo_app = ''
+        for i in range(len(avo.route),0,-1):
+            if avo.route[i-1][1] in proc_app.keys():
+                avo.fijo_app = avo.route[i-1][1]
+                break
+        if avo.fijo_app == '': # No encuentra procedimiento de aprox.
+            pass
+        (puntos_alt,llz,puntos_map) = proc_app[avo.fijo_app]
+        # En este paso se desciende el tráfico y se añaden los puntos
+        logging.debug('Altitud: '+str(puntos_alt[0][3]))
+        avo.set_cfl(puntos_alt[0][3]/100.)
+        if avo.to_do == 'hld':
+            pass
+        else:
+            avo.to_do = 'app'
+            for i in range(len(avo.route),0,-1):
+                if avo.route[i-1][1] == avo.fijo_app:
                     avo.route = sel.route[:i]
                     break
-                for [a,b,c,h] in puntos_alt:
-                  avo.route.append([a,b,c])
-                avo.route.append([llz[0],'_LLZ',''])
-              print "Autorizado aproximación: ", avo.route
-              win_identifier=None
-              close_win()
-      but_Acp['command'] = auth_app
-      but_Can['command'] = close_win
-      w.bind_all("<Return>",auth_app)
-      w.bind_all("<KP_Enter>",auth_app)
-      w.bind_all("<Escape>",close_win)
- 
+            for [a,b,c,h] in puntos_alt:
+                avo.route.append([a,b,c])
+            avo.route.append([llz[0],'_LLZ',''])
+        logging.debug("Autorizado aproximación: " +str(avo.route))
+
+    # Build entries
+    for i in range(len(sel.route),0,-1):
+        if sel.route[i-1][1] in proc_app.keys():
+            fijo_app = sel.route[i-1][1]
+            break
+    entries=[]
+    entries.append({'label':'Destino:', 'width':4, 'def_value':sel.destino})
+    entries.append({'label':'IAF:', 'width':5, 'def_value':fijo_app})
+    RaDialog(w,label=sel.get_callsign()+': Autorizar a Aproximación',
+             ok_callback=auth_app, entries=entries)      
   
 ver_ventana_auxiliar=True
 

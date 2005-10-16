@@ -7,7 +7,7 @@ GUÍA PARA NUEVOS COLABORADORES
 El programa está desarrollado en Python, de modo que funciona tanto en
 Windows como Linux. Para poder trabajar en windows es necesario bajarse el
 intérprete desde http://www.python.org/download/ . 
-Nos bajaremos el archivo .Python 2.4.1 Windows installer., por ejemplo.
+Nos bajaremos el archivo .Python 2.4.2 Windows installer., por ejemplo.
 Lo podemos ejecutar directamente, o bien guardarlo y después ejecutar.
 Además hay que instalar
 también una biblioteca adicional, la Python Imaging Library, disponible en
