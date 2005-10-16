@@ -98,11 +98,13 @@ class RaFrame:
     def _place(self):
         # Place it
         if not self._kw.has_key('position'):
-            self._kw['position']=(0,0)
+            pos=(0,0)
+        else:
+            pos=self._kw['position']
 
         # Currently the master must be a canvas if not windowed
         if not self.windowed:
-            self._master_ident = self._master.create_window(self._kw['position'], window=self.container)
+            self._master_ident = self._master.create_window(pos, window=self.container)
 
     def configure(self,**ckw):
         if ckw.has_key('position'):
@@ -211,7 +213,7 @@ class RaDialog(RaFrame):
 
         if kw.has_key('text'):
             l=Label(f0,text=kw['text'], **self._label_colors)
-            l.grid(sticky=W)        
+            l.pack(side=LEFT)        
         but_accept = Button(f2, text="Aceptar", default='active', **self._button_colors)
         but_accept.pack(side=LEFT)
         but_accept['command'] = self.accept
@@ -292,6 +294,9 @@ class RaDialog(RaFrame):
     def _place(self):
         """Place the dialog on the lower left corner or the master"""
         RaFrame._place(self)
+        if self._kw.has_key('position'):
+            # If the user already defined a position, don't go any further
+            return
         x_padding=y_padding=20
         command_window_height=20
         self.container.update_idletasks() # The geometry manager must be called

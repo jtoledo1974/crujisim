@@ -1047,7 +1047,10 @@ def b_auto_separation():
 def kill_acft():
   for a in ejercicio:
     if a.esta_seleccionado():
-        d=RaDialog(w,label='Cancel '+str(a.name), ok_callback=a.kill)
+        d=RaDialog(w,label=str(a.name)+': Matar vuelo',
+                   text='Matar '+str(a.name),ok_callback=a.kill,
+                   position=do_scale(a.get_coords()))
+        break
   
 def quitar_fpr():
   for a in ejercicio:
