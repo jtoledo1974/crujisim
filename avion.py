@@ -464,7 +464,9 @@ class Airplane:
     self.esta_en_llz = False
     self.sector_entry_fix = None  # First route point within our sector
     self.sector_entry_time = None # Estimated ETO over our sector entry point
-
+    self.reports = []  # List of things an aircraft should report.
+		       # [{'time':1.65,'text':'Request climb FL230'},
+		       #  ,{'time':2.34,'text':'Overflown DGO'}]
 
   def next(self,t):
     global wind, aeropuertos

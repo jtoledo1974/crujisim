@@ -30,6 +30,7 @@ def set_latest_lad(num):
 from avion import *
 from RaDisplay import *
 from tpv import *
+import Pseudopilot
 from Tix import *
 import Image
 import ImageTk
@@ -69,6 +70,7 @@ vent_ident_dcha = None
 vent_ident_maps = None
 vent_ident_procs = None
 vent_ident_mapas = None
+vent_ident_tabs = None
 
 # Constants
 IMGDIR='./img/'
@@ -952,6 +954,9 @@ def timer():
   if auto_departures == False:
     manual_dep_window_update(last_update/60./60.)
 
+  # Update the aircrfat notices tabular
+  acftnotices.update(last_update/60./60.)
+
   root.after(100,timer)
 
 def b_izquierda():
@@ -1705,6 +1710,20 @@ def ventana_auxiliar(e):
 	
         vent_ident_mapas=w.create_window(ventana.winfo_x()+but_ver_maps.winfo_x(),alto-ventana.winfo_height(),window=ventana_mapas,anchor='sw')
       but_ver_maps['command'] = mapas_buttons
+      but_ver_tabs = Button(ventana, text = 'TABs')
+      but_ver_tabs.pack(side=LEFT,expand=1,fill=X)
+      def tabs_buttons():
+        global vent_ident_tabs
+        if vent_ident_tabs != None:
+          w.delete(vent_ident_tabs)
+          vent_ident_tabs = None
+          return
+        ventana_tabs = Frame(w,bg='gray')
+        but_reports = Button(ventana_tabs, text='Notificaciones',
+			     command = acftnotices.show)
+        but_reports.grid(column=0,row=0,sticky=E+W)
+	vent_ident_tabs=w.create_window(ventana.winfo_x()+but_ver_tabs.winfo_x(),alto-ventana.winfo_height(),window=ventana_tabs,anchor='sw')
+      but_ver_tabs['command'] = tabs_buttons
       def cambia_vect_vel(e=None):
           set_speed_time(float(var_vect_vel.get())/60.)
           redraw_all()
@@ -1712,7 +1731,7 @@ def ventana_auxiliar(e):
       cnt_vect_vel.pack(side=LEFT,expand=1,fill=X)
       def cambia_vel_reloj(e=None):
           set_vel_reloj(float(var_vel_reloj.get()))
-      cnt_vel_reloj = Control(ventana, label="Clock X:", min=0.5, max=9.0, step=0.1, command=cambia_vel_reloj, variable=var_vel_reloj)
+      cnt_vel_reloj = Control(ventana, label="Clock X:", min=0.5, max=99.0, step=0.1, command=cambia_vel_reloj, variable=var_vel_reloj)
       cnt_vel_reloj.pack(side=LEFT,expand=1,fill=X)
       
       vent_ident=w.create_window(0,alto,width=ancho,window=ventana,anchor='sw')
@@ -1799,6 +1818,8 @@ def ventana_auxiliar(e):
 ventana_auxiliar(None)
 clock=RaClock(w)
 clock.bind('<Button-1>',ventana_auxiliar)
+acftnotices=Pseudopilot.AcftNotices(w,flights=ejercicio)
+acftnotices.hide()
 
 get_scale()
 

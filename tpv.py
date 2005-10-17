@@ -491,6 +491,17 @@ def tpv():
         d.spd_max = float(aux[7])
         d.spd_tma = float(aux[8])
         d.spd_app = float(aux[9])
+    # Load the aircraft requirements
+    if config.has_section('req') and config.has_option('req',nombre):
+      req=config.get('req',nombre)
+      req_time_str=req[:4]
+      req=req[5:]
+      if (req[0]=='"' and req[-1]=='"') or (req[0]=="'" and req[-1]=="'"):
+        req=req[1:-1]
+      # TODO this should be done in a helper function
+      req_time=float(req_time_str[0:2])+float(req_time_str[2:4])/60.
+      d.reports.append({'time':req_time,'text':'Request: '+req})
+	
     # Cálculo de la estimada al primer punto
     d.route = ruta
     pos=ruta[0][0]

@@ -1,4 +1,23 @@
+#!/usr/bin/python
+#-*- coding:iso8859-15 -*-
 # $Id$
+# (c) 2005 CrujiMaster (crujisim@yahoo.com)
+#
+# This file is part of CrujiSim.
+#
+# CrujiSim is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# CrujiSim is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with CrujiSim; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Classes useful for designing a radar display"""
 
 from Tkinter import *
@@ -15,7 +34,9 @@ class RaFrame:
         master -- parent master
         Options:
             label -- text to use on the window title
-            closebutton -- True or False (default true)
+            closebutton -- Boolean (default true)
+            dockbutton -- Boolean (default True)
+            closebuttonhides -- Boolean (default False)
         """
 
         self._master=master
@@ -23,6 +44,7 @@ class RaFrame:
         self._closebutton=self._label=None
         self.bd,self.bg,self.fg='#006c35','#003d1e','#bde20B'
         self._bindings=[]
+        self._x,self._y=(0,0)
 
         # Build the frame
         self._build(master, windowed=False, **kw)
@@ -42,7 +64,11 @@ class RaFrame:
             if not kw.has_key('closebutton') or kw['closebutton']:
                 self._closebutton=Label(self.container,text='X',background=self.bd,foreground='Black')
                 self._closebutton.pack(side=RIGHT)
-                i=self._closebutton.bind('<Button-1>',self.close)
+                if (self._kw.has_key('closebuttonhides')
+                    and self._kw['closebuttonhides']):
+                    i=self._closebutton.bind('<Button-1>',self.hide)
+                else:
+                    i=self._closebutton.bind('<Button-1>',self.close)                    
                 self._bindings.append((self._closebutton,i,"<Button-1>"),)
             if not kw.has_key('dockbutton') or kw['dockbutton']:
                 self._undockbutton=Label(self.container,text='O',bg=self.bd,fg='Black')
@@ -85,7 +111,6 @@ class RaFrame:
             t=Toplevel(bg=self.bg)
             t.transient(master)
             t.resizable(0,0)
-            t.title('Relojete')
             if kw.has_key('label'):
                 t.title(kw['label'])
             t.protocol('WM_DELETE_WINDOW', self.toggle_windowed)
@@ -96,15 +121,19 @@ class RaFrame:
             self.windowed=True
             
     def _place(self):
-        # Place it
+        # If we are not given any position info, just use 0,0
         if not self._kw.has_key('position'):
             pos=(0,0)
         else:
             pos=self._kw['position']
+        # We reset x and y only if this is the first time we are placing the
+        # frame. If the user moved it himself, then use the las known position.
+        if self._x==0 and self._y==0:
+            (self._x, self._y) = pos
 
         # Currently the master must be a canvas if not windowed
         if not self.windowed:
-            self._master_ident = self._master.create_window(pos, window=self.container)
+            self._master_ident = self._master.create_window((self._x, self._y), window=self.container)
 
     def configure(self,**ckw):
         if ckw.has_key('position'):
@@ -120,7 +149,21 @@ class RaFrame:
                 bind_children(w, event, callback)
         bind_children(self.contents,event,callback)
 
+    def show(self, e=None):
+        """Show the RaFrame (to be used after having been hidden)"""
+        if self.windowed:
+            self.container.deiconify
+        else:
+            self._master_ident = self._master.create_window((self._x, self._y),
+                window=self.container)
+
     def close(self,e=None):
+        """Close the RaFrame and completely delete it"""
+        if (self._kw.has_key('closebuttonhides')
+            and self._kw['closebuttonhides']):
+            self.hide()
+            return
+        
         for t,i,ev in self._bindings:
             t.unbind(ev,i)
         self._bindings=[]
@@ -130,6 +173,14 @@ class RaFrame:
         self.contents.destroy()
         if self.windowed:
             self.container.destroy()
+            
+    def hide(self, e=None):
+        """Hide the RaFrame, but don't destroy the contents"""
+        logging.debug("RaFrame.hide")
+        if self.windowed:
+            self.container.withdraw()
+        else:
+            self._master.delete(self._master_ident)
         
     def toggle_windowed(self,e=None):
         self.close()
@@ -294,8 +345,9 @@ class RaDialog(RaFrame):
     def _place(self):
         """Place the dialog on the lower left corner or the master"""
         RaFrame._place(self)
-        if self._kw.has_key('position'):
-            # If the user already defined a position, don't go any further
+        if self._kw.has_key('position') or (self._x<>0 and self._y<>0):
+            # If the user already defined a position or has previously moved
+            # this frame, don't go any further
             return
         x_padding=y_padding=20
         command_window_height=20
@@ -339,7 +391,12 @@ class RaClock(RaFrame):
         RaFrame.__init__(self, master, **def_opt)
 
     def _build(self, master=None, windowed=False, **kw):
-        RaFrame._build(self, master=master, windowed=windowed, **kw)
+        if windowed:
+            def_opt={'label':'Reloj'}
+            def_opt.update(kw)
+        else:
+            def_opt=kw
+        RaFrame._build(self, master=master, windowed=windowed, **def_opt)
         self._time=Label(self.contents,
                     font='-*-Times-Bold-*--*-20-*-',
                     foreground='Yellow',
@@ -350,3 +407,40 @@ class RaClock(RaFrame):
         RaFrame.configure(self,**options)
         if options.has_key('time'):
             self._time['text']=options['time']
+
+class RaTabular(RaFrame):
+    """Generic frame containing tabular info"""
+    def __init__(self, master, **kw):
+        def_opt={'position':(500,222)}
+        def_opt.update(kw)
+        self._items=[]  # We need to make a copy of the items to rebuild
+                        # the list
+        # The frame constructor method will call _build
+        RaFrame.__init__(self, master=master, **def_opt)
+    
+    def _build(self, master=None, windowed=False, **kw):
+        import Tix
+        RaFrame._build(self, master=master, windowed=windowed, **kw)
+        self._slist=Tix.ScrolledListBox(self.contents)
+        self._list_colors={'background':self.bg,
+                            'highlightbackground':self.bg,
+                            'highlightcolor':'Black',
+                            'foreground':self.fg,
+                            'selectbackground':self.bd,
+                            'selectforeground':self.fg}
+        self.list=self._slist.listbox
+        self.list.configure(**self._list_colors)
+        self.list.configure(height=6, width=30)
+        for i, elements in enumerate(self._items):
+            self.list.insert(i, *elements)
+        self._slist.grid()
+        
+    def insert(self, index, *elements):
+        """Insert a list item (use text='text to show')"""
+        self.list.insert(index, *elements)
+        # TODO we should deal with more Tk constants here.
+        if index==END:
+            index=len(self._items)
+        self._items.insert(index, elements)
+        
+    
