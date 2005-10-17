@@ -8,6 +8,9 @@ ERRORES
 - Al soltar un despegue, el avión aparece en ascenso para otro nivel de vuelo distinto
 - El comando de autorizar a aproximación pregunta al usuario el destino y el fijo de aproximación, pero no utiliza esa información
 
+MEJORAS
+- No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
+
 
 TODO's METEPASADAS
 =====================================
