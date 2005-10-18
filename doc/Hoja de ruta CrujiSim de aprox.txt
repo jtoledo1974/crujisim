@@ -7,6 +7,7 @@ ERRORES
 - Al soltar un despegue, el avión aparece en ascenso para otro nivel de vuelo distinto
 - Con la modificación introducida en r543 el binding del reloj para hacer que cambie la visibilidad de la ventana auxiliar sólo funciona cuando aparece el reloj por primera vez, pero cuando se pasa a una ventana ya no funciona.
 - El comando de autorizar a aproximación pregunta al usuario el destino y el fijo de aproximación, pero no utiliza esa información
+- Cuando pulsamos en el botón Notificaciones del menú Tabs aparece la ventana de Notificaciones, pero al volver a pulsar sobre el mismo botón no desaparece dicha ventana, como sí sucede, por ejemplo, con la ventana de Datos o de Ruta.
 
 MEJORAS
 - No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
