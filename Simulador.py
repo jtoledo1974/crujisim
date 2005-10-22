@@ -1112,9 +1112,9 @@ def define_holding():
             derrota_acerc = rumbo
             tiempo_alej = tiempo/60.0
             for i in range(len(sel.route)):
-              [a,b,c] = sel.route[i]
+              [a,b,c,d] = sel.route[i]
               if b == fijo:
-                auxiliar = [a,b,c]
+                auxiliar = [a,b,c,d]
                 error = False
                 break
         # En caso contrario, TRK acerc = TRK de llegada y tiempo = 1 min
@@ -1588,7 +1588,7 @@ def b_auth_approach():
                     avo.route = sel.route[:i]
                     break
             for [a,b,c,h] in puntos_alt:
-                avo.route.append([a,b,c])
+                avo.route.append([a,b,c,0.0])
             avo.route.append([llz[0],'_LLZ',''])
         logging.debug("Autorizado aproximación: " +str(avo.route))
 
