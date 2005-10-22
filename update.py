@@ -96,6 +96,6 @@ def update_exercises():
 		if tkMessageBox.askyesno(message="Hay nuevos ejercicios en la web. ¿Los quieres?"):
 			retrieve_and_unzip_latest_version()
 			set_installed_version_string(online_version)
-			tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Sal del programa y vuelve a entrar para utilizarlos.")
+			tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Vuelve a entrar para utilizarlos.")
 	else:
 		tkMessageBox.showinfo(message="No hay versiones nuevas para descargar")
