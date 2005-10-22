@@ -24,6 +24,8 @@ import banner
 import Metepasadas
 import tpv
 import logging
+import update
+import sys
 
 # Define which logging level messages will be output
 logging.getLogger('').setLevel(logging.DEBUG)
@@ -31,7 +33,7 @@ logging.getLogger('').setLevel(logging.DEBUG)
 
 [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
 
-# accion = "ejecutar", "modificar", "nueva"
+# accion = "ejecutar", "modificar", "nueva", "actualizar"
 
 print "Returned tuple:", [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas]
 
@@ -42,3 +44,5 @@ elif accion == "nueva":
 elif accion == "ejecutar":
 	tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas])
 	import Simulador
+elif accion == "actualizar":
+	update.update_exercises()

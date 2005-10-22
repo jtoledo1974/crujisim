@@ -87,7 +87,6 @@ def retrieve_and_unzip_latest_version():
 
 def update_exercises():
 	root = Tk()
-
 	current_version = get_installed_version_string()
 	logging.info("Current version: '"+current_version+"'")
 	online_version = get_latest_online_version_string()
@@ -114,3 +113,4 @@ def update_exercises():
 		mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No hay versiones nuevas para descargar")
 		mb.show()
 	root.mainloop()
+

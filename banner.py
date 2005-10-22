@@ -121,7 +121,8 @@ def load_image(image_name):
 def seleccion_usuario():
 	global sector_list, ejer_list, accion
 	accion = '' # Will indicate if user wishes to run ("ejecutar") / modify ("modificar") the
-	            # selected simulation, or create a new ("nueva") one.
+	            # selected simulation, create a new ("nueva") one,
+                    #or update exercises via network ("actualizar")
 	
 	root = Tk()	
 	banner_image = load_image("banner")
@@ -176,12 +177,15 @@ def seleccion_usuario():
 	
 	butCrear = Button(frmAcciones, text="Crear pasada")
 	butCrear.grid(row=0,column=2, padx=1)
+
+	butActualizar = Button(frmAcciones, text="Actualizar")
+	butActualizar.grid(row=0, column=3, padx=1)
 	frmAcciones.grid(row=4, column=1, sticky=E, padx=5, pady=5)
 
         def salir(e=None):
                 sys.exit(0)
         butSalir = Button(frmAcciones, text="Salir", command=salir)
-        butSalir.grid(row=0, column=3, padx=1)
+        butSalir.grid(row=0, column=4, padx=1)
 
 	def change_fir(e=None):
 		global sector_list
@@ -251,6 +255,12 @@ def seleccion_usuario():
 			root.destroy()
 	butCrear['command'] = devolver_nueva
 	
+	def devolver_actualizar(e=None):
+		global accion
+		accion = "actualizar"
+		root.destroy()
+	butActualizar['command'] = devolver_actualizar
+
 	root.mainloop()
 	fir = varFIR.get()
         print 'Fir:',fir
