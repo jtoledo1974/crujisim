@@ -86,31 +86,16 @@ def retrieve_and_unzip_latest_version():
 		mb.show()
 
 def update_exercises():
-	root = Tk()
 	current_version = get_installed_version_string()
 	logging.info("Current version: '"+current_version+"'")
 	online_version = get_latest_online_version_string()
 	logging.info("Online version: '"+online_version+"'")
 	if online_version == None:
-		mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo descargar la última versión.\nSeguimos con la versión anterior")
-		mb.show()
+		tkMessageBox.showinfo(message="No puedo descargar la última versión.\nSeguimos con la versión anterior")
 	elif online_version > current_version:
-		lbl = Label(root, text="Hay nuevos ejercicios en la web")
-		def descarga(e=None):
+		if tkMessageBox.askyesno(message="Hay nuevos ejercicios en la web. ¿Los quieres?"):
 			retrieve_and_unzip_latest_version()
 			set_installed_version_string(online_version)
-			root.destroy()
-			mb = tkMessageBox.Message(type=tkMessageBox.OK, message="Nuevos ejercicios descargados. Sal del programa y vuelve a entrar para utilizarlos.")
-			mb.show()
-		butSi = Button(root, text="ACTUALIZAR", command=descarga)
-		def no_descarga(e=None):
-			root.destroy()
-		butNo = Button(root, text="CANCELAR", command=no_descarga)
-		lbl.grid(row=0, column=0, columnspan=2)
-		butSi.grid(row=1, column=0)
-		butNo.grid(row=1, column=1)
+			tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Sal del programa y vuelve a entrar para utilizarlos.")
 	else:
-		mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No hay versiones nuevas para descargar")
-		mb.show()
-	root.mainloop()
-
+		tkMessageBox.showinfo(message="No hay versiones nuevas para descargar")
