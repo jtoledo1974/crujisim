@@ -391,9 +391,9 @@ linea2B:linea,369.993,-369.993,393.009,-273.587,gray60
 linea3:linea,369.993,-369.993,399.523,-343.503,gray60
 linea4:linea,369.993,-369.993,399.957,-364.348,gray60
 linea5A:linea,350.706,-386.88,371.018,-386.709,gray60
-linea5B:linea,371.018,-386.709,399.957,-401.694,gray60
-linea6:linea,399.957,-401.694,454.24,-486.81,gray60
-linea7:linea,399.957,-401.694,465.531,-444.252,gray60
+linea5B:linea,371.018,-386.709,399.96,-403.46,gray60
+linea6:linea,399.96,-403.46,454.24,-486.81,gray60
+linea7:linea,399.96,-403.46,465.531,-444.252,gray60
 linea8:linea,399.957,-364.348,409.946,-362.611,gray60
 linea9:linea,409.946,-362.611,452.069,-354.36,gray60
 linea10:linea,322.224,-396.049,316.579,-420.368,gray60
@@ -411,12 +411,12 @@ linea10:linea,355.662,-435.133,341.02,-412.70,gray60
 
 linea11:linea,316.579,-420.368,341.02,-412.70,gray60
 linea12A:linea,399.523,-343.503,399.957,-364.348,gray60
-linea12B:linea,399.957,-364.348,399.957,-401.694,gray60
-linea12C:linea,399.957,-401.694,385.141,-404.245,gray60
-linea12D:linea,385.141,-404.245,362.44,-406.24,gray60
-linea13:linea,422.105,-394.746,399.957,-401.694,gray60
-linea14:linea,399.957,-401.694,454.24,-486.81,gray60
-linea15:linea,399.957,-401.694,465.531,-444.252,gray60
+linea12B:linea,399.957,-364.348,399.96,-403.46,gray60
+linea12C:linea,399.96,-403.46,385.52,-404.72,gray60
+linea12D:linea,385.52,-404.72,362.44,-406.24,gray60
+linea13:linea,422.105,-394.746,399.96,-403.46,gray60
+linea14:linea,399.96,-403.46,454.24,-486.81,gray60
+linea15:linea,399.96,-403.46,465.531,-444.252,gray60
 
 [esperas_publicadas] ; fijo:rumbo acercamiento,tiempo de alejamiento y giros D/I
 ORBIS: 155,1.0,D
@@ -436,6 +436,7 @@ VJZ:   230,1.0,D
 LEMD = LEMD33
 LEGT = LEGT05
 LETO = LETO23
+LETH = LETH23 ; Aeropuerto ficticio para HI-TACAN
 
 [sid_LEMD33]
 NVS1D = BRA,ACD,CNR,NVS
@@ -488,6 +489,13 @@ BAN1T = BAN,PINAR,DUKKE
 [app_LETO23]
 ; Puntos anteriores hasta LLZ. Despu� viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci� aterrizaje y puntos MAP
 DUKKE = _LETO_7DME,5000,VJZ,4000,LLZ,TJZ,050,1.0,0.0472,1992,True,TJZ,4000,_LETO_I,4000,VJZ,4000
+35DME = _35DME2,20000,_LETO_25DME,5500,VJZ,4000,LLZ,TJZ,050,1.0,0.0472,1992,True,TJZ,4000,_LETO_I,4000,VJZ,4000
+
+[sid_LETH23]
+
+[star_LETH23]
+
+[app_LETH23]
 35DME = _35DME2,20000,_LETO_25DME,5500,VJZ,4000,LLZ,TJZ,050,1.0,0.0472,1992,True,TJZ,4000,_LETO_I,4000,VJZ,4000
 
 [sector1]
