@@ -130,9 +130,19 @@ def v(self):
     if abs(self.ias_obj-self.ias)>1.:
       self.ias = self.ias_obj
     return min(tas_max, self.ias * (1.0+0.002 *self.alt))
-  inicio_app = 00.
-  trans_tma = 50.
-  vel_tma = 150.
+  if self.fl_max > 290.: # Fast moving traffic
+    inicio_app = 00.
+    trans_tma = 50.
+    vel_tma = 150.
+  elif self.fl_max > 200.: # Medium speed traffic
+    inicio_app = 00.
+    trans_tma = 35.
+    vel_tma = 80.
+  else:
+    inicio_app = 00.
+    trans_tma = 25.
+    vel_tma = 35.
+
   if self.alt<=inicio_app: # Velocidad de aproximación
     return self.spd_app
   elif self.alt<=trans_tma: # Transición entre vel aprox y tma
