@@ -70,8 +70,18 @@ def retrieve_and_unzip_latest_version():
 		os.remove('exercises.zip')
 	except:
 		pass
-	try:
-		urllib.urlretrieve(_update_url, 'tmp-exercises.zip')
+	if 1==1:
+		progress = Toplevel()
+		lblProgress = Label(progress, text="Descargando...")
+		lblProgress.pack()
+		lblProgress2 = Label(progress, text="")
+		lblProgress2.pack()
+		def hook(a, b, c):
+			letras = "|/-\\"
+			print a, b, c, letras[a%4]
+			lblProgress2.config(text=letras[a%4])
+			progress.update()
+		urllib.urlretrieve(_update_url, 'tmp-exercises.zip', hook)
 		zfile = zipfile.ZipFile('tmp-exercises.zip')
 		test_result = zfile.testzip()
 		zfile.close()
@@ -81,7 +91,7 @@ def retrieve_and_unzip_latest_version():
 		else:
 			mb = tkMessageBox.Message(type=tkMessageBox.OK, message="Archivo de ejercicios erróneo...\nSeguimos con la versión anterior")
 			mb.show()
-	except:
+	else:
 		mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web...\nSeguimos con la versión anterior")
 		mb.show()
 
