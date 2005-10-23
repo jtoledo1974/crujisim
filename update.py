@@ -97,9 +97,9 @@ def retrieve_and_unzip_latest_version():
 
 def update_exercises():
 	current_version = get_installed_version_string()
-	logging.info("Current version: '"+current_version+"'")
+	logging.info("Current version: '"+str(current_version)+"'")
 	online_version = get_latest_online_version_string()
-	logging.info("Online version: '"+online_version+"'")
+	logging.info("Online version: '"+str(online_version)+"'")
 	if online_version == None:
 		tkMessageBox.showinfo(message="No puedo descargar la última versión.\nSeguimos con la versión anterior")
 	elif online_version > current_version:
