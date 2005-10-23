@@ -1193,6 +1193,7 @@ class Airplane:
 	lbl_CFL = Label(win, text="CFL:")
 	ent_CFL = Entry(win, width=3)
 	ent_CFL.insert(0, str(int(self.get_cfl())))
+	ent_CFL.select_range(0, END)
 	lbl_PFL = Label(win, text="PFL:")
 	ent_PFL = Entry(win, width=3)
 	ent_PFL.insert(0, str(int(self.get_pfl())))
@@ -1254,6 +1255,7 @@ class Airplane:
 	lbl_hdg = Label(win, text="Rate:")
 	ent_hdg = Entry(win, width=4)
 	ent_hdg.insert(0, str(abs(int(self.get_rate_descend()))))
+	ent_hdg.select_range(0, END)
 	but_Acp = Button(win, text="Aceptar")
 	but_Can = Button(win, text="Cancelar")
 	but_Std = Button(win,text="Estandar")
@@ -1297,6 +1299,7 @@ class Airplane:
 	lbl_hdg = Label(win, text="Heading:")
 	ent_hdg = Entry(win, width=3)
 	ent_hdg.insert(0, str(int(self.get_heading())))
+	ent_hdg.select_range(0, END)
 	ent_side = OptionMenu (win,bg='white')
 	num = 0
 	for opc in ['ECON','DCHA','IZDA']:
@@ -1335,6 +1338,7 @@ class Airplane:
 	lbl_spd = Label(win, text="IAS:")
 	ent_spd = Entry(win, width=3)
 	ent_spd.insert(0, str(int(self.get_ias())))
+	ent_spd.select_range(0, END)
 	but_Acp = Button(win, text="Aceptar")
 	but_Can = Button(win, text="Cancelar")
 	but_Std = Button(win, text="Estandar")
