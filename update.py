@@ -24,6 +24,7 @@ import logging
 import ConfMgr
 import httplib
 import zipfile
+import sys
 
 _version_url = ConfMgr.read_option("NetUpdate", "version_url", "http://personales.ya.com/nanomago/exercises-version.txt")
 _update_url = ConfMgr.read_option("NetUpdate", "resource_url", "http://personales.ya.com/nanomago/exercises.zip")
@@ -70,8 +71,9 @@ def retrieve_and_unzip_latest_version():
 		os.remove('exercises.zip')
 	except:
 		pass
-	if 1==1:
+	try:
 		progress = Toplevel()
+		progress.title("CrujiSim")
 		lblProgress = Label(progress, text="Descargando...")
 		lblProgress.pack()
 		lblProgress2 = Label(progress, text="")
@@ -91,21 +93,32 @@ def retrieve_and_unzip_latest_version():
 		else:
 			mb = tkMessageBox.Message(type=tkMessageBox.OK, message="Archivo de ejercicios erróneo...\nSeguimos con la versión anterior")
 			mb.show()
-	else:
+	except:
 		mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web...\nSeguimos con la versión anterior")
 		mb.show()
 
 def update_exercises():
+	root = Tk()
+	root.title("CrujiSim")
+	lblUpdate = Label(root, text="Actualización automática", font='-*-Helvetica-*--*-20-*-')
+	lblUpdate.pack()
+	root.update()
 	current_version = get_installed_version_string()
 	logging.info("Current version: '"+str(current_version)+"'")
 	online_version = get_latest_online_version_string()
 	logging.info("Online version: '"+str(online_version)+"'")
 	if online_version == None:
 		tkMessageBox.showinfo(message="No puedo descargar la última versión.\nSeguimos con la versión anterior")
+		sys.exit(0)
 	elif online_version > current_version:
 		if tkMessageBox.askyesno(message="Hay nuevos ejercicios en la web. ¿Los quieres?"):
 			retrieve_and_unzip_latest_version()
 			set_installed_version_string(online_version)
 			tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Vuelve a entrar para utilizarlos.")
+			sys.exit(0)
+		else:
+			tkMessageBox.showinfo(message="Seguimos con la versión anterior de los ejercicios")
+			sys.exit(0)
 	else:
 		tkMessageBox.showinfo(message="No hay versiones nuevas para descargar")
+		sys.exit(0)
