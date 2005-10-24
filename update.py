@@ -52,15 +52,21 @@ def unziptobasepath(zipfilename, path="."):
     zfile = zipfile.ZipFile(zipfilename,'r')
     print zfile.namelist()
     for filename in zfile.namelist():
-	outputfilename=os.path.join(path, filename)
+	# Names of files in ZIP are encoded in codepage 437. Therefore...
+	unicode_filename = filename.decode('cp437')
+	outputfilename=os.path.join(path, unicode_filename)
 	outputbasename=os.path.basename(outputfilename)
 	try:
 		if outputbasename=='':
-			# Output "file" is a directory.
+			# Output "file" is a directory. Create it.
 			os.makedirs(outputfilename)
 		else:
+			dirname = os.path.dirname(outputfilename)
+			# If parent directory to extracted file does not exist, create it!
+			if not(os.path.isdir(dirname)):
+				os.makedirs(dirname)
         		file = open(outputfilename, 'w+b')
-        		file.write(zfile.read(filename))
+        		file.write(zfile.read(unicode_filename))
         		file.close()
 	except:
 		logging.warning("Cannot unzip to "+outputfilename)
@@ -80,7 +86,6 @@ def retrieve_and_unzip_latest_version():
 		lblProgress2.pack()
 		def hook(a, b, c):
 			letras = "|/-\\"
-			print a, b, c, letras[a%4]
 			lblProgress2.config(text=letras[a%4])
 			progress.update()
 		urllib.urlretrieve(_update_url, 'tmp-exercises.zip', hook)
