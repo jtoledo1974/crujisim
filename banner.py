@@ -262,17 +262,22 @@ def seleccion_usuario():
 	butActualizar['command'] = devolver_actualizar
 
 	root.mainloop()
-	fir = varFIR.get()
-        print 'Fir:',fir
-	fir_elegido = [x for x in get_fires() if x[0]==fir][0]
-	print 'Fir elegido:',fir_elegido
-	sector = varSector.get()
-	print 'Sector:',sector
-	sector_elegido = [x for x in get_sectores(fir) if x[0]==sector][0]
-	print 'Sector elegido:',sector_elegido
-	ejercicio = varEjercicio.get()
-	print 'Ejercicio:',ejercicio
-	ejercicio_elegido = [x for x in get_ejercicios(fir, sector) if x[0]==ejercicio][0]
-	print 'Ejercicio elegido:',ejercicio_elegido
-	print "Exiting with selection:", (fir_elegido, sector_elegido, ejercicio_elegido)
+	if accion=="actualizar":
+		fir_elegido = None
+		sector_elegido = None
+		ejercicio_elegido = None
+	else:
+		fir = varFIR.get()
+		print 'Fir:',fir
+		fir_elegido = [x for x in get_fires() if x[0]==fir][0]
+		print 'Fir elegido:',fir_elegido
+		sector = varSector.get()
+		print 'Sector:',sector
+		sector_elegido = [x for x in get_sectores(fir) if x[0]==sector][0]
+		print 'Sector elegido:',sector_elegido
+		ejercicio = varEjercicio.get()
+		print 'Ejercicio:',ejercicio
+		ejercicio_elegido = [x for x in get_ejercicios(fir, sector) if x[0]==ejercicio][0]
+		print 'Ejercicio elegido:',ejercicio_elegido
+		print "Exiting with selection:", (fir_elegido, sector_elegido, ejercicio_elegido)
 	return [accion, fir_elegido, sector_elegido, ejercicio_elegido, 1]
