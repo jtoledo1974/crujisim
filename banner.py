@@ -180,7 +180,7 @@ def seleccion_usuario():
 
 	butActualizar = Button(frmAcciones, text="Actualizar")
 	butActualizar.grid(row=0, column=3, padx=1)
-	frmAcciones.grid(row=4, column=1, sticky=E, padx=5, pady=5)
+	frmAcciones.grid(row=4, column=0, columnspan=4, sticky=E, padx=5, pady=5)
 
         def salir(e=None):
                 sys.exit(0)
