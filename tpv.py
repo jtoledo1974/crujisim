@@ -627,7 +627,6 @@ def tpv():
     if a.get_sector_entry_time()==None:
         a.set_sector_entry_fix(a.route[0][1])
         a.set_sector_entry_time(a.route[0][3])  # If all else fails, use the first ETO
-        print "No sector entry FIX found"
     # Set the flight strip printing time
     if a.get_eobt()<>None:
       a.t_impresion=a.get_eobt()-10./60.  # 10min before EOBT
