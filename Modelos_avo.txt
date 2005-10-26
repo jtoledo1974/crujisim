@@ -1,7 +1,9 @@
 # Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
 # $Id$
 # 
-# To find current callsigns use http://www.airlinecodes.co.uk/airlcodesearch.asp
+# To find current callsigns use http://www.airframes.org/airlines/ or 
+# http://www.airlinecodes.co.uk/airlcodesearch.asp
+#
 # Performance data for some aircraft can be found in http://ls2.ians.lu/performance/
 
 [performances]
@@ -177,6 +179,7 @@ AHD:AIR HANDLING
 AHR:ORANGE
 AIC:AIRINDIA
 AIH:TOURJET
+AIS:AERIS (not flying since 2003)
 ALT:GREEN-CRAFT
 AMC:AIR MALTA
 AME:AIRMIL
