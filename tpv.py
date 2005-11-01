@@ -661,6 +661,7 @@ def tpv():
         callsign = config.get('indicativos_de_compania',nombre)
       else:
         callsign = ''
+      a.radio_callsign=callsign
       logging.debug (a.name+'\t'+nombre+'\t'+callsign)
       ruta=''
       for f in a.route:

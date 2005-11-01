@@ -1463,7 +1463,8 @@ def ver_detalles():
              text='Origen: '+sel.get_origin()+
              '\tDestino: '+sel.get_destination()+
              '\nTipo:   '+sel.get_kind().ljust(4)+
-             '\tRFL:     '+str(int(sel.rfl)))
+             '\tRFL:     '+str(int(sel.rfl))+
+	     '\nCallsign: '+sel.radio_callsign)
 
 def b_orbitar():
     """Show a dialog to command the selected aircraft to make orbits"""    

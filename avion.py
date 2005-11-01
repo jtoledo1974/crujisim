@@ -412,6 +412,7 @@ class Airplane:
   
   def __init__(self):
     self.name='IBE767'
+    self.radio_callsign='IBERIA'
     self.tipo='B747'
     self.estela='H'
     self.origen='LEBB'
