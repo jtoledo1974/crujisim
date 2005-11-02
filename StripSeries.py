@@ -75,57 +75,86 @@ class StripSeries:
 		self.num_strips = 0
 		self.filename=output_file
 		
-	def draw_blank_strip(self, x, y, fs_type):
+	def draw_blank_strip(self, x, y, fs_type,form_factor=1.0):
+          
+                def formfactor(x,rounded=True):
+                         x1=x*form_factor
+                         if rounded==True: x1=round(x1)
+                         return x1
+               
+                   
 		canvas = self.canvas
                 #Dibuja el contorno de la ficha
-		canvas.drawLine(x, y, x+STRIP_X_SIZE, y, color=dimgray)
-		canvas.drawLine(x, y+STRIP_Y_SIZE, x+STRIP_X_SIZE, y+STRIP_Y_SIZE, color=dimgray)
-		canvas.drawLine(x, y, x, y+STRIP_Y_SIZE, color=dimgray)
-		canvas.drawLine(x+STRIP_X_SIZE, y, x+STRIP_X_SIZE, y+STRIP_Y_SIZE, color=dimgray)
+		
+		canvas.drawLine(formfactor(x), formfactor(y), formfactor(x+STRIP_X_SIZE), formfactor(y), color=dimgray)
+		canvas.drawLine(formfactor(x), formfactor(y+STRIP_Y_SIZE), formfactor(x+STRIP_X_SIZE), formfactor(y+STRIP_Y_SIZE), color=dimgray)
+		canvas.drawLine(formfactor(x), formfactor(y), formfactor(x), formfactor(y+STRIP_Y_SIZE), color=dimgray)
+		canvas.drawLine(formfactor(x+STRIP_X_SIZE), formfactor(y), formfactor(x+STRIP_X_SIZE), formfactor(y+STRIP_Y_SIZE), color=dimgray)
 
 ##		Primera linea horizontal: hacia arriba está el indicativo
-		canvas.drawLine(x+11, y+23, x+410, y+23)
+		canvas.drawLine(formfactor(x+11), formfactor(y+23), formfactor(x+410), formfactor(y+23))
 ##		Segunda linea horizontal: hacia abajo está la ruta
-		canvas.drawLine(x+5, y+52, x+550, y+52)
+		canvas.drawLine(formfactor(x+5), formfactor(y+52), formfactor(x+550), formfactor(y+52))
 ##		Seis Lineas verticales principales: hora 1 comunicación,respondedor,fijo anterior,fijo,fijo siguiente,instrucciones
-		canvas.drawLine(x+145, y+11, x+145, y+52)
-		canvas.drawLine(x+187, y+12, x+187, y+52)
-		canvas.drawLine(x+227, y+12, x+227, y+52)
-		canvas.drawLine(x+286, y+12, x+286, y+52)
-		canvas.drawLine(x+345, y+12, x+345, y+52)
-		canvas.drawLine(x+404, y+12, x+404, y+52)
+		canvas.drawLine(formfactor(x+145), formfactor(y+11), formfactor(x+145), formfactor(y+52))
+		canvas.drawLine(formfactor(x+187), formfactor(y+12), formfactor(x+187), formfactor(y+52))
+		canvas.drawLine(formfactor(x+227), formfactor(y+12), formfactor(x+227), formfactor(y+52))
+		canvas.drawLine(formfactor(x+286), formfactor(y+12), formfactor(x+286), formfactor(y+52))
+		canvas.drawLine(formfactor(x+345), formfactor(y+12), formfactor(x+345), formfactor(y+52))
+		canvas.drawLine(formfactor(x+404), formfactor(y+12), formfactor(x+404), formfactor(y+52))
 ##		Linea diagonal casilla primera comunicación
-		canvas.drawLine(x+144, y+52, x+187, y+23)
+		canvas.drawLine(formfactor(x+144), formfactor(y+52), formfactor(x+187), formfactor(y+23))
 ##		Linea horizontal divisoria casilla respondedor
-		canvas.drawLine(x+187, y+37, x+227, y+37)
+		canvas.drawLine(formfactor(x+187), formfactor(y+37), formfactor(x+227), formfactor(y+37))
 ##		Lineas verticales y diagonales para las casillas de estimada piloto/hora de paso por el fijo
-		canvas.drawLine(x+257, y+23, x+257, y+52)
-		canvas.drawLine(x+257, y+52, x+286, y+23)
-		canvas.drawLine(x+316, y+23, x+316, y+52)
-		canvas.drawLine(x+316, y+52, x+345, y+23)
-		canvas.drawLine(x+375, y+23, x+375, y+52)
-		canvas.drawLine(x+375, y+52, x+404, y+23)
+		canvas.drawLine(formfactor(x+257), formfactor(y+23), formfactor(x+257), formfactor(y+52))
+		canvas.drawLine(formfactor(x+257), formfactor(y+52), formfactor(x+286), formfactor(y+23))
+		canvas.drawLine(formfactor(x+316), formfactor(y+23), formfactor(x+316), formfactor(y+52))
+		canvas.drawLine(formfactor(x+316), formfactor(y+52), formfactor(x+345), formfactor(y+23))
+		canvas.drawLine(formfactor(x+375), formfactor(y+23), formfactor(x+375), formfactor(y+52))
+		canvas.drawLine(formfactor(x+375), formfactor(y+52), formfactor(x+404), formfactor(y+23))
 ##		Lineas Minuto de transferencia de comunicaciones		
-		canvas.drawLine(x+529, y+8, x+529, y+17,width=3)
-		canvas.drawLine(x+531, y+19, x+550, y+19)
+		canvas.drawLine(formfactor(x+529), formfactor(y+8), formfactor(x+529), formfactor(y+17),width=3)
+		canvas.drawLine(formfactor(x+531), formfactor(y+19), formfactor(x+550), formfactor(y+19))
 
 		if fs_type=="coord":
-                    polypoints=[(x+504,y+52),(x+504,y+30),
-                                (x+498,y+30),(x+507,y+24),(x+516,y+30),
-                                (x+510,y+30),(x+510,y+52)]
+                    polypoints=[(formfactor(x+504),formfactor(y+52)),(formfactor(x+504),formfactor(y+30)),
+                                (formfactor(x+498),formfactor(y+30)),(formfactor(x+507),formfactor(y+24)),
+                                (formfactor(x+516),formfactor(y+30)),(formfactor(x+510),formfactor(y+30)),
+                                (formfactor(x+510),formfactor(y+52))]
                     canvas.drawPolygon (polypoints, fillColor=black, closed=1)
-	
+                    	
 #	def draw_callsign(canvas, x, y, callsign):
 #		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=18, bold=1))
 
-	def draw_flight_data(self,fd):
-		x = 25
-		y = 40 + STRIP_Y_SIZE * (self.num_strips % STRIPS_PER_PAGE)
+	def draw_flight_data(self,fd,form_factor=1.0,font_factor=1.0,font_fixed=False,font_fixed_size=8,on_screen_strip=False):
+          
+                def formfactor(x,rounded=True):
+                         x1=x*form_factor
+                         if rounded==True: x1=round(x1)
+                         return x1
+                
+                def fontfactor(x):
+                     if font_fixed:
+                         x1=font_fixed_size
+                     else:
+                         x1=x*font_factor
+                     return x1
+                    
+		x = formfactor(25)
+                if not(on_screen_strip):
+                     x = formfactor(25)
+                     dummy = STRIPS_PER_PAGE/form_factor
+                     y = formfactor(40) + formfactor((STRIP_Y_SIZE * (self.num_strips%dummy)/form_factor))
+                else:
+                     x = 1
+                     y = 1
+                     
 		canvas = self.canvas
-		if (self.num_strips > 0) and (self.num_strips % STRIPS_PER_PAGE) == 0:
+		if (self.num_strips > 0) and (self.num_strips % (round(STRIPS_PER_PAGE/form_factor)))== 0:
 			canvas.flush()
 			canvas.clear()
-		self.draw_blank_strip(x, y, fd.fs_type)
+		self.draw_blank_strip(x, y, fd.fs_type,form_factor)
 		if len(fd.model) < 6: fd.model = fd.model + " "*(6-len(fd.model))
 		elif len(fd.model) > 6: fd.model = fd.model[:6]
 		if fd.wake=="": fd.wake = " "
@@ -134,36 +163,38 @@ class StripSeries:
 		else: fd.speed = "%04d" % int(fd.speed)
 		if fd.ciacallsign=="": fd.ciacallsign = " "
 		if fd.exercice_name=="": fd.exercice_name= " "
-		strips.stringformat.drawString(canvas, fd.callsign, x+30, y+22, Font(face="monospaced", size=20, bold=1))
-		strips.stringformat.drawString(canvas, fd.ciacallsign, x+15, y+10, Font(face="monospaced", size=8, bold=1))
+		strips.stringformat.drawString(canvas, fd.callsign, formfactor(x+30), formfactor(y+22), Font(face="monospaced", size=fontfactor(20), bold=1))
+		if not(on_screen_strip):
+                     strips.stringformat.drawString(canvas, fd.ciacallsign, formfactor(x+15), formfactor(y+10), Font(face="monospaced", size=fontfactor(8), bold=1))
 		firstline = fd.model + "/" + fd.wake + "/" + fd.responder + "/" + fd.speed
-		strips.stringformat.drawString(canvas, firstline, x+16, y+35, Font(face="monospaced", size=9, bold=1))
+		strips.stringformat.drawString(canvas, firstline, formfactor(x+16), formfactor(y+35), Font(face="monospaced", size=fontfactor(9), bold=1))
 		if fd.eobt=="":
                     secondline = fd.origin + "      "+fd.destination+"/"+fd.fl
                 else:
                     secondline = fd.origin + "/" + fd.eobt + "  "+fd.destination+"/"+fd.fl
-		strips.stringformat.drawString(canvas, secondline, x+16, y+49, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, fd.cssr, x+190, y+50, Font(face="monospaced", size=8, bold=1))
-		strips.stringformat.drawString(canvas, fd.route, x+16, y+61, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, fd.rules, x+200, y+22, Font(face="monospaced", size=10, bold=1))
+		strips.stringformat.drawString(canvas, secondline, formfactor(x+16), formfactor(y+49), Font(face="monospaced", size=fontfactor(10), bold=1))
+		strips.stringformat.drawString(canvas, fd.cssr, formfactor(x+190), formfactor(y+50), Font(face="monospaced", size=fontfactor(8), bold=1))
+		strips.stringformat.drawString(canvas, fd.route, formfactor(x+16), formfactor(y+61), Font(face="monospaced", size=fontfactor(10), bold=1))
+		strips.stringformat.drawString(canvas, fd.rules, formfactor(x+200), formfactor(y+22), Font(face="monospaced", size=fontfactor(10), bold=1))
 
-		strips.stringformat.drawString(canvas, fd.prev_fix, x+240, y+22, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, fd.prev_fix_est, x+230, y+35, Font(face="monospaced", size=9, bold=1))
+		strips.stringformat.drawString(canvas, fd.prev_fix, formfactor(x+240), formfactor(y+22), Font(face="monospaced", size=fontfactor(10), bold=1))
+		strips.stringformat.drawString(canvas, fd.prev_fix_est, formfactor(x+230), formfactor(y+35), Font(face="monospaced", size=fontfactor(9), bold=1))
 		
-		strips.stringformat.drawString(canvas, fd.fix, x+300, y+22, Font(face="monospaced", size=12, bold=1))
-		strips.stringformat.drawString(canvas, fd.fix_est, x+286, y+50, Font(face="monospaced", size=12, bold=1))
+		strips.stringformat.drawString(canvas, fd.fix, formfactor(x+300), formfactor(y+22), Font(face="monospaced", size=fontfactor(12), bold=1))
+		strips.stringformat.drawString(canvas, fd.fix_est, formfactor(x+286), formfactor(y+50), Font(face="monospaced", size=fontfactor(12), bold=1))
 		
-		strips.stringformat.drawString(canvas, fd.next_fix, x+358, y+22, Font(face="monospaced", size=10, bold=1))
-		strips.stringformat.drawString(canvas, fd.next_fix_est, x+348, y+35, Font(face="monospaced", size=9, bold=1))
+		strips.stringformat.drawString(canvas, fd.next_fix, formfactor(x+358), formfactor(y+22), Font(face="monospaced", size=fontfactor(10), bold=1))
+		strips.stringformat.drawString(canvas, fd.next_fix_est, formfactor(x+348), formfactor(y+35), Font(face="monospaced", size=fontfactor(9), bold=1))
                 
-                strips.stringformat.drawString(canvas,fd.cfl,x+405,y+22, Font(face="monospaced", size=12, bold=1))
-                strips.stringformat.drawString(canvas,fd.exercice_name,x+5,y+68, Font(face="monospaced", size=6, bold=0))
-                strips.stringformat.drawString(canvas,fd.print_time,x+490,y+61, Font(face="monospaced", size=10, bold=1))
+                strips.stringformat.drawString(canvas,fd.cfl,formfactor(x+405),formfactor(y+22), Font(face="monospaced", size=fontfactor(12), bold=1))
+                if not(on_screen_strip):
+                     strips.stringformat.drawString(canvas,fd.exercice_name,formfactor(x+5),formfactor(y+68), Font(face="monospaced", size=fontfactor(6), bold=0))
+                     strips.stringformat.drawString(canvas,fd.print_time,formfactor(x+490),formfactor(y+61), Font(face="monospaced", size=fontfactor(10), bold=1))
 
                 if fd.fs_type=="coord":
                     strips.stringformat.drawString(canvas, 'COORD', x+150, y+23, Font(face="monospaced", size=10, bold=1))
-                    
-		self.num_strips += 1
+                if not(on_screen_strip): self.num_strips += 1
+                else: self.num_strips=1
 
 	def save(self):
                 #We try to open the file for writing and throw an exception if unable

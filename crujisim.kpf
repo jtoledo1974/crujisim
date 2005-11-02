@@ -10,6 +10,29 @@
 <file url="lads.py" id="F8C9E019-9CB2-47D4-8F68-28F2C660B01E" name="lads.py">
 </file>
 <file url="MainMenu.py" id="B42ED642-EB18-455A-BDF4-96AEB290F7DF" name="MainMenu.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="userEnvironment"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="filename">D:\Curso de Control\Crujisim\CrujiSim-Beta10-sincro\MainMenu.py</string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
 <file url="Metepasadas.py" id="7B4FF3DB-A8C9-4AD4-8FD6-2AEB88A9550B" name="Metepasadas.py">
 </file>
@@ -41,6 +64,29 @@
 <file url="Simulador.py" id="02972D0D-7C75-4B68-B0A6-51F507F2277E" name="Simulador.py">
 </file>
 <file url="StripSeries.py" id="43B4BC82-F20A-4E2A-90F0-FB09E2946E53" name="StripSeries.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="filename">D:\Curso de Control\Crujisim\CrujiSim-Beta10-sincro\StripSeries.py</string>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="userEnvironment"></string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
 <file url="tpv.py" id="C6DDF524-7D35-4489-A95F-413446E30ED5" name="tpv.py">
 </file>
