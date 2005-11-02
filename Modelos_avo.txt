@@ -574,6 +574,7 @@ GZD:[V. Grizodubova Air Company]
 HAL:HAWAIIAN
 HCY:[Helios Airways]
 HDA:DRAGONAIR
+HEA:HELIAVIA
 HFR:HELIFRANCE
 HHI:HAMBURG JET
 HHN:[Hahn Air Lines]
