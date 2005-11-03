@@ -609,8 +609,8 @@ def tpv():
   for s in range(len(ejercicio)):
     a=ejercicio[s]
     # Set EOBT
-    if firdef.has_option(sector_elegido[1],'released_required_ads') and \
-       a.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
+    if firdef.has_option(sector_elegido[1],'local_ads') and \
+       a.get_origin() in firdef.get(sector_elegido[1],'local_ads').split(','):
       # As of revision 326 there is no place where to store the EOBT of a departing flight,
       # so the ETO of the first route point is taken
       a.set_eobt(a.route[0][3])
@@ -680,8 +680,8 @@ def tpv():
             current_printing_fixes = fijos_impresion
 
       # Print a coord flight strip if it's a departure from an AD we have to release
-      if firdef.has_option(sector_elegido[1],'released_required_ads') and \
-         a.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
+      if firdef.has_option(sector_elegido[1],'local_ads') and \
+         a.get_origin() in firdef.get(sector_elegido[1],'local_ads').split(','):
         fd=FlightData()
         fd.callsign=a.name
         fd.exercice_name=name
