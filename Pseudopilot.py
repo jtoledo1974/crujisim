@@ -28,6 +28,8 @@
 from RaDisplay import *
 from avion import *
 
+SNDDIR='./snd/'
+
 class AcftNotices(RaTabular):
     """A tabular window showing reports and requests from aircraft"""
     def __init__(self, master=None, flights=None):
@@ -51,5 +53,16 @@ class AcftNotices(RaTabular):
                     m=int(60*(t-h))
                     report='%02d:%02d %s %s'%(h,m,acft.name,report['text'])
                     self.insert(END, report)
+                    self.notify()
                     del acft.reports[i]
         self._last_updated=t
+
+    def notify(self):
+        """Make it obvious to the user that there has been a new notification"""
+        import sys
+        if sys.platform=='win32':
+            import winsound
+            try:
+                winsound.PlaySound(SNDDIR+'/notice.wav', winsound.SND_NOSTOP|winsound.SND_ASYNC)
+            except:
+                pass
