@@ -63,6 +63,6 @@ class AcftNotices(RaTabular):
         if sys.platform=='win32':
             import winsound
             try:
-                winsound.PlaySound(SNDDIR+'/notice.wav', winsound.SND_NOSTOP|winsound.SND_ASYNC)
+                winsound.PlaySound(SNDDIR+'/chime.wav', winsound.SND_NOSTOP|winsound.SND_ASYNC)
             except:
                 pass
