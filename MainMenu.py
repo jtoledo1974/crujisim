@@ -30,19 +30,26 @@ import sys
 # Define which logging level messages will be output
 logging.getLogger('').setLevel(logging.DEBUG)
 
-
-[accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
+while 1:
+    [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
 
 # accion = "ejecutar", "modificar", "nueva", "actualizar"
 
-print "Returned tuple:", [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas]
-
-if accion == "modificar":
-	Metepasadas.modificar([fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas])
-elif accion == "nueva":
-	Metepasadas.nueva()
-elif accion == "ejecutar":
-	tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas])
-	import Simulador
-elif accion == "actualizar":
-	update.update_exercises()
+    print "Returned tuple:", [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas]
+    
+    if accion == "modificar":
+        Metepasadas.modificar([fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas])
+    elif accion == "nueva":
+        Metepasadas.nueva()
+    elif accion == "ejecutar":
+        if "tpv" in sys.modules:
+            reload(sys.modules["tpv"])
+        else:
+            import tpv
+        tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas])
+        if "Simulador" in sys.modules:
+            reload(sys.modules["Simulador"])
+        else:
+            import Simulador
+    elif accion == "actualizar":
+        update.update_exercises()
