@@ -23,6 +23,7 @@
 # Module imports
 from Tix import *
 from Tkconstants import *
+import tkFont
 import Image
 import ImageTk
 import GifImagePlugin
@@ -32,9 +33,11 @@ import glob
 from ConfigParser import *
 import zipfile
 from os import rename
+import random
 
 # Global variables
 exercises_root = 'pasadas'
+jokes_file_name = 'jokes.txt'
 
 # Constants
 IMGDIR='./img/'
@@ -46,7 +49,6 @@ def get_fires():
     for directory in directories_from_root:
         fir_description_file = os.path.join(exercises_root,directory,directory+".fir")
         if os.path.exists(fir_description_file):
-            print "FIR OK:", fir_description_file
             # Extract FIR name from FIR description file
             config = ConfigParser()
             fir_file = open(fir_description_file, 'r')
@@ -72,7 +74,7 @@ def get_sectores(fir):
     for sector in config.sections():
       if sector[0:6]=='sector':
         lista.append([config.get(sector,'nombre'),sector])
-    # Ahora ordeno alfabéticamente los sectores
+    # Ahora ordeno alfabï¿½icamente los sectores
     lista.sort()
     return lista
 
@@ -124,19 +126,35 @@ def seleccion_usuario():
 	            # selected simulation, create a new ("nueva") one,
                     #or update exercises via network ("actualizar")
 	
+	message_line_gap = 2
+	message_indent = 5
+	message_font_size = 10
+	
+	jokes_file = open(jokes_file_name, 'rt')
+	lines = jokes_file.readlines()
+	try:
+		message_text = random.choice(lines)
+	except:
+		message_text = ''
+	
+	message_lines = message_text.split("|")
+	num_message_lines = len(message_lines)
+	
 	root = Tk()	
+	message_font = tkFont.Font(family="Helvetica",size=message_font_size)
 	banner_image = load_image("banner")
 	w = banner_image.width()
-	h = banner_image.height()
+	h = banner_image.height() + (message_line_gap + message_font_size) * num_message_lines
 	root.title("CrujiSim")
 	root.wm_overrideredirect(1)
-	banner_canvas = Canvas(root, width=w, height=h)
+	banner_canvas = Canvas(root, width=w, height=h, bg="black")
 	banner_canvas.create_image(0, 0, image=banner_image, anchor=N+W)
+	for nline in range(num_message_lines):
+		banner_canvas.create_text(message_indent, h - (message_line_gap + message_font_size)*(num_message_lines - nline), text=message_lines[nline],fill="green",anchor=N+W,font=message_font)
 	banner_canvas.grid(row=0,columnspan=2, sticky=N)
 	
 	Label(root, text="FIR:").grid(row=1,column=0, sticky=E)
 	fir_list = [x[0] for x in get_fires()]
-	print "FIRes:", fir_list
 	varFIR = StringVar()
 	omFIR = OptionMenu(root, variable=varFIR)
 	omFIR.grid(row=1,column=1, sticky=W)
@@ -231,7 +249,6 @@ def seleccion_usuario():
 	def devolver_seleccion(e=None):
 		global accion
 		ejercicio_elegido = varEjercicio.get()
-		print "Ejercicio: '"+ejercicio_elegido+"'"
 		if not(ejercicio_elegido in ["", "--------", '()']):
 			accion = "ejecutar"
 			root.destroy()
@@ -240,7 +257,6 @@ def seleccion_usuario():
 	def devolver_modificar(e=None):
 		global accion
 		ejercicio_elegido = varEjercicio.get()
-		print "Ejercicio: '"+ejercicio_elegido+"'"
 		if not(ejercicio_elegido in ["", "--------", '()']):
 			accion = "modificar"
 			root.destroy()
@@ -249,7 +265,6 @@ def seleccion_usuario():
 	def devolver_nueva(e=None):
 		global accion
 		ejercicio_elegido = varEjercicio.get()
-		print "Ejercicio: '"+ejercicio_elegido+"'"
 		if not(ejercicio_elegido in ["", "--------", '()']):
 			accion = "nueva"
 			root.destroy()
@@ -268,16 +283,9 @@ def seleccion_usuario():
 		ejercicio_elegido = None
 	else:
 		fir = varFIR.get()
-		print 'Fir:',fir
 		fir_elegido = [x for x in get_fires() if x[0]==fir][0]
-		print 'Fir elegido:',fir_elegido
 		sector = varSector.get()
-		print 'Sector:',sector
 		sector_elegido = [x for x in get_sectores(fir) if x[0]==sector][0]
-		print 'Sector elegido:',sector_elegido
 		ejercicio = varEjercicio.get()
-		print 'Ejercicio:',ejercicio
 		ejercicio_elegido = [x for x in get_ejercicios(fir, sector) if x[0]==ejercicio][0]
-		print 'Ejercicio elegido:',ejercicio_elegido
-		print "Exiting with selection:", (fir_elegido, sector_elegido, ejercicio_elegido)
 	return [accion, fir_elegido, sector_elegido, ejercicio_elegido, 1]
