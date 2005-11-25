@@ -17,7 +17,7 @@
 #   If the CALLSIGN appears in SENASA's and does not in http://www.airframes.org/airlines/'s. SENASA's apppears as main and also the company's name in parentheses. Example  EXCELLENCE (Hapag-Lloyd Express)
 #   If no callsign has been found [] appears
 #Exceptions: RAF has been kept as Royal Air Force but actually its Farnas Aviation Services and has no CALLSIGN.
-
+# Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
 [performances]
 A300:H,380,3000,2000,3000,2000,460,460,280,160
 A306:H,380,3000,2000,3000,2000,460,460,280,160
@@ -76,7 +76,6 @@ BE20:L,350,2450,1200,2000,1500,282,294,180,130
 BE33:L,160,900,700,900,700,140,160,120,100
 BE55:L,250,1600,1000,1600,1000,160,180,140,100
 BE9L:L,280,1900,1000,1900,1000,200,220,180,120
-# Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
 C101:L,400,5000,3500,5000,3500,370,390,280,160
 C130:M,330,1800,1000,1800,1000,260,300,240,140
 C141:H,410,2900,1700,2900,1700,430,490,280,160
@@ -129,6 +128,7 @@ F-4:M,650,6000,4000,6000,4000,900,1300,280,180
 F50:M,270,2200,1000,2200,1000,260,280,180,140
 F-50:M,270,2200,1000,2200,1000,260,280,180,140
 F900:M,510,4200,2500,4200,2500,460,480,280,180
+F18:M,590,20000,7000,20000,7000,580,600,280,180
 FA18:M,590,20000,7000,20000,7000,580,600,280,180
 FA20:M,350,5000,3000,5000,3000,400,420,280,160
 FA50:M,490,2300,1500,2300,1500,430,450,280,160
