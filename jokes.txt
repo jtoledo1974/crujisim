@@ -25,3 +25,4 @@ APP: BAW4444D, traffic at 2 o'clock, 500 ft below you.|BAW4444D: Well, we see a 
 ATC: AAL2766, say altitude.|AAL2766: ALTITUDE!|APP: AAL2766, say airspeed.|AAL2766: AIRSPEED!|APP: AAL2766, say cancel IFR flight plan.|AAL2766: Flight level 90, one five zero knots indicated!
 APP (mujer): IBE2625, ¿quiere que le ponga a 10 millas de la toma?|IBE2625 (hombre): Inténtelo, inténtelo.
 TWR: BAW761, it looks like one of your baggage doors is open.|BAW761: Ah, thanks tower, but you must be looking at our APU door.|TWR: Okay, BAW761, cleared for  takeoff, wind 22015.|BAW761: Cleared for takeoff, BAW761.|(El avión rota)|TWR: BAW761, ahh ... it appears that your APU is leaking luggage...
+ATC: N1234, confirm you have current ATIS.|N1234: N1234 has Whiskey.|Unidentified pilot: In that case, welcome to the party!
