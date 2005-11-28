@@ -53,3 +53,5 @@ while 1:
             import Simulador
     elif accion == "actualizar":
         update.update_exercises()
+	sys.exit(0)
+
