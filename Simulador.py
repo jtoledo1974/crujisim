@@ -326,7 +326,8 @@ def draw_all_lads(canvas):
 		xm = (x0+x1) / 2
 		ym = (y0+y1) / 2
 		min_dist_time = lads.compute_mindisttime(xinitA, yinitA, lad.origin.get_track(), lad.origin.get_ground_speed(), xinitB, yinitB, lad.destination.get_track(), lad.destination.get_ground_speed())
-		if (min_dist_time != None) and (min_dist_time > 0.0):
+#added the condition min_dist_time<500.0 to avoid overflow problems when min_dist_time was too high
+		if (min_dist_time != None) and (min_dist_time > 0.0)and (min_dist_time<500.0):
 			# Flights will cross
 			min_dist = lads.compute_mindist(xinitA, yinitA, lad.origin.get_track(), lad.origin.get_ground_speed(), xinitB, yinitB, lad.destination.get_track(), lad.destination.get_ground_speed())
 			lad_lines = 4 # 4 lines of text in LAD square
