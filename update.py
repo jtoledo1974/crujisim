@@ -26,8 +26,8 @@ import httplib
 import zipfile
 import sys
 
-_version_url = ConfMgr.read_option("NetUpdate", "version_url", "http://personales.ya.com/nanomago/exercises-version.txt")
-_update_url = ConfMgr.read_option("NetUpdate", "resource_url", "http://personales.ya.com/nanomago/exercises.zip")
+_version_url = ConfMgr.read_option("NetUpdate", "version_url", "http://80.25.47.120/crujisim/exercises-version.txt")
+_update_url = ConfMgr.read_option("NetUpdate", "resource_url", "http://80.25.47.120/crujisim/exercises.zip")
 
 def get_installed_version_string():
 	current_version = ConfMgr.read_option("NetUpdate", "installed_version", "")
@@ -114,16 +114,12 @@ def update_exercises():
 	logging.info("Online version: '"+str(online_version)+"'")
 	if online_version == None:
 		tkMessageBox.showinfo(message="No puedo descargar la última versión.\nSeguimos con la versión anterior")
-		sys.exit(0)
 	elif online_version > current_version:
 		if tkMessageBox.askyesno(message="Hay nuevos ejercicios en la web. ¿Los quieres?"):
 			retrieve_and_unzip_latest_version()
 			set_installed_version_string(online_version)
 			tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Vuelve a entrar para utilizarlos.")
-			sys.exit(0)
 		else:
 			tkMessageBox.showinfo(message="Seguimos con la versión anterior de los ejercicios")
-			sys.exit(0)
 	else:
 		tkMessageBox.showinfo(message="No hay versiones nuevas para descargar")
-		sys.exit(0)
