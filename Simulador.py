@@ -1578,9 +1578,10 @@ def b_auth_approach():
         if avo.fijo_app == '': # No encuentra procedimiento de aprox.
             pass
         (puntos_alt,llz,puntos_map) = proc_app[avo.fijo_app]
-        # En este paso se desciende el tráfico y se añaden los puntos
-        logging.debug('Altitud: '+str(puntos_alt[0][3]))
-        avo.set_cfl(puntos_alt[0][3]/100.)
+	# Al autorizar a procedimiento APP no desciende automáticamente.
+	#~ #En este paso se desciende el tráfico y se añaden los puntos
+	#~ logging.debug('Altitud: '+str(puntos_alt[0][3]))
+        #~ avo.set_cfl(puntos_alt[0][3]/100.)
         if avo.to_do == 'hld':
             pass
         else:
