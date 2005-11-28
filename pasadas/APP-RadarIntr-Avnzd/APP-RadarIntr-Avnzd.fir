@@ -302,7 +302,6 @@ _LED10412:367.137,-386.392
 
 SIE:353.159,-353.741
 ROCAS:377.175,-350.196
-DUKKEM:383.492,-386.080
 POSTE:426.384,-388.039
 UCEDA:359.852,-372.901
 ARGAS:355.225,-401.868
@@ -615,13 +614,3 @@ auto_departure = AUTO
 limites:_SEC4,_SEC3,_TMA8,_TMA9,_SEC5,_SEC4
 fijos_de_impresion:PDT,_2DME
 fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,CJN,BAN,RBO
-
-[sector4]
-nombre:FINAL SUR
-min_sep = 5.0
-auto_departure = AUTO
-limites:_SEC4,_SEC3,_TMA8,_TMA9,_SEC5,_SEC4
-fijos_de_impresion:ROCAS,DUKKEM
-fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,CJN,BAN,RBO
-
-
