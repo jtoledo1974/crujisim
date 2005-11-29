@@ -41,6 +41,7 @@ import lads
 from math import sqrt
 import os.path
 import ConfMgr
+import logging
 
 # Global variables
 global wind
