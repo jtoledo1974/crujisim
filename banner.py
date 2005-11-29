@@ -100,14 +100,17 @@ def get_ejercicios(fir, sector):
       exercise_filep = open(exercise_file_path, 'r')
       config.readfp(exercise_filep)
       exercise_filep.close()
-      fir_eje=config.get('datos','fir')
-      sector_eje=config.get('datos','sector')
-      if fir_eje.upper()==fir.upper() and sector_eje.upper()==sector.upper():
-        if config.has_option('datos','comentario'):
-          exercise_description = config.get('datos','comentario')
-        else:
-          exercise_description = exercise_file_name
-        sector_exercises.append([exercise_description,exercise_file_path])
+      try:
+        fir_eje=config.get('datos','fir')
+        sector_eje=config.get('datos','sector')
+        if fir_eje.upper()==fir.upper() and sector_eje.upper()==sector.upper():
+          if config.has_option('datos','comentario'):
+            exercise_description = config.get('datos','comentario')
+          else:
+            exercise_description = exercise_file_name
+          sector_exercises.append([exercise_description,exercise_file_path])
+      except:
+        logging.error("%s does not contain 'datos' section with fir and sector info.", exercise_file_name)
     # Ahora toca ordenarlos
     sector_exercises.sort()
     return sector_exercises
