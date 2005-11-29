@@ -152,6 +152,7 @@ set_label_font_size(label_font_size)
 class fix_point:
   def __init__(self,coord):
     self.pos = coord
+    self.se_pinta = True
     
   def get_track(self):
     return 0.01
@@ -311,6 +312,12 @@ def draw_all_lads(canvas):
 		if lad.text_id2 != None: canvas.delete(lad.text_id2)
 		if lad.text_id3 != None: canvas.delete(lad.text_id3)
 		if lad.text_id4 != None: canvas.delete(lad.text_id4)
+		if lad.origin.se_pinta == False:
+                    all_lads.remove(lad)
+                    continue
+		if lad.destination.se_pinta == False:
+                    all_lads.remove(lad)
+                    continue
 		(xinitA, yinitA) = lad.origin.get_coords()
 		(xinitB, yinitB) = lad.destination.get_coords()
 		lad_xdif = xinitB - xinitA

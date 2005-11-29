@@ -1412,6 +1412,8 @@ def vac(a,b):
   # Comprueba si es una violación de la separación
   if not (a.esta_asumido and b.esta_asumido):
     return False
+  if not (a.se_pinta) or not (b.se_pinta):
+    return False
   minvert=9.00 #MINIMA DE SEPARACIÓN VERTICAL
   t=max(a.t,b.t)
   if dist_t(a,b,t)<min_sep and abs(a.alt-b.alt)<minvert:
@@ -1422,6 +1424,8 @@ def vac(a,b):
 def pac(a,b):
   # Aviso de pérdida de separación
   if not (a.esta_asumido and b.esta_asumido):
+    return False
+  if not (a.se_pinta) or not (b.se_pinta):
     return False
   aviso=1.0/60.  # PARÁMETRO DE TIEMPO EN EL CUAL SE PREVÉ QUE HAY VAC (1 min)
   if a.rate==0. and b.rate==0:
