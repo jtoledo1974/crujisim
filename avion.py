@@ -147,7 +147,8 @@ def v(self):
     self.ias = self.spd/(1.0+0.002 *self.alt)
     if abs(self.ias_obj-self.ias)>1.:
       self.ias = self.ias_obj
-    return min(tas_max, self.ias * (1.0+0.002 *self.alt))
+    return self.ias * (1.0+0.002 *self.alt)
+#    return min(tas_max, self.ias * (1.0+0.002 *self.alt))
   if self.fl_max > 290.: # Fast moving traffic
     inicio_app = 00.
     trans_tma = 50.
@@ -654,7 +655,7 @@ class Airplane:
   def set_alt(self, alt):
     self.alt = alt
     
-  def set_spd(self,ias):
+  def set_spd(self,ias,force=False):
     self.es_spd_std = False
     vel=float(ias)*(1.0+0.002*self.alt)
     if float(ias)<1.:
@@ -662,7 +663,7 @@ class Airplane:
       ias = vel / (1.+0.002*self.alt)
     ias_max=self.spd_max/(1.+0.002*self.fl_max)
     tas_max=ias_max*(1.+0.002*self.alt)
-    if vel < tas_max:
+    if (vel < tas_max) or (force == True):
       self.ias_obj = float(ias)
       return True
     else:
@@ -1287,7 +1288,6 @@ class Airplane:
 		canvas.delete(ident)
 	def set_rate(e=None):
 		hdg = ent_hdg.get()
-		print "New rate:", hdg
 		flag = self.set_rate_descend(int(hdg))
                 if flag:
 		  close_win()
@@ -1295,6 +1295,7 @@ class Airplane:
                   ent_hdg.delete(0,END)
                   ent_hdg.insert(0, str(abs(int(self.get_rate_descend()))))
 	          ent_hdg['bg'] = 'red'
+		  ent_hdg.select_range(0, END)
                   ent_hdg.focus_set()
 	def set_std():
                 print "Standard rate:"
@@ -1370,8 +1371,14 @@ class Airplane:
 		canvas.delete(ident)
 	def set_speed(e=None):
 		spd = ent_spd.get()
-		print "New speed:", spd
-		flag = self.set_spd(spd)
+		# If entry was already displaying maximum available, let
+		# the user force the desired speed, forcing whatever speed
+		# he requested.
+		if ent_spd['bg'] == 'red':
+                    force_speed = True
+                else:
+                    force_speed = False
+		flag = self.set_spd(spd, force=force_speed)
                 if flag:
 		  close_win()
                 else:
@@ -1382,7 +1389,6 @@ class Airplane:
                   ent_spd.focus_set()
 	def set_std():
                 self.set_std_spd()
-                print "Standard speed"
                 close_win()
 	but_Acp['command'] = set_speed
 	but_Can['command'] = close_win
