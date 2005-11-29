@@ -699,7 +699,11 @@ def tpv():
         t=a.t_impresion
         fd.print_time='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
         t=a.get_eobt()
-        fd.eobt='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
+        try:
+          fd.eobt='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
+        except:
+          logging.warning('Cannot obtain EOBT for flight %s', a.name)
+          fd.eobt='????'
         fd.fs_type="coord"
         ss.draw_flight_data(fd)
         
@@ -710,7 +714,11 @@ def tpv():
          a.get_origin() in firdef.get(sector_elegido[1],'released_required_ads').split(','):
           prev=a.get_origin()
           t=a.get_eobt()
-          prev_t='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
+          try:
+            prev_t='%02d%02d'%(int(t),int((t*60.+0.5)-int(t)*60.))
+          except:
+            logging.warning('Cannot get EOBT for flight %s', a.name)
+            prev_t=''
       else:
           prev=prev_t=''
       for i in range(len(a.route)):
