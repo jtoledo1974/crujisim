@@ -128,7 +128,7 @@ def seleccion_usuario():
 	
 	message_line_gap = 2
 	message_indent = 5
-	message_font_size = 10
+	message_font_size = 8
 	
 	jokes_file = open(jokes_file_name, 'rt')
 	lines = jokes_file.readlines()
