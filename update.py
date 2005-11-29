@@ -95,12 +95,15 @@ def retrieve_and_unzip_latest_version():
 		if test_result == None:
 			os.rename('tmp-exercises.zip', 'exercises.zip')
 			unziptobasepath('exercises.zip')
+			return True
 		else:
 			mb = tkMessageBox.Message(type=tkMessageBox.OK, message="Archivo de ejercicios erróneo...\nSeguimos con la versión anterior")
 			mb.show()
+			return False
 	except:
 		mb = tkMessageBox.Message(type=tkMessageBox.OK, message="No puedo bajarme el archivo de la web...\nSeguimos con la versión anterior")
 		mb.show()
+		return False
 
 def update_exercises():
 	root = Tk()
@@ -116,9 +119,11 @@ def update_exercises():
 		tkMessageBox.showinfo(message="No puedo descargar la última versión.\nSeguimos con la versión anterior")
 	elif online_version > current_version:
 		if tkMessageBox.askyesno(message="Hay nuevos ejercicios en la web. ¿Los quieres?"):
-			retrieve_and_unzip_latest_version()
-			set_installed_version_string(online_version)
-			tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Vuelve a entrar para utilizarlos.")
+			if retrieve_and_unzip_latest_version() == True:
+        		    set_installed_version_string(online_version)
+                            tkMessageBox.showinfo(message="Nuevos ejercicios descargados. Vuelve a entrar para utilizarlos.")
+                        else:
+        		    tkMessageBox.showinfo(message="Seguimos con la versión anterior de los ejercicios")
 		else:
 			tkMessageBox.showinfo(message="Seguimos con la versión anterior de los ejercicios")
 	else:
