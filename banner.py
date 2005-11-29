@@ -34,6 +34,7 @@ from ConfigParser import *
 import zipfile
 from os import rename
 import random
+import logging
 
 # Global variables
 exercises_root = 'pasadas'
