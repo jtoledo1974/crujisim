@@ -349,12 +349,19 @@ Led126:_LED1261,_LED1262,_LED1263,_LED1261
 Led52:_LED521,_LED522,_LED523,_LED524,_LED525,_LED521
 Ler31:_LER311,_LER312,_LER313,_LER314,_LER315,_LER316,_LER311
 Led104:_LED1041,_LED1042,_LED1043,_LED1044,_LED1045,_LED1046,_LED1041
+
 [sector1]
 nombre:SANTIAGO
 min_sep = 8.0
 auto_departure = AUTO
 limites:_STG1,_STG2,_STG3,_STG4,RALUS,_STG5,_STG6,NARBO,_STG7,_STG8,DEMOS,_STG9,_STG10,_STG1
 fijos_de_impresion:STG,AVS,BARKO,KORET
+local_ads:LEST,LEAS
+printing_fixes_dep_LEST:KORAV,MEGAT,ASTUR,LOMDA,FORNO,DEMOS
+printing_fixes_arr_LEST:KORAV,MEGAT,ASTUR,LOMDA,FORNO,DEMOS,NARBO
+printing_fixes_dep_LEAS:KORAV,MEGAT,ASTUR,LOMDA,FORNO,DEMOS
+printing_fixes_arr_LEAS:MUSIL,RATPO,KANDA,LURIM
+		
 [sector2]
 nombre:ZAMORA
 min_sep = 8.0
@@ -362,13 +369,19 @@ auto_departure = AUTO
 limites:_STG3,PATEL,_ZMR1,_ZMR2,_ZMR3,_ZMR4,_ZMR5,BARDI,_ZMR6,_ZMR7,_ZMR8,ADORO,_ZMR9,_ZMR10,_STG4,_STG3
 fijos_de_impresion:ZMR,PATEL
 fijos_de_impresion_secundarios:BEMRA,FERMO,BARDI,BBI
+local_ads:LESA
+
 [sector3]
 nombre:DOMINGO
 min_sep = 8.0
 auto_departure = AUTO
 limites:_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,_DGO1,_ZMR1,_ZMR2
 fijos_de_impresion:NEA,DGO,BLV
-fijos_de_impresion_secundarios:BGS
+fijos_de_impresion_secundarios:BGS,BELEN,RBO
+local_ads:LEBB
+printing_fixes_dep_LEBB:OLTRE,AMTOS,BISKA,BELEN
+printing_fixes_arr_LEBB:OLTRE,BISKA
+
 [sector4]
 nombre:PAMPLONA
 min_sep = 8.0
@@ -376,6 +389,8 @@ auto_departure = AUTO
 limites:_DGO2,_PPN1,_PPN2,ENDAY,THUNE,_PPN3,_PPN4,_PPN5,LURAN,LATEK,_PPN6,SOVAR,_PPN7,MARIO,KUMAN,_PPN8,_PPN10,_PPN11,_PPN9,_DGO4,_DGO3,_DGO2
 fijos_de_impresion:PPN,SURCO,LARDA,OLTRE
 fijos_de_impresion_secundarios:ENDAY,ZZA
+local_ads:LEPP,LEZG
+
 [sector5]
 nombre:CASTEJON
 min_sep = 8.0
@@ -383,6 +398,8 @@ auto_departure = AUTO
 limites:_PPN8,_CJN1,ANZAN,_TLD2,_TLD1,_PPN11,_PPN10,_PPN8
 fijos_de_impresion:CJN,SEGRE
 fijos_de_impresion_secundarios:ADUXO
+local_ads:LEMD,LEZG
+
 [sector6]
 nombre:TOLEDO
 min_sep = 8.0
@@ -390,3 +407,5 @@ auto_departure = AUTO
 limites:_TLD2,LOGRO,MOLIN,PARKA,_TLD3,CCS,RAKOD,_ZMR5,_ZMR4,_DGO5,_DGO4,_PPN9,_TLD1,_TLD2
 fijos_de_impresion:NVS,TLD,VTB,RBO
 fijos_de_impresion_secundarios:GOTOR
+local_ads:LESA
+#LESA are taken as LOCALS AD for DGO. The strip will be printed within a reasonable time
