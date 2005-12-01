@@ -653,8 +653,9 @@ def tpv():
       # Nombre contiene el indicativo OACI para sacar el callsign
       nombre = ''
       for i in range(len(a.name)):
-        if nombre == '' or a.name[i].isalpha():
-          nombre=nombre+a.name[i].upper()
+        if nombre == '' or a.name[i].isalpha() or a.name[i]=="*":
+            #remove * from the callsign
+            if a.name[i]<>"*": nombre=nombre+a.name[i].upper()
         else:
           break
       if config.has_option('indicativos_de_compania',nombre):
