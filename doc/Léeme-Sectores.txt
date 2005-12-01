@@ -109,6 +109,12 @@ Los datos de los distintos sectores se dan en las secciones [sector%i], donde %i
 5.- fijos de impresión en fichas. Los fijos de impresión se agrupan en dos categorías:
    5.1.- Fijos de impresión: son los principales del sector.
    5.2.- Fijos de impresión secundarios: se utilizan únicamente en el caso de que el vuelo no pase por ningún fijo principal.
+   5.3.- Fijos de impresion de salidas de aerodromos locales: se usan como para salidas desde AD
+   5.4.- Fijos de impresión de arribadas a aerodromos locales: se usan como 
+ para arribadas al AD
+	El formarto para definir estas secciones será:
+		a) Salidas-> 	printing_fixes_dep_XXXX	donde XXXX es el indicativo del AD
+		b) Arribadas->	printing_fixes_arr_XXXX	donde XXXX es el indicativo del AD
 Nota: En el caso de que un avión no pasase por ninguno de los fijos anteriores, el programa saca ficha de un fijo intermedio del avión.
 6.- Aeropuertos dentro de nuestro sector
 7.- Aeropuertos cuyas salidas requieren un suelto del controlador. Hace que las salidas aparezcan en la lista de despegues y que se imprima la ficha de coordinación
@@ -122,6 +128,8 @@ fijos_de_impresion: CNA,TERRA,MARES
 fijos_de_impresion_secundarios: NORTA,TACOS,ROKIS,MANTO,DUMAS,35DME
 local_ads:LECE
 released_required_ads:LECE
+printing_fixes_dep_LECE: NORTA,TACOS
+printing_fixes_arr_LECE:
 
 [sector2]
 nombre:RUTA RADAR
