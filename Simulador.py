@@ -21,6 +21,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
+
 def set_latest_lad(num):
   global latest_lad_event_processed
   print 'Set_latest_lad llamado. Antes despues', latest_lad_event_processed,num
@@ -149,7 +150,7 @@ set_label_font(label_font)
 set_label_font_size(label_font_size)
 
 
-# Definici√≥n de LAD's en el canvas
+# DefiniciÛn de LAD's en el canvas
 class fix_point:
   def __init__(self,coord):
     self.pos = coord
@@ -188,13 +189,13 @@ def cancel_def_lad(e, canvas = w):
   if e.serial == latest_lad_event_processed:
       return
   latest_lad_event_processed = e.serial
-  # Cancelar creaci√≥n de un LAD
+  # Cancelar creaciÛn de un LAD
   global definiendo_lad
   if definiendo_lad == 0:
     # No se estaba definiendo un LAD. Ignorar evento
     return
   elif definiendo_lad == 1:
-    # Se estaba definiendo un LAD. Cancelar definici√≥n.
+    # Se estaba definiendo un LAD. Cancelar definiciÛn.
     canvas.delete('lad_defined')
     canvas.unbind('<Motion>')
     canvas.delete('lad_defined')
@@ -248,16 +249,16 @@ def def_lad(e, canvas = w):
     canvas.bind('<Button-2>', cancel_def_lad)
 
 def end_def_lad(e, canvas = w):
-  # Fin de creaci√≥n de un LAD con destino un AVO
+  # Fin de creaciÛn de un LAD con destino un AVO
   global definiendo_lad, lad_origen
   if definiendo_lad == 0:
     # No se estaba definiendo un LAD. Ignorar evento
     return
   elif definiendo_lad == 1:
-    # Se estaba definiendo un LAD. Terminar definici√≥n...
-#     # ... salvo que se haya tirado un LAD entre un avi√≥n y √©l mismo!
+    # Se estaba definiendo un LAD. Terminar definiciÛn...
+#     # ... salvo que se haya tirado un LAD entre un aviÛn y Èl mismo!
 #     if lad_origen == self:
-#           print "LAD entre un avi√≥n y √©l mismo. Ignorando..."
+#           print "LAD entre un aviÛn y Èl mismo. Ignorando..."
 #           return
     canvas.delete('lad_defined')
     canvas.unbind('<Motion>')
@@ -270,7 +271,7 @@ def end_def_lad(e, canvas = w):
 w.bind('<Button-2>', def_lad)
 w.bind('<Button-3>', end_def_lad)
 
-# Tratamiento del bot√≥n izquierdo con el plan de vuelo sobre el plot
+# Tratamiento del botÛn izquierdo con el plan de vuelo sobre el plot
 def see_hide_fpr(e, canvas = w):
   global latest_lad_event_processed
 #   print 'Definiendo ruta. Actual, anterior',e.serial,latest_lad_event_processed
@@ -287,7 +288,7 @@ def see_hide_fpr(e, canvas = w):
   if acft.get_ground_speed()<50.:
     return
   else:
-    # Copia del c√≥digo en avion.py
+    # Copia del cÛdigo en avion.py
     if canvas.itemcget(acft.name+'fpr',"fill")=='orange':
       canvas.delete(acft.name+'fpr')
     else:
@@ -563,11 +564,11 @@ def manual_dep_window_update(t):
         win_datos = w.create_window(x,y,window=dep,anchor='nw')
         def despegue_avo(callsign=callsign,sid=sid):
           global listado_salidas,manual
-          # Ecoger el avi√≥n a despegar
+          # Ecoger el aviÛn a despegar
           for a in ejercicio:
             if a.get_callsign() == callsign:
               break
-          # Tomamos la sid escogida y la asignada autom√°ticamente
+          # Tomamos la sid escogida y la asignada autom·ticamente
           sid_final = combo_sid.cget('value')
           cfl = float(combo_cfl.cget('value'))
           if sid.upper() not in sid_final.upper():
@@ -580,7 +581,7 @@ def manual_dep_window_update(t):
                 a.route.insert(0,[(x,y),p,''])
                 complete_flight_plan(a)
                 break
-          # Ahora se depega el avi√≥n y se elimina de la lista
+          # Ahora se depega el aviÛn y se elimina de la lista
           a.t = last_update/60./60.
           a.t_ficha = last_update/60./60.-100.
           a.ficha_imprimida = True
@@ -653,7 +654,7 @@ def redraw_all():
   w.delete('tmas')
   w.delete('deltas')
   w.delete('local_maps')
-  # Dibujar l√≠mites del FIR
+  # Dibujar lÌmites del FIR
   aux=()
   for a in limites:
     aux=aux+do_scale(a)
@@ -801,12 +802,12 @@ def set_vel_reloj(k):
   t0=fact_t*time()-h_inicio
 
 def se_cortan (label_modif,i,j):
-  # Devuelve si las etiquetas est√° separadas entre los aviones i y j de ejercicio
+  # Devuelve si las etiquetas est· separadas entre los aviones i y j de ejercicio
   if ejercicio[i].is_flying():
     (xip,yip) = do_scale(ejercicio[i].get_coords())
     xis , yis = xip + label_modif[i][0] , yip + label_modif[i][1]
     xii , yii = xis + ejercicio[i].label_width , yis + ejercicio[i].label_height
-    # Comprobamos las cuatro esquinas del avi√≥n j y que no se corten los soportes de etiquetas, as√≠como ningn plot
+    # Comprobamos las cuatro esquinas del aviÛn j y que no se corten los soportes de etiquetas, asÌcomo ningn plot
     if ejercicio[j].is_flying():
       (xjp,yjp) = do_scale(ejercicio[j].get_coords())
       xjs , yjs = xjp + label_modif[j][0] , yjp + label_modif[j][1]
@@ -824,7 +825,7 @@ def se_cortan (label_modif,i,j):
 #       ob_x_vperp = ob1 * v2 - ob2 * v1
 #       oa_x_v = oa1 * v1 + oa2 * v2
 #       ob_x_v = ob1 * v1 + ob2 * v2
-#       cond1 = oa_x_vperp * ob_x_vperp # Negativo si cada uno est√°a un lado
+#       cond1 = oa_x_vperp * ob_x_vperp # Negativo si cada uno est·a un lado
 #       if abs(oa_x_vperp) + abs(ob_x_vperp) > 0.:
 #         cond2 = (oa_x_v * abs(ob_x_vperp) + ob_x_v * abs(oa_x_vperp))/(abs(oa_x_vperp) + abs(ob_x_vperp))
 #       else:
@@ -852,7 +853,7 @@ def timer():
   # Subrutina que controla los refrescos de pantalla cada 5 segundos
   global last_update,t0
   refresco=5.
-  # Si el reloj est√°parado actualizamos t0 para ajustarque no corra el tiempo y no actualizamos.
+  # Si el reloj est·parado actualizamos t0 para ajustarque no corra el tiempo y no actualizamos.
   if not reloj_funciona:
     t0=fact_t*time()-h_inicio
 #     return
@@ -867,7 +868,7 @@ def timer():
 
   else:
     last_update=tlocal(t0)
-    # Mover los aviones con auto-separaci√≥n
+    # Mover los aviones con auto-separaciÛn
     for a in ejercicio:
       a.next(last_update/60./60.)
       a.redraw(w)
@@ -888,7 +889,7 @@ def timer():
           if se_cortan(labels,i,j):
             intersectan = intersectan + 1
             if (j not in moviendo) and (ejercicio[j].auto_separation) and len(moviendo)<10:
-#               print 'A√±adiendo ',ejercicio[j].get_callsign()
+#               print 'AÒadiendo ',ejercicio[j].get_callsign()
               moviendo.append(j)
               cuenta.append(0)
               giro_min.append(0)
@@ -906,7 +907,7 @@ def timer():
               break
             elif cuenta[k]==8: 
               cuenta[k] = 0 
-          # Comprobamos si est√° separados todos entre ellos
+          # Comprobamos si est· separados todos entre ellos
           intersectan_girado = 0
           for j in range(len(moviendo)):
             for k in range(j+1,len(moviendo)):
@@ -917,12 +918,12 @@ def timer():
           if intersectan_girado < menos_inter:
             menos_inter = intersectan_girado
             cuenta_menos_inter = cuenta
-          # Comprobamos que no estemos afectando a ningn otro avi√≥n con el reci√≥n girado. En caso contrario, se a√±ade
+          # Comprobamos que no estemos afectando a ningn otro aviÛn con el reciÛn girado. En caso contrario, se aÒade
           if intersectan_girado == 0:
             for k in moviendo:
               for j in range(len(ejercicio)):
                 if (j not in moviendo) and (len(moviendo)<10) and se_cortan(labels,j,k):
-#                   print 'A√±adiendo ',ejercicio[j].get_callsign()
+#                   print 'AÒadiendo ',ejercicio[j].get_callsign()
                   intersectan_girado += 1
                   moviendo.append(j)
                   cuenta.append(0)
@@ -1015,7 +1016,7 @@ def b_standard():
 def b_inicio():
   global t0,reloj_funciona
   if not reloj_funciona:
-#     print 'Iniciando simulaci√≥n'
+#     print 'Iniciando simulaciÛn'
     t0=fact_t*time()-h_inicio
     reloj_funciona = True
 #   print reloj_funciona
@@ -1023,7 +1024,7 @@ def b_inicio():
 def b_parar():
   global h_inicio,reloj_funciona
   if reloj_funciona:
-#     print 'Parando la simulaci√≥n'
+#     print 'Parando la simulaciÛn'
     h_inicio=fact_t*time()-t0
     reloj_funciona=False
   
@@ -1106,7 +1107,7 @@ def define_holding():
     if a.esta_seleccionado(): sel=a
   if sel == None:
     RaDialog(w, label='Poner en espera',
-                 text='No hay ning√∫n vuelo seleccionado')
+                 text='No hay ning˙n vuelo seleccionado')
     return
 
   global vent_ident_procs
@@ -1121,7 +1122,7 @@ def define_holding():
         fijo = ent_hold.get().upper()
         lado = ent_side.get().upper()
         auxiliar = ''
-        # Si la espera est√° publicada, los datos de la espera
+        # Si la espera est· publicada, los datos de la espera
         for [fijo_pub,rumbo,tiempo,lado_pub] in esperas_publicadas:
           if fijo_pub == fijo:
             lado = lado_pub.upper()
@@ -1138,7 +1139,7 @@ def define_holding():
           for i in range(len(sel.route)):
             [a,b,c,d] = sel.route[i]
             if b == fijo:
-              if i == 0: # La espera se inicia en el siguiente punto del avi√≥n
+              if i == 0: # La espera se inicia en el siguiente punto del aviÛn
                 auxi = sel.pos
               else:
                 auxi = sel.route[i-1][0]
@@ -1164,7 +1165,7 @@ def define_holding():
         sel.vfp = False
         sel.to_do = 'hld'
         sel.to_do_aux = [auxiliar, derrota_acerc, tiempo_alej, 0.0, False, giro]
-        # Cancelar posible autorizaci√≥n de aproximaci√≥n
+        # Cancelar posible autorizaciÛn de aproximaciÛn
         cancel_app_auth(sel)
         logging.debug ("Holding pattern: "+str(sel.to_do_aux))
 
@@ -1181,7 +1182,7 @@ def nueva_ruta():
       if a.esta_seleccionado(): sel=a
     if sel == None:
       RaDialog(w, label='Nueva ruta',
-               text='No hay ning√∫n vuelo seleccionado')
+               text='No hay ning˙n vuelo seleccionado')
       return
     def change_fpr(e=None,entries=None):
       ent_route,ent_destino=entries['Ruta:'],entries['Destino:']
@@ -1217,7 +1218,7 @@ def cambiar_viento():
     """Show a dialog to allow the user to change the wind in real time"""
     def change_wind(e=None,entries=None):
         global wind, vent_ident_procs
-        ent_dir=entries['Direcci√≥n:']
+        ent_dir=entries['DirecciÛn:']
         ent_int=entries['Intensidad (kts):']
         int=ent_int.get()
         dir=ent_dir.get()
@@ -1240,14 +1241,14 @@ def cambiar_viento():
         if vent_ident_procs != None:
             w.delete(vent_ident_procs)
             vent_ident_procs = None
-        # Cambiamos el viento en todos los m√≥dulos
+        # Cambiamos el viento en todos los mÛdulos
         wind = [intensidad,rumbo]
         set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos,proc_app,min_sep)
         logging.debug('Viento ahora es (int,rumbo) '+str(wind))
         
     # Build the GUI Dialog
     entries=[]
-    entries.append({'label':'Direcci√≥n:','width':3,'def_value':int((wind[1]+180.0)%360.0)})
+    entries.append({'label':'DirecciÛn:','width':3,'def_value':int((wind[1]+180.0)%360.0)})
     entries.append({'label':'Intensidad (kts):','width':2,'def_value':int(wind[0])})
     RaDialog(w,label='Definir viento',
             ok_callback=change_wind,entries=entries)    
@@ -1259,8 +1260,8 @@ def hdg_after_fix():
     for a in ejercicio:
       if a.esta_seleccionado(): sel=a
     if sel == None:
-      RaDialog(w, label='Rumbo despu√©s de fijo',
-               text='No hay ning√∫n vuelo seleccionado')
+      RaDialog(w, label='Rumbo despuÈs de fijo',
+               text='No hay ning˙n vuelo seleccionado')
       return
 
     global vent_ident_procs
@@ -1300,7 +1301,7 @@ def hdg_after_fix():
     entries=[]
     entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0][1])})
     entries.append({'label':'Rumbo:','width':3})
-    RaDialog(w,label=sel.get_callsign()+': Rumbo despu√©s de fijo',
+    RaDialog(w,label=sel.get_callsign()+': Rumbo despuÈs de fijo',
             ok_callback=set_fix_hdg,entries=entries)    
         
 def int_rdl():
@@ -1309,8 +1310,8 @@ def int_rdl():
     for a in ejercicio:
       if a.esta_seleccionado(): sel=a
     if sel == None:
-        RaDialog(w, label='Rumbo despu√©s de fijo',
-               text='No hay ning√∫n vuelo seleccionado')
+        RaDialog(w, label='Rumbo despuÈs de fijo',
+               text='No hay ning˙n vuelo seleccionado')
         return
     else:
       global vent_ident_procs
@@ -1371,7 +1372,7 @@ def b_execute_map():
       if a.esta_seleccionado(): sel=a
     if sel == None or not sel.app_auth:
         RaDialog(w, label='Ejecutar MAP',
-               text='No hay ning√∫n vuelo seleccionado\no el vuelo no est√° autorizado APP')
+               text='No hay ning˙n vuelo seleccionado\no el vuelo no est· autorizado APP')
         return
     if sel.destino not in rwys.keys():
         RaDialog(w, label='Ejecutar MAP',
@@ -1394,7 +1395,7 @@ def b_int_ils():
     for a in ejercicio:
         if a.esta_seleccionado(): sel=a
     if sel == None:
-      RaDialog(w,label='Interceptar ILS',text='No hay ning√∫n vuelo seleccionado')
+      RaDialog(w,label='Interceptar ILS',text='No hay ning˙n vuelo seleccionado')
       return
     elif sel.destino not in rwys.keys():
         RaDialog(w, label=sel.get_callsign()+': Interceptar ILS',
@@ -1402,7 +1403,7 @@ def b_int_ils():
         return
     elif sel.fijo_app == 'N/A':
         RaDialog(w,label=sel.get_callsign()+': Interceptar ILS',
-                 text='Vuelo sin IAF. A√±ada la ruta hasta el IAF y reintente')
+                 text='Vuelo sin IAF. AÒada la ruta hasta el IAF y reintente')
         return
     global vent_ident_maps
     if vent_ident_maps != None:
@@ -1420,7 +1421,7 @@ def b_int_ils():
         sel.route = [[xy_llz,'_LLZ','']]
         sel.int_loc = True
         (puntos_alt,llz,puntos_map) = proc_app[sel.fijo_app]
-        # En este paso se desciende el tr√°fico y se a√±aden los puntos
+        # En este paso se desciende el tr·fico y se aÒaden los puntos
         logging.debug('Altitud: '+str(puntos_alt[0][3]))
         sel.set_cfl(puntos_alt[0][3]/100.)
         sel.set_std_rate()
@@ -1437,7 +1438,7 @@ def b_llz():
             sel=a
             break
     if sel == None:
-        RaDialog(w,label='Interceptar LLZ',text='No hay ning√∫n vuelo seleccionado')
+        RaDialog(w,label='Interceptar LLZ',text='No hay ning˙n vuelo seleccionado')
         return
     elif sel.destino not in rwys.keys():
         RaDialog(w, label=sel.get_callsign()+': Interceptar LLZ',
@@ -1445,7 +1446,7 @@ def b_llz():
         return
     elif sel.fijo_app == 'N/A':
         RaDialog(w,label=sel.get_callsign()+': Interceptar LLZ',
-                 text='Vuelo sin IAF. A√±ada la ruta hasta el IAF y reintente')
+                 text='Vuelo sin IAF. AÒada la ruta hasta el IAF y reintente')
         return
     global vent_ident_maps
     if vent_ident_maps != None:
@@ -1471,7 +1472,7 @@ def ver_detalles():
             sel=a
             break
     if sel == None:
-        RaDialog(w,label='Ver Detalles',text='No hay ning√∫n vuelo seleccionado')
+        RaDialog(w,label='Ver Detalles',text='No hay ning˙n vuelo seleccionado')
         return
     # TODO The RaDialog should probably export the contents frame
     # and we could use it here to build the contents using a proper grid
@@ -1494,7 +1495,7 @@ def b_orbitar():
         if a.esta_seleccionado():
             sel=a
     if sel == None:
-        RaDialog(w,label='Orbita inmediata',text='No hay ning√∫n vuelo seleccionado')
+        RaDialog(w,label='Orbita inmediata',text='No hay ning˙n vuelo seleccionado')
         return
     def set_orbit(e=None,sel=sel,entries=None):
         side_aux = entries['Orbitar hacia:']['value']
@@ -1568,10 +1569,10 @@ def b_auth_approach():
     for a in ejercicio:
         if a.esta_seleccionado(): sel=a
     if sel == None:
-        RaDialog(w,label='Autorizar a aproximaci√≥n',text='No hay ning√∫n vuelo seleccionado')
+        RaDialog(w,label='Autorizar a aproximaciÛn',text='No hay ning˙n vuelo seleccionado')
         return
     elif sel.destino not in rwys.keys():
-        RaDialog(w, label=sel.get_callsign()+': Autorizar a aproximaci√≥n',
+        RaDialog(w, label=sel.get_callsign()+': Autorizar a aproximaciÛn',
                  text='Aeropuerto de destino sin procedimientos de APP')
         return
 
@@ -1593,8 +1594,8 @@ def b_auth_approach():
         if avo.fijo_app == '': # No encuentra procedimiento de aprox.
             pass
         (puntos_alt,llz,puntos_map) = proc_app[avo.fijo_app]
-	# Al autorizar a procedimiento APP no desciende autom√°ticamente.
-	#~ #En este paso se desciende el tr√°fico y se a√±aden los puntos
+	# Al autorizar a procedimiento APP no desciende autom·ticamente.
+	#~ #En este paso se desciende el tr·fico y se aÒaden los puntos
 	#~ logging.debug('Altitud: '+str(puntos_alt[0][3]))
         #~ avo.set_cfl(puntos_alt[0][3]/100.)
         if avo.to_do == 'hld':
@@ -1608,7 +1609,7 @@ def b_auth_approach():
             for [a,b,c,h] in puntos_alt:
                 avo.route.append([a,b,c,0.0])
             avo.route.append([llz[0],'_LLZ',''])
-        logging.debug("Autorizado aproximaci√≥n: " +str(avo.route))
+        logging.debug("Autorizado aproximaciÛn: " +str(avo.route))
 
     # Build entries
     for i in range(len(sel.route),0,-1):
@@ -1618,7 +1619,7 @@ def b_auth_approach():
     entries=[]
     entries.append({'label':'Destino:', 'width':4, 'def_value':sel.destino})
     entries.append({'label':'IAF:', 'width':5, 'def_value':fijo_app})
-    RaDialog(w,label=sel.get_callsign()+': Autorizar a Aproximaci√≥n',
+    RaDialog(w,label=sel.get_callsign()+': Autorizar a AproximaciÛn',
              ok_callback=auth_app, entries=entries)      
   
 ver_ventana_auxiliar=True
@@ -1675,7 +1676,7 @@ def ventana_auxiliar(e):
         but_int_rdl.grid(column=0,row=2,sticky=E+W)
         but_chg_rwy = Button(ventana_procs, text = 'Cambio RWY', command = b_rwy_change)
         but_chg_rwy.grid(column=0,row=3,sticky=E+W)
-        but_orbit = Button(ventana_procs, text = 'Orbitar aqu√≠', command = b_orbitar)
+        but_orbit = Button(ventana_procs, text = 'Orbitar aquÌ', command = b_orbitar)
         but_orbit.grid(column=0,row=4,sticky=E+W)
 	but_wind = Button(ventana_procs, text = 'Cambiar viento', command = cambiar_viento)
         but_wind.grid(column=0,row=5,sticky=E+W)
