@@ -1406,7 +1406,7 @@ def vac(a,b):
     return False
   if not (a.se_pinta) or not (b.se_pinta):
     return False
-  minvert=9.00 #MINIMA DE SEPARACIÃ“N VERTICAL
+  minvert=9.00 #MINIMA DE SEPARACIÓn VERTICAL
   t=max(a.t,b.t)
   if dist_t(a,b,t)<min_sep and abs(a.alt-b.alt)<minvert:
     return True
@@ -1419,7 +1419,7 @@ def pac(a,b):
     return False
   if not (a.se_pinta) or not (b.se_pinta):
     return False
-  aviso=1.0/60.  # PARÃMETRO DE TIEMPO EN EL CUAL SE PREVÃ‰ QUE HAY VAC (1 min)
+  aviso=1.0/60.  # PARÁMETRO DE TIEMPO EN EL CUAL SE PREVÉ QUE HAY VAC (1 min)
   if a.rate==0. and b.rate==0:
     minvert=9.00
   else:
