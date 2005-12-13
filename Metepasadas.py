@@ -917,7 +917,7 @@ def ejercicio():
       bye = Tk()
       txt_titulo = Label (bye, text = 'Ejercicio guardado en '+fichero)
       txt_titulo1 = Label (bye, text = 'Para que la puedas usar debes moverla al subdirectorio /pasadas/')
-      txt_titulo2 = Label (bye, text = '¡Acuérdate de enviarlas al Crujimaster para ponerla en común!')
+      txt_titulo2 = Label (bye, text = '¡Acuérdate de subirla al repositorio con la tortuga!')
       def salir():
         bye.destroy()
       but_salir = Button (bye, text = 'salir', command = salir)

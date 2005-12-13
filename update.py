@@ -111,6 +111,9 @@ def update_exercises():
 	lblUpdate = Label(root, text="Actualización automática", font='-*-Helvetica-*--*-20-*-')
 	lblUpdate.pack()
 	root.update()
+	if os.path.lexists('./.svn/'):
+		if not tkMessageBox.askyesno(message="Parece que estás usando una versión de crujisim\nactualizada a través de SVN (la tortuga)\nNo se recomienda que te actualices las pasadas\na través de este procedimiento, sino haciendo\nhaciendo update con la tortuga.\n¿Estás seguro de que deseas continuar?"):
+			return
 	current_version = get_installed_version_string()
 	logging.info("Current version: '"+str(current_version)+"'")
 	online_version = get_latest_online_version_string()
