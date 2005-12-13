@@ -27,6 +27,7 @@ import Image
 import ImageTk
 Image._initialized=2
 import banner
+import os.path
 
 #fichero = ''
 def ejercicio():
@@ -954,11 +955,6 @@ def modificar(seleccion_usuario):
   fichero = ejercicio_elegido[1]
   ejer = ConfigParser()
   ejer.readfp(open(fichero,'r'))
-  if fichero.startswith('./pasadas/'): #Linux
-    fichero = fichero[10:]
-  elif '\\' in fichero:
-    while '\\' in fichero: # Windows
-      fichero = fichero [1:]
-    fichero = './'+fichero[1:]
+  fichero = './'+os.path.basename(fichero)
   ejercicio()
 
