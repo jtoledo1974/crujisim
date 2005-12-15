@@ -28,4 +28,4 @@ TWR: BAW761, it looks like one of your baggage doors is open.|BAW761: Ah, thanks
 ATC: N1234, confirm you have current ATIS.|N1234: N1234 has Whiskey.|Unidentified pilot: In that case, welcome to the party!
 IBE23: Torre, de IBE23. Hemos visto una vaca entre Tango y la pista.|TWR: IBE23, ¿me dice exactamente a qué altura?|IBE23: A cero pies.
 -CEANA TWR: ECDAV, copy traffic information.|-ECDAV: Go ahead for ECDAV.|-CEANA TWR: ECDAV, flock of birds overflying RWY 30.
--Alumno: ¿Es cierto que los aviones reducen tanto su velocidad cuando descienden?.|-Instructor: Sí, es cierto, debido a que al volar más cerca del suelo tienen más|traqueteo y además les afecta más la atracción terrestre.
+-Alumno: ¿Es cierto que los aviones reducen tanto su velocidad|cuando descienden?.|-Instructor: Sí, es cierto, debido a que al volar más cerca del suelo tienen más|traqueteo y además les afecta más la atracción terrestre.
