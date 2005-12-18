@@ -192,7 +192,7 @@ class StripSeries:
                      strips.stringformat.drawString(canvas,fd.print_time,formfactor(x+490),formfactor(y+61), Font(face="monospaced", size=fontfactor(10), bold=1))
 
                 if fd.fs_type=="coord":
-                    strips.stringformat.drawString(canvas, 'COORD', x+150, y+23, Font(face="monospaced", size=10, bold=1))
+                    strips.stringformat.drawString(canvas, 'COORD', formfactor(x+150), formfactor(y+23), Font(face="monospaced", size=fontfactor(10), bold=1))
                 if not(on_screen_strip): self.num_strips += 1
                 else: self.num_strips=1
 
