@@ -338,7 +338,19 @@ def tpv():
     incidencias.append(('No encontrada separación en sector '+firdef.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'))
     print 'No encontrada separación en sector '+firdef.get(sector_elegido[1],'nombre')+'. Se asumen 8 NM de separación mínima.'
     min_sep = 8.0
-    
+  # RVSM
+  if firdef.has_option(sector_elegido[1],'sector_rvsm_levels'):
+    (rvsm_lower_level,rvsm_higher_level)=firdef.get(sector_elegido[1],'sector_rvsm_levels').split(',')
+    rvsm_lower_level=float(rvsm_lower_level)
+    rvsm_higher_level=float(rvsm_higher_level)
+  elif firdef.has_option('datos','fir_rvsm_levels'):
+    (rvsm_lower_level,rvsm_higher_level)=firdef.get('datos','fir_rvsm_levels').split(',')
+    rvsm_lower_level=float(rvsm_lower_level)
+    rvsm_higher_level=float(rvsm_higher_level)
+  else:
+    rvsm_lower_level=None
+    rvsm_higher_level=None
+		
   # Despegues automáticos o manuales
   if firdef.has_option(sector_elegido[1],'auto_departure'):
     aux2=firdef.get(sector_elegido[1],'auto_departure').upper()
@@ -648,6 +660,7 @@ def tpv():
       name = ejercicio_elegido[1]
         
     ss = StripSeries(exercise_name = name, output_file="etiquetas.pdf")
+    ss2 = StripSeries(exercise_name = name, output_file="minietiquetas.pdf")
     for (aux,s) in orden:
       a = ejercicio[s]
       # Nombre contiene el indicativo OACI para sacar el callsign
@@ -675,6 +688,7 @@ def tpv():
       # primary flight strip printing points. If it doesn't, then
       # it will use the secondary flight strip printing points instead
       current_printing_fixes = fijos_impresion_secundarios
+      at_least_one_strip_printed = False
       for i in range(len(a.route)):
         for fix in fijos_impresion:
           if a.route[i][1]==fix:
@@ -768,13 +782,19 @@ def tpv():
           fd.rules=""
           fd.print_time='%02d%02d'%(int(a.t_impresion),int((a.t_impresion*60.+0.5)-int(a.t_impresion)*60.))
           ss.draw_flight_data(fd)
-
+          if not at_least_one_strip_printed :
+				ss2.draw_flight_data(fd,0.5,0.6,num_colums=2)
+				at_least_one_strip_printed= True
           prev=fijo
           prev_t=fijo_t
       
   if not ss.save() :
       while DlgPdfWriteError().result=='retry' and not ss.save():
         pass  
+
+  if not ss2.save() :
+      while DlgPdfWriteError().result=='retry' and not ss2.save():
+        pass 
   # Cerrar ficheros
   if len(incidencias) != 0:
     visual = Tk()
@@ -805,7 +825,7 @@ class DlgPdfWriteError:
         dlg=self.dlg=Tk()
         f1=Frame(dlg)
         f2=Frame(dlg)
-        texto=Label(f1,text='Ha sido imposible guardar el archivo de fichas (etiquetas.pdf)\n Es probable que tenga abierto el archivo.')
+        texto=Label(f1,text='Ha sido imposible guardar el archivo de fichas (etiquetas.pdf) o (mini_etiquetas.pdf)\n Es probable que tenga abierto el archivo.')
         photo=ImageTk.PhotoImage(Image.open(IMGDIR+"stock_dialog-warning.png"))
         icono=Label(f1, image=photo)
         icono.photo=photo

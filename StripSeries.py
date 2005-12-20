@@ -73,6 +73,7 @@ class StripSeries:
 		strips.stringformat.drawString(self.canvas, "Ejercicio:  "+str(exercise_name), 40, 40)
 		self.canvas.clear()
 		self.num_strips = 0
+		self.column = 1
 		self.filename=output_file
 		
 	def draw_blank_strip(self, x, y, fs_type,form_factor=1.0):
@@ -127,7 +128,7 @@ class StripSeries:
 #	def draw_callsign(canvas, x, y, callsign):
 #		strips.stringformat.drawString(canvas, callsign, x+33, y+20, Font(face="monospaced", size=18, bold=1))
 
-	def draw_flight_data(self,fd,form_factor=1.0,font_factor=1.0,font_fixed=False,font_fixed_size=8,on_screen_strip=False):
+	def draw_flight_data(self,fd,form_factor=1.0,font_factor=1.0,font_fixed=False,font_fixed_size=8,on_screen_strip=False,num_colums=1):
           
                 def formfactor(x,rounded=True):
                          x1=x*form_factor
@@ -140,20 +141,26 @@ class StripSeries:
                      else:
                          x1=x*font_factor
                      return x1
-                    
-		x = formfactor(25)
-                if not(on_screen_strip):
-                     x = formfactor(25)
-                     dummy = STRIPS_PER_PAGE/form_factor
-                     y = formfactor(40) + formfactor((STRIP_Y_SIZE * (self.num_strips%dummy)/form_factor))
-                else:
-                     x = 1
-                     y = 1
-                     
-		canvas = self.canvas
+					
+		canvas = self.canvas			
 		if (self.num_strips > 0) and (self.num_strips % (round(STRIPS_PER_PAGE/form_factor)))== 0:
-			canvas.flush()
-			canvas.clear()
+			self.column+=1
+			self.num_strips = 0
+			if self.column>num_colums:
+				canvas.flush()
+				canvas.clear()
+				self.column=1
+				
+		x = 25+(self.column-1)*STRIP_X_SIZE
+		if not(on_screen_strip):
+			x = 25+(self.column-1)*STRIP_X_SIZE
+			dummy = STRIPS_PER_PAGE/form_factor
+			y = formfactor(40) + formfactor((STRIP_Y_SIZE * (self.num_strips%dummy)/form_factor))
+		else:
+			x = 1
+			y = 1           
+		
+
 		self.draw_blank_strip(x, y, fd.fs_type,form_factor)
 		if len(fd.model) < 6: fd.model = fd.model + " "*(6-len(fd.model))
 		elif len(fd.model) > 6: fd.model = fd.model[:6]
@@ -194,7 +201,7 @@ class StripSeries:
                 if fd.fs_type=="coord":
                     strips.stringformat.drawString(canvas, 'COORD', formfactor(x+150), formfactor(y+23), Font(face="monospaced", size=fontfactor(10), bold=1))
                 if not(on_screen_strip): self.num_strips += 1
-                else: self.num_strips=1
+                else: self.num_strips=0
 
 	def save(self):
                 #We try to open the file for writing and throw an exception if unable
