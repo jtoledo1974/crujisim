@@ -984,9 +984,15 @@ class RouteDB:
     sorted_routes=[]
     for (route, (frequency, orig_dest_list)) in match_routes.items():
       if (orig+dest) in orig_dest_list:
-        matches_orig_dest=1
+        # Both origin and dest matches gives the highest score
+        matches_orig_dest=2
       else:
+        # No matching whatsoever gives the lowest score
         matches_orig_dest=0
+        for od in orig_dest_list:
+          if (orig==od[0:4]) or (dest==od[4:8]):
+            # But if either the orig or dest matched we get partial score
+            matches_orig_dest=1
       sorted_routes.append([matches_orig_dest,frequency,route])
     sorted_routes.sort(reverse=True)
     logging.debug(sorted_routes)
