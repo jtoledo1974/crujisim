@@ -847,6 +847,10 @@ def ejercicio():
           ejer.set('req',indicativo,incidencia)
         else:
           ejer.remove_option('req',indicativo)
+        # We add the route as given to the route database to be reused
+        # if necessary
+        flight=Excercise.Flight(indicativo,ruta)
+        rutas.append(flight.route(),flight.orig(),flight.dest())
 
   but_nuevo_vuelo = Button(root, text = 'Nuevo vuelo',command = mas)
   but_nuevo_vuelo.grid(column=3,row=7)
@@ -933,6 +937,7 @@ class RouteDB:
       # We add the route to the database, with a frequency of one, and
       # adding the first pair of orig and dest
       self._routes[route]=(1,[orig+dest])
+      # logging.debug("New route: "+route)
     else:
       # If the route already exists, we increment the frequency for the route
       # and if the orig_dest pair is new, add it to the list.
