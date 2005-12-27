@@ -66,7 +66,7 @@ def ejercicio():
 	window_height = root.winfo_reqheight()
 	screen_width = root.winfo_screenwidth()
 	screen_height = root.winfo_screenheight()
-	px = (screen_width - window_width) / 2
+        px = (screen_width - window_width) / 2
 	py = (screen_height - window_height) / 2
 	root.wm_geometry("+%d+%d" % (px,py))
     root.after_idle(set_window_size)
@@ -500,11 +500,35 @@ def ejercicio():
       return ruta_escogida    
     
     # Entrada de datos
-    frame = Toplevel(root)
+    frame = Toplevel()
+    frame.transient(root)
     frame.title = 'Entrada de datos'
     txt_datos = Label (frame, text = 'DATOS DEL VUELO')
     txt_ind = Label (frame, text = 'Indicativo:')
-    ent_ind = Entry (frame, width = 12, bg='white')
+    def check_ind():
+      if not ejer.has_option('vuelos', ent_ind.get()):
+        return True
+      frame1 = Toplevel()
+      frame1.transient(frame)
+      frame1.resizable(width=None, height=None)
+      frame1.grab_set()
+      l = Label(frame1, text = 'El vuelo '+ent_ind.get()+' ya existe\nDesea continuar?')
+      def cont():
+        frame1.destroy()
+        return True
+      def cancel():
+        frame1.destroy()
+        ent_ind.focus_set()
+        return False
+      b1 = Button(frame1, text = "Sí", command=cont)
+      b2 = Button(frame1, text = "No", command=cancel)
+      b2.focus_set()
+      l.pack(side=TOP)
+      b1.pack(side=LEFT)
+      b2.pack(side=RIGHT)
+      return True
+    ent_ind = Entry (frame, width = 12, bg='white', validate='focusout',
+                     validatecommand=check_ind, textvariable=ind)
     ent_ind.insert(END,ind)
     txt_tipo = Label (frame, text = 'Modelo avión')
     ent_tipo = Entry (frame, width = 6, bg='white')
@@ -955,6 +979,7 @@ class RouteDB:
     """Given a list of points, and optional orig and dest airports, return
     a sorted list of possible matching routes"""
     match_routes=self._routes.copy()
+    potential_discards=[]
     # Routes must contain the given fixes in the same order
     for route in match_routes.keys():
       i=0
@@ -970,14 +995,21 @@ class RouteDB:
       if i<len(fix_list) and fix_list[0]<>'':
         del match_routes[route]
       else:
-        # We also delete routes that neither begin nor end on the
+        # We also mark for discarding routes that neither begin nor end on the
         # given orig and dest
         (f,orig_dest_list)=match_routes[route]
         if orig<>'' or dest<>'':
           for od in orig_dest_list:
             if not (orig=='' or orig==od[0:4]) and not (dest=='' or dest==od[4:8]):
-              del match_routes[route]
+              if route not in potential_discards:
+                potential_discards.append(route)
               break
+
+    # Only discard routes based on orig and dest when it doesn't remove
+    # all of our options
+    if len(potential_discards)<len(match_routes):
+      for d in potential_discards:
+        del match_routes[d]
 
     # Out of the remaining routes, we need to sort them first according to whether
     # it is appropriate for the orig-dest pair, and then frequency 
