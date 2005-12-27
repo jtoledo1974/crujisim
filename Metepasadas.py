@@ -28,6 +28,8 @@ import ImageTk
 Image._initialized=2
 import banner
 import os.path
+import Excercise
+import logging
 
 #fichero = ''
 def ejercicio():
@@ -103,28 +105,19 @@ def ejercicio():
   a_extraer_aux = []
   for sect in sectores:
     a_extraer_aux += banner.get_ejercicios(fir_elegido,sect[0])
-#  print 'A extraer: ',a_extraer_aux
-#  a_extraer = glob.glob('./pasadas/*.eje')
   for [nombre,fich] in a_extraer_aux:
     a_extraer.append(fich)
   print 'Ejercicios: ',a_extraer
-  rutas=[]
+  rutas=RouteDB()
   for e in a_extraer:
     config_fir.readfp(open(e,'r'))
     if config_fir.get('datos','fir') == fir_elegido:
       for (ident,datos) in config_fir.items('vuelos'):
-        datos=datos.split(',')
-        ruta = ''
-        for punto in datos[6:]:
-          if len(punto)<7:
-            ruta = ruta + punto.upper() + ','
-        ruta = ruta[:-1]
-        if ruta not in rutas:
-          rutas.append(ruta)
+        flight=Excercise.Flight(ident,datos)
+        rutas.append(flight.route(), flight.orig(), flight.dest())
       for a in config_fir.sections():
         config_fir.remove_section(a)
-  rutas.sort()
-  print 'Total de rutas: ',len(rutas)
+  print 'Total de rutas: ',rutas.size()
   # Ahora empezamos introducir el ejercicio
   
   def datos_generales(ventana):
@@ -399,40 +392,10 @@ def ejercicio():
       txt_num_ruta = Label (frame, text = 'Número de la ruta')
       ent_num_ruta = Entry (frame, width = 2, bg='white')
       ent_num_ruta.focus_set()
-      copia = []
-      for a in rutas:
-        estan = 0
-        aux=a.split(',')
-        for fijo in fijo_ruta:
-          if fijo in aux:
-            estan += 1
-        if estan == len(fijo_ruta): 
-          # Comprobamos si los fijos están en orden de entrada, y los ponemos primero
-          orden=0
-          for fijo in fijo_ruta:
-            for i in range(len(aux)):
-              if aux[i] == fijo:
-                if orden == -1 or i<orden:
-                  orden = -1
-                  break
-                else:
-                  orden = i
-          if orden>0:
-            if fijo[0] == aux[0] and orden == len(aux):# Coinciden el primer y el último punto. Van arriba de la lista
-              orden = 0 
-            elif fijo[0] == aux[0] or orden == len(aux):# Coincide el primer o el último punto. Van en segundo lugar
-              orden = 1 # Coincide el último punto
-            else: # Contiene todos los puntos, pero ni comienza ni termina por esos puntos. En tercer lugar
-              orden = 2
-          else: # No contiene todos los puntos. En cuarto lugar
-            orden = 3
-          copia.append([orden,a])
-      print "Aux antes:",copia
-      copia.sort()
-      print "Aux despues: ",copia
+      copia = rutas.matching_routes(fijo_ruta,'','')
       opciones = ['00.- Nueva ruta']
       contador = 1
-      for [kk,a] in copia:
+      for a in copia:
           opciones.append('%02d' % (contador)+'.- '+a)
           contador = contador + 1
       if contador > 1:
@@ -958,3 +921,59 @@ def modificar(seleccion_usuario):
   fichero = './'+os.path.basename(fichero)
   ejercicio()
 
+class RouteDB:
+  """A database of routes that are known for a specific FIR"""
+  
+  def __init__(self):
+    self._routes={}
+  
+  def append(self,route,orig,dest):
+    """Append a route together with the orig and dest to the DB of routes"""
+    if route not in self._routes.keys():
+      # We add the route to the database, with a frequency of one, and
+      # adding the first pair of orig and dest
+      self._routes[route]=(1,[orig+dest])
+    else:
+      # If the route already exists, we increment the frequency for the route
+      # and if the orig_dest pair is new, add it to the list.
+      (frequency,orig_dest_list)=self._routes[route]
+      frequency=frequency+1
+      if (orig+dest) not in orig_dest_list:
+        orig_dest_list.append(orig+dest)
+      self._routes[route]=(frequency,orig_dest_list)
+      
+  def size(self):
+    """Return the number of known routes"""
+    len(self._routes)
+  
+  def matching_routes(self,fix_list,orig,dest):
+    """Given a list of points, and optional orig and dest airports, return
+    a sorted list of possible matching routes"""
+    match_routes=self._routes.copy()
+    # Routes must contain the given fixes in the same order
+    for route in match_routes.keys():
+      i=0
+      rs=route.split(',')
+      for f in rs:
+        if f==fix_list[i]:
+          i=i+1
+      if i<len(fix_list):
+        del match_routes[route]
+
+    # Out of the remaining routes, we need to sort them according to whether
+    # it is appropriate for the orig-dest pair first, and frequency second
+    
+    sorted_routes=[]
+    for (route, (frequency, orig_dest_list)) in match_routes.items():
+      if (orig+dest) in orig_dest_list:
+        matches_orig_dest=1
+      else:
+        matches_orig_dest=0
+      sorted_routes.append([matches_orig_dest,frequency,route])
+    sorted_routes.sort(reverse=True)
+    logging.debug(sorted_routes)
+    for i in range(len(sorted_routes)):
+      sorted_routes[i]=sorted_routes[i][2]
+    return sorted_routes
+        
+    
