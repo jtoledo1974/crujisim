@@ -98,9 +98,7 @@ def get_ejercicios(fir, sector):
       if os.path.splitext(exercise_file_name)[1].upper() != '.EJE': continue
       config=ConfigParser()
       exercise_file_path = os.path.join(exercises_directory, exercise_file_name)
-      exercise_filep = open(exercise_file_path, 'r')
       config.readfp(exercise_filep)
-      exercise_filep.close()
       try:
         fir_eje=config.get('datos','fir')
         sector_eje=config.get('datos','sector')
