@@ -359,7 +359,7 @@ def ejercicio():
       else:
         hora_inc=''
         inc=''
-    def definir_ruta(root):
+    def definir_ruta(root, orig, dest):
       # Ahora vamos a por las rutas
       frame1 = Toplevel(root)
       txt_pedir_fijo = Label (frame1, text = 'Entre punto(s) de la ruta (separados con ,)')
@@ -392,7 +392,7 @@ def ejercicio():
       txt_num_ruta = Label (frame, text = 'Número de la ruta')
       ent_num_ruta = Entry (frame, width = 2, bg='white')
       ent_num_ruta.focus_set()
-      copia = rutas.matching_routes(fijo_ruta,'','')
+      copia = rutas.matching_routes(fijo_ruta,orig,dest)
       opciones = ['00.- Nueva ruta']
       contador = 1
       for a in copia:
@@ -525,7 +525,7 @@ def ejercicio():
     txt_ruta_esc = Label(frame,text = ruta_escogida)
     def escoger_ruta():
       global ruta_escogida,txt_ruta_esc
-      ruta_escogida = definir_ruta(frame)
+      ruta_escogida = definir_ruta(frame, ent_origen.get().upper(), ent_destino.get().upper())
       txt_ruta_esc['text'] = ruta_escogida
     ent_ruta = Button(frame, text = 'Escoger ruta',command = escoger_ruta)
     txt_fl_one = Label (frame, text = 'Nivel en 1er fijo ruta:')
@@ -957,12 +957,25 @@ class RouteDB:
       for f in rs:
         if f==fix_list[i]:
           i=i+1
-      if i<len(fix_list):
+          if i==len(fix_list):
+            break;
+      # If we have given a list of fixes, and we did not find them all in order,
+      # remove the route. But it's OK if the list was empty to begin with
+      # (meaning that we DO want to see all the available options).
+      if i<len(fix_list) and fix_list[0]<>'':
         del match_routes[route]
+      else:
+        # We also delete routes that neither begin nor end on the
+        # given orig and dest
+        (f,orig_dest_list)=match_routes[route]
+        if orig<>'' or dest<>'':
+          for od in orig_dest_list:
+            if not (orig=='' or orig==od[0:4]) and not (dest=='' or dest==od[4:8]):
+              del match_routes[route]
+              break
 
-    # Out of the remaining routes, we need to sort them according to whether
-    # it is appropriate for the orig-dest pair first, and frequency second
-    
+    # Out of the remaining routes, we need to sort them first according to whether
+    # it is appropriate for the orig-dest pair, and then frequency 
     sorted_routes=[]
     for (route, (frequency, orig_dest_list)) in match_routes.items():
       if (orig+dest) in orig_dest_list:
