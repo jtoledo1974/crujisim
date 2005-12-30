@@ -73,14 +73,6 @@ def set_canvas_info(_xm, _ym, _escala, _centro_x, _centro_y):
 	centro_x = _centro_x
 	centro_y = _centro_y
 
-def set_label_font(new_font):
-	global label_font
-	label_font = new_font
-
-def set_label_font_size(new_size):
-	global label_font_size
-	label_font_size = new_size
-
 def do_scale(a):
   # Devuelve las coordenadas en a transformadas centro_pantalla+(x-x0)*scale
   return s((centro_x,centro_y),p(r((a[0],-a[1]),(xm,-ym)),escala))
@@ -357,6 +349,7 @@ def get_hdg_obj(self,deriva,t):
             print "Aterrizando el ",self.name
             self.kill()
             self.esta_asumido = False
+	    self.vt.assumed = False
             return 'Dead'
         if self.esta_en_llz: # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = spd_app
           fl_gp = (alt_pista/100. + dist_thr * pdte_ayuda * 60.)
@@ -420,8 +413,6 @@ class Airplane:
     self.destino='LEMD'
     self.pos=(0.0,0.0) #x,y
     self.t=0.0 # ltimo tiempo calculado
-    self.hist=[] #Histórico ltimos 5 puntos
-    self.hist_t=0.0 # Tiempo del ltimo punto
     self.hdg=400.0 # Último rumbo calculado. Este valor es para saber la primera vez
     self.track = 400.0 # Derrota del avión
     self.hold_hdg=400.0 
@@ -454,21 +445,13 @@ class Airplane:
     self.vfp=True # Vale 1 si via flight plan y 0 si mantiene rumbo
     self.to_do='fpr'
     self.to_do_aux = ''
-    self.label_heading = 27
-    self.label_radius = 30
-    self.label_x = self.label_radius * sin(radians(self.label_heading))
-    self.label_y = self.label_radius * cos(radians(self.label_heading))
     self.se_pinta=False
-    self.see_mach=False
-    self.plotid = None
     self.ficha_imprimida=False
     self.t_ficha=0.
     self.t_impresion=0.
     self.campo_eco=''
     self.esta_asumido=False
-    self.plotid = None
     self.last_lad = 0
-    self.auto_separation = True
     self.app_auth = False
     self.fijo_app = ''
     self._map = False
@@ -479,6 +462,9 @@ class Airplane:
     self.reports = []  # List of things an aircraft should report.
 		       # [{'time':1.65,'text':'Request climb FL230'},
 		       #  ,{'time':2.34,'text':'Overflown DGO'}]
+
+    # The visual track that actually displays on the screen		       
+    self.vt = None
 
   def next(self,t):
     global wind, aeropuertos
@@ -586,12 +572,6 @@ class Airplane:
         efecto_viento = (wx*(t-self.t),wy*(t-self.t)) # Deriva por el viento
         self.t=t #Almacenamos el tiempo
       self.pos=s(s(self.pos,pr((self.salto,self.hdg))),efecto_viento) #Cambiamos la posición
-    # Recálculo del histórico cada 5 segundos
-    step=5./60./60.
-    while self.t-self.hist_t>step:
-      self.hist.pop(0)
-      self.hist.append(s(self.hist[-1],p(r(self.pos,self.hist[-1]),step/(self.t-self.hist_t))))
-      self.hist_t = self.hist_t+step
     return self.se_pinta
         
   def tas(h):
@@ -687,12 +667,6 @@ class Airplane:
   def set_initial_t(self,t):
     self.t = t
     
-  def set_hist_t(self,t):
-    self.hist_t = t
-    
-  def set_hist(self,hist):
-    self.hist=hist
-    
   def set_vfp(self,vfp):
     self.vfp = vfp
     self.to_do = 'fpr'
@@ -702,24 +676,10 @@ class Airplane:
     
   def set_campo_eco(self,eco):
     self.campo_eco = eco
-    
-  def set_pac(self,canvas):
-    canvas.itemconfigure(self.name+'lblrect',outline='orange')
-    canvas.itemconfigure(self.name+'support',fill='orange')
-    canvas.itemconfigure(self.name+'ind',fill='orange')
-    
-  def set_vac(self,canvas):
-    canvas.itemconfigure(self.name+'lblrect',outline='red')
-    canvas.itemconfigure(self.name+'support',fill='red')
-    canvas.itemconfigure(self.name+'ind',fill='red')
-    canvas.itemconfigure(self.name+'alt',fill='red')
-    canvas.itemconfigure(self.name+'hdg',fill='red')
-    canvas.itemconfigure(self.name+'spd',fill='red')
-    canvas.itemconfigure(self.name+'wake',fill='red')
-    canvas.itemconfigure(self.name+'eco',fill='red')
       
   def set_asumido(self):
     self.esta_asumido = not self.esta_asumido
+    self.vt.assumed = not self.vt.assumed
     
   def get_asumido(self):
     return self.esta_asumido
@@ -856,87 +816,16 @@ class Airplane:
       """
       global seleccionado
       self.t=self.t+1000.
-      self.hist_t=self.hist_t+1000.
       self.se_pinta = False
       seleccionado = None
       self.redraw(self.canvas)
         
   def is_flying(self):
     return self.se_pinta
-
-  def rotate_label(self, e=None):
-#   	print "rotate_label 473"
-	if e != None:
-		self.last_lad = e.serial
-	[x,y] = do_scale(self.pos)
-        self.auto_separation = True
-	self.label_heading += 45.0
-        # Evitar soportes verticales
-#         aux = self.label_heading % 360.
-#         if aux < 20. or aux > 340. or (aux > 160. and aux < 200.):
-#   	  self.label_heading += 45.0
-	new_label_x = x + self.label_radius * sin(radians(self.label_heading))
-	new_label_y = y + self.label_radius * cos(radians(self.label_heading))
-        self.reposition_label(new_label_x, new_label_y)
-  
-  def counter_rotate_label(self, e=None):
-  	print "counter rotate label 483"
-	[x,y] = do_scale(self.pos)
-        self.auto_separation = True
-	self.label_heading -= 45.0
-        # Evitar soportes verticales
-#         aux = self.label_heading %360.
-#         if aux < 20. or aux > 340. or (aux > 160. and aux < 200.):
-#   	  self.label_heading -= 45.0
-	new_label_x = x + self.label_radius * sin(radians(self.label_heading))
-	new_label_y = y + self.label_radius * cos(radians(self.label_heading))
-	self.reposition_label(new_label_x, new_label_y)
-
-  def reposition_label(self, newx, newy):
-        [x,y] = do_scale(self.pos)
-#         new_label_x = newx - x
-#         new_label_y = newy - y
-#         support_x = new_label_x
-#         support_y = new_label_y +10
-        support_x = newx - x
-        support_y = newy - y
-        if support_x > 0.:  
-          new_label_x = support_x
-          new_label_y = support_y -10
-        else:
-          new_label_x = support_x - self.label_width
-          new_label_y = support_y -10
-        self.label_heading = 90.0-degrees(atan2(support_y, support_x))
-        self.canvas.delete(self.name+'support')	
-        if self.esta_asumido:
-          size = 4
-        else:
-          size = 3
-	xi = x + (size+1) * sin(radians(self.label_heading))
-	yi = y + (size+1) * cos(radians(self.label_heading))
-        if self.esta_asumido:
-          color_avo='green'
-        else:
-          color_avo='gray'
-        self.canvas.create_line(xi, yi, x + support_x, y + support_y, fill=color_avo, tags=self.name+'support')
- 	self.canvas.tag_bind(self.name+'support', '<1>', self.rotate_label)
- 	self.canvas.tag_bind(self.name+'support', '<3>', self.counter_rotate_label)
-        self.canvas.move(self.name+'ind', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'alt', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'alt2', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'hdg', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'spd', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'wake', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'eco', new_label_x - self.label_x, new_label_y - self.label_y)
-        self.canvas.move(self.name+'lblrect', new_label_x - self.label_x, new_label_y - self.label_y)
-	self.label_x = new_label_x
-	self.label_y = new_label_y
   
   def redraw(self, canvas):
       self.canvas = canvas
-      color_normal_o_seleccionado = 'black'
-      if seleccionado == self:
-        color_normal_o_seleccionado = 'yellow'
+      
       def show_hide_fpr(e=None,canvas=canvas):
         if e != None:
           self.last_lad = e.serial
@@ -953,6 +842,62 @@ class Airplane:
               canvas.create_text(pto,text=a[2],fill='orange',tag=self.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
           if len(line)>3: canvas.create_line(line,fill='orange',tags=self.name+'fpr')
+
+      # Define and create the VisTrack instance for this aircraft
+      
+      if self.vt==None:
+	def message_handler(item,action,value,e=None):
+	  if item=='plot':
+	    if action=='<Button-1>': show_hide_fpr()
+	  if item=='cs':
+	    if action=='<Button-1>':
+		asumir_vuelo(e)
+	    if action=='<Button-2>':
+		self.last_lad=e.serial
+	    if action=='<ButtonRelease-2>':
+		seleccionar(e)
+	  if item in ['gs','mach'] and action=='<Button-2>':
+		self.last_lad=e.serial
+	  if item=='alt':
+	    if action=='<Button-1>':
+		self.last_lad=e.serial
+	  if item=='pfl':
+	    if action=='update':
+	        self.set_pfl(int(value))
+	  if item=='cfl':
+	    if action=='<Button-1>':
+		self.last_lad=e.serial
+	    if action=='update':
+		flag=self.set_cfl(int(value))
+		if flag: self.redraw(canvas)
+		return flag
+	  if item=='rate':
+	    if action=='update':
+		if value=='std':
+		    self.set_std_rate()
+		else:
+                    return self.set_rate_descend(int(value))
+	  if item=='hdg':
+	    if action=='<Button-1>':
+		self.last_lad=e.serial
+	    if action=='update':
+		(hdg,opt)=value
+		self.set_heading(int(hdg),opt)
+	  if item=='gs':
+	    if action=='<Button-1>':
+		self.last_lad=e.serial
+	  if item=='ias':
+	    if action=='update':
+		(spd,force_speed)=value
+		if spd=='std':
+	            self.set_std_spd()
+		else:
+                    return self.set_spd(spd, force=force_speed)
+	  if item=='echo':
+	    if action=='<Button-3>':
+		show_hide_way_point(e)
+
+	self.vt=VisTrack(canvas, message_handler)
 
       def show_hide_way_point(e,canvas=canvas):
         global punto
@@ -1033,18 +978,6 @@ class Airplane:
             canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)
 
       # Remove previous items
-      canvas.delete(self.name+'plot')
-      canvas.delete(self.name+'ind')
-      canvas.delete(self.name+'alt')
-      canvas.delete(self.name+'alt2')
-      canvas.delete(self.name+'hdg')
-      canvas.delete(self.name+'spd')
-      canvas.delete(self.name+'wake')
-      canvas.delete(self.name+'eco')
-      canvas.delete(self.name+'support')
-      canvas.delete(self.name+'lblrect')
-      canvas.delete(self.name+'speedvector')
-      canvas.delete(self.name+'hist')
       if canvas.itemcget(self.name+'fpr',"fill")=='orange':
         canvas.delete(self.name+'fpr')
         show_hide_fpr(None)
@@ -1052,347 +985,52 @@ class Airplane:
         canvas.delete(self.name+'wp')
         show_hide_way_point(None)
       
-      if not self.se_pinta:
-        return
-      
-      if self.esta_asumido:
-        color_avo='green'
-      else:
-        color_avo='gray'
-      [x0,y0]=do_scale(self.pos)
       # Display updated items
       # Plot
-      if self.esta_asumido:
-        size = 4
-        self.plotid = canvas.create_line(x0-size,y0,x0,y0-size,x0+size,y0,x0,y0+size,x0-size,y0,fill=color_avo,tags='plot')
-      else:
-        size = 3
-        self.plotid = canvas.create_line(x0-size,y0-size,x0-size,y0+size,x0+size,y0+size,x0+size,y0-size,x0-size,y0-size,fill=color_avo,tags='plot')
-      canvas.addtag_withtag(self.name+'plot', self.plotid)
-     
-      # Plot history
-      for h in self.hist:
-        aux=do_scale(h)
-        h0=aux[0]
-        h1=aux[1]
-        canvas.create_rectangle(h0,h1,h0+1,h1+1,outline=color_avo,tags=self.name+'hist')
-      # Label
-      # Speed string
-      if self.see_mach:
-        spd_text='.'+str(int(round(mach(self)*100)))
-      else:
-        spd_text = str(int(self.ground_spd/10))
-      wake_text = self.estela+' '
-      wake_desp = label_font.measure(spd_text)
-      if self.estela=='H':
-        wake_colour='yellow'
-      else:
-        wake_colour='green'
-      if not self.esta_asumido:
-        wake_colour=color_avo
-      eco_text = self.campo_eco
-      eco_desp = label_font.measure(spd_text+wake_text)
-      # Heading string
-      hdg_text='%03d'%(int(self.hdg))
-      # Altitude text
-      alt_txt='%03d'%(int(self.alt+0.5))
-      if self.cfl-self.alt>2.:
-        alt_txt2=chr(94)+'%03d'%(int(self.cfl+0.5))
-      elif self.cfl-self.alt<-3.:
-        alt_txt2=chr(118)+'%03d'%(int(self.cfl+0.5))
-      else:
-        alt_txt2 = ''
-      alt_desp = label_font.measure(alt_txt)
-      # Label definition
-      min_label_width = 20 # Minimum label width
-      if sys.platform.startswith('linux'):
-        aj = 0
-      else:
-        aj = 1
-      label_width = max(min_label_width, label_font.measure(self.name) + 4,label_font.measure(alt_txt+alt_txt2),label_font.measure(spd_text+wake_text+eco_text) + 4)
-      label_height = 4 * (label_font_size+aj) + 4
-      self.label_width = label_width
-      self.label_height = label_height
-#       support_x0 = x0 + self.label_x
-#       support_y0 = y0 + self.label_y
-#       if (self.label_x > 0):
-#       	label_x0 = support_x0
-# 	label_y0 = support_y0 - 10
-#       else:
-#       	label_x0 = support_x0 - label_width
-# 	label_y0 = support_y0 - 10
-      label_x0 = x0 + self.label_x
-      label_y0 = y0 + self.label_y
-      if (self.label_x > 0):
-      	support_x0 = label_x0
-	support_y0 = label_y0 + 10
-      else:
-      	support_x0 = label_x0 + label_width
-	support_y0 = label_y0 + 10
-      self.reposition_label(support_x0, support_y0)
-#       canvas.tag_bind(self.name+'support', '<1>', self.rotate_label)
-#       canvas.tag_bind(self.name+'support', '<3>', self.counter_rotate_label)
-      if color_normal_o_seleccionado=='yellow':
-        canvas.create_rectangle(label_x0, label_y0, label_x0 + label_width, label_y0 + label_height, outline=color_normal_o_seleccionado, tags=self.name+'lblrect')
-      txt_ident = canvas.create_text(label_x0+2, label_y0+2,text=self.name,fill=color_avo,tag=self.name+'ind',anchor=NW,font=label_font)
-      alt_identifier = canvas.create_text(label_x0+2, label_y0+(label_font_size+aj)+2, text=alt_txt, fill=color_avo, tag=self.name+'alt', anchor=NW, font=label_font)
-      alt_identifier2 = canvas.create_text(label_x0+alt_desp+2, label_y0+(label_font_size+aj)+2, text=alt_txt2, fill=color_avo, tag=self.name+'alt2', anchor=NW, font=label_font)
-      hdg_identifier = canvas.create_text(label_x0+2, label_y0+2*(label_font_size+aj)+2, text=hdg_text, fill=color_avo, tag=self.name+'hdg', anchor=NW, font=label_font)
-      spd_identifier = canvas.create_text(label_x0+2, label_y0+3*(label_font_size+aj)+2, text=spd_text, fill=color_avo, tag=self.name+'spd', anchor=NW, font=label_font)
-      wake_identifier = canvas.create_text(label_x0+wake_desp+2, label_y0+3*(label_font_size+aj)+2, text=wake_text, fill=wake_colour, tag=self.name+'wake', anchor=NW, font=label_font)
-      eco_identifier = canvas.create_text(label_x0+eco_desp+2, label_y0+3*(label_font_size+aj)+2, text=eco_text, fill=color_avo, tag=self.name+'eco', anchor=NW, font=label_font)
-      def txt_moved(e):
-      	self.reposition_label(e.x, e.y)
-      def txt_released(e):
-        canvas.tag_unbind(txt_ident, "<Motion>")
-        canvas.tag_unbind(txt_ident, "<ButtonRelease-2>")
-        canvas.tag_bind(txt_ident, '<ButtonRelease-2>', seleccionar)
-      def txt_clicked(e):
-        self.last_lad = e.serial
-        self.auto_separation = False
-        canvas.tag_bind(txt_ident, "<Motion>", txt_moved)
-        canvas.tag_bind(txt_ident, "<ButtonRelease-2>", txt_released)
-        canvas.tag_bind(txt_ident, '<ButtonRelease-2>', seleccionar)
-      canvas.tag_bind(txt_ident, "<Button-2>", txt_clicked)
+      # By changing the values the class knows how to update the
+      # label items automagically
+      self.vt.alt=self.alt
+      self.vt.cs=self.name
+      self.vt.cfl=self.cfl
+      self.vt.wake=self.estela
+      self.vt.echo=self.campo_eco
+      self.vt.gs=self.ground_spd
+      self.vt.hdg=self.hdg
+      self.vt.pfl=self.pfl
+      self.vt.rate=self.get_rate_descend()
+      self.vt.ias=self.get_ias()
+      self.vt.ias_max=self.get_ias_max()
+      self.vt.visible=self.se_pinta
+
+      speed_vector = s(self.pos,pr((speed_time * self.ground_spd,self.track)))
+      screen_sv=do_scale(speed_vector)
+      self.vt.speed_vector=screen_sv
+
+      [x0,y0]=do_scale(self.pos)
+      self.vt.coords(x0,y0,self.t)
+      
       def asumir_vuelo(e):
         self.last_lad = e.serial
         self.set_asumido()
         print 'Cambiando estado vuelo ',self.name
         self.redraw(canvas)
-      canvas.tag_bind(txt_ident,"<Button-1>",asumir_vuelo)
-      def cambio_mach(e):
-        self.last_lad = e.serial
-        self.see_mach = not self.see_mach
-        self.redraw(canvas)
-      canvas.tag_bind(self.name+'spd', '<Button-2>',cambio_mach)
       
       def seleccionar(e):
         global seleccionado
         if seleccionado == self:
           # Se ha pinchado sobre el ya seleccionado: deseleccionar
           seleccionado = None
+	  self.vt.selected=False
           self.redraw(canvas)
           return
 	anterior_seleccionado = seleccionado
 	seleccionado = self
 	if anterior_seleccionado != None:
+	  anterior_seleccionado.vt.selected=False
 	  anterior_seleccionado.redraw(canvas)
+	self.vt.selected=True
 	self.redraw(canvas)
-      canvas.tag_bind(self.plotid, '<Button-1>', show_hide_fpr)
-      canvas.tag_bind(txt_ident, '<ButtonRelease-2>', seleccionar)
-      min_label_width = 80 # Minimum label width
 
-#       def cursor_box(e=None):
-#         canvas.configure(cursor="draped_box")
-#       def cursor_normal(e=None):
-#         canvas.configure(cursor="arrow")
-#       canvas.tag_bind(self.plotid, '<Enter>', cursor_box)
-#       canvas.tag_bind(self.plotid, '<Leave>', cursor_normal)
-
-      def change_altitude(e):
-        self.last_lad = e.serial
-      	win = Frame(canvas)
-	lbl_CFL = Label(win, text="CFL:")
-	ent_CFL = Entry(win, width=3)
-	ent_CFL.insert(0, str(int(self.get_cfl())))
-	ent_CFL.select_range(0, END)
-	lbl_PFL = Label(win, text="PFL:")
-	ent_PFL = Entry(win, width=3)
-	ent_PFL.insert(0, str(int(self.get_pfl())))
-	but_Comm = Button(win, text="Comunicar")
-	but_Acp = Button(win, text="Aceptar")
-	but_Can = Button(win, text="Cancelar")
-	lbl_CFL.grid(row=0, column=0)
-	ent_CFL.grid(row=0, column=1)
-	lbl_PFL.grid(row=1, column=0)
-	ent_PFL.grid(row=1, column=1)
-	but_Comm.grid(row=2, column=0, columnspan=2)
-	but_Acp.grid(row=3, column=0, columnspan=2,)
-	but_Can.grid(row=4, column=0, columnspan=2)
-	window_ident = canvas.create_window(e.x, e.y, window=win)
-        ent_CFL.focus_set()
-	def close_win(e=None, ident=window_ident, w=canvas):
-                w.unbind_all("<Return>")
-                w.unbind_all("<KP_Enter>")
-                w.unbind_all("<Escape>")
-		canvas.delete(ident)
-	def set_FLs(e=None):
-		cfl = ent_CFL.get()
-		pfl = ent_PFL.get()
-		print "New CFL:", cfl
-		print "New PFL:", pfl
-		self.set_pfl(int(pfl))
-		flag = self.set_cfl(int(cfl))
-		if flag:
-                  self.redraw(canvas)
-                  close_win()
-                else:
-                  ent_CFL.delete(0,END)
-                  ent_CFL.insert(0, str(abs(int(self.get_cfl()))))
-	          ent_CFL['bg'] = 'red'
-                  ent_CFL.focus_set()            
-	def comm():
-		cfl=pfl=ent_PFL.get()
-		print "New CFL=New PFL:", cfl
-		self.set_pfl(int(pfl))
-		flag = self.set_cfl(int(cfl))
-		if flag:
-                  self.redraw(canvas)
-                  close_win()
-                else:
-                  ent_CFL.delete(0,END)
-                  ent_CFL.insert(0, str(abs(int(self.get_cfl()))))
-	          ent_CFL['bg'] = 'red'
-                  ent_CFL.focus_set()              
-	but_Comm['command'] = comm
-	but_Acp['command'] = set_FLs
-	but_Can['command'] = close_win
-        canvas.bind_all("<Return>",set_FLs)
-        canvas.bind_all("<KP_Enter>",set_FLs)
-        canvas.bind_all("<Escape>",close_win)
-      canvas.tag_bind(alt_identifier, "<1>", change_altitude)
-      def change_rate(e):
-        self.last_lad = e.serial
-      	win = Frame(canvas)
-	lbl_hdg = Label(win, text="Rate:")
-	ent_hdg = Entry(win, width=4)
-	ent_hdg.insert(0, str(abs(int(self.get_rate_descend()))))
-	ent_hdg.select_range(0, END)
-	but_Acp = Button(win, text="Aceptar")
-	but_Can = Button(win, text="Cancelar")
-	but_Std = Button(win,text="Estandar")
-	lbl_hdg.grid(row=0, column=0)
-	ent_hdg.grid(row=0, column=1)
-	but_Acp.grid(row=1, column=0, columnspan=2)
-	but_Can.grid(row=2, column=0, columnspan=2)
-	but_Std.grid(row=3, column=0, columnspan=2)
-	window_ident = canvas.create_window(e.x, e.y, window=win)
-        ent_hdg.focus_set()
-	def close_win(e=None,ident=window_ident,w=canvas):
-                w.unbind_all("<Return>")
-                w.unbind_all("<KP_Enter>")
-                w.unbind_all("<Escape>")
-		canvas.delete(ident)
-	def set_rate(e=None):
-		hdg = ent_hdg.get()
-		flag = self.set_rate_descend(int(hdg))
-                if flag:
-		  close_win()
-                else:
-                  ent_hdg.delete(0,END)
-                  ent_hdg.insert(0, str(abs(int(self.get_rate_descend()))))
-	          ent_hdg['bg'] = 'red'
-		  ent_hdg.select_range(0, END)
-                  ent_hdg.focus_set()
-	def set_std():
-                print "Standard rate:"
-                self.set_std_rate()
-                close_win()
-	but_Acp['command'] = set_rate
-	but_Can['command'] = close_win
-	but_Std['command'] = set_std
-        canvas.bind_all("<Return>",set_rate)
-        canvas.bind_all("<KP_Enter>",set_rate)
-        canvas.bind_all("<Escape>",close_win)
-      canvas.tag_bind(alt_identifier2, "<1>", change_rate)
-      def change_heading(e):
-        self.last_lad = e.serial
-      	win = Frame(canvas)
-	lbl_hdg = Label(win, text="Heading:")
-	ent_hdg = Entry(win, width=3)
-	ent_hdg.insert(0, str(int(self.get_heading())))
-	ent_hdg.select_range(0, END)
-	ent_side = OptionMenu (win,bg='white')
-	num = 0
-	for opc in ['ECON','DCHA','IZDA']:
-		ent_side.add_command(opc)
-		num=num+1
-	ent_side['value'] = 'ECON'
-	but_Acp = Button(win, text="Aceptar")
-	but_Can = Button(win, text="Cancelar")
-	lbl_hdg.grid(row=0, column=0)
-	ent_hdg.grid(row=0, column=1)
-	ent_side.grid(row=3,column=0,columnspan=2)
-	but_Acp.grid(row=1, column=0, columnspan=2)
-	but_Can.grid(row=2, column=0, columnspan=2)
-	window_ident = canvas.create_window(e.x, e.y, window=win)
-        ent_hdg.focus_set()
-	def close_win(e=None,ident=window_ident,w=canvas):
-                w.unbind_all("<Return>")
-                w.unbind_all("<KP_Enter>")
-                w.unbind_all("<Escape>")
-		canvas.delete(ident)
-	def set_heading(e=None):
-		hdg = ent_hdg.get()
-		opt = ent_side.cget('value')
-		print "New heading:", hdg,opt
-		self.set_heading(int(hdg),opt)
-		close_win()
-	but_Acp['command'] = set_heading
-	but_Can['command'] = close_win
-        canvas.bind_all("<Return>",set_heading)
-        canvas.bind_all("<KP_Enter>",set_heading)
-        canvas.bind_all("<Escape>",close_win)
-      canvas.tag_bind(hdg_identifier, "<1>", change_heading)
-      def change_speed(e):
-        self.last_lad = e.serial
-      	win = Frame(canvas)
-	lbl_spd = Label(win, text="IAS:")
-	ent_spd = Entry(win, width=3)
-	ent_spd.insert(0, str(int(self.get_ias())))
-	ent_spd.select_range(0, END)
-	but_Acp = Button(win, text="Aceptar")
-	but_Can = Button(win, text="Cancelar")
-	but_Std = Button(win, text="Estandar")
-	lbl_spd.grid(row=0, column=0)
-	ent_spd.grid(row=0, column=1)
-	but_Acp.grid(row=1, column=0, columnspan=2)
-	but_Can.grid(row=2, column=0, columnspan=2)
-	but_Std.grid(row=3, column=0, columnspan=2)
-	window_ident = canvas.create_window(e.x, e.y, window=win)
-        ent_spd.focus_set()
-	def close_win(e=None,ident=window_ident,w=canvas):
-                w.unbind_all("<Return>")
-                w.unbind_all("<KP_Enter>")
-                w.unbind_all("<Escape>")
-		canvas.delete(ident)
-	def set_speed(e=None):
-		spd = ent_spd.get()
-		# If entry was already displaying maximum available, let
-		# the user force the desired speed, forcing whatever speed
-		# he requested.
-		if ent_spd['bg'] == 'red':
-                    force_speed = True
-                else:
-                    force_speed = False
-		flag = self.set_spd(spd, force=force_speed)
-                if flag:
-		  close_win()
-                else:
-                  ent_spd.delete(0,END)
-                  ent_spd.insert(0, str(abs(int(self.get_ias_max()))))
-	          ent_spd['bg'] = 'red'
-                  ent_spd.focus_set()
-	def set_std():
-                self.set_std_spd()
-                close_win()
-	but_Acp['command'] = set_speed
-	but_Can['command'] = close_win
-	but_Std['command'] = set_std
-        canvas.bind_all("<Return>",set_speed)
-        canvas.bind_all("<KP_Enter>",set_speed)
-        canvas.bind_all("<Escape>",close_win)
-      canvas.tag_bind(spd_identifier, "<1>", change_speed)
-      
-      canvas.tag_bind(self.plotid, "<Button-1>", show_hide_fpr)
-      canvas.tag_bind(self.name+'eco', "<Button-3>",show_hide_way_point)
-
-      # Speed vector
-      speed_pos = s(self.pos,pr((speed_time * self.ground_spd,self.track)))
-      aux=do_scale(speed_pos)
-      speed_x0=aux[0]
-      speed_y0=aux[1]
-      canvas.create_line(x0, y0, speed_x0, speed_y0, fill=color_avo, tags=self.name+'speedvector')
             
 def dist_t(a,b,t):
   # Distancia entre dos objetos a la hora t

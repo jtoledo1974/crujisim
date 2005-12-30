@@ -143,12 +143,8 @@ altura_barra_inferior = 60
 centro_x=ancho/2
 centro_y=(alto-altura_barra_inferior)/2
 
-radius = 30
 label_font_size = 11
 label_font = tkFont.Font(family="Helvetica",size=label_font_size)
-set_label_font(label_font)
-set_label_font_size(label_font_size)
-
 
 # Definición de LAD's en el canvas
 class fix_point:
@@ -270,40 +266,6 @@ def end_def_lad(e, canvas = w):
 
 w.bind('<Button-2>', def_lad)
 w.bind('<Button-3>', end_def_lad)
-
-# Tratamiento del botón izquierdo con el plan de vuelo sobre el plot
-def see_hide_fpr(e, canvas = w):
-  global latest_lad_event_processed
-#   print 'Definiendo ruta. Actual, anterior',e.serial,latest_lad_event_processed
-  # actualizar latest_lad_event
-  for avo in ejercicio:
-    if avo.last_lad>latest_lad_event_processed: latest_lad_event_processed = avo.last_lad
-  if e.serial == latest_lad_event_processed:
-      return
-  latest_lad_event_processed = e.serial
-  # Encontramos la aeronave a la que nos referimos
-  acft = get_acft_or_point(e.x,e.y)
-  print 'Datos acft or point', acft.get_ground_speed(), acft.get_track()
-  # En caso de ser un punto, anulamos
-  if acft.get_ground_speed()<50.:
-    return
-  else:
-    # Copia del código en avion.py
-    if canvas.itemcget(acft.name+'fpr',"fill")=='orange':
-      canvas.delete(acft.name+'fpr')
-    else:
-      line=()
-      if acft.vfp:
-        line=line+do_scale(acft.pos)
-      for a in acft.route:
-        pto=do_scale(a[0])
-        if a[1][0] <> '_' or a[1] in proc_app.keys():
-          canvas.create_text(pto,text=a[1],fill='orange',tag=acft.name+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-          canvas.create_text(pto,text=a[2],fill='orange',tag=acft.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
-        line=line+pto
-      if len(line)>3: canvas.create_line(line,fill='orange',tags=acft.name+'fpr')
-    
-w.bind('<Button-1>', see_hide_fpr)
 
 def draw_all_lads(canvas):
 	global superlad, all_lads
@@ -763,11 +725,15 @@ def redraw_all():
     a.redraw(w)
   draw_all_lads(w)  
   # Comprobar si hay PAC o VAC
+  # First we reset state
+  for acft in ejercicio:
+    acft.vt.pac=acft.vt.vac=False
   for i in range(len(ejercicio)):
     for j in range(i+1,len(ejercicio)):
       if pac(ejercicio[i],ejercicio[j]):
-        ejercicio[i].set_pac(w)
-        ejercicio[j].set_pac(w)
+        ejercicio[i].vt.pac=True
+        ejercicio[j].vt.pac=True
+	
   w.delete('vac')
   poner_palote=False
   palote(poner_palote,w)
@@ -776,11 +742,14 @@ def redraw_all():
       line=()
       if vac(ejercicio[i],ejercicio[j]):
         poner_palote=True
-        ejercicio[i].set_vac(w)
+        ejercicio[i].vt.vac=True
+        ejercicio[i].vt.pac=False
         line=do_scale(ejercicio[i].get_coords())
-        ejercicio[j].set_vac(w)
+        ejercicio[j].vt.vac=True
+        ejercicio[j].vt.pac=False
         line=line+do_scale(ejercicio[j].get_coords())
         w.create_line(line,fill='red',tag='vac')
+	
   palote(poner_palote,w)
   t=float(tlocal(t0))
   ho=int(t/60/60)
@@ -806,32 +775,16 @@ def se_cortan (label_modif,i,j):
   if ejercicio[i].is_flying():
     (xip,yip) = do_scale(ejercicio[i].get_coords())
     xis , yis = xip + label_modif[i][0] , yip + label_modif[i][1]
-    xii , yii = xis + ejercicio[i].label_width , yis + ejercicio[i].label_height
+    xii , yii = xis + ejercicio[i].vt.label_width , yis + ejercicio[i].vt.label_height
     # Comprobamos las cuatro esquinas del avión j y que no se corten los soportes de etiquetas, asícomo ningn plot
     if ejercicio[j].is_flying():
       (xjp,yjp) = do_scale(ejercicio[j].get_coords())
       xjs , yjs = xjp + label_modif[j][0] , yjp + label_modif[j][1]
-      xji , yji = xjs + ejercicio[j].label_width , yjs + ejercicio[j].label_height
+      xji , yji = xjs + ejercicio[j].vt.label_width , yjs + ejercicio[j].vt.label_height
       for x1 in (xjs,xji):
         for y1 in (yjs,yji):
           if x1>=xis and x1<=xii and y1>=yis and y1<=yii:
             return True
-#       (v1,v2) = (xis-xip , yis-yip)
-#       (oa1,oa2) = (xjp-xip , yjp-yip)
-#       (ob1,ob2) = (xjs-xip , yjs-yip)
-#       norma_v = max((v1 * v1 + v2 * v2)**(0.5),0.00001)
-#       (v1,v2) = (v1 / norma_v, v2 / norma_v)
-#       oa_x_vperp = oa1 * v2 - oa2 * v1
-#       ob_x_vperp = ob1 * v2 - ob2 * v1
-#       oa_x_v = oa1 * v1 + oa2 * v2
-#       ob_x_v = ob1 * v1 + ob2 * v2
-#       cond1 = oa_x_vperp * ob_x_vperp # Negativo si cada uno estáa un lado
-#       if abs(oa_x_vperp) + abs(ob_x_vperp) > 0.:
-#         cond2 = (oa_x_v * abs(ob_x_vperp) + ob_x_v * abs(oa_x_vperp))/(abs(oa_x_vperp) + abs(ob_x_vperp))
-#       else:
-#         cond2 = norma_v * 2.
-#       if cond1 <= 0. and cond2>=0. and cond2 <= norma_v:
-#         corta = True
       if xjp>=xis and xjp<=xii and yjp>=yis and yjp<=yii:
         return True
   return False
@@ -845,7 +798,7 @@ def rotate_label(labels_modif,i):
     new_label_x = support_x
     new_label_y = support_y -10
   else:
-    new_label_x = support_x - ejercicio[i].label_width
+    new_label_x = support_x - ejercicio[i].vt.label_width
     new_label_y = support_y -10
   return [new_label_x,new_label_y,label_radius, label_heading]
 
@@ -876,7 +829,7 @@ def timer():
       crono = tlocal(t0)
       labels = []
       for i in range (len(ejercicio)):
-        labels.append([ejercicio[i].label_x, ejercicio[i].label_y, ejercicio[i].label_radius,ejercicio[i].label_heading])
+        labels.append([ejercicio[i].vt.label_xo, ejercicio[i].vt.label_yo, ejercicio[i].vt.label_radius,ejercicio[i].vt.label_heading])
       for i in range (len(ejercicio)):
         if (tlocal(t0)-crono)/fact_t > 0.85:
           break
@@ -888,7 +841,7 @@ def timer():
           if i == j: continue
           if se_cortan(labels,i,j):
             intersectan = intersectan + 1
-            if (j not in moviendo) and (ejercicio[j].auto_separation) and len(moviendo)<10:
+            if (j not in moviendo) and (ejercicio[j].vt.auto_separation) and len(moviendo)<10:
 #               print 'Añadiendo ',ejercicio[j].get_callsign()
               moviendo.append(j)
               cuenta.append(0)
@@ -935,15 +888,17 @@ def timer():
 #             print 'son conflicto con ',ejercicio[k].get_callsign()
         for l in range(len(moviendo)):
           for k in range(cuenta_menos_inter[l]):
-            ejercicio[moviendo[l]].rotate_label()
-          labels[moviendo[l]] = [ejercicio[moviendo[l]].label_x, ejercicio[moviendo[l]].label_y, ejercicio[moviendo[l]].label_radius,ejercicio[moviendo[l]].label_heading]
+            ejercicio[moviendo[l]].vt.rotate_label()
+          labels[moviendo[l]] = [ejercicio[moviendo[l]].vt.label_xo, ejercicio[moviendo[l]].vt.label_yo, ejercicio[moviendo[l]].vt.label_radius,ejercicio[moviendo[l]].vt.label_heading]
 #       print 'Tiempo en separar: ',(tlocal(t0)-crono)/fact_t
     # Comprobar si hay PAC o VAC
+    for acft in ejercicio:
+      acft.vt.pac=acft.vt.vac=False
     for i in range(len(ejercicio)):
       for j in range(i+1,len(ejercicio)):
         if pac(ejercicio[i],ejercicio[j]):
-          ejercicio[i].set_pac(w)
-          ejercicio[j].set_pac(w)
+          ejercicio[i].vt.pac=True
+          ejercicio[j].vt.pac=True
     w.delete('vac')
     poner_palote=False
     palote(poner_palote,w)
@@ -952,9 +907,11 @@ def timer():
         line=()
         if vac(ejercicio[i],ejercicio[j]):
           poner_palote=True
-          ejercicio[i].set_vac(w)
+          ejercicio[i].vt.vac=True
+          ejercicio[i].vt.pac=False
           line=do_scale(ejercicio[i].get_coords())
-          ejercicio[j].set_vac(w)
+          ejercicio[j].vt.vac=True
+          ejercicio[j].vt.pac=False
           line=line+do_scale(ejercicio[j].get_coords())
           w.create_line(line,fill='red',tag='vac')
   #         print 'Conflicto entre ',ejercicio[i].get_callsign(),' y ',ejercicio[j].get_callsign(),'a las ',last_update/60./60.
@@ -1029,14 +986,17 @@ def b_parar():
     reloj_funciona=False
   
 def b_tamano_etiquetas():
-  global label_font_size, label_font, radius
-  label_font_size += 2
-  if label_font_size >= 15:
-  	label_font_size = 9
-  label_font = tkFont.Font(family="Helvetica",size=label_font_size)
-  set_label_font(label_font)
-  set_label_font_size(label_font_size)
-  redraw_all()
+    global label_font, label_font_size
+    
+    for acft in ejercicio:
+        acft.vt.l_font_size += 2
+	if acft.vt.l_font_size >= 15:
+	    acft.vt.l_font_size = 9
+    label_font_size += 2
+    if label_font_size >= 15:
+	  label_font_size = 9
+    label_font.configure(size=label_font_size)
+
 
 def b_show_hide_localmaps():
   global local_maps_shown
