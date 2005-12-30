@@ -668,8 +668,8 @@ class VisTrack(object): # ensure a new style class
             self.plot_only=not self.plot_only
         
         # (Re)Do the bindings
-        ra_tag_bind(self._c,self._pitem,'<Button-1>',plot_b1)
-        ra_tag_bind(self._c,self._pitem,'<Button-3>',plot_b3)
+        #ra_tag_bind(self._c,self._pitem,'<Button-1>',plot_b1)
+        #ra_tag_bind(self._c,self._pitem,'<Button-3>',plot_b3)
         
     def delete_h(self):
         """Delete this track's history plots"""
