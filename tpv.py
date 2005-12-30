@@ -411,11 +411,11 @@ def tpv():
     print 'No hay hora de inicio'
     return    
   h_inicio = float(hora[0:2])*60.*60.+ float(hora[3:5])*60.
-  if config.has_option('datos','viento'):
+  try:
     [rumbo,intensidad] = config.get('datos','viento').split(',')
     intensidad,rumbo = float (intensidad),(float(rumbo)+180.0)%360.0
     wind = [intensidad,rumbo] #[intensidad * sin(rumbo), -intensidad * cos (rumbo)]
-  else:
+  except:
     wind = [0.0 , 0.0]
   # Inicialización de variables en avión.py
   set_canvas_info(1.0,1.0,1.0,1.0,1.0)
