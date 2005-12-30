@@ -449,7 +449,6 @@ def tpv():
         fijo=fijo_ant
         hora=float(p[1:3])+float(p[3:5])/60.+float(p[5:7])/60/60
         d.set_initial_t(0.)  #
-        d.set_hist_t(0.) #
       elif len(p)>10 and p[0]=='H':
         incidencias.append(d.get_callsign()+': Grupo HhhmmssFfffVvvv no está comleto')
         print 'Grupo HhhmmssFfffVvvv no está completo'
@@ -519,8 +518,6 @@ def tpv():
     pos=ruta[0][0]
     print 'Antes del recálculo',fijo,hora,ruta
     d.set_position(pos)
-    for i in range(5):
-      d.hist.append(ruta[0][0])
     route=[]
     for a in ruta:
       route.append(a)
@@ -547,7 +544,6 @@ def tpv():
     d.spd = 0.0
     d.set_std_spd()
     d.set_initial_t(desfase)
-    d.set_hist_t(desfase)
     d.set_position(pos)
     d.set_initial_heading()
     # Recálculo para el caso de que al aplicar las SIDs o STARs cambien los puntos de la ruta
@@ -564,8 +560,6 @@ def tpv():
     print 'Después del recálculo',fijo,hora,ruta
     pos=ruta[0][0]
     d.set_position(pos)
-    for i in range(5):
-      d.hist.append(ruta[0][0])
     route=[]
     for a in ruta:
       route.append(a)
@@ -599,7 +593,6 @@ def tpv():
     d.spd = 0.0
     d.set_std_spd()
     d.set_initial_t(desfase)
-    d.set_hist_t(desfase)
     d.set_position(pos)
     d.set_initial_heading()
     
@@ -608,9 +601,6 @@ def tpv():
     for dest in aeropuertos:
       if d.destino==dest:
         d.set_campo_eco(dest[2:4])
-    for i in range(5):
-      hist.append(d.pos)
-    d.set_hist(hist)
     d.set_app_fix()
     ejercicio.append(d)
     print 'ok'
