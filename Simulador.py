@@ -1705,7 +1705,9 @@ def ventana_auxiliar(e):
       but_ver_tabs['command'] = tabs_buttons
       def cambia_vect_vel(e=None):
           set_speed_time(float(var_vect_vel.get())/60.)
-          redraw_all()
+	  for acft in ejercicio:
+	    acft.redraw(w)
+#          redraw_all()
       cnt_vect_vel = Control(ventana, label="Vel:", min=0, max=5, integer=1, command=cambia_vect_vel, variable=var_vect_vel)
       cnt_vect_vel.pack(side=LEFT,expand=1,fill=X)
       def cambia_vel_reloj(e=None):
@@ -1742,7 +1744,7 @@ def ventana_auxiliar(e):
       but_tamano_etiq.grid(column=7,row=1)
       def cambia_vect_vel(e=None):
           set_speed_time(float(var_vect_vel.get())/60.)
-          redraw_all()
+#          redraw_all(w)
       cnt_vect_vel = Control(ventana, label="Velocidad:", min=0, max=5, integer=1, command=cambia_vect_vel, variable=var_vect_vel)
       cnt_vect_vel.grid(column=2,row=0,columnspan=4)
       def cambia_vel_reloj(e=None):
