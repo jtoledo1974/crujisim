@@ -26,20 +26,20 @@ class Flight:
     """All data related to a specific flight within an excercise"""
     def __init__(self, callsign, data):
         """Construct a flight instance
-
+        
         Instantiation arguments:
         callsign -- Flight code (eg: IBE231)
         data -- The flight data as is on the excercise file
         """
-
+        
         self.callsign=callsign
         self._data=data
-    
+        
     def orig(self):
         """Return the departing aerodrome"""
         data=self._data.split(',')
         return data[2]
-    
+        
     def dest(self):
         """Return the destination aerodrome"""
         data=self._data.split(',')
@@ -50,7 +50,7 @@ class Flight:
         data=self._data.split(',')
         route = ''
         for fix in data[6:]:
-          if len(fix)<7:
-            route = route + fix.upper() + ','
+            if len(fix)<7:
+                route = route + fix.upper() + ','
         route = route[:-1]
         return route

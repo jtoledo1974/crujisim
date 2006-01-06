@@ -41,7 +41,7 @@ def read_option(section, name, default_value=None):
         return cp.get(section, name)
     else:
         return default_value
-
+        
 def write_option(section, name, value):
     """Set new value for the specified option in the specified section.
     If the section or the option were not present before this call, create
@@ -60,4 +60,4 @@ def write_option(section, name, value):
     config_fp=open(_config_file_name, "w+")
     cp.write(config_fp)
     config_fp.close()
-
+    

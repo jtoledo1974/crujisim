@@ -25,6 +25,6 @@ import py2exe
 
 #setup(windows=["Simulador.py"],
 #)
-	 
+
 setup(windows=["MainMenu.py"],
 )

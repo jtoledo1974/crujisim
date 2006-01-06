@@ -32,9 +32,9 @@ logging.getLogger('').setLevel(logging.DEBUG)
 
 while 1:
     [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
-
-# accion = "ejecutar", "modificar", "nueva", "actualizar"
-
+    
+    # accion = "ejecutar", "modificar", "nueva", "actualizar"
+    
     print "Returned tuple:", [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas]
     
     if accion == "modificar":
@@ -53,5 +53,5 @@ while 1:
             import Simulador
     elif accion == "actualizar":
         update.update_exercises()
-	sys.exit(0)
-
+        sys.exit(0)
+        
