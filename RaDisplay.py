@@ -894,9 +894,6 @@ class VisTrack(object): # ensure a new style class
                 self.t = ""  # Item text
                 self.w = 0  # Width in pixels
                 self.c = master_track.color  # Color
-                #self.cb_b1 = None  # Button 1 callback
-                #self.cb_b2 = None  # Button 2 callback
-                #self.cb_b3 = None  # Button 3 callback
                 self.x = 0  # Hor screen coord
                 self.y = 0  # Ver screen coord
                 self.i = None  # Canvas item id
@@ -1014,7 +1011,7 @@ class VisTrack(object): # ensure a new style class
                     vt._c.coords(self[i].i,self[i].x,self[i].y)
                     
         def refresh(self,i):
-            """Refresh a specific label item"""
+            """Change text and color of a specific label item"""
             vt = self.vt  # Parent track object
             lf = vt._l_font  # Label font
             
