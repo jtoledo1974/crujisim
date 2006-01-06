@@ -833,7 +833,7 @@ def separate_labels(canvas):
         ix2,iy2 = ix1+ti.label_width, iy1+ti.label_height
         # Lists of conflicted labels and other helper lists
         conflict_list = [ti]
-        cuenta = [0]
+        cuenta = {ti:0}
         giro_min = [0]
         intersectan = 0
         
@@ -865,7 +865,7 @@ def separate_labels(canvas):
                 intersectan = intersectan + 1
                 if (tj not in conflict_list) and len(conflict_list)<10:
                     conflict_list.append(tj)
-                    cuenta.append(0)
+                    cuenta[tj]=0
                     giro_min.append(0)
         # Si intersectan probamos las posiciones posibles de la etiqueta para ver si libra en alguna. En caso contrario,se escoge 
         # el de menor interferenci
@@ -877,17 +877,18 @@ def separate_labels(canvas):
         rotating_labels = len(conflict_list)
         rotating_steps = 8
         rotating_angle = 360./rotating_steps
-        while (intersectan_girado > 0) and (cuenta[0] < rotating_steps) and rotating_labels and (time()-crono2)<1:
+        initial_track = conflict_list[0]
+        while (intersectan_girado > 0) and (cuenta[initial_track] < rotating_steps) and rotating_labels and (time()-crono2)<1:
             canvas.update()
             # Try rotating one of the labels on the list
             for k in range(len(conflict_list)-1,-1,-1):
-                if not conflict_list[k].auto_separation:
+                t = conflict_list[k]
+                if not t.auto_separation:
                     rotating_labels -= 1
                     continue  # Don't move labels that don't want to be moved
-                if cuenta[k]<rotating_steps:
-                    cuenta[k] += 1
+                if cuenta[t]<rotating_steps:
+                    cuenta[t] += 1
                     # Find the alternative position of the label after the rotation
-                    t = conflict_list[k]
                     [x,y] = (t.x,t.y)
                     t.label_heading_alt += rotating_angle
                     ldr_x = x + t.label_radius * sin(radians(t.label_heading_alt))
@@ -909,8 +910,8 @@ def separate_labels(canvas):
 
                     break
                 
-                elif cuenta[k]==rotating_steps: 
-                    cuenta[k] = 0 
+                elif cuenta[t]==rotating_steps: 
+                    cuenta[t] = 0 
             # Comprobamos si está separados todos entre ellos
             # We can't afford to call a function in here because this is
             # very deeply nested, and the function calling overhead
@@ -983,7 +984,7 @@ def separate_labels(canvas):
                         if conflict:
                             intersectan_girado += 1
                             conflict_list.append(tj)
-                            cuenta.append(0)
+                            cuenta[tj]=0
         if intersectan_girado>0:
             logging.info("Unable to separate "+str(intersectan_girado)+" labels")
         
