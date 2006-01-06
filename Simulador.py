@@ -813,11 +813,14 @@ def separate_labels(canvas):
         sep_list.append(track)
         track.label_x_alt,track.label_y_alt=x,y  # Set the alternate coords to be used later
         track.label_heading_alt = track.label_heading
+        
+    move_list = []
 
     #print [t.cs for t in sep_list]
     # Find intersecting labels
     for i in range (len(sep_list)):
-        canvas.update_idletasks()
+        # If this label has been analyzed for conflict before, there is no need anymore
+        if i in move_list: continue
         if time()-crono > 3:
             break
         ti = sep_list[i]  # Track i
@@ -832,6 +835,8 @@ def separate_labels(canvas):
         intersectan = 0
         
         for j in range(i+1,len(sep_list)):
+            # If this label has been analyzed for conflict before, there is no need anymore
+            if j in move_list: continue
             tj = sep_list[j]  # Track j
             # Find vertices of track label j
             jx0,jy0 = tj.x,tj.y
@@ -870,6 +875,7 @@ def separate_labels(canvas):
         rotating_steps = 8
         rotating_angle = 360./rotating_steps
         while (intersectan_girado > 0) and (cuenta[0] < rotating_steps) and rotating_labels and (time()-crono2)<1:
+            canvas.update()
             # Try rotating one of the labels on the list
             for k in range(len(conflict_list)-1,-1,-1):
                 if not conflict_list[k].auto_separation:
@@ -976,15 +982,17 @@ def separate_labels(canvas):
         if intersectan_girado>0:
             logging.info("Unable to separate "+str(intersectan_girado)+" labels")
         
-        # Giramos los aviones lo calculado                    
-        for l in range(len(conflict_list)):
-            t = conflict_list[l]
-            t.label_coords(t.label_x_alt,t.label_y_alt)
-            #for k in range(cuenta_menos_inter[l]):
-            #    t.rotate_label()
-            if abs(t.label_x-t.label_x_alt)>1 or abs(t.label_y-t.label_y_alt)>1:
-                logging.warning(t.cs+"("+str(t.label_x)+","+str(t.label_y)+
-                                ") should be at "+str(t.label_x_alt)+","+str(t.label_y_alt))
+        move_list += conflict_list
+        
+    # We need to force redrawing of track labels that have moved
+    # First we eliminate duplicates
+    d = {}
+    for track in move_list:
+        d[track]=1
+    move_list = d.keys()
+    # Update the labels
+    for t in move_list:
+        t.label_coords(t.label_x_alt,t.label_y_alt)
 
     
 def se_cortan (label_modif,i,j):
@@ -1060,73 +1068,7 @@ def timer():
         #display.update()
         if auto_sep:
             separate_labels(w)
-            #crono = tlocal(t0)
-            #labels = []
-            #for i in range (len(ejercicio)):
-            #    labels.append([ejercicio[i].vt.label_xo, ejercicio[i].vt.label_yo, ejercicio[i].vt.label_radius,ejercicio[i].vt.label_heading])
-            #for i in range (len(ejercicio)):
-            #    w.update_idletasks()
-            #    if (tlocal(t0)-crono)/fact_t > 0.85:
-            #        break
-            #    moviendo = [i]
-            #    cuenta = [0]
-            #    giro_min = [0]
-            #    intersectan = 0
-            #    for j in range(len(ejercicio)):
-            #        if i == j: continue
-            #        if se_cortan(labels,i,j):
-            #            intersectan = intersectan + 1
-            #            if (j not in moviendo) and (ejercicio[j].vt.auto_separation) and len(moviendo)<10:
-            #            #               print 'Añadiendo ',ejercicio[j].get_callsign()
-            #                moviendo.append(j)
-            #                cuenta.append(0)
-            #                giro_min.append(0)
-            #                # Si intersectan probamos las posiciones posibles de la etiqueta para ver si libra en alguna. En caso contrario,se escoge 
-            #                # el de menor interferencia
-            #    intersectan_girado = intersectan
-            #    cuenta_menos_inter = cuenta
-            #    menos_inter = intersectan
-            #    crono_ini = tlocal(t0)
-            #    while (intersectan_girado > 0) and (cuenta[0] < 8) and (tlocal(t0)-crono_ini)/fact_t < 0.5:
-            #        for k in range(len(moviendo)-1,-1,-1):
-            #            if cuenta[k]<8:
-            #                cuenta[k] += 1
-            #                labels[moviendo[k]] = rotate_label(labels,moviendo[k])
-            #                break
-            #            elif cuenta[k]==8: 
-            #                cuenta[k] = 0 
-            #                # Comprobamos si está separados todos entre ellos
-            #        intersectan_girado = 0
-            #        for j in range(len(moviendo)):
-            #            for k in range(j+1,len(moviendo)):
-            #                if se_cortan(labels,moviendo[j],moviendo[k]):
-            #                    intersectan_girado += 1
-            #                    #           print 'cuenta: ',cuenta, intersectan_girado
-            #                    # En caso de que haya conflicto, escogemos el giro con menos intersecciones
-            #        if intersectan_girado < menos_inter:
-            #            menos_inter = intersectan_girado
-            #            cuenta_menos_inter = cuenta
-            #            # Comprobamos que no estemos afectando a ningn otro avión con el reción girado. En caso contrario, se añade
-            #        if intersectan_girado == 0:
-            #            for k in moviendo:
-            #                for j in range(len(ejercicio)):
-            #                    if (j not in moviendo) and (len(moviendo)<10) and se_cortan(labels,j,k):
-            #                    #                   print 'Añadiendo ',ejercicio[j].get_callsign()
-            #                        intersectan_girado += 1
-            #                        moviendo.append(j)
-            #                        cuenta.append(0)
-            #                        # Giramos los aviones lo calculado
-            #    if intersectan >0: 
-            #    #           print 'Conflictos antes y despues', intersectan, menos_inter
-            #        for k in moviendo:
-            #            pass
-            #            #             print 'son conflicto con ',ejercicio[k].get_callsign()
-            #    for l in range(len(moviendo)):
-            #        for k in range(cuenta_menos_inter[l]):
-            #            ejercicio[moviendo[l]].vt.rotate_label()
-            #        labels[moviendo[l]] = [ejercicio[moviendo[l]].vt.label_xo, ejercicio[moviendo[l]].vt.label_yo, ejercicio[moviendo[l]].vt.label_radius,ejercicio[moviendo[l]].vt.label_heading]
-            #        #       print 'Tiempo en separar: ',(tlocal(t0)-crono)/fact_t
-            #        # Comprobar si hay PAC
+        # Comprobar si hay PAC
         for acft in ejercicio:
             acft.vt.pac=acft.vt.vac=False
         for i in range(len(ejercicio)):
