@@ -803,8 +803,9 @@ def separate_labels(canvas):
     # Find the tracks that we have to separate
     sep_list = []  # List of track whose labels we must separate
     o = 0  # Amount of label overlap that we can accept
-    #canvas.delete('sep')
-
+    new_pos = {}  # For each track, maintain the coords of the label position being tested
+    best_pos = {} # These are the best coodinates found for each label track
+    
     for track in tracks:
         x,y=track.label_x,track.label_y
         h,w=track.label_height,track.label_width
@@ -813,7 +814,9 @@ def separate_labels(canvas):
         sep_list.append(track)
         track.label_x_alt,track.label_y_alt=x,y  # Set the alternate coords to be used later
         track.label_heading_alt = track.label_heading
+        new_pos[track]=(x,y)
         
+    best_pos = new_pos
     move_list = []
 
     #print [t.cs for t in sep_list]
@@ -902,6 +905,7 @@ def separate_labels(canvas):
                     
                     t.label_x_alt = new_l_x
                     t.label_y_alt = new_l_y
+                    new_pos[t]=(new_l_x,new_l_y)
 
                     break
                 
@@ -945,6 +949,7 @@ def separate_labels(canvas):
             if intersectan_girado < menos_inter:
                 menos_inter = intersectan_girado
                 cuenta_menos_inter = cuenta
+                best_pos = new_pos.copy()
                 
             # Comprobamos que no estemos afectando a ningn otro avión con el reción girado. En caso contrario, se añ
             if intersectan_girado == 0:
@@ -992,7 +997,8 @@ def separate_labels(canvas):
     move_list = d.keys()
     # Update the labels
     for t in move_list:
-        t.label_coords(t.label_x_alt,t.label_y_alt)
+        (x,y)=best_pos[t]
+        t.label_coords(x,y)
 
     
 def se_cortan (label_modif,i,j):
