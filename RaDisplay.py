@@ -581,6 +581,9 @@ class VisTrack(object): # ensure a new style class
         self._ldr_y = self.label_y + 10
         self._lineid = None
         self.auto_separation=True
+        self.last_rotation = 0  # Keeps the serial number of the last rotation event
+                                # so that auto rotation will try to move the last manually
+                                # moved label last.
         
         # Speed vector
         self.speed_vector=(0,0)  # Final position of the speed vector in screen coords
@@ -772,6 +775,7 @@ class VisTrack(object): # ensure a new style class
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
+        self.last_rotation = e.serial
         
     def counter_rotate_label(self, e=None):
         #if e != None:
@@ -782,6 +786,7 @@ class VisTrack(object): # ensure a new style class
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
+        self.last_rotation = e.serial
      
     def label_coords(self,newx,newy):
         """Repositions the label given new screen coordinates"""
