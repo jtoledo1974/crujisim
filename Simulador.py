@@ -869,7 +869,6 @@ def separate_labels(canvas):
         intersectan_girado = intersectan
         cuenta_menos_inter = cuenta
         menos_inter = intersectan
-        menos_overlap = 10000  # Arbitrarily large number
         crono2 = time()
         rotating_labels = len(conflict_list)
         rotating_steps = 8
@@ -917,49 +916,39 @@ def separate_labels(canvas):
             # very deeply nested, and the function calling overhead
             # would be too much
             intersectan_girado = 0
-            overlap = 0
             for k in range(len(conflict_list)):
                 ti = conflict_list[k]  # Track i
                 # Find vertices of track label i
                 ix0,iy0 = ti.x,ti.y
                 ix1,iy1 = ti.label_x_alt,ti.label_y_alt
                 ix2,iy2 = ix1+ti.label_width, iy1+ti.label_height
-                # Center of the label, to calculate the amount of overlap in case of conflict
-                ixc,iyc = (ix2-ix1)/2, (iy2-iy1)/2
                 for j in range(k+1,len(conflict_list)):            
                     tj = conflict_list[j]  # Track j
                     # Find vertices of track label j
                     jx0,jy0 = tj.x,tj.y
                     jx1,jy1 = tj.label_x_alt,tj.label_y_alt
                     jx2,jy2 = jx1+tj.label_width, jy1+tj.label_height
-                    # Center of the label, to calculate the amount of overlap in case of conflict
-                    jxc,jyc = (jx2-jx1)/2, (jy2-jy1)/2
                     
                     conflict = False
                     # Check whether any of the vertices, or the track plot of
                     # track j is within label i
-                    # o is the label overlap allowed. Defined at the beginning of the function
+                    # o is the label overlap. Defined at the beginning of the function
                     for (x,y) in [(jx0,jy0),(jx1,jy1),(jx2,jy1),(jx2,jy2),(jx1,jy2)]:
                         if x-o>ix1 and x+o<ix2 and y-o>iy1 and y+o<iy2:
                             conflict = True
-                            overlap += sqrt((x-ixc)**2+(y-iyc)**2)
                             break
                     # Check whether the plot of track i is within the label j
                     x,y=ix0,iy0
                     if x-o>jx1 and x+o<jx2 and y-o>jy1 and y+o<jy2:
-                        overlap += sqrt((x-jxc)**2+(y-jyc)**2)
                         conflict = True
                         
                     if conflict == True:
                         intersectan_girado += 1
                         
             # En caso de que haya conflicto, escogemos el giro con menos interseccione
-            #if intersectan_girado < menos_inter:
-            #    menos_inter = intersectan_girado
-            #    cuenta_menos_inter = cuenta
-            #    best_pos = new_pos.copy()
-
-            if overlap < menos_overlap:
+            if intersectan_girado < menos_inter:
+                menos_inter = intersectan_girado
+                cuenta_menos_inter = cuenta
                 best_pos = new_pos.copy()
                 
             # Comprobamos que no estemos afectando a ningn otro avión con el reción girado. En caso contrario, se añ
