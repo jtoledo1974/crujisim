@@ -803,6 +803,8 @@ class VisTrack(object): # ensure a new style class
             self._ldr_x = self.label_x
         else:
             self._ldr_x = self.label_x + self.label_width
+        ldr_x_offset,ldr_y_offset = self._ldr_x-self.x, self._ldr_y-self.y
+        self.label_heading = 90.0-degrees(atan2(ldr_y_offset, ldr_x_offset))
         self._c.coords(str(self)+'leader',self.x,self.y,self._ldr_x,self._ldr_y)
                     
     def reposition_label(self, newx, newy):
