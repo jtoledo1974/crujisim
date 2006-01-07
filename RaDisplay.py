@@ -1650,8 +1650,6 @@ class RaDisplay(object):
         #print [t.cs for t in sep_list]
         # Find intersecting labels
         for i in range (len(sep_list)):
-            # If this label has been analyzed for conflict before, there is no need anymore
-            if i in move_list: continue
             if time()-crono > 3:
                 break
             ti = sep_list[i]  # Track i
