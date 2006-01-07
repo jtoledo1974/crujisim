@@ -1629,8 +1629,9 @@ class RaDisplay(object):
         # Find the tracks that we have to separate
         sep_list = []  # List of track whose labels we must separate
         o = 0  # Amount of label overlap that we can accept
-        #canvas.delete('sep')
-                
+        new_pos = {}  # For each track, maintain the coords of the label position being tested
+        best_pos = {} # These are the best coodinates found for each label track
+        
         for track in tracks:
             x,y=track.label_x,track.label_y
             h,w=track.label_height,track.label_width
@@ -1639,11 +1640,16 @@ class RaDisplay(object):
             sep_list.append(track)
             track.label_x_alt,track.label_y_alt=x,y  # Set the alternate coords to be used later
             track.label_heading_alt = track.label_heading
-
+            new_pos[track]=(x,y)
+            
+        best_pos = new_pos
+        move_list = []
+    
         #print [t.cs for t in sep_list]
         # Find intersecting labels
         for i in range (len(sep_list)):
-            canvas.update_idletasks()
+            # If this label has been analyzed for conflict before, there is no need anymore
+            if i in move_list: continue
             if time()-crono > 3:
                 break
             ti = sep_list[i]  # Track i
@@ -1653,7 +1659,7 @@ class RaDisplay(object):
             ix2,iy2 = ix1+ti.label_width, iy1+ti.label_height
             # Lists of conflicted labels and other helper lists
             conflict_list = [ti]
-            cuenta = [0]
+            cuenta = {ti:0}
             giro_min = [0]
             intersectan = 0
             
@@ -1683,7 +1689,7 @@ class RaDisplay(object):
                     intersectan = intersectan + 1
                     if (tj not in conflict_list) and len(conflict_list)<10:
                         conflict_list.append(tj)
-                        cuenta.append(0)
+                        cuenta[tj]=0
                         giro_min.append(0)
             # Si intersectan probamos las posiciones posibles de la etiqueta para ver si libra en alguna. En caso contrario,se escoge 
             # el de menor interferenci
@@ -1695,21 +1701,26 @@ class RaDisplay(object):
             rotating_labels = len(conflict_list)
             rotating_steps = 8
             rotating_angle = 360./rotating_steps
-            while (intersectan_girado > 0) and (cuenta[0] < rotating_steps) and rotating_labels and (time()-crono2)<1:
+            # We want to try rotating first the tracks that were manually rotated,
+            # and last those that were more recently manually rotated
+            # last_rotation is bigger for the more recently rotated
+            conflict_list.sort(lambda x,y: -cmp(x.last_rotation,y.last_rotation))
+            while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono2)<1:
+                canvas.update()
                 # Try rotating one of the labels on the list
                 for k in range(len(conflict_list)-1,-1,-1):
-                    if not conflict_list[k].auto_separation:
+                    t = conflict_list[k]
+                    if not t.auto_separation:
                         rotating_labels -= 1
                         continue  # Don't move labels that don't want to be moved
-                    if cuenta[k]<rotating_steps:
-                        cuenta[k] += 1
+                    if cuenta[t]<rotating_steps:
+                        cuenta[t] += 1
                         # Find the alternative position of the label after the rotation
-                        t = conflict_list[k]
                         [x,y] = (t.x,t.y)
                         t.label_heading_alt += rotating_angle
                         ldr_x = x + t.label_radius * sin(radians(t.label_heading_alt))
                         ldr_y = y + t.label_radius * cos(radians(t.label_heading_alt))
-
+    
                         ldr_x_offset = ldr_x - x
                         ldr_y_offset = ldr_y - y
                         # l_xo and lyo are the offsets of the label with respect to the plot
@@ -1722,11 +1733,12 @@ class RaDisplay(object):
                         
                         t.label_x_alt = new_l_x
                         t.label_y_alt = new_l_y
-
+                        new_pos[t]=(new_l_x,new_l_y)
+    
                         break
                     
-                    elif cuenta[k]==rotating_steps: 
-                        cuenta[k] = 0 
+                    elif cuenta[t]==rotating_steps: 
+                        cuenta[t] = 0 
                 # Comprobamos si está separados todos entre ellos
                 # We can't afford to call a function in here because this is
                 # very deeply nested, and the function calling overhead
@@ -1765,6 +1777,7 @@ class RaDisplay(object):
                 if intersectan_girado < menos_inter:
                     menos_inter = intersectan_girado
                     cuenta_menos_inter = cuenta
+                    best_pos = new_pos.copy()
                     
                 # Comprobamos que no estemos afectando a ningn otro avión con el reción girado. En caso contrario, se añ
                 if intersectan_girado == 0:
@@ -1776,7 +1789,7 @@ class RaDisplay(object):
                         ix2,iy2 = ix1+ti.label_width, iy1+ti.label_height                        
                         for tj in sep_list:
                             if (ti==tj) or (tj in conflict_list): continue
-
+    
                             # Find vertices of track label j
                             jx0,jy0 = tj.x,tj.y
                             jx1,jy1 = tj.label_x_alt,tj.label_y_alt
@@ -1794,23 +1807,26 @@ class RaDisplay(object):
                             x,y=ix0,iy0
                             if x-o>jx1 and x+o<jx2 and y-o>jy1 and y+o<jy2:
                                 conflict = True
-
+    
                             if conflict:
                                 intersectan_girado += 1
                                 conflict_list.append(tj)
-                                cuenta.append(0)
+                                cuenta[tj]=0
             if intersectan_girado>0:
                 logging.info("Unable to separate "+str(intersectan_girado)+" labels")
             
-            # Giramos los aviones lo calculado                    
-            for l in range(len(conflict_list)):
-                t = conflict_list[l]
-                t.label_coords(t.label_x_alt,t.label_y_alt)
-                #for k in range(cuenta_menos_inter[l]):
-                #    t.rotate_label()
-                if abs(t.label_x-t.label_x_alt)>1 or abs(t.label_y-t.label_y_alt)>1:
-                    logging.warning(t.cs+"("+str(t.label_x)+","+str(t.label_y)+
-                                    ") should be at "+str(t.label_x_alt)+","+str(t.label_y_alt))
+            move_list += conflict_list
+            
+        # We need to force redrawing of track labels that have moved
+        # First we eliminate duplicates
+        d = {}
+        for track in move_list:
+            d[track]=1
+        move_list = d.keys()
+        # Update the labels
+        for t in move_list:
+            (x,y)=best_pos[t]
+            t.label_coords(x,y)
 
     def update_stca(self):
         """Process short term collision alert"""

@@ -838,8 +838,6 @@ def separate_labels(canvas):
         intersectan = 0
         
         for j in range(i+1,len(sep_list)):
-            # If this label has been analyzed for conflict before, there is no need anymore
-            if j in move_list: continue
             tj = sep_list[j]  # Track j
             # Find vertices of track label j
             jx0,jy0 = tj.x,tj.y
