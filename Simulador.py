@@ -877,8 +877,11 @@ def separate_labels(canvas):
         rotating_labels = len(conflict_list)
         rotating_steps = 8
         rotating_angle = 360./rotating_steps
-        initial_track = conflict_list[0]
-        while (intersectan_girado > 0) and (cuenta[initial_track] < rotating_steps) and rotating_labels and (time()-crono2)<1:
+        # We want to try rotating first the tracks that were manually rotated,
+        # and last those that were more recently manually rotated
+        # last_rotation is bigger for the more recently rotated
+        conflict_list.sort(lambda x,y: -cmp(x.last_rotation,y.last_rotation))
+        while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono2)<1:
             canvas.update()
             # Try rotating one of the labels on the list
             for k in range(len(conflict_list)-1,-1,-1):
