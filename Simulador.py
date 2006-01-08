@@ -2054,7 +2054,7 @@ try:
     root.protocol("WM_DELETE_WINDOW", reactor.stop)
     protocol_factory=GTA_Protocol_Factory(ejercicio)
     try:
-        port=int(ConfMgr.read_option("Global", "server_port", 20213))
+        port=int(ConfMgr.read_option("Global", "server_port", 20123))
         reactor.listenTCP(port, protocol_factory)
         logging.info("Servidor iniciado y esperando conexiones en el puerto "+str(port))
     except:
