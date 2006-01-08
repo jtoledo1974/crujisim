@@ -56,8 +56,14 @@ def main():
     txt_titulo = Label (dialog, text = 'Introduzca la dirección IP del servidor')
     entry = Entry(dialog, width = 50, bg = 'white')
     def start_client(e=None):
-        ip=entry.get()
-        c.connectTCP(ip, 20123).addCallback(gotProtocol)
+        s=entry.get()
+        host_port=s.split(":")
+        ip=host_port[0]
+        try:
+            port=int(host_port[1])
+        except:
+            port=20123
+        c.connectTCP(ip, port).addCallback(gotProtocol)
         dialog.destroy()
     but_acept = Button (dialog, text = 'Aceptar',command = start_client)
     dialog.bind('<Return>',start_client)
