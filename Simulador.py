@@ -741,8 +741,10 @@ def redraw_all():
     # Poner las fichas que se imprimen
     draw_print_list()
     # Dibujar los aviones
-    for a in ejercicio:
-        a.redraw(w)
+    for vt in [acft.vt for acft in ejercicio]:
+        (x,y)=do_scale((vt.wx,vt.wy))
+        vt.coords(x,y,None)
+        
     draw_all_lads(w)  
     # Comprobar si hay PAC o VAC
     # First we reset state
