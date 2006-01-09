@@ -752,6 +752,9 @@ class VisTrack(object): # ensure a new style class
         
         # Label text
         self._l.redraw()
+        new_label_x = self.x + self.label_radius * sin(radians(self.label_heading))
+        new_label_y = self.y + self.label_radius * cos(radians(self.label_heading))
+        self.reposition_label(new_label_x, new_label_y)
         lw = self.label_width
         lh = self.label_height
         lx = self.label_x
@@ -771,7 +774,7 @@ class VisTrack(object): # ensure a new style class
     def rotate_label(self, e=None):
         [x,y] = (self.x,self.y)
         self.auto_separation = True
-        self.label_heading += 45.0
+        self.label_heading += 90.0
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
@@ -782,7 +785,7 @@ class VisTrack(object): # ensure a new style class
         #        self.last_lad = e.serial
         [x,y] = (self.x,self.y)
         self.auto_separation = True
-        self.label_heading -= 45.0
+        self.label_heading -= 90.0
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
@@ -809,7 +812,7 @@ class VisTrack(object): # ensure a new style class
                     
     def reposition_label(self, newx, newy):
         """Repositions the label based on the new end of the leader line"""
-        self._l.reformat()  # Make sure we have the current width
+        #self._l.reformat()  # Make sure we have the current width
         (x,y) = self.x,self.y
         ldr_x_offset = newx - x
         ldr_y_offset = newy - y
