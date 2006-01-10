@@ -97,6 +97,8 @@ class PpDisplay(RaDisplay):
             line=line+pto
         if len(line)>3: canvas.create_line(line,fill='orange',tags=track.name+'fpr')
         self.routes.append(track)
+        self.c.lift(track.name+'fpr')
+        self.c.lift('track')
 
     def show_hide_fpr(self,track):
         canvas=self.c
@@ -180,6 +182,8 @@ class PpDisplay(RaDisplay):
                 but_direct['command'] = direct_to
             canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)
         self.waypoints.append(track)
+        self.c.lift(track.name+'wp')
+        self.c.lift('track')
         
             
     def show_hide_way_point(self,track):

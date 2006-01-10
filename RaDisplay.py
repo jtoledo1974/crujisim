@@ -663,6 +663,11 @@ class VisTrack(object): # ensure a new style class
             self.redraw_l()
             
         self._c.addtag_withtag('track',str(self)+'track')
+        self._c.lift(str(self)+'hist')
+        self._c.lift(str(self)+'sv')
+        self._c.lift(str(self)+'leader')
+        self._c.lift(str(self)+'label')
+        self._c.lift(str(self)+'plot')        
             
     def delete_p(self):
         """Delete the visual plot and unbind bindings"""
@@ -1474,6 +1479,8 @@ class LAD(object):
             canvas.create_rectangle(crossBx - size, crossBy -size, crossBx + size, crossBy + size, fill='red', tags=(s+'lad',s+'crosspoint'))
             
         canvas.addtag_withtag('lad',s+'lad')
+        canvas.lift('lad')
+        canvas.lift('track')
             
     def toggle_superlad(self, e=None):
         self.superlad = not self.superlad
