@@ -752,9 +752,9 @@ class VisTrack(object): # ensure a new style class
         
         # Label text
         self._l.redraw()
-        new_label_x = self.x + self.label_radius * sin(radians(self.label_heading))
-        new_label_y = self.y + self.label_radius * cos(radians(self.label_heading))
-        self.reposition_label(new_label_x, new_label_y)
+        #new_label_x = self.x + self.label_radius * sin(radians(self.label_heading))
+        #new_label_y = self.y + self.label_radius * cos(radians(self.label_heading))
+        #self.reposition_label(new_label_x, new_label_y)
         lw = self.label_width
         lh = self.label_height
         lx = self.label_x
