@@ -25,6 +25,47 @@ import logging
 
 _config_file_name="crujisim.ini"
 
+class CrujiConfig(object):
+    """Class containing all of the configuration options for Crujisim"""
+    def __init__(self):
+        self.cp=ConfigParser.ConfigParser()
+        try:
+            config_fp=open(_config_file_name, "r")
+            self.cp.readfp(config_fp)
+            config_fp.close()
+        except:
+            logging.warning("Trying to read config value, application configuration file missing.")
+    
+        mru=self.read_option('Global','connect_mru',"")
+        self.connect_mru=[]
+        for l in mru.split(","): self.connect_mru.append(l)
+        
+    def save(self):
+        try:
+            self.cp.add_section('Global')
+        except:
+            pass
+        for name,value in self.__dict__.items():
+            if name=='connect_mru':
+                mru=""
+                for l in value: mru += l+","
+                mru = mru[0:-1]
+                self.cp.set('Global',name,mru)
+        config_fp=open(_config_file_name, "w+")
+        self.cp.write(config_fp)
+        config_fp.close()
+                
+    def read_option(self,section, name, default_value=None):
+        """Returns current value for the specified option in the specified section.
+        If there is no current value for this option (either the configuration file,
+        the section or the option do not exist), return the value indicated in default_value.
+        """
+        if self.cp.has_option(section, name):
+            return self.cp.get(section, name)
+        else:
+            return default_value
+            
+
 def read_option(section, name, default_value=None):
     """Returns current value for the specified option in the specified section.
     If there is no current value for this option (either the configuration file,

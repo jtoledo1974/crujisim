@@ -6,8 +6,10 @@ from twisted.protocols.basic import NetstringReceiver
 from Tix import *
 from Pseudopilot import PpDisplay
 from FIR import *
+import UI
 import pickle
 import logging
+from ConfMgr import *
 
 class GTA_Client_Protocol(NetstringReceiver):
     
@@ -42,47 +44,60 @@ class GTA_Client_Protocol(NetstringReceiver):
         try: reactor.stop()
         except: pass
 
-def main():
-        
-    def gotProtocol(p):
-        print "Got protocol!"
-    
-    root = Tk()
-    root.withdraw()
-    
-    c = ClientCreator(reactor, GTA_Client_Protocol)
-    
-    dialog = Toplevel(root)
-    txt_titulo = Label (dialog, text = 'Introduzca la dirección IP del servidor')
-    entry = Entry(dialog, width = 50, bg = 'white')
-    def start_client(e=None):
-        s=entry.get()
+class ConnectDialog(UI.Dialog):
+    def __init__(self,root,conf):
+        UI.Dialog.__init__(self,root,'accept',transient=False)
+        dialog=self.content
+        txt_titulo = Label (dialog, text = 'Introduzca la dirección IP del servidor')
+        combo = ComboBox(master=dialog,editable=True)
+        for l in conf.connect_mru: combo.append_history(l)
+        combo.entry['width']=50
+        txt_titulo.pack(side='top')
+        combo.pack(side='top')
+        combo.focus_set()
+        self.combo=combo
+        self.conf=conf
+        self.dlg.wait_window()
+    def accept(self):
+        s=self.combo.entry.get()
         host_port=s.split(":")
         ip=host_port[0]
         try:
             port=int(host_port[1])
         except:
             port=20123
-        c.connectTCP(ip, port).addCallback(gotProtocol)
-        dialog.destroy()
-    but_acept = Button (dialog, text = 'Aceptar',command = start_client)
-    dialog.bind('<Return>',start_client)
-    dialog.bind('<KP_Enter>',start_client)
-    txt_titulo.pack(side='top')
-    entry.pack(side='top')
-    entry.focus_set()
-    but_acept.pack()
-    def set_window_size():
-        window_width = root.winfo_reqwidth()
-        window_height = root.winfo_reqheight()
-        screen_width = root.winfo_screenwidth()
-        screen_height = root.winfo_screenheight()
-        px = (screen_width - window_width) / 2
-        py = (screen_height - window_height) / 2
-        dialog.wm_geometry("+%d+%d" % (px,py))
-    dialog.after_idle(set_window_size)
-    dialog.wait_window()
-    dialog.destroy()
+        if s!="" and s not in self.conf.connect_mru:
+            self.conf.connect_mru.append(s)
+            self.conf.connect_mru = self.conf.connect_mru[-10:]  # Keep only the last 10
+        self.conf.save()
+        self.dlg.destroy()
+        self.result=(ip,port)
+
+def main():
+        
+    root = Tk()
+    root.withdraw()
+    conf=CrujiConfig()
+    c = ClientCreator(reactor, GTA_Client_Protocol)
+
+    def gotProtocol(p):
+        print "Got protocol!"
+        
+    def failed_connection(p):
+        print "Error while connecting"
+        reactor.callWhenRunning(ask_ip)    
+    
+    def ask_ip():
+        try:
+            (ip,port)=ConnectDialog(root,conf).result
+            print ip,port
+        except:
+            reactor.stop()
+            return
+        print "Connecting "+ip+", port "+str(port)
+        c.connectTCP(ip, port).addCallback(gotProtocol).addErrback(failed_connection)
+
+    reactor.callWhenRunning(ask_ip)
     
     tksupport.install(root)
     reactor.run()
