@@ -869,7 +869,10 @@ class VisTrack(object): # ensure a new style class
             elif value=='atc': self.label_format='atc'
         elif name=='speed_vector_length':
             self.redraw_sv()
-        elif name in ['selected', 'label_format','l_font_size','pac','vac'] \
+        elif name=='l_font_size':
+            self.label_radius=value*3
+            self.redraw_l()
+        elif name in ['selected', 'label_format','pac','vac'] \
            and self.visible:
             self.redraw_l()
             if name in ['pac','vac'] and value==True and self.plot_only:
