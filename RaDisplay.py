@@ -750,11 +750,13 @@ class VisTrack(object): # ensure a new style class
         # Delete old label, leader and selection box
         self.delete_l()
         
+        if not self.visible: return
+        
         # Label text
         self._l.redraw()
-        #new_label_x = self.x + self.label_radius * sin(radians(self.label_heading))
-        #new_label_y = self.y + self.label_radius * cos(radians(self.label_heading))
-        #self.reposition_label(new_label_x, new_label_y)
+        new_label_x = self.x + self.label_radius * sin(radians(self.label_heading))
+        new_label_y = self.y + self.label_radius * cos(radians(self.label_heading))
+        self.reposition_label(new_label_x, new_label_y)
         lw = self.label_width
         lh = self.label_height
         lx = self.label_x
@@ -775,6 +777,7 @@ class VisTrack(object): # ensure a new style class
         [x,y] = (self.x,self.y)
         self.auto_separation = True
         self.label_heading += 90.0
+        self.label_radius = self.l_font_size*3
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
@@ -786,6 +789,7 @@ class VisTrack(object): # ensure a new style class
         [x,y] = (self.x,self.y)
         self.auto_separation = True
         self.label_heading -= 90.0
+        self.label_radius = self.l_font_size*3
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
@@ -824,7 +828,7 @@ class VisTrack(object): # ensure a new style class
             new_l_x = x+ldr_x_offset - self.label_width
             new_l_y = y+ldr_y_offset -10
         self.label_heading = 90.0-degrees(atan2(ldr_y_offset, ldr_x_offset))
-        
+        self.label_radius = sqrt(ldr_y_offset**2+ldr_x_offset**2)
         self._c.coords(str(self)+'leader',self.x,self.y,newx,newy)
         
         dx=new_l_x-self.label_x
@@ -870,7 +874,7 @@ class VisTrack(object): # ensure a new style class
         elif name=='speed_vector_length':
             self.redraw_sv()
         elif name=='l_font_size':
-            self.label_radius=value*3
+            if self.auto_separation: self.label_radius=value*3
             self.redraw_l()
         elif name in ['selected', 'label_format','pac','vac'] \
            and self.visible:
@@ -956,6 +960,8 @@ class VisTrack(object): # ensure a new style class
             
             # Delete old tag and remove old bindings
             self.delete()
+            
+            if not self.vt.visible: return
             
             # Create new label
             self.reformat()
