@@ -9,6 +9,7 @@ from FIR import *
 import UI
 import pickle
 import logging
+import zlib
 from ConfMgr import *
 
 class GTA_Client_Protocol(NetstringReceiver):
@@ -17,6 +18,7 @@ class GTA_Client_Protocol(NetstringReceiver):
         self.data = ''
                     
     def stringReceived(self, line):
+        line=zlib.decompress(line)
         try:
             m=pickle.loads(line)
         except:

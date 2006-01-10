@@ -50,6 +50,7 @@ try:
   from twisted.internet import reactor, tksupport
   from twisted.protocols.basic import NetstringReceiver
   import pickle
+  import zlib
 except:
   logging.warning ("Error while importing the Twisted Framefork modules")
 
@@ -2022,21 +2023,25 @@ try:
                 'sector':sector,
                 'flights':self.factory.flights}
             }
-            self.sendString(pickle.dumps(m))
+            self.sendMessage(pickle.dumps(m))
             self.factory.protocols.append(self)
             print ("Got connection")
+            
+        def sendMessage(self,line):
+            line=zlib.compress(line)
+            self.sendString(line)
                     
         def send_flights(self):
             m={'message':'flights',
                'data':self.factory.flights}
-            self.sendString(pickle.dumps(m,bin=True))
+            self.sendMessage(pickle.dumps(m,bin=True))
             
         def send_time(self,t):
             time_string = '%02d:%02d:%02d' % get_h_m_s(t)
             if time_string != self.time_string:
                 m={'message':'time',
                    'data':t}
-                self.sendString(pickle.dumps(m,bin=True))
+                self.sendMessage(pickle.dumps(m,bin=True))
                 self.time_string=time_string
             
         def connectionLost(self,reason):
