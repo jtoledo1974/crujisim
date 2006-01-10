@@ -54,7 +54,7 @@ class ConnectDialog(UI.Dialog):
         combo.entry['width']=50
         txt_titulo.pack(side='top')
         combo.pack(side='top')
-        combo.focus_set()
+        combo.entry.focus_set()
         self.combo=combo
         self.conf=conf
         self.dlg.wait_window()

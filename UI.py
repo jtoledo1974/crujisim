@@ -39,8 +39,9 @@ class Dialog:
             butretry.grid(row=0,column=0, padx=10)
             butcancel.grid(row=0,column=1, padx=10)
         elif type=='accept':
-            butaccept=Button(buttonbar, text='     Aceptar    ', command=self.accept)
+            butaccept=Button(buttonbar, text='     Aceptar    ', command=self.accept, default="active")
             butaccept.grid(row=0,column=0, padx=10)
+            dlg.bind("<Return>", lambda event: self.accept())
                 
         dlg.protocol("WM_DELETE_WINDOW", self.cancel)
         dlg.focus_set()
