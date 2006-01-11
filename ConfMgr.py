@@ -36,9 +36,14 @@ class CrujiConfig(object):
         except:
             logging.warning("Trying to read config value, application configuration file missing.")
     
-        mru=self.read_option('Global','connect_mru',"")
+        # Start reading options
+        
+        mru=self.read_option('Global','connect_mru',"","string")
         self.connect_mru=[]
-        for l in mru.split(","): self.connect_mru.append(l)
+        for l in mru.split(","): self.connect_mru.append(l)        
+        self.show_palotes_image = self.read_option('Global','show_palotes',True,"bool")        
+        self.server_port = self.read_option('Global','server_port',20123,"int")
+        self.printer_sound = self.read_option('Global','printer_sound',True,"bool")
         
     def save(self):
         try:
@@ -55,15 +60,23 @@ class CrujiConfig(object):
         self.cp.write(config_fp)
         config_fp.close()
                 
-    def read_option(self,section, name, default_value=None):
+    def read_option(self,section, name, default_value=None, type="string"):
         """Returns current value for the specified option in the specified section.
         If there is no current value for this option (either the configuration file,
         the section or the option do not exist), return the value indicated in default_value.
         """
-        if self.cp.has_option(section, name):
-            return self.cp.get(section, name)
-        else:
-            return default_value
+        try:
+            if type=="int":
+                value=self.cp.getint(section,name)
+            elif type=="bool":
+                value=self.cp.getboolean(section,name)
+            else:
+                value=self.cp.get(section,name)
+        except:
+            logging.debug("Failed to read option: ",name)
+            value=default_value
+
+        return value
             
 
 def read_option(section, name, default_value=None):
@@ -102,3 +115,7 @@ def write_option(section, name, value):
     cp.write(config_fp)
     config_fp.close()
     
+# This is here just for debugging purposes
+if __name__ == "__main__":
+    conf = CrujiConfig()
+    print conf.printer_sound

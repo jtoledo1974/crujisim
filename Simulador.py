@@ -85,8 +85,7 @@ vent_ident_maps = None
 vent_ident_procs = None
 vent_ident_mapas = None
 vent_ident_tabs = None
-
-show_palotes_image = ConfMgr.read_option("Global", "show_palotes", "True").upper()
+conf = ConfMgr.CrujiConfig()
 
 
 # Constants
@@ -428,7 +427,7 @@ def load_image(image_name):
     
 def palote(pintar,canvas):
     global palote_identifier
-    if show_palotes_image == "FALSE":
+    if not conf.show_palotes_image:
         return
     if palote_identifier<>None and not pintar:
         canvas.delete(palote_identifier)
@@ -615,7 +614,7 @@ def print_fs(callsign):
         print_fs._callsigns={}
     if print_fs._callsigns.has_key(callsign) and print_fs._callsigns[callsign]==3:
         return
-    if sys.platform=='win32':
+    if sys.platform=='win32' and conf.printer_sound:
         import winsound
         try:
             if reloj_funciona:  # Avoid the annoying sound at the beginning
@@ -2061,7 +2060,7 @@ try:
     root.protocol("WM_DELETE_WINDOW", reactor.stop)
     protocol_factory=GTA_Protocol_Factory(ejercicio)
     try:
-        port=int(ConfMgr.read_option("Global", "server_port", 20123))
+        port=conf.server_port
         reactor.listenTCP(port, protocol_factory)
         logging.info("Servidor iniciado y esperando conexiones en el puerto "+str(port))
     except:
