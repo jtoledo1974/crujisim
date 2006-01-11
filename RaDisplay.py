@@ -892,17 +892,17 @@ class VisTrack(object): # ensure a new style class
             
     class Label:
         """Contains the information regarding label formatting"""        
-        formats={'pp':{-1:['pac','spc','vac'],
+        formats={'pp':{-1:['pac','vac'],
                        0:['cs'],                      # pp = Pseudopilot
                        1:['alt','cfl'],
                        2:['hdg'],
                        3:['gs','wake','spc','echo']},
-                 'pp-mach':{-1:['pac','spc','vac'],
+                 'pp-mach':{-1:['pac','vac'],
                             0:['cs'],
                             1:['alt','cfl'],
                             2:['hdg'],
                             3:['mach','wake','spc','echo']},
-                'atc':{-1:['pac','spc','vac'],
+                'atc':{-1:['pac','vac'],
                             0:['cs'],
                             1:['alt','cfl'],
                             2:['gs','wake','spc','echo']}}
@@ -1061,6 +1061,12 @@ class VisTrack(object): # ensure a new style class
                 else: self.cfl.t = ''
             elif i=='echo':
                 self.echo.t = vt.echo
+            elif i=='pac':
+                if vt.pac: self.pac.t="PAC"
+                else: self.pac.t=""
+            elif i=='vac':
+                if vt.vac: self.vac.t="VAC"
+                else: self.vac.t=""
                 
             item=self[i]
             # Color
