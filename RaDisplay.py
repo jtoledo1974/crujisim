@@ -787,7 +787,10 @@ class VisTrack(object): # ensure a new style class
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
-        self.last_rotation = e.serial
+        try:  # In case this function was not called by a gui event
+            self.last_rotation = e.serial
+            self._message_handler(self,'leader','<Button-1>',None,e)
+        except: pass
         
     def counter_rotate_label(self, e=None):
         #if e != None:
@@ -799,7 +802,10 @@ class VisTrack(object): # ensure a new style class
         new_label_x = x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = y + self.label_radius * cos(radians(self.label_heading))
         self.reposition_label(new_label_x, new_label_y)
-        self.last_rotation = e.serial
+        try:  # In case this function was not called by a gui event
+            self.last_rotation = e.serial
+            self._message_handler(self,'leader','<Button-3>',None,e)
+        except: pass
      
     def label_coords(self,newx,newy):
         """Repositions the label given new screen coordinates"""
@@ -1630,6 +1636,10 @@ class RaDisplay(object):
                 if self.label_moved:
                     self.separate_labels()
                     self.label_moved = False
+        if item=='leader':
+            if action=='<Button-1>' or action=='<Button-3>':
+                self.separate_labels(vt)
+            
     
     def b1_cb(self,e=None):
         pass
@@ -1660,7 +1670,7 @@ class RaDisplay(object):
         if self.auto_separation:
             self.separate_labels()
         
-    def separate_labels(self):
+    def separate_labels(self, single_track=None):
         tracks = self.tracks
         width,height = self.width,self.height
         canvas = self.c
@@ -1685,7 +1695,7 @@ class RaDisplay(object):
             new_pos[track]=(x,y)
             
         best_pos = new_pos
-        move_list = []
+        move_list = []        
     
         #print [t.cs for t in sep_list]
         # Find intersecting labels
@@ -1709,6 +1719,11 @@ class RaDisplay(object):
                 jx0,jy0 = tj.x,tj.y
                 jx1,jy1 = tj.label_x,tj.label_y
                 jx2,jy2 = jx1+tj.label_width, jy1+tj.label_height
+                
+                # If the caller provided a specific track as an argument, we only want
+                # to separate that label. Else try to separate everything
+                if single_track and ti!=single_track and tj!=single_track:
+                    continue
                 
                 conflict = False
                 # Check whether any of the vertices, or the track plot of
@@ -1752,7 +1767,10 @@ class RaDisplay(object):
                 # Try rotating one of the labels on the list
                 for k in range(len(conflict_list)-1,-1,-1):
                     t = conflict_list[k]
-                    if not t.auto_separation:
+                    # If the track is not set to be auto_separated, or if the
+                    # label separation algorithem was called because of a manual
+                    # label rotation, don't rotate this track
+                    if not t.auto_separation or t==single_track:
                         rotating_labels -= 1
                         continue  # Don't move labels that don't want to be moved
                     if cuenta[t]<rotating_steps:

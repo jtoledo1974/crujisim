@@ -29,7 +29,7 @@
   <string id="postparams"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\radisplay\RaDisplay.py</string>
+  <string id="filename">C:\temp\crujisim\RemoteClient.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -124,5 +124,7 @@
 </preference-set>
 </preference-set>
 </preference-set>
+</file>
+<file url="RemoteClient.py" id="C164E938-B991-4929-B71A-C50FAA20BDFF" name="RemoteClient.py">
 </file>
 </project>

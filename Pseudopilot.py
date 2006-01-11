@@ -75,7 +75,8 @@ class PpDisplay(RaDisplay):
         self.t=0
         self.clock=RaClock(self.c)
         self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
-
+        
+        self.separate_labels()
         
     def delete_routes(self,e=None):
         for track in self.tracks:
