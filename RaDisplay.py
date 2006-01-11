@@ -492,7 +492,7 @@ class VisTrack(object): # ensure a new style class
     """Visual representation of a radar track on either a pseudopilot display
     or a controller display"""
     
-    allitems = [ 'cs','alt','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']                
+    allitems = [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']                
     
     def __init__(self, canvas, message_handler, do_scale, undo_scale):
         """Construct a radar track inside the parent display.
@@ -862,7 +862,7 @@ class VisTrack(object): # ensure a new style class
             (wx,wy) = self.undo_scale((self.x,self.y))
             object.__setattr__(self,'wx',wx)
             object.__setattr__(self,'wy',wy)
-        elif name in self.allitems and self.visible:
+        elif (name in self.allitems) and self.visible:
             self._item_refresh_list.append(name)
             # When alt reaches cfl, cfl must be cleared
             if name=='alt': self._item_refresh_list.append('cfl')
@@ -894,17 +894,17 @@ class VisTrack(object): # ensure a new style class
         """Contains the information regarding label formatting"""        
         formats={'pp':{-1:['pac','vac'],
                        0:['cs'],                      # pp = Pseudopilot
-                       1:['alt','cfl'],
+                       1:['alt','rate','cfl'],
                        2:['hdg'],
                        3:['gs','wake','spc','echo']},
                  'pp-mach':{-1:['pac','vac'],
                             0:['cs'],
-                            1:['alt','cfl'],
+                            1:['alt','rate','cfl'],
                             2:['hdg'],
                             3:['mach','wake','spc','echo']},
                 'atc':{-1:['pac','vac'],
                             0:['cs'],
-                            1:['alt','cfl'],
+                            1:['alt','rate','cfl'],
                             2:['gs','wake','spc','echo']}}
         
         # The __getitem__ function allows us access this class' attributes
@@ -926,6 +926,7 @@ class VisTrack(object): # ensure a new style class
             self.c = self.vt._c  # Canvas
             self.cs = self.LabelItem(vt)
             self.alt = self.LabelItem(vt)
+            self.rate = self.LabelItem(vt)
             self.cfl = self.LabelItem(vt)
             self.gs = self.LabelItem(vt)
             self.mach = self.LabelItem(vt)
@@ -1053,11 +1054,18 @@ class VisTrack(object): # ensure a new style class
                 self.hdg.t='%03d'%(int(vt.hdg))
             elif i=='alt':
                 self.alt.t='%03d'%(int(vt.alt+0.5))
+            elif i=='rate':
+                if vt.rate>0.:
+                    self.rate.t=unichr(8593)  # Vertical direction
+                elif vt.rate<0.:
+                    self.rate.t=unichr(8595)
+                else: self.rate.t = '  '  # Two spaces, as wide as the arrow,
+                                          # so that a reformat is not necessary
             elif i=='cfl':
                 if vt.cfl-vt.alt>2.:
-                    self.cfl.t=chr(94)+'%03d'%(int(vt.cfl+0.5))  # Vertical direction
-                elif vt.cfl-vt.alt<-3.:
-                    self.cfl.t=chr(118)+'%03d'%(int(vt.cfl+0.5))
+                    self.cfl.t='%03d'%(int(vt.cfl+0.5))  # Vertical direction
+                elif vt.cfl-vt.alt<-2.:
+                    self.cfl.t='%03d'%(int(vt.cfl+0.5))
                 else: self.cfl.t = ''
             elif i=='echo':
                 self.echo.t = vt.echo
