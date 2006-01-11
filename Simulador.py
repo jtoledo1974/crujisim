@@ -879,6 +879,8 @@ def separate_labels(canvas):
         # and last those that were more recently manually rotated
         # last_rotation is bigger for the more recently rotated
         conflict_list.sort(lambda x,y: -cmp(x.last_rotation,y.last_rotation))
+        #if len(conflict_list)>1:
+        #    logging.debug("Conflict among "+str([t.cs for t in conflict_list]))
         while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono2)<1:
             canvas.update()
             # Try rotating one of the labels on the list
@@ -918,6 +920,7 @@ def separate_labels(canvas):
             # very deeply nested, and the function calling overhead
             # would be too much
             intersectan_girado = 0
+            #logging.debug("Rotations: "+str([(t.cs, cuenta[t]) for t in conflict_list]))
             for k in range(len(conflict_list)):
                 ti = conflict_list[k]  # Track i
                 # Find vertices of track label i
@@ -943,16 +946,11 @@ def separate_labels(canvas):
                     x,y=ix0,iy0
                     if x-o>jx1 and x+o<jx2 and y-o>jy1 and y+o<jy2:
                         conflict = True
-                        
+                    
+                    #logging.debug("Checking "+ti.cs+","+tj.cs+": "+str(conflict))    
                     if conflict == True:
                         intersectan_girado += 1
                         
-            # En caso de que haya conflicto, escogemos el giro con menos interseccione
-            if intersectan_girado < menos_inter:
-                menos_inter = intersectan_girado
-                cuenta_menos_inter = cuenta
-                best_pos = new_pos.copy()
-                
             # Comprobamos que no estemos afectando a ningn otro avión con el reción girado. En caso contrario, se añ
             if intersectan_girado == 0:
                 for ti in conflict_list:
@@ -986,8 +984,22 @@ def separate_labels(canvas):
                             intersectan_girado += 1
                             conflict_list.append(tj)
                             cuenta[tj]=0
+                            #logging.debug("Added to conflict list: "+tj.cs)
+
+            # En caso de que haya conflicto, escogemos el giro con menos interseccione
+            if intersectan_girado < menos_inter:
+                menos_inter = intersectan_girado
+                cuenta_menos_inter = cuenta
+                best_pos = new_pos.copy()
+                
         if intersectan_girado>0:
-            logging.info("Unable to separate "+str(intersectan_girado)+" labels")
+            logging.debug("Unable to separate "+str(intersectan_girado)+" label(s)")
+            if cuenta[conflict_list[0]] >= rotating_steps:
+                logging.debug("No solution found after checking all posibilities")
+            if not rotating_labels:
+                logging.debug("No autorotating labels left")
+            if (time()-crono2>=1):
+                logging.debug("No solution found after 1 second")
         
         move_list += conflict_list
         
@@ -997,6 +1009,7 @@ def separate_labels(canvas):
     for track in move_list:
         d[track]=1
     move_list = d.keys()
+    #logging.debug("Moving labels: "+str([t.cs for t in move_list if ((t.label_x,t.label_y)!=best_pos[t])]))
     # Update the labels
     for t in move_list:
         (x,y)=best_pos[t]
