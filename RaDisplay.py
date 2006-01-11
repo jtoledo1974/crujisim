@@ -822,7 +822,7 @@ class VisTrack(object): # ensure a new style class
                     
     def reposition_label(self, newx, newy):
         """Repositions the label based on the new end of the leader line"""
-        self._l.reformat()  # Make sure we have the current width
+        #self._l.reformat()  # Make sure we have the current width
         (x,y) = self.x,self.y
         ldr_x_offset = newx - x
         ldr_y_offset = newy - y
