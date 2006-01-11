@@ -29,6 +29,7 @@ import sys
 from FIR import *
 from MathUtil import *
 from time import time
+from math import floor
 
 # Globals
 
@@ -1071,10 +1072,16 @@ class VisTrack(object): # ensure a new style class
                 else:
                     self.wake.c=vt.color
             if i=='pac':
-                if vt.pac: self.pac.c='red'
+                if vt.pac:
+                    if (time()-floor(time())>0.5): self.pac.c='red'
+                    else: self.pac.c=''
+                    self.vt._c.after(500,lambda: self.refresh(i))
                 else: self.pac.c=''
             if i=='vac':
-                if vt.vac: self.vac.c='red'
+                if vt.vac:
+                    if (time()-floor(time())>0.5): self.vac.c='red'
+                    else: self.vac.c=''
+                    self.vt._c.after(500,lambda: self.refresh(i))
                 else: self.vac.c=''
                 
                 # Refresh the item
