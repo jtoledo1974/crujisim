@@ -747,9 +747,7 @@ def redraw_all():
         vt.coords(x,y,None)
         
     draw_all_lads(w)
-    print "Redrawing storms"
-    for s in storms:
-        print "Redrawing "+str(s)
+    for s in storms[:]:
         s.redraw()
     # Comprobar si hay PAC o VAC
     # First we reset state

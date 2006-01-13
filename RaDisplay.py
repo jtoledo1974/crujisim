@@ -2225,14 +2225,16 @@ class Storm(object):
         wx,wy=self.wx,self.wy
         self.wrx,self.wry=self.radisplay.undo_scale((e.x,e.y))
         self.r=sqrt((x-e.x)**2+(y-e.y)**2)
-        self.radisplay.storms.append(self)
         canvas.bind('<Button-2>', self.radisplay.b2_cb)
         canvas.bind('<Button-3>', self.radisplay.b3_cb)
         self.radisplay.b3_cb(e)
         self.redraw()
 
     def delete(self):
-        self.radisplay.storms.remove(self)
+        try:
+            self.radisplay.storms.remove(self)
+        except:
+            pass
         s=str(self)
         self.radisplay.c.delete(s+'storm')
 
