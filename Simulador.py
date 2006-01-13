@@ -1413,6 +1413,15 @@ def cambiar_viento():
     RaDialog(w,label='Definir viento',
             ok_callback=change_wind,entries=entries)    
     
+def create_storm():
+    global vent_ident_procs
+    if vent_ident_procs != None:
+        w.delete(vent_ident_procs)
+        vent_ident_procs = None
+    def start_storm(e=None):
+        print "HOLA!"
+        w.bind("<Button-2>",def_lad)
+    w.bind("<Button-2>",start_storm)
     
 def hdg_after_fix():
     """Show a dialog to command the selected aircraft to follow a heading after a certain fix"""
@@ -1840,6 +1849,8 @@ def ventana_auxiliar(e):
                 but_orbit.grid(column=0,row=4,sticky=E+W)
                 but_wind = Button(ventana_procs, text = 'Cambiar viento', command = cambiar_viento)
                 but_wind.grid(column=0,row=5,sticky=E+W)
+                but_storm = Button(ventana_procs, text = 'Crear tormenta', command = create_storm)
+                but_storm.grid(column=0,row=6,sticky=E+W)
                 vent_ident_procs=w.create_window(ventana.winfo_x()+but_ver_proc.winfo_x(),alto-ventana.winfo_height(),window=ventana_procs,anchor='sw')
             but_ver_proc['command'] = procs_buttons
             but_ver_app = Button(ventana, text = 'APP')

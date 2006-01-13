@@ -2181,6 +2181,24 @@ class RaDisplay(object):
         self.draw_deltas = not self.draw_deltas
         self.redraw_maps()
 
+class Storm(object):
+    def __init__(self,radisplay,e):
+    
+        self.radisplay=radisplay
+        canvas=radisplay.c
+        
+        # Start defining a storm
+        self.x,self.y=e.x,e.y
+        (self.wx, self.wy) = self.radisplay.undo_scale(e.x,e.y)
+        self._motion_id = canvas.bind('<Motion>', self.update_storm_being_defined)
+        self._button2_id = canvas.bind('<Button-2>', self.cancel_def_storm)
+        self._button3_id = canvas.bind('<Button-3>', self.end_def_storm)
+
+    def update_storm_being_defined(self,e=None):
+        canvas=self.radisplay.c        
+        canvas.delete('storm_defined')
+        canvas.create_oval(self.x, self.y,e.x, e.y, fill="yellow", tags="storm_defined")
+        
 # This is here just for debugging purposes
 if __name__ == "__main__":
     import Pseudopilot
