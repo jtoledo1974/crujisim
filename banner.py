@@ -235,7 +235,10 @@ def seleccion_usuario():
                 omEjercicio.pick(0)
         else:
             for e in ejer_list:
-                omEjercicio.add_command(e)
+                try:
+                    omEjercicio.add_command(e)
+                except:
+                    logging.error("Unable to add excercise "+str(e)+" to excercise list. Probable duplicate")
                 
     omSector.configure(command=change_sector)
     omFIR.subwidget_list['menu'].invoke(0)
