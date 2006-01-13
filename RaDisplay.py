@@ -2189,7 +2189,7 @@ class Storm(object):
         
         # Start defining a storm
         self.x,self.y=e.x,e.y
-        (self.wx, self.wy) = self.radisplay.undo_scale(e.x,e.y)
+        (self.wx, self.wy) = self.radisplay.undo_scale((e.x,e.y))
         self._motion_id = canvas.bind('<Motion>', self.update_storm_being_defined)
         self._button2_id = canvas.bind('<Button-2>', self.cancel_def_storm)
         self._button3_id = canvas.bind('<Button-3>', self.end_def_storm)
@@ -2197,8 +2197,62 @@ class Storm(object):
     def update_storm_being_defined(self,e=None):
         canvas=self.radisplay.c        
         canvas.delete('storm_defined')
-        canvas.create_oval(self.x, self.y,e.x, e.y, fill="yellow", tags="storm_defined")
+        x,y=self.x,self.y
+        r=sqrt((x-e.x)**2+(y-e.y)**2)
+        x0,x1,y0,y1=x-r,x+r,y-r,y+r
+        canvas.create_oval(x0, y0,x1,y1, fill="", outline="yellow", tags="storm_defined")
+        r *= 1.4
+        x0,x1,y0,y1=x-r,x+r,y-r,y+r
+        canvas.create_oval(x0, y0,x1,y1, fill="", outline="yellow", tags="storm_defined", dash=(10,10))
         
+    def cancel_def_storm(self,e=None):
+        canvas=self.radisplay.c
+        canvas.delete('storm_defined')
+        canvas.unbind('<Motion>',self._motion_id)
+        canvas.unbind('<Button-2>',self._button2_id)
+        canvas.unbind('<Button-3>',self._button3_id)
+        canvas.bind('<Button-2>',self.radisplay.b2_cb)
+        canvas.bind('<Button-3>',self.radisplay.b3_cb)
+
+    def end_def_storm(self,e=None):
+        canvas=self.radisplay.c
+        canvas.delete('storm_defined')
+        canvas.unbind('<Motion>',self._motion_id)
+        canvas.unbind('<Button-2>',self._button2_id)
+        canvas.unbind('<Button-3>',self._button3_id)
+        x,y=self.x,self.y
+        wx,wy=self.wx,self.wy
+        self.wrx,self.wry=self.radisplay.undo_scale((e.x,e.y))
+        self.r=sqrt((x-e.x)**2+(y-e.y)**2)
+        self.radisplay.storms.append(self)
+        canvas.bind('<Button-2>', self.radisplay.b2_cb)
+        canvas.bind('<Button-3>', self.radisplay.b3_cb)
+        self.radisplay.b3_cb(e)
+        self.redraw()
+
+    def delete(self):
+        self.radisplay.storms.remove(self)
+        s=str(self)
+        self.radisplay.c.delete(s+'storm')
+
+    def redraw(self):
+        canvas=self.radisplay.c
+        do_scale=self.radisplay.do_scale
+        s=str(self)
+        self.delete()
+        
+        # Create a new storm
+        self.radisplay.storms.append(self)
+
+        (x,y)=(self.x,self.y)=do_scale((self.wx,self.wy))
+        rx,ry=do_scale((self.wrx,self.wry))
+        r=sqrt((x-rx)**2+(y-ry)**2)
+        x0,x1,y0,y1=x-r,x+r,y-r,y+r
+        canvas.create_oval(x0, y0,x1,y1, fill="", outline="yellow", tags=(s+'storm','storm'))
+        r *= 1.4
+        x0,x1,y0,y1=x-r,x+r,y-r,y+r
+        canvas.create_oval(x0, y0,x1,y1, fill="", outline="yellow", tags=(s+'storm','storm'), dash=(10,10))
+
 # This is here just for debugging purposes
 if __name__ == "__main__":
     import Pseudopilot

@@ -78,6 +78,7 @@ reloj_funciona = False
 listado_salidas = {}
 
 superlad = None
+storms = []
 win_manual = None
 win_datos = None
 vent_ident_dcha = None
@@ -745,7 +746,9 @@ def redraw_all():
         (x,y)=do_scale((vt.wx,vt.wy))
         vt.coords(x,y,None)
         
-    draw_all_lads(w)  
+    draw_all_lads(w)
+    for s in storms:
+        s.redraw()
     # Comprobar si hay PAC o VAC
     # First we reset state
     for acft in ejercicio:
@@ -1085,6 +1088,17 @@ def timer():
         for a in ejercicio:
             a.next(last_update/60./60.)
             a.redraw(w)
+        # Move storms
+        for s in storms:
+            global wind
+            # Wind is defined as a speed in knots
+            # Since we are updating every 5 seconds, we have to divide the intensity accordingly
+            (wind_x,wind_y)=pr((wind[0]*5/3600,wind[1]))
+            s.wx+=wind_x
+            s.wy+=wind_y
+            s.wrx+=wind_x
+            s.wry+=wind_y
+            s.redraw()
         # Lo eliminamos por ahora puesto que tenemos el cliente remoto
         #display.update()
         if auto_sep:
@@ -1414,14 +1428,31 @@ def cambiar_viento():
             ok_callback=change_wind,entries=entries)    
     
 def create_storm():
-    global vent_ident_procs
+    global vent_ident_procs, storms
     if vent_ident_procs != None:
         w.delete(vent_ident_procs)
         vent_ident_procs = None
+    
+    def storm_done(e=None):
+        w.configure(cursor="")
+        w.bind("<Button-3>",end_def_lad)
+    
+    class phony_radisplay:
+        def __init__(self,canvas, do_scale, undo_scale):
+            self.c=canvas
+            self.do_scale=do_scale
+            self.undo_scale=undo_scale
+            self.b2_cb = def_lad
+            self.b3_cb = storm_done   
+            self.storms = storms
+            
     def start_storm(e=None):
-        print "HOLA!"
+        w.configure(cursor="crosshair")
+        r=phony_radisplay(w,do_scale,undo_scale)
+        s=Storm(r,e)
         w.bind("<Button-2>",def_lad)
     w.bind("<Button-2>",start_storm)
+    w.configure(cursor="crosshair")
     
 def hdg_after_fix():
     """Show a dialog to command the selected aircraft to follow a heading after a certain fix"""
