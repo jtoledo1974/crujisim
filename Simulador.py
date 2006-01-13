@@ -747,7 +747,9 @@ def redraw_all():
         vt.coords(x,y,None)
         
     draw_all_lads(w)
+    print "Redrawing storms"
     for s in storms:
+        print "Redrawing "+str(s)
         s.redraw()
     # Comprobar si hay PAC o VAC
     # First we reset state
@@ -1450,7 +1452,6 @@ def create_storm():
         w.configure(cursor="crosshair")
         r=phony_radisplay(w,do_scale,undo_scale)
         s=Storm(r,e)
-        w.bind("<Button-2>",def_lad)
     w.bind("<Button-2>",start_storm)
     w.configure(cursor="crosshair")
     

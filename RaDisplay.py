@@ -2213,6 +2213,7 @@ class Storm(object):
         canvas.unbind('<Button-3>',self._button3_id)
         canvas.bind('<Button-2>',self.radisplay.b2_cb)
         canvas.bind('<Button-3>',self.radisplay.b3_cb)
+        self.radisplay.b3_cb(e)
 
     def end_def_storm(self,e=None):
         canvas=self.radisplay.c
