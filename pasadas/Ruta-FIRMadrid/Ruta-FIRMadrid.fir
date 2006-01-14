@@ -1,6 +1,7 @@
 # Fir Madrid en ruta fase 1
 [datos]
 nombre:FIR MADRID
+fir_rvsm_levels:290.00,410.00
 [puntos]
 HIDRO:80.773,-119.857
 DEMOS:104.223,-274.889
