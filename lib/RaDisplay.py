@@ -1631,8 +1631,15 @@ class RaDisplay(object):
             if action=='<ButtonRelease-2>':
                 try: self.selected_track.selected = not self.selected_track.selected
                 except: logging.debug("Unselecting previous selected track failed")
-                self.selected_track = vt
-                vt.selected = True
+                if self.selected_track == vt:
+                    self.selected_track = None
+                    vt.selected = False
+                else:
+                    self.selected_track = vt
+                    vt.selected = True
+                if self.label_moved:
+                    self.separate_labels()
+                    self.label_moved = False
                 if self.label_moved:
                     self.separate_labels()
                     self.label_moved = False

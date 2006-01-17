@@ -1200,7 +1200,7 @@ def b_parar():
 def b_tamano_etiquetas():
     global label_font, label_font_size
     LABEL_MIN_FONT_SIZE = 7
-    LABEL_MAX_FONT_SIZE = 15
+    LABEL_MAX_FONT_SIZE = 11
     LABEL_SIZE_STEP = 1
     for acft in ejercicio:
         acft.vt.l_font_size += LABEL_SIZE_STEP
