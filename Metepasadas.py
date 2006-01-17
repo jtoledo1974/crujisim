@@ -28,7 +28,7 @@ import ImageTk
 Image._initialized=2
 import banner
 import os.path
-import Exercise
+import Excercise
 import logging
 
 #fichero = ''
@@ -113,7 +113,7 @@ def ejercicio():
         config_fir.readfp(open(e,'r'))
         if config_fir.get('datos','fir') == fir_elegido:
             for (ident,datos) in config_fir.items('vuelos'):
-                flight=Exercise.Flight(ident,datos)
+                flight=Excercise.Flight(ident,datos)
                 rutas.append(flight.route(), flight.orig(), flight.dest())
             for a in config_fir.sections():
                 config_fir.remove_section(a)
@@ -873,7 +873,7 @@ def ejercicio():
                     ejer.remove_option('req',indicativo)
                     # We add the route as given to the route database to be reused
                     # if necessary
-                flight=Exercise.Flight(indicativo,ruta)
+                flight=Excercise.Flight(indicativo,ruta)
                 rutas.append(flight.route(),flight.orig(),flight.dest())
                 
     but_nuevo_vuelo = Button(root, text = 'Nuevo vuelo',command = mas)

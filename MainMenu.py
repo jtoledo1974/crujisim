@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #-*- coding:iso8859-15 -*-
-# $Id$
+
 # (c) 2005 CrujiMaster (crujisim@yahoo.com)
 #
 # This file is part of CrujiSim.
@@ -20,13 +20,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-import sys
-sys.path.append ("lib")
 import banner
 import Metepasadas
 import tpv
 import logging
 import update
+import sys
 
 # Define which logging level messages will be output
 logging.getLogger('').setLevel(logging.DEBUG)

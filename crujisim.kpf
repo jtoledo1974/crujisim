@@ -3,40 +3,128 @@
 <project id="29ED6436-AB95-4B49-B3BA-B77F3C2E528E" name="crujisim" kpf_version="2">
 <preference-set id="">
 </preference-set>
-<file url="MainMenu.py" id="5838F104-8C40-4921-AE78-A097DABC322D" name="MainMenu.py">
+<file url="tpv.py" id="E02DAC53-F7A8-4CD1-9ACD-5E802DAD36CB" name="tpv.py">
 </file>
-<file url="RemoteClient.py" id="F022C809-D700-4BE2-AA37-C0BFF5198401" name="RemoteClient.py">
+<file url="avion.py" id="19DF5A09-75FF-4366-86F2-4F22894F8FE8" name="avion.py">
 </file>
-<file url="splash.py" id="3D4999B0-4111-44C7-A987-FEB946E97488" name="splash.py">
+<file url="banner.py" id="7C7CD0C9-7CE8-49A7-9362-3DCE5A8805F6" name="banner.py">
 </file>
-<file url="lib/update.py" id="1527949F-0C9F-44B7-972F-162D255ECC18" name="update.py">
+<file url="Excercise.py" id="FB50448A-FB7A-482E-A56E-1A024BBC5DBD" name="Excercise.py">
 </file>
-<file url="lib/avion.py" id="57C2DF3A-EA22-4DD5-B8AF-19DC8C2D926C" name="avion.py">
+<file url="FIR.py" id="898FD971-82B9-4105-8DEC-F049E07FEB52" name="FIR.py">
 </file>
-<file url="lib/banner.py" id="566A23D6-E89E-48CA-9756-A1EE1C8E975A" name="banner.py">
+<file url="lads.py" id="37116042-C918-40AD-9DD4-C470D4E74713" name="lads.py">
 </file>
-<file url="lib/ConfMgr.py" id="484ECD2F-E08E-41CC-88F3-D96E4C4BC735" name="ConfMgr.py">
+<file url="MainMenu.py" id="09308385-D0C2-4FEA-BD93-E6675C6DBFFC" name="MainMenu.py">
 </file>
-<file url="lib/Excercise.py" id="EA77191E-5ADE-4CC0-B547-800E97AF7368" name="Excercise.py">
+<file url="MathUtil.py" id="BFC5173D-21CF-4E5D-B1BC-2253A89A16AF" name="MathUtil.py">
 </file>
-<file url="lib/FIR.py" id="D0E9A292-D97E-4EE3-8160-CC0D92D6EECB" name="FIR.py">
+<file url="Metepasadas.py" id="B931A0DB-EC92-4DE6-B34C-67A366591CD6" name="Metepasadas.py">
 </file>
-<file url="lib/lads.py" id="26B0BBCC-8C94-4DE9-A085-96092C345311" name="lads.py">
+<file url="RaDisplay.py" id="466639F5-2600-4954-AB70-135B3CC4BDBE" name="RaDisplay.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\crujisim\RemoteClient.py</string>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="userEnvironment"></string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
-<file url="lib/MathUtil.py" id="CF9C8BD1-8AE2-44D1-A0D2-F6B2CBB2BF34" name="MathUtil.py">
+<file url="Simulador.py" id="B67E8891-A86B-4D4D-AFA8-B10A1E8696A7" name="Simulador.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\radisplay\MainMenu.py</string>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="userEnvironment"></string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
-<file url="lib/Metepasadas.py" id="0F98EAA0-0EB8-4761-8F5F-C17D93119152" name="Metepasadas.py">
+<file url="StripSeries.py" id="2973BAD0-414E-411E-BE07-D415F378C3ED" name="StripSeries.py">
 </file>
-<file url="lib/Pseudopilot.py" id="B77153EF-3913-4B2B-A987-40B0FCC109B4" name="Pseudopilot.py">
+<file url="Pseudopilot.py" id="08E44711-253A-4BBE-9E78-95DC46E8439E" name="Pseudopilot.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\radisplay\RaDisplay.py</string>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="userEnvironment"></string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
-<file url="lib/RaDisplay.py" id="16C5D5AC-AC66-437B-A8B0-1AE2EB04130E" name="RaDisplay.py">
+<file url="UI.py" id="E30CF159-8E6A-43C1-BC2F-71467D139BA2" name="UI.py">
 </file>
-<file url="lib/Simulador.py" id="405538CC-B3F1-465F-832E-9CD3AD5670D3" name="Simulador.py">
+<file url="ConfMgr.py" id="0A084920-F402-47C1-B096-C54248D38E9E" name="ConfMgr.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\crujisim\ConfMgr.py</string>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="userEnvironment"></string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
-<file url="lib/StripSeries.py" id="F9861C27-F539-4BFD-A2BE-DCF7B136C9FD" name="StripSeries.py">
-</file>
-<file url="lib/tpv.py" id="1B7983AD-51F0-429C-836D-A399FCDE495A" name="tpv.py">
-</file>
-<file url="lib/UI.py" id="B6049920-07B3-497A-B603-9A6C80B02856" name="UI.py">
+<file url="RemoteClient.py" id="C164E938-B991-4929-B71A-C50FAA20BDFF" name="RemoteClient.py">
 </file>
 </project>

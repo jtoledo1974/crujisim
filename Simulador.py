@@ -2060,15 +2060,6 @@ w.bind('<Configure>',change_widget_size)
 redraw_all()
 timer()
 
-def window_closed(e=None):
-    root.destroy()
-    try:
-        reactor.stop()
-    except:
-        pass
-    
-root.protocol("WM_DELETE_WINDOW", window_closed)
-
 # Start the networked mainloop, or else the normal tkinter mainloop
 try:
     class GTA_Protocol(NetstringReceiver):
@@ -2120,6 +2111,7 @@ try:
         def __init__(self,flights):
             self.flights=flights
 
+    root.protocol("WM_DELETE_WINDOW", reactor.stop)
     protocol_factory=GTA_Protocol_Factory(ejercicio)
     try:
         port=conf.server_port
