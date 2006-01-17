@@ -44,6 +44,8 @@ class CrujiConfig(object):
         self.show_palotes_image = self.read_option('Global','show_palotes',True,"bool")        
         self.server_port = self.read_option('Global','server_port',20123,"int")
         self.printer_sound = self.read_option('Global','printer_sound',True,"bool")
+        self.fir_option = self.read_option('Global','fir_option',"FIR MADRID","string")
+        self.sector_option = self.read_option('Global','sector_option',"---","string")
         
     def save(self):
         try:
@@ -56,6 +58,8 @@ class CrujiConfig(object):
                 for l in value: mru += l+","
                 mru = mru[0:-1]
                 self.cp.set('Global',name,mru)
+            elif name in ('fir_option','sector_option'):
+                self.cp.set('Global',name,value)
         config_fp=open(_config_file_name, "w+")
         self.cp.write(config_fp)
         config_fp.close()

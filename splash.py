@@ -113,7 +113,6 @@ class Crujisim:
         self.exc_filter = exc_filter = exc_list.filter_new()
         self.filters = {"FIR":"---","Sector":"---","Promocion":"---"}
         exc_filter.set_visible_func(self.exc_is_visible)
-        self.update_combos()
         exc_view = self.exc_view = gui.get_widget("exercises")
         exc_view.set_model(gtk.TreeModelSort(exc_filter))
         exc_view.get_selection().set_mode(gtk.SELECTION_SINGLE)
@@ -132,9 +131,12 @@ class Crujisim:
         fircombo=gui.get_widget("fircombo")
         for f in firs.keys():
             fircombo.append_text(f)
-        self._updating_combos = True            
-        fircombo.set_active(0)
-        self._updating_combos = False
+        self._updating_combos = True  # make sure we don't actually filter            
+        self.set_active_text(fircombo, conf.fir_option)
+        self.filters = {"FIR":conf.fir_option,"Sector":conf.sector_option}        
+        self.update_combos()  # Load the appropriate sectors
+        self.set_active_text(gui.get_widget("sectorcombo"),conf.sector_option)
+        self.set_filter(None)
     
     def update_combos(self):
         self._updating_combos = True
@@ -168,6 +170,13 @@ class Crujisim:
         if active < 0:
             return None
         return model[active][0]
+    
+    def set_active_text(self, combobox, text):
+        model = combobox.get_model()
+        for row, i in zip(model, range(len(model))):
+            if row[0] == text:
+                combobox.set_active(i)
+                break
     
     def blank_combo(self,combo):
         while len(combo.get_model())>0:
@@ -203,7 +212,10 @@ class Crujisim:
             return False
         
     def gtk_main_quit(self,w=None,e=None):
-        
+        gui = self.gui
+        conf.fir_option=self.get_active_text(gui.get_widget("fircombo"))
+        conf.sector_option=self.get_active_text(gui.get_widget("sectorcombo"))
+        conf.save()
         gtk.main_quit()
         
     def list_clicked(self,widget=None,event=None):
