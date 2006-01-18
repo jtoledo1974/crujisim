@@ -76,7 +76,10 @@ class Crujisim:
         for l in j.split("|"): joke += l+"\n"
         joke = joke[:-1]
         splash.get_widget('jokelabel').set_text(utf8conv(joke))
-        splash.get_widget("Splash").set_position(gtk.WIN_POS_CENTER)
+        splash_window = splash.get_widget("Splash")
+        splash_window.set_position(gtk.WIN_POS_CENTER)
+        splash_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        
         
         #splash.get_widget('Splash').idle_add(self.load)
         splash.get_widget("progressbar").set_text("Obteniendo lista de ejercicios")
@@ -223,11 +226,21 @@ class Crujisim:
             self.begin_simulation()
         
     def begin_simulation(self,button=None):
-        print "Button clicked"
         sel = self.exc_view.get_selection()
         (model, iter) = sel.get_selected()
         
-        fir_name = model.get_value(iter,1)
+        try:
+            fir_name = model.get_value(iter,1)
+        except:
+            dlg=gtk.MessageDialog(parent=self.gui.get_widget("MainWindow"),
+                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                                  type=gtk.MESSAGE_INFO,
+                                  buttons=gtk.BUTTONS_CLOSE,
+                                  message_format="No hay ninguna pasada seleccionada")
+            dlg.set_position(gtk.WIN_POS_CENTER)
+            dlg.connect('response',lambda dlg, r: dlg.destroy())
+            dlg.run()
+            return
         for (fir,fir_file) in get_fires():
             if fir_name==fir:
                 fir_elegido=(fir, fir_file)
