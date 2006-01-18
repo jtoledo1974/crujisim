@@ -69,7 +69,6 @@ def load_exercises(path, reload=False):
             e=Exercise(f)
         except:
             logging.warning("Unable to read exercise "+f)
-            raise
             continue
         exc = {}
         exc["file"]=f
