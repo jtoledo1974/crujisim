@@ -1640,9 +1640,6 @@ class RaDisplay(object):
                 if self.label_moved:
                     self.separate_labels()
                     self.label_moved = False
-                if self.label_moved:
-                    self.separate_labels()
-                    self.label_moved = False
         if item=='leader':
             if action=='<Button-1>' or action=='<Button-3>':
                 self.separate_labels(vt)
