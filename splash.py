@@ -49,6 +49,7 @@ utf8conv = lambda x : unicode(x, encoding).encode('utf8')
 
 # CONSTANTS
 EX_DIR = "pasadas"
+GLADE_FILE = "glade/crujisim.glade" 
 JOKES = "jokes.txt"
 
 # Define which logging level messages will be output
@@ -57,7 +58,7 @@ logging.getLogger('').setLevel(logging.DEBUG)
 class Crujisim:
     
     def __init__(self): 
-        gladefile = "glade/crujisim.glade" 
+        gladefile = GLADE_FILE 
         self.windowname = "splash" 
 
         splash = self.splash = gtk.glade.XML(gladefile, "Splash") 
@@ -225,6 +226,25 @@ class Crujisim:
         if event.type == gtk.gdk._2BUTTON_PRESS:
             self.begin_simulation()
         
+    def edit(self,button=None):
+        sel = self.exc_view.get_selection()
+        (model, iter) = sel.get_selected()
+        
+        try:
+            exc_file = model.get_value(iter,0)
+        except:
+            dlg=gtk.MessageDialog(parent=self.gui.get_widget("MainWindow"),
+                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                                  type=gtk.MESSAGE_INFO,
+                                  buttons=gtk.BUTTONS_CLOSE,
+                                  message_format="No hay ninguna pasada seleccionada")
+            dlg.set_position(gtk.WIN_POS_CENTER)
+            dlg.connect('response',lambda dlg, r: dlg.destroy())
+            dlg.run()
+            return
+        
+        ExcEditor(exc_file)
+
     def begin_simulation(self,button=None):
         sel = self.exc_view.get_selection()
         (model, iter) = sel.get_selected()
@@ -266,6 +286,20 @@ class Crujisim:
             sys.modules.pop('Simulador')
         import Simulador
         self.gui.get_widget("MainWindow").present()
+
+class ExcEditor:
+    def __init__(self,exc_file=None):
+        gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExcEditor") 
+        gui.signal_autoconnect(self)
+        gui_window = gui.get_widget("ExcEditor")
+        gui_window.set_position(gtk.WIN_POS_CENTER)
+        gui_window.present()
+    
+    def close(self,w=None,e=None):
+        self.gui.get_widget("ExcEditor").destroy()
+        print "In close"
+        
+
 
 Crujisim()
 gtk.main()
