@@ -395,11 +395,16 @@ class FlightEditor:
 
         # Populate the dialog
         if not flight: flight=Flight()
-        self.callsign.props.text = flight.callsign
-        self.orig.props.text = flight.orig
-        self.dest.props.text = flight.dest
+
+        # I use the __dict_[attr] is another way to reference an some objects attr
+        # object.__dict__["callsign"] == object.callsign
+        for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type","eto"]:
+            self.__dict__[attr].props.text = flight.__dict__[attr]
         self.route.child.props.text = flight.route.replace(","," ")
-        
+        self.set_firstfix(flight.route)
+    
+    def set_firstfix(self,route):
+        self.firstfix.props.label=route.split(",")[0]
 
 Crujisim()
 gtk.main()

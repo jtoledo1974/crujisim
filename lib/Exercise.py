@@ -134,11 +134,24 @@ class Flight:
             self.orig=self.orig()
             self.dest=self.dest()
             self.route=self.route()
+            self.fix,self.eto,self.firstlevel,self.tas = self.fix_eto_firstlevel_tas()
+            self.wtc=self.wtc()
+            self.rfl=self.rfl()
+            self.cfl=self.cfl()
+            self.type=self.type()
         else:
             self.callsign=""
             self.orig=""
             self.dest=""
             self.route=""
+            self.fix=""
+            self.eto=""
+            self.wtc=""
+            self.tas=""
+            self.rfl=""
+            self.firstlevel=""
+            self.cfl=""
+            self.type=""
         
     def orig(self):
         """Return the departing aerodrome"""
@@ -160,6 +173,40 @@ class Flight:
         route = route[:-1]
         return route
 
+    def fix_eto_firstlevel_tas(self):
+        """Return the fix for which the eto is valid"""
+        data=self._data.split(',')
+        route=data[6:]
+        for fix,i in zip(route,range(len(route)-1)):
+            if len(route[i+1])==15:
+                break
+        s = route[i+1]
+        eto = s[1:7]
+        firstlevel = s[8:11]
+        tas = s[12:]
+        
+        return fix,eto,firstlevel,tas
+        
+    def wtc(self):
+        """Return the wake turbulence cat"""
+        data=self._data.split(',')
+        return data[1]
+        
+    def rfl(self):
+        """Return the RFL"""
+        data=self._data.split(',')
+        return data[4]
+        
+    def cfl(self):
+        """Return the CFL"""
+        data=self._data.split(',')
+        return data[5]
+        
+    def type(self):
+        """Return the type"""
+        data=self._data.split(',')
+        return data[0]
+    
 
 if __name__=='__main__':
     #Exercise("../pasadas\APP-RadarBasico\21-Fase-1-Día-01-M-TMA Madrid-1.eje"

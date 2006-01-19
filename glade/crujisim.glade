@@ -1110,7 +1110,7 @@ Seleccione una pasada</property>
 	    <widget class="GtkEntry" id="eobt">
 	      <property name="width_request">36</property>
 	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
@@ -1143,18 +1143,6 @@ Seleccione una pasada</property>
 	    <packing>
 	      <property name="x">92</property>
 	      <property name="y">52</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator2">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">228</property>
-	      <property name="y">8</property>
 	    </packing>
 	  </child>
 
@@ -1251,6 +1239,8 @@ Seleccione una pasada</property>
 	      <property name="width_request">24</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Nivel autorizado
+Es el nivel al que evoluciona el avión desde el momento que aparece en el primer fijo de la ruta. Normalmente este nivel y el nivel en el primer fijo de la ruta serán iguales salvo cuando sea un despegue</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
@@ -1291,8 +1281,9 @@ Seleccione una pasada</property>
 	      <property name="width_request">28</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
+	      <property name="editable">False</property>
 	      <property name="visibility">True</property>
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
@@ -1311,8 +1302,9 @@ Seleccione una pasada</property>
 	      <property name="width_request">16</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
+	      <property name="editable">False</property>
 	      <property name="visibility">True</property>
 	      <property name="max_length">1</property>
 	      <property name="text" translatable="yes"></property>
@@ -1485,10 +1477,12 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkEntry" id="1stlevel">
+	    <widget class="GtkEntry" id="firstlevel">
 	      <property name="width_request">24</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Nivel en primer fijo de ruta. 
+Normalmente basta con que sea el mismo que el CFL, pero es importante que en los despegues se corresponda con la elevación del aeródromo.</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
@@ -1611,7 +1605,7 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="1stfix">
+	    <widget class="GtkLabel" id="firstfix">
 	      <property name="width_request">34</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
@@ -1633,6 +1627,18 @@ Seleccione una pasada</property>
 	    <packing>
 	      <property name="x">496</property>
 	      <property name="y">40</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator2">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">228</property>
+	      <property name="y">8</property>
 	    </packing>
 	  </child>
 	</widget>
