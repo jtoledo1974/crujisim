@@ -1216,7 +1216,7 @@ Seleccione una pasada</property>
 
 	  <child>
 	    <widget class="GtkEntry" id="eto">
-	      <property name="width_request">36</property>
+	      <property name="width_request">40</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
