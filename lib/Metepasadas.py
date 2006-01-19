@@ -114,7 +114,7 @@ def ejercicio():
         if config_fir.get('datos','fir') == fir_elegido:
             for (ident,datos) in config_fir.items('vuelos'):
                 flight=Exercise.Flight(ident,datos)
-                rutas.append(flight.route(), flight.orig(), flight.dest())
+                rutas.append(flight.route, flight.orig, flight.dest)
             for a in config_fir.sections():
                 config_fir.remove_section(a)
     print 'Total de rutas: ',rutas.size()

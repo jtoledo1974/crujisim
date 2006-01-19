@@ -1055,7 +1055,7 @@ Seleccione una pasada</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
 	      <property name="max_length">0</property>
-	      <property name="text">IBE1232</property>
+	      <property name="text"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1074,8 +1074,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">MD87</property>
+	      <property name="max_length">4</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1094,8 +1094,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">LEPP</property>
+	      <property name="max_length">4</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1114,8 +1114,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">0800</property>
+	      <property name="max_length">4</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1134,8 +1134,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">LEMD</property>
+	      <property name="max_length">4</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1208,20 +1208,20 @@ Seleccione una pasada</property>
 
 	  <child>
 	    <widget class="GtkEntry" id="fix">
-	      <property name="width_request">48</property>
+	      <property name="width_request">36</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">BAN</property>
+	      <property name="max_length">5</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
-	      <property name="x">368</property>
+	      <property name="x">372</property>
 	      <property name="y">12</property>
 	    </packing>
 	  </child>
@@ -1234,8 +1234,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">0820</property>
+	      <property name="max_length">6</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1248,21 +1248,21 @@ Seleccione una pasada</property>
 
 	  <child>
 	    <widget class="GtkEntry" id="cfl">
-	      <property name="width_request">36</property>
+	      <property name="width_request">24</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">250</property>
+	      <property name="max_length">3</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
-	      <property name="x">492</property>
-	      <property name="y">12</property>
+	      <property name="x">560</property>
+	      <property name="y">32</property>
 	    </packing>
 	  </child>
 
@@ -1274,8 +1274,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">250</property>
+	      <property name="max_length">3</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1294,8 +1294,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">0462</property>
+	      <property name="max_length">4</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1314,8 +1314,8 @@ Seleccione una pasada</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes">M</property>
+	      <property name="max_length">1</property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char">*</property>
 	      <property name="activates_default">False</property>
@@ -1485,11 +1485,85 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
+	    <widget class="GtkEntry" id="1stlevel">
+	      <property name="width_request">24</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">3</property>
+	      <property name="text" translatable="yes"></property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">508</property>
+	      <property name="y">24</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label22">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">FL
+</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">484</property>
+	      <property name="y">24</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label23">
+	      <property name="width_request">56</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">______
+</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">484</property>
+	      <property name="y">28</property>
+	    </packing>
+	  </child>
+
+	  <child>
 	    <widget class="GtkLabel" id="label21">
 	      <property name="width_request">640</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">________________________________________________________________________________________________________</property>
+	      <property name="label" translatable="yes">_________________________________________________________________________________________________________</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1507,6 +1581,58 @@ Seleccione una pasada</property>
 	    <packing>
 	      <property name="x">4</property>
 	      <property name="y">56</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label25">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">FL</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">536</property>
+	      <property name="y">32</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="1stfix">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes"></property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">496</property>
+	      <property name="y">40</property>
 	    </packing>
 	  </child>
 	</widget>
