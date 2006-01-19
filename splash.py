@@ -342,14 +342,57 @@ class ExcEditor:
         self.da.props.text=exc.da
         self.usu.props.text=exc.usu
         self.ejer.props.text=exc.ejer
+        self.flights = exc.flights
         
         for f in exc.flights.values():
             self.fls.append((f.callsign,f.orig,f.dest,f.route))
-            
+
+    def list_clicked(self,w=None,event=None):
+        print "in list clicked"
+        if event.type == gtk.gdk._2BUTTON_PRESS:
+            self.edit()
+        pass
+    
+    def edit(self,w=None):
+        sel = self.ftv.get_selection()
+        (model, iter) = sel.get_selected()
+        
+        try:
+            callsign = model.get_value(iter,0)
+        except:
+            dlg=gtk.MessageDialog(parent=self.gui.get_widget("MainWindow"),
+                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                                  type=gtk.MESSAGE_INFO,
+                                  buttons=gtk.BUTTONS_CLOSE,
+                                  message_format=utf8conv("No hay ningún vuelo seleccionado"))
+            dlg.set_position(gtk.WIN_POS_CENTER)
+            dlg.connect('response',lambda dlg, r: dlg.destroy())
+            dlg.run()
+            return
+        
+        FlightEditor(self.flights[callsign])
+                
     def close(self,w=None,e=None):
         self.gui.get_widget("ExcEditor").destroy()
-        print "In close"
         
+class FlightEditor:
+    def __init__(self,flight):
+        gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
+        gui.signal_autoconnect(self)
+        
+        gui_window = gui.get_widget("FlightEditor")
+        gui_window.set_position(gtk.WIN_POS_CENTER)
+        gui_window.present()
+
+        # Automatically make every widget in the window an attribute of this class
+        for w in gui.get_widget_prefix(''):
+            name = w.get_name()
+            # make sure we don't clobber existing attributes
+            try:
+                assert not hasattr(self, name)
+            except:
+                logging.error("Failed with attr "+name)
+            setattr(self, name, w)        
 
 
 Crujisim()
