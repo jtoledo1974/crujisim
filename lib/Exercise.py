@@ -93,6 +93,15 @@ class Exercise:
         exc.readfp(open(file,"r"))
         self.fir=exc.get('datos','fir')
         self.sector=exc.get('datos','sector')
+        try: self.da = exc.get('datos','da')
+        except: self.da = ""
+        try: self.usu = exc.get('datos','usu')
+        except: self.usu = ""
+        try: self.ejer = exc.get('datos','ejer')
+        except: self.ejer = ""
+        try: self.ejer = exc.get('datos','ejer')
+        except: self.ejer = ""
+            
         try:
             self.comment = exc.get('datos','comentario')
         except:

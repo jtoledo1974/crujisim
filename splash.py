@@ -291,10 +291,46 @@ class ExcEditor:
     def __init__(self,exc_file=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExcEditor") 
         gui.signal_autoconnect(self)
+        
         gui_window = gui.get_widget("ExcEditor")
         gui_window.set_position(gtk.WIN_POS_CENTER)
         gui_window.present()
+        #self.ExcEditor = gui_window
+
+        # Automatically make every widget in the window an attribute of this class
+        for w in gui.get_widget_prefix(''):
+            name = w.get_name()
+            # make sure we don't clobber existing attributes
+            try:
+                assert not hasattr(self, name)
+            except:
+                logging.error("Failed with attr "+name)
+            setattr(self, name, w)
+        
+        if exc_file: self.populate(exc_file)
     
+    def populate(self, exc_file):
+        try:
+            exc=Exercise(exc_file)
+        except:
+            dlg=gtk.MessageDialog(parent=self.gui.get_widget("ExcEditor"),
+                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                                  type=gtk.MESSAGE_INFO,
+                                  buttons=gtk.BUTTONS_CLOSE,
+                                  message_format="Imposible abrir archivo:\n"+utf8conv(exc_file))
+            dlg.set_position(gtk.WIN_POS_CENTER)
+            dlg.connect('response',lambda dlg, r: dlg.destroy())
+            dlg.run()
+            self.ExcEditor.destroy()
+        
+        self.ExcEditor.set_title("Editor: "+utf8conv(exc_file))
+        self.fir.child.props.text=exc.fir
+        self.sector.child.props.text=exc.sector
+        self.da.props.text=exc.da
+        self.usu.props.text=exc.usu
+        self.ejer.props.text=exc.ejer
+        
+            
     def close(self,w=None,e=None):
         self.gui.get_widget("ExcEditor").destroy()
         print "In close"
