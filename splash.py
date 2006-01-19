@@ -306,6 +306,18 @@ class ExcEditor:
             except:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
+            
+        # Create the flights treeview
+        fls = self.fls = gtk.ListStore(str,str,str,str)  # Flights list store
+              
+        self.ftv.set_model(fls)
+        renderer = gtk.CellRendererText()
+        for i,name in zip(range(0,4),('Callsign','Orig','Dest','Route')):
+            column = gtk.TreeViewColumn(name, renderer, text=i) 
+            column.set_clickable(True) 
+            column.set_sort_column_id(i) 
+            column.set_resizable(True) 
+            self.ftv.append_column(column)
         
         if exc_file: self.populate(exc_file)
     
@@ -322,6 +334,7 @@ class ExcEditor:
             dlg.connect('response',lambda dlg, r: dlg.destroy())
             dlg.run()
             self.ExcEditor.destroy()
+            return
         
         self.ExcEditor.set_title("Editor: "+utf8conv(exc_file))
         self.fir.child.props.text=exc.fir
@@ -330,6 +343,8 @@ class ExcEditor:
         self.usu.props.text=exc.usu
         self.ejer.props.text=exc.ejer
         
+        for f in exc.flights.values():
+            self.fls.append((f.callsign,f.orig,f.dest,f.route))
             
     def close(self,w=None,e=None):
         self.gui.get_widget("ExcEditor").destroy()

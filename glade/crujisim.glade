@@ -267,7 +267,6 @@ Seleccione una pasada</property>
 	      <property name="border_width">1</property>
 	      <property name="height_request">191</property>
 	      <property name="visible">True</property>
-	      <property name="tooltip" translatable="yes">Elija el FIR (Se corresponden con las diferentes partes del curso)</property>
 	      <property name="can_focus">True</property>
 	      <property name="headers_visible">True</property>
 	      <property name="rules_hint">False</property>
@@ -934,7 +933,7 @@ Seleccione una pasada</property>
 	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	  <child>
-	    <widget class="GtkTreeView" id="treeview1">
+	    <widget class="GtkTreeView" id="ftv">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="headers_visible">True</property>

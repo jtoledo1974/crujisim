@@ -106,7 +106,17 @@ class Exercise:
             self.comment = exc.get('datos','comentario')
         except:
             self.comment = file
-        self.n_flights = len(exc.options('vuelos'))
+        try:
+            self.n_flights = len(exc.options('vuelos'))        
+            flightopts = exc.options('vuelos')
+        except:
+            logging.warning("Unable to read any flights from "+file)
+        self.flights={}
+        for flightopt in flightopts:
+            try: self.flights[flightopt.upper()]=Flight(flightopt,exc.get('vuelos',flightopt))
+            except:
+                logging.warning("Unable to read flight "+flightopt+" from "+file)
+        
 
 class Flight:
     """All data related to a specific flight within an Exercise"""
@@ -118,8 +128,11 @@ class Flight:
         data -- The flight data as is on the Exercise file
         """
         
-        self.callsign=callsign
+        self.callsign=callsign.upper()
         self._data=data
+        self.orig=self.orig()
+        self.dest=self.dest()
+        self.route=self.route()
         
     def orig(self):
         """Return the departing aerodrome"""
@@ -147,3 +160,4 @@ if __name__=='__main__':
     logging.getLogger('').setLevel(logging.DEBUG)
     e=load_exercises("../pasadas")
     #print str(e)
+    
