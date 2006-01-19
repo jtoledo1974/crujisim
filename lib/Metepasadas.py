@@ -874,7 +874,7 @@ def ejercicio():
                     # We add the route as given to the route database to be reused
                     # if necessary
                 flight=Exercise.Flight(indicativo,ruta)
-                rutas.append(flight.route(),flight.orig(),flight.dest())
+                rutas.append(flight.route,flight.orig,flight.dest)
                 
     but_nuevo_vuelo = Button(root, text = 'Nuevo vuelo',command = mas)
     but_nuevo_vuelo.grid(column=3,row=7)
