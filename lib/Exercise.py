@@ -206,7 +206,10 @@ class Flight:
         """Return the type"""
         data=self._data.split(',')
         return data[0]
-    
+
+def hhmmss_to_hours(s):
+    """Given a string formated as hhmmss return a float with the number of hours since midnight"""
+    pass
 
 if __name__=='__main__':
     #Exercise("../pasadas\APP-RadarBasico\21-Fase-1-Día-01-M-TMA Madrid-1.eje"

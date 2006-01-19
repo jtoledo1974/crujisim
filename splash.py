@@ -391,7 +391,12 @@ class FlightEditor:
                 assert not hasattr(self, name)
             except:
                 logging.error("Failed with attr "+name)
-            setattr(self, name, w)        
+            setattr(self, name, w)
+            
+        self.stripcontainer.set_focus_chain((self.callsign,self.type,self.orig, self.eobt,
+                                             self.dest,self.rfl,self.route,self.fix,self.eto,
+                                             self.firstlevel,self.cfl))
+        
 
         # Populate the dialog
         if not flight: flight=Flight()
