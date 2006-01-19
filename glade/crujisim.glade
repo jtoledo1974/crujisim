@@ -1031,127 +1031,521 @@ Seleccione una pasada</property>
   <property name="decorated">True</property>
   <property name="skip_taskbar_hint">False</property>
   <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
 
   <child>
-    <widget class="GtkFixed" id="fixed1">
+    <widget class="GtkVBox" id="vbox4">
       <property name="visible">True</property>
+      <property name="homogeneous">False</property>
+      <property name="spacing">0</property>
 
       <child>
-	<widget class="GtkEntry" id="entry17">
-	  <property name="width_request">158</property>
-	  <property name="height_request">21</property>
+	<widget class="GtkFixed" id="fixed1">
+	  <property name="height_request">100</property>
 	  <property name="visible">True</property>
-	  <property name="can_focus">True</property>
-	  <property name="editable">True</property>
-	  <property name="visibility">True</property>
-	  <property name="max_length">0</property>
-	  <property name="text">IBE1232</property>
-	  <property name="has_frame">True</property>
-	  <property name="invisible_char">*</property>
-	  <property name="activates_default">False</property>
+
+	  <child>
+	    <widget class="GtkEntry" id="callsign">
+	      <property name="width_request">64</property>
+	      <property name="height_request">20</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text">IBE1232</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">8</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="type">
+	      <property name="width_request">36</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">MD87</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">8</property>
+	      <property name="y">36</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="orig">
+	      <property name="width_request">36</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">LEPP</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">8</property>
+	      <property name="y">52</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="eobt">
+	      <property name="width_request">36</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">0800</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">52</property>
+	      <property name="y">52</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="dest">
+	      <property name="width_request">36</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">LEMD</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">92</property>
+	      <property name="y">52</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkHSeparator" id="hseparator2">
+	      <property name="width_request">648</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">8</property>
+	      <property name="y">64</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator2">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">228</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator3">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">288</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator6">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">476</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator5">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">416</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator4">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">352</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="fix">
+	      <property name="width_request">48</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">BAN</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">368</property>
+	      <property name="y">12</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="eto">
+	      <property name="width_request">36</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">0820</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">360</property>
+	      <property name="y">44</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="cfl">
+	      <property name="width_request">36</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">250</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">492</property>
+	      <property name="y">12</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="rfl">
+	      <property name="width_request">28</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">250</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">136</property>
+	      <property name="y">52</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="tas">
+	      <property name="width_request">28</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">0462</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">104</property>
+	      <property name="y">36</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="wtc">
+	      <property name="width_request">16</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">M</property>
+	      <property name="has_frame">False</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="x">64</property>
+	      <property name="y">36</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label16">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">/</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">32</property>
+	      <property name="y">52</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label17">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">/</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">116</property>
+	      <property name="y">52</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label18">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">/</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">44</property>
+	      <property name="y">36</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label19">
+	      <property name="width_request">34</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">/ C /</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">76</property>
+	      <property name="y">36</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkVSeparator" id="vseparator1">
+	      <property name="width_request">16</property>
+	      <property name="height_request">68</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">168</property>
+	      <property name="y">8</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkComboBoxEntry" id="route">
+	      <property name="width_request">637</property>
+	      <property name="height_request">20</property>
+	      <property name="visible">True</property>
+	      <property name="items" translatable="yes"></property>
+	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">False</property>
+	      <property name="focus_on_click">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">8</property>
+	      <property name="y">76</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkHSeparator" id="hseparator1">
+	      <property name="width_request">492</property>
+	      <property name="height_request">16</property>
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="x">8</property>
+	      <property name="y">24</property>
+	    </packing>
+	  </child>
 	</widget>
 	<packing>
-	  <property name="x">8</property>
-	  <property name="y">8</property>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
 	</packing>
       </child>
 
       <child>
-	<widget class="GtkEntry" id="entry18">
-	  <property name="width_request">48</property>
-	  <property name="height_request">16</property>
+	<widget class="GtkHSeparator" id="hseparator4">
 	  <property name="visible">True</property>
-	  <property name="can_focus">True</property>
-	  <property name="editable">True</property>
-	  <property name="visibility">True</property>
-	  <property name="max_length">0</property>
-	  <property name="text" translatable="yes">MD87</property>
-	  <property name="has_frame">True</property>
-	  <property name="invisible_char">*</property>
-	  <property name="activates_default">False</property>
 	</widget>
 	<packing>
-	  <property name="x">8</property>
-	  <property name="y">40</property>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">True</property>
 	</packing>
       </child>
 
       <child>
-	<widget class="GtkEntry" id="entry19">
-	  <property name="width_request">48</property>
-	  <property name="height_request">16</property>
+	<widget class="GtkHButtonBox" id="hbuttonbox5">
 	  <property name="visible">True</property>
-	  <property name="can_focus">True</property>
-	  <property name="editable">True</property>
-	  <property name="visibility">True</property>
-	  <property name="max_length">0</property>
-	  <property name="text" translatable="yes">LEPP</property>
-	  <property name="has_frame">True</property>
-	  <property name="invisible_char">*</property>
-	  <property name="activates_default">False</property>
-	</widget>
-	<packing>
-	  <property name="x">8</property>
-	  <property name="y">64</property>
-	</packing>
-      </child>
+	  <property name="layout_style">GTK_BUTTONBOX_END</property>
+	  <property name="spacing">0</property>
 
-      <child>
-	<widget class="GtkEntry" id="entry20">
-	  <property name="width_request">56</property>
-	  <property name="height_request">16</property>
-	  <property name="visible">True</property>
-	  <property name="can_focus">True</property>
-	  <property name="editable">True</property>
-	  <property name="visibility">True</property>
-	  <property name="max_length">0</property>
-	  <property name="text" translatable="yes">LEMD</property>
-	  <property name="has_frame">True</property>
-	  <property name="invisible_char">*</property>
-	  <property name="activates_default">False</property>
-	</widget>
-	<packing>
-	  <property name="x">96</property>
-	  <property name="y">64</property>
-	</packing>
-      </child>
+	  <child>
+	    <widget class="GtkButton" id="button12">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label" translatable="yes">button12</property>
+	      <property name="use_underline">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	    </widget>
+	  </child>
 
-      <child>
-	<widget class="GtkVSeparator" id="vseparator1">
-	  <property name="width_request">16</property>
-	  <property name="height_request">96</property>
-	  <property name="visible">True</property>
-	</widget>
-	<packing>
-	  <property name="x">160</property>
-	  <property name="y">8</property>
-	</packing>
-      </child>
+	  <child>
+	    <widget class="GtkButton" id="button13">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label" translatable="yes">button13</property>
+	      <property name="use_underline">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	    </widget>
+	  </child>
 
-      <child>
-	<widget class="GtkHSeparator" id="hseparator1">
-	  <property name="width_request">648</property>
-	  <property name="height_request">16</property>
-	  <property name="visible">True</property>
+	  <child>
+	    <widget class="GtkButton" id="button14">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label" translatable="yes">button14</property>
+	      <property name="use_underline">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	    </widget>
+	  </child>
 	</widget>
 	<packing>
-	  <property name="x">8</property>
-	  <property name="y">24</property>
-	</packing>
-      </child>
-
-      <child>
-	<widget class="GtkHSeparator" id="hseparator2">
-	  <property name="width_request">648</property>
-	  <property name="height_request">16</property>
-	  <property name="visible">True</property>
-	</widget>
-	<packing>
-	  <property name="x">8</property>
-	  <property name="y">80</property>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
 	</packing>
       </child>
     </widget>

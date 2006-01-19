@@ -120,7 +120,7 @@ class Exercise:
 
 class Flight:
     """All data related to a specific flight within an Exercise"""
-    def __init__(self, callsign, data):
+    def __init__(self, callsign=None, data=None):
         """Construct a flight instance
         
         Instantiation arguments:
@@ -128,11 +128,17 @@ class Flight:
         data -- The flight data as is on the Exercise file
         """
         
-        self.callsign=callsign.upper()
-        self._data=data
-        self.orig=self.orig()
-        self.dest=self.dest()
-        self.route=self.route()
+        if callsign and data:
+            self.callsign=callsign.upper()
+            self._data=data
+            self.orig=self.orig()
+            self.dest=self.dest()
+            self.route=self.route()
+        else:
+            self.callsign=""
+            self.orig=""
+            self.dest=""
+            self.route=""
         
     def orig(self):
         """Return the departing aerodrome"""

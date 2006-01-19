@@ -348,7 +348,6 @@ class ExcEditor:
             self.fls.append((f.callsign,f.orig,f.dest,f.route))
 
     def list_clicked(self,w=None,event=None):
-        print "in list clicked"
         if event.type == gtk.gdk._2BUTTON_PRESS:
             self.edit()
         pass
@@ -376,7 +375,7 @@ class ExcEditor:
         self.gui.get_widget("ExcEditor").destroy()
         
 class FlightEditor:
-    def __init__(self,flight):
+    def __init__(self,flight=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
@@ -394,6 +393,13 @@ class FlightEditor:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)        
 
+        # Populate the dialog
+        if not flight: flight=Flight()
+        self.callsign.props.text = flight.callsign
+        self.orig.props.text = flight.orig
+        self.dest.props.text = flight.dest
+        self.route.child.props.text = flight.route.replace(","," ")
+        
 
 Crujisim()
 gtk.main()
