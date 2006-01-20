@@ -207,9 +207,13 @@ class Flight:
         data=self._data.split(',')
         return data[0]
 
-def hhmmss_to_hours(s):
-    """Given a string formated as hhmmss return a float with the number of hours since midnight"""
-    pass
+def hhmmss_to_hhmm(s):
+    """Given a string formated as hhmmss return a string formated to hhmm correctly rounded"""
+    import datetime
+    dt=datetime.datetime.today()    
+    dt=dt.replace(hour=int(s[0:2]),minute=int(s[2:4]),second=int(s[4:]))
+    dt+=datetime.timedelta(seconds=30)
+    return dt.strftime("%H%M")
 
 if __name__=='__main__':
     #Exercise("../pasadas\APP-RadarBasico\21-Fase-1-Día-01-M-TMA Madrid-1.eje"

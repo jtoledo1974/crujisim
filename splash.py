@@ -67,6 +67,16 @@ class Crujisim:
         gui = self.gui = gtk.glade.XML(gladefile, "MainWindow") 
         gui.signal_autoconnect(self)
 
+        # Automatically make every widget in the window an attribute of this class
+        for w in gui.get_widget_prefix(''):
+            name = w.get_name()
+            # make sure we don't clobber existing attributes
+            try:
+                assert not hasattr(self, name)
+            except:
+                logging.error("Failed with attr "+name)
+            setattr(self, name, w)
+
         # Place the joke
         lines = open(JOKES, 'rt').readlines()
         try:
@@ -112,12 +122,12 @@ class Crujisim:
                                  utf8conv(e["comment"]),utf8conv(e["file"])))
                 
         splash.get_widget("Splash").destroy()
-        gui.get_widget("MainWindow").present()
+        self.MainWindow.present()
       
         self.exc_filter = exc_filter = exc_list.filter_new()
         self.filters = {"FIR":"---","Sector":"---","Promocion":"---"}
         exc_filter.set_visible_func(self.exc_is_visible)
-        exc_view = self.exc_view = gui.get_widget("exercises")
+        exc_view = self.exc_view
         exc_view.set_model(gtk.TreeModelSort(exc_filter))
         exc_view.get_selection().set_mode(gtk.SELECTION_SINGLE)
         renderer = gtk.CellRendererText()
@@ -132,14 +142,14 @@ class Crujisim:
         firs = {}
         for fir in [row[1] for row in self.exc_list]:
             firs[fir]=0
-        fircombo=gui.get_widget("fircombo")
+        fircombo=self.fircombo
         for f in firs.keys():
             fircombo.append_text(f)
         self._updating_combos = True  # make sure we don't actually filter            
         self.set_active_text(fircombo, conf.fir_option)
         self.filters = {"FIR":conf.fir_option,"Sector":conf.sector_option}        
         self.update_combos()  # Load the appropriate sectors
-        self.set_active_text(gui.get_widget("sectorcombo"),conf.sector_option)
+        self.set_active_text(self.sectorcombo,conf.sector_option)
         self.set_filter(None)
     
     def update_combos(self):
@@ -163,9 +173,9 @@ class Crujisim:
                     combo.set_active(i)
                 i += 1
             
-        update_combo(gui.get_widget("sectorcombo"),sectors.keys())
-        self.filters["FIR"]=self.get_active_text(gui.get_widget("fircombo"))
-        self.filters["Sector"]=self.get_active_text(gui.get_widget("sectorcombo"))
+        update_combo(self.sectorcombo,sectors.keys())
+        self.filters["FIR"]=self.get_active_text(self.fircombo)
+        self.filters["Sector"]=self.get_active_text(self.sectorcombo)
         self._updating_combos = False
 
     def get_active_text(self,combobox):
@@ -191,8 +201,8 @@ class Crujisim:
             if self._updating_combos: return
         except: pass
         gui=self.gui
-        self.filters["FIR"]=self.get_active_text(gui.get_widget("fircombo"))
-        self.filters["Sector"]=self.get_active_text(gui.get_widget("sectorcombo"))
+        self.filters["FIR"]=self.get_active_text(self.fircombo)
+        self.filters["Sector"]=self.get_active_text(self.sectorcombo)
         self.exc_filter.refilter()
         self.update_combos()
         
@@ -201,7 +211,7 @@ class Crujisim:
             if self._updating_combos: return
         except: pass
         gui=self.gui
-        self.filters["FIR"]=self.get_active_text(gui.get_widget("fircombo"))
+        self.filters["FIR"]=self.get_active_text(self.fircombo)
         self.filters["Sector"]="---"
         self.exc_filter.refilter()
         self.update_combos()
@@ -217,8 +227,8 @@ class Crujisim:
         
     def gtk_main_quit(self,w=None,e=None):
         gui = self.gui
-        conf.fir_option=self.get_active_text(gui.get_widget("fircombo"))
-        conf.sector_option=self.get_active_text(gui.get_widget("sectorcombo"))
+        conf.fir_option=self.get_active_text(self.fircombo)
+        conf.sector_option=self.get_active_text(self.sectorcombo)
         conf.save()
         gtk.main_quit()
         
@@ -233,7 +243,7 @@ class Crujisim:
         try:
             exc_file = model.get_value(iter,0)
         except:
-            dlg=gtk.MessageDialog(parent=self.gui.get_widget("MainWindow"),
+            dlg=gtk.MessageDialog(parent=self.MainWindow,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_CLOSE,
@@ -243,7 +253,7 @@ class Crujisim:
             dlg.run()
             return
         
-        ExcEditor(exc_file)
+        ExcEditor(exc_file,parent=self.MainWindow)
 
     def begin_simulation(self,button=None):
         sel = self.exc_view.get_selection()
@@ -252,7 +262,7 @@ class Crujisim:
         try:
             fir_name = model.get_value(iter,1)
         except:
-            dlg=gtk.MessageDialog(parent=self.gui.get_widget("MainWindow"),
+            dlg=gtk.MessageDialog(parent=self.MainWindow,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_CLOSE,
@@ -279,24 +289,19 @@ class Crujisim:
         #import tpv
         tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , 1])
 
-        self.gui.get_widget("MainWindow").hide()
+        self.MainWindow.hide()
         while gtk.events_pending():
             gtk.main_iteration()
         if "Simulador" in sys.modules:
             sys.modules.pop('Simulador')
         import Simulador
-        self.gui.get_widget("MainWindow").present()
+        self.MainWindow.present()
 
 class ExcEditor:
-    def __init__(self,exc_file=None):
+    def __init__(self,exc_file=None,parent=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExcEditor") 
         gui.signal_autoconnect(self)
         
-        gui_window = gui.get_widget("ExcEditor")
-        gui_window.set_position(gtk.WIN_POS_CENTER)
-        gui_window.present()
-        #self.ExcEditor = gui_window
-
         # Automatically make every widget in the window an attribute of this class
         for w in gui.get_widget_prefix(''):
             name = w.get_name()
@@ -307,6 +312,10 @@ class ExcEditor:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
             
+        if parent: self.ExcEditor.set_transient_for(parent)
+        self.ExcEditor.set_position(gtk.WIN_POS_CENTER)
+        self.ExcEditor.present()
+
         # Create the flights treeview
         fls = self.fls = gtk.ListStore(str,str,str,str)  # Flights list store
               
@@ -325,7 +334,7 @@ class ExcEditor:
         try:
             exc=Exercise(exc_file)
         except:
-            dlg=gtk.MessageDialog(parent=self.gui.get_widget("ExcEditor"),
+            dlg=gtk.MessageDialog(parent=self.ExcEditor,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_CLOSE,
@@ -359,7 +368,7 @@ class ExcEditor:
         try:
             callsign = model.get_value(iter,0)
         except:
-            dlg=gtk.MessageDialog(parent=self.gui.get_widget("MainWindow"),
+            dlg=gtk.MessageDialog(parent=self.ExcEditor,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_CLOSE,
@@ -369,20 +378,16 @@ class ExcEditor:
             dlg.run()
             return
         
-        FlightEditor(self.flights[callsign])
+        FlightEditor(self.flights[callsign],parent=self.ExcEditor)
                 
     def close(self,w=None,e=None):
-        self.gui.get_widget("ExcEditor").destroy()
+        self.ExcEditor.destroy()
         
 class FlightEditor:
-    def __init__(self,flight=None):
+    def __init__(self,flight=None,parent=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
-        gui_window = gui.get_widget("FlightEditor")
-        gui_window.set_position(gtk.WIN_POS_CENTER)
-        gui_window.present()
-
         # Automatically make every widget in the window an attribute of this class
         for w in gui.get_widget_prefix(''):
             name = w.get_name()
@@ -392,24 +397,32 @@ class FlightEditor:
             except:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
-            
+
+        if parent: self.FlightEditor.set_transient_for(parent)
+        self.FlightEditor.set_position(gtk.WIN_POS_CENTER)
+        self.FlightEditor.present()
+                        
         self.stripcontainer.set_focus_chain((self.callsign,self.type,self.orig, self.eobt,
                                              self.dest,self.rfl,self.route,self.fix,self.eto,
-                                             self.firstlevel,self.cfl))
-        
+                                             self.firstlevel,self.cfl))        
 
         # Populate the dialog
         if not flight: flight=Flight()
 
         # I use the __dict_[attr] is another way to reference an some objects attr
         # object.__dict__["callsign"] == object.callsign
-        for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type","eto"]:
+        for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             self.__dict__[attr].props.text = flight.__dict__[attr]
         self.route.child.props.text = flight.route.replace(","," ")
+        self.eto.props.text = hhmmss_to_hhmm(flight.eto)
         self.set_firstfix(flight.route)
     
     def set_firstfix(self,route):
         self.firstfix.props.label=route.split(",")[0]
+
+    def close(self,w=None,e=None):
+        self.FlightEditor.destroy()
+        logging.debug("In FlightEditor.close")
 
 Crujisim()
 gtk.main()
