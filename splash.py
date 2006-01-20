@@ -317,11 +317,12 @@ class ExcEditor:
         self.ExcEditor.present()
 
         # Create the flights treeview
-        fls = self.fls = gtk.ListStore(str,str,str,str)  # Flights list store
+        fls = self.fls = gtk.ListStore(int,str,str,str,str)  # Flights list store
               
         self.ftv.set_model(fls)
         renderer = gtk.CellRendererText()
-        for i,name in zip(range(0,4),('Callsign','Orig','Dest','Route')):
+        # Column 0 of the model is the key in the flights dictionary
+        for i,name in zip(range(1,5),('Callsign','Orig','Dest','Route')):
             column = gtk.TreeViewColumn(name, renderer, text=i) 
             column.set_clickable(True) 
             column.set_sort_column_id(i) 
@@ -353,8 +354,9 @@ class ExcEditor:
         self.ejer.props.text=exc.ejer
         self.flights = exc.flights
         
-        for f in exc.flights.values():
-            self.fls.append((f.callsign,f.orig,f.dest,f.route))
+        for i,f in exc.flights.items():
+            # Column 0 of the model is the key in the flights dictionary
+            self.fls.append((i,f.callsign,f.orig,f.dest,f.route))
 
     def list_clicked(self,w=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS:
@@ -366,7 +368,7 @@ class ExcEditor:
         (model, iter) = sel.get_selected()
         
         try:
-            callsign = model.get_value(iter,0)
+            index = model.get_value(iter,0)
         except:
             dlg=gtk.MessageDialog(parent=self.ExcEditor,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -378,7 +380,7 @@ class ExcEditor:
             dlg.run()
             return
         
-        FlightEditor(self.flights[callsign],parent=self.ExcEditor)
+        FlightEditor(self.flights[index],parent=self.ExcEditor)
                 
     def close(self,w=None,e=None):
         self.ExcEditor.destroy()

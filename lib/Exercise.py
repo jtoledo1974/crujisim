@@ -112,8 +112,11 @@ class Exercise:
         except:
             logging.warning("Unable to read any flights from "+file)
         self.flights={}
+        i=0
         for flightopt in flightopts:
-            try: self.flights[flightopt.upper()]=Flight(flightopt,exc.get('vuelos',flightopt))
+            try:
+                self.flights[i]=Flight(flightopt,exc.get('vuelos',flightopt))
+                i += 1
             except:
                 logging.warning("Unable to read flight "+flightopt+" from "+file)
         
