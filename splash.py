@@ -90,8 +90,7 @@ class Crujisim:
         splash_window = splash.get_widget("Splash")
         splash_window.set_position(gtk.WIN_POS_CENTER)
         splash_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        
-        
+                
         #splash.get_widget('Splash').idle_add(self.load)
         splash.get_widget("progressbar").set_text("Obteniendo lista de ejercicios")
         gobject.idle_add(self.load)        
@@ -99,11 +98,18 @@ class Crujisim:
     def load(self):
         splash, gui = self.splash, self.gui
         
-        # Create the model for the excercise list
-        # FIR, Sector, Promocion, Fase, Día, Pasada, Turno, Aviones
-        #exc_list = gtk.ListStore(str,str,int,int,int,int,str,int)
-        exc_list = self.exc_list = gtk.ListStore(str,str,str,str,str)
+        # Create the model for the excercise list (cols == columns)
+        self.exc_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
+                               "course":4,"phase":5,"day":6,"pass_no":7,
+                               "shift":8}
+        exc_list = self.exc_list = gtk.ListStore(str,str,str,str,
+                                                 int,int,int,int,
+                                                 str)
+        # This is the mapping between actually displayed cols and the model cols
+        self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Promo","course"),
+            ("Fase","phase"),("Día","day"),("Pasada","pass_no"),("Comentario","comment"))
         
+        # Process all excercise files
         pb = splash.get_widget("progressbar")
         pb.set_text('Cargando ejercicios')
         dirs = [dir for dir in os.listdir(EX_DIR) if dir[-4:]!=".svn"
@@ -118,9 +124,33 @@ class Crujisim:
             while gtk.events_pending():
                 gtk.main_iteration()
             for e in load_exercises(dir):
-                exc_list.append((e["file"],utf8conv(e["fir"]),utf8conv(e["sector"]),
-                                 utf8conv(e["comment"]),utf8conv(e["file"])))
-                
+                row=[]
+                ia = [(index,attr) for attr,index in self.exc_ls_cols.items()]
+                ia.sort()
+                for index,attr in ia:
+                    if attr=="file":
+                        row.append(e["file"])
+                    elif type(e[attr]) is str:
+                        row.append(utf8conv(e[attr]))
+                    elif type(e[attr]) is int:
+                        row.append(e[attr])
+                    elif type(e[attr]) is NoneType:
+                        ct = exc_list.get_column_type(index)
+                        # I don't really know how to map GTypes to python types,
+                        # so rather than doing "if ct is int", I have to
+                        # do this ugly hack
+                        if str(ct).find("gint")>0:
+                            row.append(0)
+                        elif str(ct).find("gchar")>0:
+                            row.append("")
+                        else:
+                            logging.error("Unknown type in liststore column")
+                    else:
+                        row.append(None)
+                exc_list.append(row)
+        
+        self.n_exc = len(exc_list)
+        self.statusbar.push(0,utf8conv("Cargados "+str(self.n_exc)+" ejercicios"))
         splash.get_widget("Splash").destroy()
         self.MainWindow.present()
       
@@ -131,13 +161,14 @@ class Crujisim:
         exc_view.set_model(gtk.TreeModelSort(exc_filter))
         exc_view.get_selection().set_mode(gtk.SELECTION_SINGLE)
         renderer = gtk.CellRendererText()
-        for i,name in zip(range(1,4),('FIR','Sector','Pasada')):
-            column = gtk.TreeViewColumn(name, renderer, text=i) 
+        for i, name in [(self.exc_ls_cols[ls_col],name) for (name,ls_col) in self.exc_tv_cols]:
+            column = gtk.TreeViewColumn(utf8conv(name), renderer, text=i) 
             column.set_clickable(True) 
             column.set_sort_column_id(i) 
             column.set_resizable(True) 
             exc_view.append_column(column)
-            
+        renderer.props.scale=0.95
+        
         # Fill up the FIRs combo with the unique FIRs available
         firs = {}
         for fir in [row[1] for row in self.exc_list]:
