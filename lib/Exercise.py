@@ -26,6 +26,9 @@ from stat import *
 import pickle
 from ConfigParser import ConfigParser
 
+# CONSTANTS
+CACHE_VERSION = 1
+
 def load_exercises(path, reload=False):
     
     exercises = []
@@ -53,15 +56,19 @@ def load_exercises(path, reload=False):
     if not reload and os.access(cache,os.F_OK|os.R_OK) and os.stat(cache)[ST_MTIME]>recent:
         try:
             c = open(cache,"r")
-            le = pickle.loads(c.read())
-            exercises += le
-            return exercises
+            version,le = pickle.loads(c.read())
+            if version==CACHE_VERSION:
+                exercises += le
+                return exercises
+            else:
+                logging.info("Cache file "+cache+" is version "+str(version)+", different than currently supported version "+str(CACHE_VERSION))
         except:
             logging.warning("Unable to load cache file: "+cache)
-            raise
+    else:
+        logging.info("Cache file "+cache+" not found, not readable or stale")
 
     # Load data for all excercises in the directory
-    logging.info("No cache file found ("+cache+"). Reload="+str(reload)+" Rebuilding...")
+    logging.info("Rebuilding cache file...")
     le = []  #
     for f in [f for f in os.listdir(d) if f[-4:]==".eje"]:
         f = os.path.join(d,f)
@@ -76,11 +83,16 @@ def load_exercises(path, reload=False):
         exc["sector"]=e.sector
         exc["comment"]=e.comment
         exc["n_flights"]=e.n_flights
+        exc["course"]=e.course
+        exc["phase"]=e.phase
+        exc["day"]=e.day
+        exc["pass_no"]=e.pass_no
+        exc["shift"]=e.shift
         le.append(exc)
         
     exercises += le
     cache = open(cache,'w')  # Cache used to be the file name, now the file object
-    cache.write(pickle.dumps(le))
+    cache.write(pickle.dumps((CACHE_VERSION,le)))
     cache.close
             
     return exercises    
@@ -93,14 +105,22 @@ class Exercise:
         exc.readfp(open(file,"r"))
         self.fir=exc.get('datos','fir')
         self.sector=exc.get('datos','sector')
-        try: self.da = exc.get('datos','da')
-        except: self.da = ""
-        try: self.usu = exc.get('datos','usu')
-        except: self.usu = ""
-        try: self.ejer = exc.get('datos','ejer')
-        except: self.ejer = ""
-        try: self.ejer = exc.get('datos','ejer')
-        except: self.ejer = ""
+        try: self.da = exc.getint('datos','da')
+        except: self.da = None
+        try: self.usu = exc.getint('datos','usu')
+        except: self.usu = None
+        try: self.ejer = exc.getint('datos','ejer')
+        except: self.ejer = None
+        try: self.course = exc.getint('datos','course')
+        except: self.course = None
+        try: self.phase = exc.getint('datos','phase')
+        except: self.phase = None
+        try: self.day = exc.getint('datos','day')
+        except: self.day = None
+        try: self.pass_no = exc.getint('datos','pass_no')
+        except: self.pass_no = None
+        try: self.shift = exc.get('datos','shift')
+        except: self.shift = ""
             
         try:
             self.comment = exc.get('datos','comentario')
@@ -120,6 +140,45 @@ class Exercise:
             except:
                 logging.warning("Unable to read flight "+flightopt+" from "+file)
         
+        # Attempt to calculate course,phase,day,pass_no,and shift
+        if self.course==self.phase==self.day==self.pass_no==None and self.shift=="":
+            import re
+            formats = []
+            file = os.path.basename(file)
+            # fr=format regular expression, fm=format mapping
+            fr = "(\d+)-Fase-(\d+)-D.a-(\d+)-Pasada-(\d+)-([mtMT])-(.*).eje"
+            fm = {"course":1,"phase":2,"day":3,"pass_no":4,"shift":5}
+            formats.append((fr,fm))
+            fr = "(\d+)-Fase-(\d+)-D.a-(\d+)-([mtMT])-([^-]+)-(\d+).eje"
+            fm = {"course":1,"phase":2,"day":3,"shift":4,"pass_no":6}
+            formats.append((fr,fm))
+            #20-Fase-3-Día-04-M-Domingo-4-2055h.ej
+            fr = "(\d+)-Fase-(\d+)-D.a-(\d+)-([mtMT])-([^-]+)-(\d+)-(\d+)h.*.eje"
+            fm = {"course":1,"phase":2,"day":3,"shift":4,"pass_no":6}
+            formats.append((fr,fm))
+            for r,m in formats:
+                match=re.match(r,file)
+                try:
+                    for attrib,index in m.items():
+                        if attrib in ["course","phase","day","pass_no"]:
+                            self.__dict__[attrib]=int(match.group(index))
+                        elif attrib in ["shift"]:
+                            self.__dict__[attrib]=match.group(index).upper()
+                except:
+                    if self.course != None:
+                        print "Error aqui"
+                    continue
+                #print file,self.course,self.phase,self.day,self.pass_no,self.shift
+                if self.pass_no == None:
+                    print "Error!"
+                break
+            if self.course==None:
+                #print "Could not match file ", file
+                pass
+            else:
+                if self.pass_no == None:
+                    print "Error!"
+                
 
 class Flight:
     """All data related to a specific flight within an Exercise"""
@@ -219,7 +278,7 @@ def hhmmss_to_hhmm(s):
     return dt.strftime("%H%M")
 
 if __name__=='__main__':
-    #Exercise("../pasadas\APP-RadarBasico\21-Fase-1-Día-01-M-TMA Madrid-1.eje"
+    #Exercise("../pasadas\APP-RadarBasico\21-phase-1-Día-01-M-TMA Madrid-1.eje"
     logging.getLogger('').setLevel(logging.DEBUG)
     e=load_exercises("../pasadas")
     #print str(e)
