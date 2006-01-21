@@ -356,6 +356,7 @@ Seleccione una pasada</property>
 
 <widget class="GtkWindow" id="ExcEditor">
   <property name="width_request">640</property>
+  <property name="height_request">400</property>
   <property name="title" translatable="yes">Crujisim: Editor</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER</property>
@@ -375,6 +376,7 @@ Seleccione una pasada</property>
 
   <child>
     <widget class="GtkVBox" id="vbox3">
+      <property name="border_width">2</property>
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">0</property>

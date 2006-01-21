@@ -106,8 +106,10 @@ class Crujisim:
                                                  int,int,int,int,
                                                  str)
         # This is the mapping between actually displayed cols and the model cols
-        self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Promo","course"),
-            ("Fase","phase"),("Día","day"),("Pasada","pass_no"),("Comentario","comment"))
+        #self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Promo","course"),
+        #    ("Fase","phase"),("Día","day"),("Pasada","pass_no"),("Comentario","comment")
+        self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Pr","course"),
+            ("F","phase"),("D","day"),("P","pass_no"),("Comentario","comment"))
         
         # Process all excercise files
         pb = splash.get_widget("progressbar")
@@ -167,7 +169,7 @@ class Crujisim:
             column.set_sort_column_id(i) 
             column.set_resizable(True) 
             exc_view.append_column(column)
-        renderer.props.scale=0.95
+        #renderer.props.scale=0.95
         
         # Fill up the FIRs combo with the unique FIRs available
         firs = {}

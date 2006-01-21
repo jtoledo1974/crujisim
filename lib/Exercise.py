@@ -28,6 +28,7 @@ from ConfigParser import ConfigParser
 
 # CONSTANTS
 CACHE_VERSION = 1
+MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
     
@@ -46,7 +47,7 @@ def load_exercises(path, reload=False):
     logging.debug("Searching for exercises in directory "+str(d))
     recent = 0
     for f in os.listdir(d):
-        if f[-4:]!=".eje": continue
+        if f[-4:]!=".eje" or f!=MAPPING_FILE_NAME: continue
         date = os.stat(os.path.join(d,f))[ST_MTIME]
         if date>recent:
             recent=date
@@ -70,6 +71,10 @@ def load_exercises(path, reload=False):
     # Load data for all excercises in the directory
     logging.info("Rebuilding cache file...")
     le = []  #
+    
+    # Load the mapping file for the directory in case it exists
+    mapping = Mapping(os.path.join(d,MAPPING_FILE_NAME))
+    
     for f in [f for f in os.listdir(d) if f[-4:]==".eje"]:
         f = os.path.join(d,f)
         try:
@@ -268,6 +273,33 @@ class Flight:
         """Return the type"""
         data=self._data.split(',')
         return data[0]
+
+class Mapping:
+    """Deals with the relationship between the unique exercises and on which day they were scheduled"""
+    def __init__(self,mapping_file,exercise_file=None):
+        mapping = ConfigParser()
+        #dir=os.path.dirname(exercise_file)
+        #f=self.mapping_file=os.path.join(dir,)
+        f=mapping_file
+        try:
+            mapping.readfp(open(f))
+        except:
+            logging.info("Mapping file "+f+" does not exist")
+        self.exercises={}
+        try:
+            for opt in mapping.options('Mappings'):
+                try:
+                    (da,u,e)=(int(opt[2:4]),int(opt[5:7]),int(opt[8:11]))
+                    self.exercises[(da,u,e)]=[]
+                    for s in mapping.get('Mappings',opt).split(","):                        
+                        (course,phase,day,pass_no)=(int(s[1:3]),int(s[4:5]),int(s[6:8]),int(s[9:10]))
+                        self.exercises[(da,u,e)].append((course,phase,day,pass_no))
+                except:
+                    logging.warning("Unable to read mapping for excercise "+opt+" in "+f)
+        except:
+            logging.warning("Section Mappings not found in mapping file "+f)
+            
+        
 
 def hhmmss_to_hhmm(s):
     """Given a string formated as hhmmss return a string formated to hhmm correctly rounded"""
