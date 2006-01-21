@@ -644,7 +644,6 @@ Seleccione una pasada</property>
 
 	  <child>
 	    <widget class="GtkLabel" id="label14">
-	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Turno:</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
@@ -733,7 +732,7 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkEntry" id="promo">
+	    <widget class="GtkEntry" id="course">
 	      <property name="width_request">60</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -755,7 +754,7 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkEntry" id="fase">
+	    <widget class="GtkEntry" id="phase">
 	      <property name="width_request">60</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -843,9 +842,8 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkEntry" id="turno">
+	    <widget class="GtkEntry" id="shift">
 	      <property name="width_request">60</property>
-	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
@@ -865,7 +863,7 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkEntry" id="pasada">
+	    <widget class="GtkEntry" id="pass_no">
 	      <property name="width_request">60</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -887,7 +885,7 @@ Seleccione una pasada</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkEntry" id="dia">
+	    <widget class="GtkEntry" id="day">
 	      <property name="width_request">60</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>

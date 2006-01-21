@@ -101,15 +101,16 @@ class Crujisim:
         # Create the model for the excercise list (cols == columns)
         self.exc_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
                                "course":4,"phase":5,"day":6,"pass_no":7,
-                               "shift":8,"PDP":9,"course-text":10,"n_flights":11,
-                               "CPDP":12}
+                               "shift":8,"PDP":9,"course_text":10,"n_flights":11,
+                               "CPDP":12,"wind_text":13}
         exc_list = self.exc_list = gtk.ListStore(str,str,str,str,
                                                  int,int,int,int,
                                                  str,str,str,int,
-                                                 str)
+                                                 str,str)
         # This is the mapping between actually displayed cols and the model cols
         self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),
-            ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),("Comentario","comment"))
+            ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),
+            ("Viento","wind_text"),("Comentario","comment"))
         
         # Process all excercise files
         pb = splash.get_widget("progressbar")
@@ -126,6 +127,18 @@ class Crujisim:
             while gtk.events_pending():
                 gtk.main_iteration()
             for e in load_exercises(dir):
+                # Add columns to the exercise list suitable for display
+                e["wind_text"]="%03dº%02dkt"%(e["wind_azimuth"],e["wind_knots"])
+                try: e["PDP"]="Fase %d - Día %02d - Pasada %d"%(e["phase"],e["day"],e["pass_no"])
+                except: e["PDP"]=""
+                try: e["course_text"]="Prom. %02d"%(e["course"])
+                except: e["course_text"]=""
+                if e["PDP"]=="" or e["course_text"]=="":
+                    e["CPDP"]=""
+                else:
+                    e["comment"]=""
+                    e["CPDP"]=e["course_text"]+" - "+e["PDP"]
+
                 row=[]
                 ia = [(index,attr) for attr,index in self.exc_ls_cols.items()]
                 ia.sort()
@@ -150,12 +163,7 @@ class Crujisim:
                     else:
                         row.append(None)
                 exc_list.append(row)
-        
-        self.n_exc = len(exc_list)
-        self.statusbar.push(0,utf8conv("Cargados "+str(self.n_exc)+" ejercicios"))
-        splash.get_widget("Splash").destroy()
-        self.MainWindow.present()
-      
+              
         self.exc_filter = exc_filter = exc_list.filter_new()
         self.filters = {"FIR":"---","Sector":"---","Promocion":"---"}
         exc_filter.set_visible_func(self.exc_is_visible)
@@ -184,6 +192,12 @@ class Crujisim:
         self.update_combos()  # Load the appropriate sectors
         self.set_active_text(self.sectorcombo,conf.sector_option)
         self.set_filter(None)
+
+        # Everything's ready. Hide Splash, present Main Window
+        self.n_exc = len(exc_list)
+        self.statusbar.push(0,utf8conv("Cargados "+str(self.n_exc)+" ejercicios"))
+        splash.get_widget("Splash").destroy()
+        self.MainWindow.present()
     
     def update_combos(self):
         self._updating_combos = True
@@ -382,9 +396,12 @@ class ExcEditor:
         self.ExcEditor.set_title("Editor: "+utf8conv(exc_file))
         self.fir.child.props.text=exc.fir
         self.sector.child.props.text=exc.sector
-        self.da.props.text=exc.da
-        self.usu.props.text=exc.usu
-        self.ejer.props.text=exc.ejer
+        for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
+                       "wind_azimuth","wind_knots"):
+            if type(exc.__dict__[attrib]) is str:
+                self.__dict__[attrib].props.text=utf8conv(exc.__dict__[attrib])
+            else:
+                self.__dict__[attrib].props.text=exc.__dict__[attrib]
         self.flights = exc.flights
         
         for i,f in exc.flights.items():
