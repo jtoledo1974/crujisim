@@ -135,8 +135,10 @@ class Crujisim:
                 except: e["course_text"]=""
                 if e["PDP"]=="" or e["course_text"]=="":
                     e["CPDP"]=""
+                    # We need to be able to show the user something
+                    # so that he can reconstruct the missing data
+                    e["comment"]=e["oldcomment"]
                 else:
-                    e["comment"]=""
                     e["CPDP"]=e["course_text"]+" - "+e["PDP"]
 
                 row=[]
@@ -177,7 +179,7 @@ class Crujisim:
             column.set_sort_column_id(i) 
             column.set_resizable(True) 
             exc_view.append_column(column)
-        #renderer.props.scale=0.95
+        renderer.props.ypad=0
         
         # Fill up the FIRs combo with the unique FIRs available
         firs = {}
@@ -281,6 +283,8 @@ class Crujisim:
         
     def list_clicked(self,widget=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS:
+            #print str(widget.get_path_at_pos(event.x,event.y))
+            #print str((event.x,event.y))
             self.begin_simulation()
         
     def edit(self,button=None):
@@ -375,6 +379,7 @@ class ExcEditor:
             column.set_sort_column_id(i) 
             column.set_resizable(True) 
             self.ftv.append_column(column)
+        renderer.props.ypad=0
         
         if exc_file: self.populate(exc_file)
     
@@ -397,7 +402,7 @@ class ExcEditor:
         self.fir.child.props.text=exc.fir
         self.sector.child.props.text=exc.sector
         for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
-                       "wind_azimuth","wind_knots"):
+                       "wind_azimuth","wind_knots","start_time"):
             if type(exc.__dict__[attrib]) is str:
                 self.__dict__[attrib].props.text=utf8conv(exc.__dict__[attrib])
             else:

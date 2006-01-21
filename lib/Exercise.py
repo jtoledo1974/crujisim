@@ -27,7 +27,7 @@ import pickle
 from ConfigParser import ConfigParser
 
 # CONSTANTS
-CACHE_VERSION = 4
+CACHE_VERSION = 5
 MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
@@ -83,7 +83,8 @@ def load_exercises(path, reload=False):
             logging.warning("Unable to read exercise "+f)
             continue
         
-        def append_exercise(fir,sector,comment,n_flights,course,phase,day,pass_no,shift,wind_azimuth,wind_knots):
+        def append_exercise(fir,sector,comment,oldcomment,n_flights,course,phase,day,
+                            pass_no,shift,wind_azimuth,wind_knots):
             exc = {}
             exc["file"]=f
             exc["fir"]=fir
@@ -97,18 +98,21 @@ def load_exercises(path, reload=False):
             exc["wind_azimuth"]=wind_azimuth
             exc["wind_knots"]=wind_knots
             exc["comment"]=comment
+            exc["oldcomment"]=oldcomment
             le.append(exc)
         # If we have DA,U,E data, then we can use the mapping file
         # to add all the actual passes implemented by this exercise
         try:
             for (course,phase,day,pass_no) in mapping.exercises[(e.da,e.usu,e.ejer)]:
-                append_exercise(e.fir,e.sector,e.comment,e.n_flights,course,phase,day,pass_no,e.shift,e.wind_azimuth,e.wind_knots)
+                append_exercise(e.fir,e.sector,e.comment,e.oldcomment,e.n_flights,course,
+                                phase,day,pass_no,e.shift,e.wind_azimuth,e.wind_knots)
             if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
                 logging.error("The exercise reported to be C-P-D-P "+str((e.course,e.phase,e.day,e.pass_no))+\
                               " but it's not shown on the mappings for DA-U-E "+str((e.da,e.usu,e.ejer)))
         except:
             # Since we didn't find mappings, we use the exercises own.
-            append_exercise(e.fir,e.sector,e.comment,e.n_flights,e.course,e.phase,e.day,e.pass_no,e.shift,e.wind_azimuth,e.wind_knots)
+            append_exercise(e.fir,e.sector,e.comment,e.oldcomment,e.n_flights,e.course,
+                            e.phase,e.day,e.pass_no,e.shift,e.wind_azimuth,e.wind_knots)
         
     exercises += le
     cache = open(cache,'w')  # Cache used to be the file name, now the file object
@@ -120,11 +124,14 @@ def load_exercises(path, reload=False):
 class Exercise:
     """All data representing a single exercise"""
     def __init__(self,file):
+        import re
+
         self.file=file
         exc = ConfigParser()
         exc.readfp(open(file,"r"))
         self.fir=exc.get('datos','fir')
         self.sector=exc.get('datos','sector')
+        self.start_time=exc.get('datos','hora_inicio')
         try: self.da = exc.getint('datos','da')
         except: self.da = None
         try: self.usu = exc.getint('datos','usu')
@@ -143,11 +150,16 @@ class Exercise:
         except: self.shift = ""
         try: (self.wind_azimuth,self.wind_knots) = [int(x) for x in exc.get('datos','viento').split(",")]
         except: self.wind_azimuth,self.wind_knots=0,0
-            
-        try:
-            self.comment = exc.get('datos','comentario')
-        except:
-            self.comment = file
+        
+        # The old comment format was in fact used to present exercises
+        # in the old MainMenu.py, so we need to maintain it
+        # It actually has more information than a real comment
+        try: self.oldcomment = exc.get('datos','comentario')
+        except: self.oldcomment = os.path.basename(file)
+        # If the file doesn't have an actual new comment attr yet, use the old one.
+        try: self.comment = exc.get('datos','comment')
+        except: self.comment = self.oldcomment
+        
         try:
             self.n_flights = len(exc.options('vuelos'))        
             flightopts = exc.options('vuelos')
@@ -164,7 +176,6 @@ class Exercise:
         
         # Attempt to calculate course,phase,day,pass_no,and shift
         if self.course==self.phase==self.day==self.pass_no==None and self.shift=="":
-            import re
             formats = []
             file = os.path.basename(file)
             # fr=format regular expression, fm=format mapping
@@ -187,20 +198,43 @@ class Exercise:
                         elif attrib in ["shift"]:
                             self.__dict__[attrib]=match.group(index).upper()
                 except:
-                    if self.course != None:
-                        print "Error aqui"
                     continue
-                #print file,self.course,self.phase,self.day,self.pass_no,self.shift
-                if self.pass_no == None:
-                    print "Error!"
+
+        # Attempt to extract only the useful comment:
+        # Attempt to calculate course,phase,day,pass_no,and shift
+        formats = []
+        comment = self.comment
+        #20-Fase-1-Día-02-T-Toledo-1-1020h(29)
+        fr = "\d+-Fase-\d+-D.a-\d+-[mtMT]-[^-]+-\d+-\d+h(.*?)(\(.*\))*$"
+        fm = {"comment":1}
+        formats.append((fr,fm))
+        #20-Fase-1-Día-02-T-Toledo-1(29
+        fr = "\d+-Fase-\d+-D.a-\d+-[mtMT]-[^-]+-\d+(.*?)(\(.*\))*$"
+        fm = {"comment":1}
+        formats.append((fr,fm))
+        #23-Fase-2-Dia-3-Pasada-2-M DA33U1E42(29)
+        fr = "\d+-Fase-\d+-D.a-\d+-Pasada-\d+-[mtMT] *DA(\d+)US*U*(\d+)EJ*E*(\d+)(.*)\(.*\)"
+        fm = {"da":1,"usu":2,"ejer":3,"comment":4}
+        formats.append((fr,fm))
+        #23-Fase-2-Dia-3-Pasada-2-M (29)
+        fr = "\d+ *- *Fase[- ]\d+ *- *D.a[- ]\d+ *- *Pasada[- ]\d+ *- *[mtMT](.*?)(\(.*\))*$"
+        fm = {"comment":1}
+        formats.append((fr,fm))
+        #22 - Fase 1 - Dia 7 - T -Pasada 4(30)
+        fr = "\d+ *- *Fase[- ]\d+ *- *D.a[- ]\d+ *- *[mtMT] *- *Pasada[- ]\d+(.*?)(\(.*\))*$"
+        fm = {"comment":1}
+        formats.append((fr,fm))
+        for r,m in formats:
+            match=re.match(r,comment)
+            try:
+                for attrib,index in m.items():
+                    if attrib in ("da","usu","eje") and self.__dict__[attrib]!=None:
+                        self.__dict__[attrib]=int(match.group(index))
+                    else:
+                        self.__dict__[attrib]=match.group(index).strip()
                 break
-            if self.course==None:
-                #print "Could not match file ", file
-                pass
-            else:
-                if self.pass_no == None:
-                    print "Error!"
-                
+            except:
+                continue
 
 class Flight:
     """All data related to a specific flight within an Exercise"""
