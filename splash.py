@@ -132,7 +132,9 @@ class Crujisim:
                 gtk.main_iteration()
             for e in load_exercises(dir):
                 # Add columns to the exercise list suitable for display
-                e["wind_text"]="%03dº%02dkt"%(e["wind_azimuth"],e["wind_knots"])
+                if (e["wind_azimuth"],e["wind_knots"])!=(0,0):
+                    e["wind_text"]="%03dº%02dkt"%(e["wind_azimuth"],e["wind_knots"])
+                else: e["wind_text"]=""
                 try: e["PDP"]="Fase %d - Día %02d - Pasada %d"%(e["phase"],e["day"],e["pass_no"])
                 except: e["PDP"]=""
                 try: e["course_text"]="Prom. %02d"%(e["course"])
@@ -378,10 +380,6 @@ class ExcEditor:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
             
-        if parent: self.ExcEditor.set_transient_for(parent)
-        self.ExcEditor.set_position(gtk.WIN_POS_CENTER)
-        self.ExcEditor.present()
-
         # Create the flights treeview
         fls = self.fls = gtk.ListStore(int,str,str,str,str)  # Flights list store
               
@@ -397,6 +395,10 @@ class ExcEditor:
         renderer.props.ypad=0
         
         if exc_file: self.populate(exc_file)
+
+        if parent: self.ExcEditor.set_transient_for(parent)
+        self.ExcEditor.set_position(gtk.WIN_POS_CENTER)
+        self.ExcEditor.present()
     
     def populate(self, exc_file):
         try:
