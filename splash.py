@@ -101,15 +101,13 @@ class Crujisim:
         # Create the model for the excercise list (cols == columns)
         self.exc_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
                                "course":4,"phase":5,"day":6,"pass_no":7,
-                               "shift":8}
+                               "shift":8,"PDP":9,"course-text":10,"n_flights":11}
         exc_list = self.exc_list = gtk.ListStore(str,str,str,str,
                                                  int,int,int,int,
-                                                 str)
+                                                 str,str,str,int)
         # This is the mapping between actually displayed cols and the model cols
-        #self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Promo","course"),
-        #    ("Fase","phase"),("Día","day"),("Pasada","pass_no"),("Comentario","comment")
-        self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Pr","course"),
-            ("F","phase"),("D","day"),("P","pass_no"),("Comentario","comment"))
+        self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),("Prom.","course-text"),
+            ("Fase - Día - Pasada","PDP"),("Vuelos","n_flights"),("Comentario","comment"))
         
         # Process all excercise files
         pb = splash.get_widget("progressbar")

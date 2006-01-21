@@ -27,7 +27,7 @@ import pickle
 from ConfigParser import ConfigParser
 
 # CONSTANTS
-CACHE_VERSION = 1
+CACHE_VERSION = 2
 MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
@@ -47,7 +47,7 @@ def load_exercises(path, reload=False):
     logging.debug("Searching for exercises in directory "+str(d))
     recent = 0
     for f in os.listdir(d):
-        if f[-4:]!=".eje" or f!=MAPPING_FILE_NAME: continue
+        if f[-4:]!=".eje" and f!=MAPPING_FILE_NAME: continue
         date = os.stat(os.path.join(d,f))[ST_MTIME]
         if date>recent:
             recent=date
@@ -82,18 +82,38 @@ def load_exercises(path, reload=False):
         except:
             logging.warning("Unable to read exercise "+f)
             continue
-        exc = {}
-        exc["file"]=f
-        exc["fir"]=e.fir
-        exc["sector"]=e.sector
-        exc["comment"]=e.comment
-        exc["n_flights"]=e.n_flights
-        exc["course"]=e.course
-        exc["phase"]=e.phase
-        exc["day"]=e.day
-        exc["pass_no"]=e.pass_no
-        exc["shift"]=e.shift
-        le.append(exc)
+        
+        def append_exercise(fir,sector,comment,n_flights,course,phase,day,pass_no,shift):
+            exc = {}
+            exc["file"]=f
+            exc["fir"]=fir
+            exc["sector"]=sector
+            exc["n_flights"]=n_flights
+            exc["course"]=course
+            exc["phase"]=phase
+            exc["day"]=day
+            exc["pass_no"]=pass_no
+            exc["shift"]=shift
+            try: exc["PDP"]="Fase %d - Día %02d - Pasada %d"%(phase,day,pass_no)
+            except: exc["PDP"]=""
+            try: exc["course-text"]="Prom. %02d"%(course)
+            except: exc["course-text"]=""
+            if exc["PDP"]=="" or exc["course-text"]=="":
+                exc["comment"]=comment
+            else:
+                exc["comment"]=""
+            le.append(exc)
+        # If we have DA,U,E data, then we can use the mapping file
+        # to add all the actual passes implemented by this exercise
+        try:
+            for (course,phase,day,pass_no) in mapping.exercises[(e.da,e.usu,e.ejer)]:
+                append_exercise(e.fir,e.sector,e.comment,e.n_flights,course,phase,day,pass_no,e.shift)
+            if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
+                logging.error("The exercise reported to be C-P-D-P "+str((e.course,e.phase,e.day,e.pass_no))+\
+                              " but it's not shown on the mappings for DA-U-E "+str((e.da,e.usu,e.ejer)))
+        except:
+            # Since we didn't find mappings, we use the exercises own.
+            append_exercise(e.fir,e.sector,e.comment,e.n_flights,e.course,e.phase,e.day,e.pass_no,e.shift)
         
     exercises += le
     cache = open(cache,'w')  # Cache used to be the file name, now the file object
@@ -312,6 +332,6 @@ def hhmmss_to_hhmm(s):
 if __name__=='__main__':
     #Exercise("../pasadas\APP-RadarBasico\21-phase-1-Día-01-M-TMA Madrid-1.eje"
     logging.getLogger('').setLevel(logging.DEBUG)
-    e=load_exercises("../pasadas")
+    e=load_exercises("../pasadas/Ruta-FIRMadrid", reload=True)
     #print str(e)
     
