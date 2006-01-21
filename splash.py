@@ -77,6 +77,10 @@ class Crujisim:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
 
+        popup = self.popup = gtk.glade.XML(gladefile, "MainPopup") 
+        popup.signal_autoconnect(self)
+        self.MainPopup = popup.get_widget('MainPopup')
+
         # Place the joke
         lines = open(JOKES, 'rt').readlines()
         try:
@@ -282,12 +286,23 @@ class Crujisim:
         gtk.main_quit()
         
     def list_clicked(self,widget=None,event=None):
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if event.type == gtk.gdk._2BUTTON_PRESS and event.button==1:
             #print str(widget.get_path_at_pos(event.x,event.y))
             #print str((event.x,event.y))
             self.begin_simulation()
-        
-    def edit(self,button=None):
+        elif event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+            x = int(event.x)
+            y = int(event.y)
+            time = event.time
+            tv = self.exc_view
+            pthinfo = tv.get_path_at_pos(x, y)
+            if pthinfo is not None:
+                path, col, cellx, celly = pthinfo
+                tv.grab_focus()
+                tv.set_cursor( path, col, 0)
+                self.MainPopup.popup( None, None, None, event.button, time)
+
+    def edit(self,button=None,event=None):
         sel = self.exc_view.get_selection()
         (model, iter) = sel.get_selected()
         

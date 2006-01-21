@@ -1092,7 +1092,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="fixed_height_mode">False</property>
 	      <property name="hover_selection">False</property>
 	      <property name="hover_expand">False</property>
-	      <signal name="button_press_event" handler="list_clicked" last_modification_time="Thu, 19 Jan 2006 11:31:45 GMT"/>
+	      <signal name="button_press_event" handler="list_clicked" last_modification_time="Sat, 21 Jan 2006 20:15:01 GMT"/>
 	    </widget>
 	  </child>
 	</widget>
@@ -1857,6 +1857,51 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	  <property name="expand">False</property>
 	  <property name="fill">False</property>
 	</packing>
+      </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkMenu" id="MainPopup">
+
+  <child>
+    <widget class="GtkImageMenuItem" id="practicar1">
+      <property name="visible">True</property>
+      <property name="label" translatable="yes">Practicar</property>
+      <property name="use_underline">True</property>
+      <signal name="activate" handler="begin_simulation" last_modification_time="Sat, 21 Jan 2006 21:45:37 GMT"/>
+
+      <child internal-child="image">
+	<widget class="GtkImage" id="image3">
+	  <property name="visible">True</property>
+	  <property name="stock">gtk-media-play</property>
+	  <property name="icon_size">1</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+      </child>
+    </widget>
+  </child>
+
+  <child>
+    <widget class="GtkImageMenuItem" id="modificar1">
+      <property name="visible">True</property>
+      <property name="label" translatable="yes">Modificar</property>
+      <property name="use_underline">True</property>
+      <signal name="activate" handler="edit" last_modification_time="Sat, 21 Jan 2006 21:42:44 GMT"/>
+
+      <child internal-child="image">
+	<widget class="GtkImage" id="image4">
+	  <property name="visible">True</property>
+	  <property name="stock">gtk-edit</property>
+	  <property name="icon_size">1</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
       </child>
     </widget>
   </child>
