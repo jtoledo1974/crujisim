@@ -27,7 +27,7 @@ import pickle
 from ConfigParser import ConfigParser
 
 # CONSTANTS
-CACHE_VERSION = 2
+CACHE_VERSION = 3
 MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
@@ -100,8 +100,10 @@ def load_exercises(path, reload=False):
             except: exc["course-text"]=""
             if exc["PDP"]=="" or exc["course-text"]=="":
                 exc["comment"]=comment
+                exc["CPDP"]=""
             else:
                 exc["comment"]=""
+                exc["CPDP"]=exc["course-text"]+" - "+exc["PDP"]
             le.append(exc)
         # If we have DA,U,E data, then we can use the mapping file
         # to add all the actual passes implemented by this exercise
