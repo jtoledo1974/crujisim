@@ -173,7 +173,7 @@ class Crujisim:
                 exc_list.append(row)
               
         self.exc_filter = exc_filter = exc_list.filter_new()
-        self.filters = {"FIR":"---","Sector":"---","Promocion":"---"}
+        self.filters = {"fir":"---","sector":"---","course":"---"}
         exc_filter.set_visible_func(self.exc_is_visible)
         exc_view = self.exc_view
         exc_view.set_model(gtk.TreeModelSort(exc_filter))
@@ -196,7 +196,7 @@ class Crujisim:
             fircombo.append_text(f)
         self._updating_combos = True  # make sure we don't actually filter            
         self.set_active_text(fircombo, conf.fir_option)
-        self.filters = {"FIR":conf.fir_option,"Sector":conf.sector_option}        
+        self.filters = {"fir":conf.fir_option,"sector":conf.sector_option}        
         self.update_combos()  # Load the appropriate sectors
         self.set_active_text(self.sectorcombo,conf.sector_option)
         self.set_filter(None)
@@ -229,8 +229,8 @@ class Crujisim:
                 i += 1
             
         update_combo(self.sectorcombo,sectors.keys())
-        self.filters["FIR"]=self.get_active_text(self.fircombo)
-        self.filters["Sector"]=self.get_active_text(self.sectorcombo)
+        self.filters["fir"]=self.get_active_text(self.fircombo)
+        self.filters["sector"]=self.get_active_text(self.sectorcombo)
         self._updating_combos = False
 
     def get_active_text(self,combobox):
@@ -256,8 +256,8 @@ class Crujisim:
             if self._updating_combos: return
         except: pass
         gui=self.gui
-        self.filters["FIR"]=self.get_active_text(self.fircombo)
-        self.filters["Sector"]=self.get_active_text(self.sectorcombo)
+        self.filters["fir"]=self.get_active_text(self.fircombo)
+        self.filters["sector"]=self.get_active_text(self.sectorcombo)
         self.exc_filter.refilter()
         self.update_combos()
         
@@ -266,16 +266,16 @@ class Crujisim:
             if self._updating_combos: return
         except: pass
         gui=self.gui
-        self.filters["FIR"]=self.get_active_text(self.fircombo)
-        self.filters["Sector"]="---"
+        self.filters["fir"]=self.get_active_text(self.fircombo)
+        self.filters["sector"]="---"
         self.exc_filter.refilter()
         self.update_combos()
         
             
     def exc_is_visible(self,model,iter,user_data=None):
         f = self.filters
-        if (model.get_value(iter,1) == f["FIR"] or f["FIR"]=="---") \
-          and (model.get_value(iter,2) == f["Sector"] or f["Sector"]=="---"):
+        if (model.get_value(iter,1) == f["fir"] or f["fir"]=="---") \
+          and (model.get_value(iter,2) == f["sector"] or f["sector"]=="---"):
             return True
         else:
             return False
