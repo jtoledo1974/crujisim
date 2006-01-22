@@ -190,6 +190,8 @@ class Crujisim:
         self.set_filter()  # Load all combos with all options
         self.set_active_text(self.fircombo, conf.fir_option)
         self.set_active_text(self.sectorcombo,conf.sector_option)
+        self.set_active_text(self.coursecombo,conf.course_option)
+        self.set_active_text(self.phasecombo,conf.phase_option)
 
         # Everything's ready. Hide Splash, present Main Window
         self.n_exc = len(exc_list)
@@ -220,13 +222,17 @@ class Crujisim:
         try:
             if self._updating_combos: return
         except: pass
-        self.update_combo("fir",self.fircombo,{"sector":"---"})
-        self.update_combo("sector",self.sectorcombo,{})
-        self.update_combo("course",self.coursecombo,{})
-        self.update_combo("phase",self.phasecombo,{})
+        self.update_combo("fir",self.fircombo,("sector","course","phase"))
+        self.update_combo("sector",self.sectorcombo,("course","phase"))
+        self.update_combo("course",self.coursecombo,("phase",))
+        self.update_combo("phase",self.phasecombo,("course",))
 
-    def update_combo(self,field,combo,tempfilter):
+    def update_combo(self,field,combo,childfields):
         self._updating_combos = True
+        
+        tempfilter={}
+        for f in childfields:
+            tempfilter[f]="---"
         
         # Find unique values 
         values = {}
@@ -271,6 +277,8 @@ class Crujisim:
     def gtk_main_quit(self,w=None,e=None):
         conf.fir_option=self.get_active_text(self.fircombo)
         conf.sector_option=self.get_active_text(self.sectorcombo)
+        conf.course_option=self.get_active_text(self.coursecombo)
+        conf.phase_option=self.get_active_text(self.phasecombo)
         conf.save()
         gtk.main_quit()
         

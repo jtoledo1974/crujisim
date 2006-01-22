@@ -46,6 +46,8 @@ class CrujiConfig(object):
         self.printer_sound = self.read_option('Global','printer_sound',True,"bool")
         self.fir_option = self.read_option('Global','fir_option',"FIR MADRID","string")
         self.sector_option = self.read_option('Global','sector_option',"---","string")
+        self.course_option = self.read_option('Global','course_option',"23","string")
+        self.phase_option = self.read_option('Global','phase_option',"---","string")
         
     def save(self):
         try:
@@ -58,7 +60,7 @@ class CrujiConfig(object):
                 for l in value: mru += l+","
                 mru = mru[0:-1]
                 self.cp.set('Global',name,mru)
-            elif name in ('fir_option','sector_option'):
+            elif name in ('fir_option','sector_option','course_option','phase_option'):
                 self.cp.set('Global',name,value)
         config_fp=open(_config_file_name, "w+")
         self.cp.write(config_fp)
