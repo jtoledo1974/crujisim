@@ -2061,9 +2061,16 @@ redraw_all()
 timer()
 
 def window_closed(e=None):
+    global listening_port
+    try: tksupport.uninstall()
+    except: pass
     root.destroy()
     try:
-        reactor.stop()
+        listening_port.stopListening()
+        try:
+            reactor.GtkMainWindow.present()
+        except:
+            reactor.stop()
     except:
         pass
     
@@ -2123,12 +2130,15 @@ try:
     protocol_factory=GTA_Protocol_Factory(ejercicio)
     try:
         port=conf.server_port
-        reactor.listenTCP(port, protocol_factory)
+        listening_port = reactor.listenTCP(port, protocol_factory)
         logging.info("Servidor iniciado y esperando conexiones en el puerto "+str(port))
     except:
         logging.warning("No se ha podido iniciar el servidor. El puerto 20123 está ocupado. Verifique si ya hay un servidor corriendo y reinicie la aplicación")
     tksupport.install(root)
-    reactor.run()
+    try:
+        reactor.GtkMainWindow.hide()
+    except:
+        reactor.run()
 except:
     logging.warning("La biblioteca Twisted no está instalada. No hay soporte de red."+
                     "\nDescarga el archivo marcado como 'Win32 exe Python 2.4'"+

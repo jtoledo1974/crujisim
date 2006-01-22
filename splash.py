@@ -27,6 +27,8 @@ import locale
 import os
 from stat import *
 
+from twisted.internet import gtk2reactor # for gtk-2.0
+gtk2reactor.install()
 try: 
     import pygtk 
     pygtk.require("2.0") 
@@ -43,6 +45,7 @@ from banner import *
 from Exercise import *
 import ConfMgr
 conf = ConfMgr.CrujiConfig()
+from twisted.internet import reactor
 
 encoding = locale.getpreferredencoding()
 utf8conv = lambda x : unicode(x, encoding).encode('utf8')
@@ -57,7 +60,7 @@ logging.getLogger('').setLevel(logging.DEBUG)
 
 class Crujisim:
     
-    def __init__(self): 
+    def __init__(self):
         gladefile = GLADE_FILE 
         self.windowname = "splash" 
 
@@ -76,6 +79,7 @@ class Crujisim:
             except:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
+        reactor.GtkMainWindow = self.MainWindow  # This is a very dirty trick
 
         popup = self.popup = gtk.glade.XML(gladefile, "MainPopup") 
         popup.signal_autoconnect(self)
@@ -281,6 +285,10 @@ class Crujisim:
         conf.phase_option=self.get_active_text(self.phasecombo)
         conf.save()
         gtk.main_quit()
+        # Force exit or the reactor may become hanged
+        # due to the loading and unloading of tksupport
+        # (a bug entry has been raised against twisted)
+        sys.exit()
         
     def list_clicked(self,widget=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS and event.button==1:
@@ -321,7 +329,7 @@ class Crujisim:
     def begin_simulation(self,button=None):
         sel = self.exc_view.get_selection()
         (model, iter) = sel.get_selected()
-        
+
         try:
             fir_name = model.get_value(iter,1)
         except:
@@ -346,19 +354,15 @@ class Crujisim:
         ejercicio_elegido = model.get(iter,3,0)
         if "tpv" in sys.modules:
             sys.modules.pop('tpv')
-        
+
         import tpv
         print "importing tpv"
         #import tpv
         tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , 1])
 
-        self.MainWindow.hide()
-        while gtk.events_pending():
-            gtk.main_iteration()
         if "Simulador" in sys.modules:
             sys.modules.pop('Simulador')
         import Simulador
-        self.MainWindow.present()
 
 class ExcEditor:
     def __init__(self,exc_file=None,parent=None):
@@ -494,4 +498,4 @@ class FlightEditor:
         logging.debug("In FlightEditor.close")
 
 Crujisim()
-gtk.main()
+reactor.run()
