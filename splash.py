@@ -420,10 +420,10 @@ class ExcEditor:
         self.sector.child.props.text=exc.sector
         for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
                        "wind_azimuth","wind_knots","start_time"):
-            if type(exc.__dict__[attrib]) is str:
-                self.__dict__[attrib].props.text=utf8conv(exc.__dict__[attrib])
+            if type(getattr(exc,attrib)) is str:
+                getattr(self,attrib).props.text=utf8conv(getattr(exc,attrib))
             else:
-                self.__dict__[attrib].props.text=exc.__dict__[attrib]
+                getattr(self,attrib).props.text=getattr(exc,attrib)
         self.flights = exc.flights
         
         for i,f in exc.flights.items():
@@ -486,7 +486,7 @@ class FlightEditor:
         # I use the __dict_[attr] is another way to reference an some objects attr
         # object.__dict__["callsign"] == object.callsign
         for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
-            self.__dict__[attr].props.text = flight.__dict__[attr]
+            getattr(self,attr).props.text = getattr(flight,attr)
         self.route.child.props.text = flight.route.replace(","," ")
         self.eto.props.text = hhmmss_to_hhmm(flight.eto)
         self.set_firstfix(flight.route)
