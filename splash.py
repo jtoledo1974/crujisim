@@ -194,12 +194,9 @@ class Crujisim:
         fircombo=self.fircombo
         for f in firs.keys():
             fircombo.append_text(f)
-        self._updating_combos = True  # make sure we don't actually filter            
-        self.set_active_text(fircombo, conf.fir_option)
         self.filters = {"fir":conf.fir_option,"sector":conf.sector_option}        
-        self.update_combos()  # Load the appropriate sectors
+        self.set_active_text(fircombo, conf.fir_option)
         self.set_active_text(self.sectorcombo,conf.sector_option)
-        self.set_filter(None)
 
         # Everything's ready. Hide Splash, present Main Window
         self.n_exc = len(exc_list)
@@ -207,31 +204,6 @@ class Crujisim:
         splash.get_widget("Splash").destroy()
         self.MainWindow.present()
     
-    def update_combos(self):
-        self._updating_combos = True
-        
-        # Find unique FIRs, Sectors and promociones
-        sectors = {}
-        for row in self.exc_filter:
-            sectors[row[2]]=0
-        gui = self.gui
-
-        def update_combo(combo,values):
-            old_value=self.get_active_text(combo)
-            self.blank_combo(combo)
-            combo.append_text("---")
-            combo.set_active(0)
-            i=1
-            for value in values:
-                combo.append_text(value)
-                if value==old_value:
-                    combo.set_active(i)
-                i += 1
-            
-        update_combo(self.sectorcombo,sectors.keys())
-        self.filters["fir"]=self.get_active_text(self.fircombo)
-        self.filters["sector"]=self.get_active_text(self.sectorcombo)
-        self._updating_combos = False
 
     def get_active_text(self,combobox):
         model = combobox.get_model()
@@ -251,15 +223,72 @@ class Crujisim:
         while len(combo.get_model())>0:
             combo.remove_text(0)
 
-    def set_filter(self,combo):
-        try:
-            if self._updating_combos: return
-        except: pass
-        gui=self.gui
+    def update_combos(self):
+        self._updating_combos = True
+        
+        # Find unique FIRs, Sectors and promociones
+        
+        sectors = {}
+        oldfilter = self.filters["sector"]
+        self.filters["sector"]="---"
+        self.exc_filter.refilter()
+        for row in self.exc_filter:
+            sectors[row[2]]=0
+        gui = self.gui
+
+        def update_combo(combo,values):
+            old_value=self.get_active_text(combo)
+            self.blank_combo(combo)
+            combo.append_text("---")
+            combo.set_active(0)
+            i=1
+            for value in values:
+                combo.append_text(value)
+                if value==old_value:
+                    combo.set_active(i)
+                i += 1
+            
+        update_combo(self.sectorcombo,sectors.keys())
         self.filters["fir"]=self.get_active_text(self.fircombo)
         self.filters["sector"]=self.get_active_text(self.sectorcombo)
         self.exc_filter.refilter()
-        self.update_combos()
+        self._updating_combos = False
+
+    def set_filter(self,combo=None):
+        try:
+            if self._updating_combos: return
+        except: pass
+        self.filters["fir"]=self.get_active_text(self.fircombo)
+        #self.filters["sector"]=self.get_active_text(self.sectorcombo)
+        #self.exc_filter.refilter()
+        self.update_combo("sector",self.sectorcombo)
+
+    def update_combo(self,field,combo):
+        self._updating_combos = True
+        
+        # Find unique values 
+        values = {}
+        oldfilter = self.filters[field]
+        self.filters[field]="---"
+        self.exc_filter.refilter()
+        for row in self.exc_filter:
+            values[row[self.exc_ls_cols[field]]]=0
+
+        old_value=self.get_active_text(combo)
+        self.blank_combo(combo)
+        combo.append_text("---")
+        combo.set_active(0)
+        i=1
+        for value in values.keys():
+            combo.append_text(utf8conv(str(value)))
+            if value==old_value:
+                combo.set_active(i)
+            i += 1
+            
+        self.filters[field]=self.get_active_text(combo)
+        self.exc_filter.refilter()
+        self._updating_combos = False
+
         
     def set_fir(self,combo):
         try:
