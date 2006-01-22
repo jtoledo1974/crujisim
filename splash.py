@@ -173,7 +173,7 @@ class Crujisim:
                 exc_list.append(row)
               
         self.exc_filter = exc_filter = exc_list.filter_new()
-        self.filters = {"fir":"---","sector":"---","course":"---"}
+        self.filters = {"fir":"---","sector":"---","course":"---","phase":"---"}
         exc_filter.set_visible_func(self.exc_is_visible)
         exc_view = self.exc_view
         exc_view.set_model(gtk.TreeModelSort(exc_filter))
@@ -187,15 +187,8 @@ class Crujisim:
             exc_view.append_column(column)
         renderer.props.ypad=0
         
-        # Fill up the FIRs combo with the unique FIRs available
-        firs = {}
-        for fir in [row[1] for row in self.exc_list]:
-            firs[fir]=0
-        fircombo=self.fircombo
-        for f in firs.keys():
-            fircombo.append_text(f)
-        self.filters = {"fir":conf.fir_option,"sector":conf.sector_option}        
-        self.set_active_text(fircombo, conf.fir_option)
+        self.set_filter()  # Load all combos with all options
+        self.set_active_text(self.fircombo, conf.fir_option)
         self.set_active_text(self.sectorcombo,conf.sector_option)
 
         # Everything's ready. Hide Splash, present Main Window
@@ -223,52 +216,22 @@ class Crujisim:
         while len(combo.get_model())>0:
             combo.remove_text(0)
 
-    def update_combos(self):
-        self._updating_combos = True
-        
-        # Find unique FIRs, Sectors and promociones
-        
-        sectors = {}
-        oldfilter = self.filters["sector"]
-        self.filters["sector"]="---"
-        self.exc_filter.refilter()
-        for row in self.exc_filter:
-            sectors[row[2]]=0
-        gui = self.gui
-
-        def update_combo(combo,values):
-            old_value=self.get_active_text(combo)
-            self.blank_combo(combo)
-            combo.append_text("---")
-            combo.set_active(0)
-            i=1
-            for value in values:
-                combo.append_text(value)
-                if value==old_value:
-                    combo.set_active(i)
-                i += 1
-            
-        update_combo(self.sectorcombo,sectors.keys())
-        self.filters["fir"]=self.get_active_text(self.fircombo)
-        self.filters["sector"]=self.get_active_text(self.sectorcombo)
-        self.exc_filter.refilter()
-        self._updating_combos = False
-
     def set_filter(self,combo=None):
         try:
             if self._updating_combos: return
         except: pass
-        self.filters["fir"]=self.get_active_text(self.fircombo)
-        #self.filters["sector"]=self.get_active_text(self.sectorcombo)
-        #self.exc_filter.refilter()
-        self.update_combo("sector",self.sectorcombo)
+        self.update_combo("fir",self.fircombo,{"sector":"---"})
+        self.update_combo("sector",self.sectorcombo,{})
+        self.update_combo("course",self.coursecombo,{})
+        self.update_combo("phase",self.phasecombo,{})
 
-    def update_combo(self,field,combo):
+    def update_combo(self,field,combo,tempfilter):
         self._updating_combos = True
         
         # Find unique values 
         values = {}
-        oldfilter = self.filters[field]
+        oldfilters = self.filters.copy()
+        self.filters.update(tempfilter)
         self.filters[field]="---"
         self.exc_filter.refilter()
         for row in self.exc_filter:
@@ -281,36 +244,31 @@ class Crujisim:
         i=1
         for value in values.keys():
             combo.append_text(utf8conv(str(value)))
-            if value==old_value:
+            if str(value)==str(old_value):
                 combo.set_active(i)
             i += 1
             
+        self.filters=oldfilters.copy()
         self.filters[field]=self.get_active_text(combo)
         self.exc_filter.refilter()
         self._updating_combos = False
-
-        
-    def set_fir(self,combo):
-        try:
-            if self._updating_combos: return
-        except: pass
-        gui=self.gui
-        self.filters["fir"]=self.get_active_text(self.fircombo)
-        self.filters["sector"]="---"
-        self.exc_filter.refilter()
-        self.update_combos()
         
             
     def exc_is_visible(self,model,iter,user_data=None):
-        f = self.filters
-        if (model.get_value(iter,1) == f["fir"] or f["fir"]=="---") \
-          and (model.get_value(iter,2) == f["sector"] or f["sector"]=="---"):
-            return True
-        else:
-            return False
+        for field in self.filters.keys():
+            if str(model.get_value(iter,self.exc_ls_cols[field]))== self.filters[field] or \
+                self.filters[field] == "---":
+                pass
+            else:
+                return False
+        return True
+        #if (model.get_value(iter,1) == f["fir"] or f["fir"]=="---") \
+        #  and (model.get_value(iter,2) == f["sector"] or f["sector"]=="---"):
+        #    return True
+        #else:
+        #    return False
         
     def gtk_main_quit(self,w=None,e=None):
-        gui = self.gui
         conf.fir_option=self.get_active_text(self.fircombo)
         conf.sector_option=self.get_active_text(self.sectorcombo)
         conf.save()
