@@ -23,11 +23,12 @@
 import logging
 import os
 from stat import *
-import pickle
+import cPickle
+import zlib
 from ConfigParser import ConfigParser
 
 # CONSTANTS
-CACHE_VERSION = 5
+CACHE_VERSION = 6
 MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
@@ -56,8 +57,8 @@ def load_exercises(path, reload=False):
     cache = os.path.join(d,".cache")
     if not reload and os.access(cache,os.F_OK|os.R_OK) and os.stat(cache)[ST_MTIME]>recent:
         try:
-            c = open(cache,"r")
-            version,le = pickle.loads(c.read())
+            c = open(cache,"rb")
+            version,le = cPickle.loads(zlib.decompress(c.read()))
             if version==CACHE_VERSION:
                 exercises += le
                 return exercises
@@ -83,47 +84,36 @@ def load_exercises(path, reload=False):
             logging.warning("Unable to read exercise "+f)
             continue
         
-        def append_exercise(fir,sector,comment,oldcomment,n_flights,course,phase,day,
-                            pass_no,shift,wind_azimuth,wind_knots):
-            exc = {}
-            exc["file"]=f
-            exc["fir"]=fir
-            exc["sector"]=sector
-            exc["n_flights"]=n_flights
-            exc["course"]=course
-            exc["phase"]=phase
-            exc["day"]=day
-            exc["pass_no"]=pass_no
-            exc["shift"]=shift
-            exc["wind_azimuth"]=wind_azimuth
-            exc["wind_knots"]=wind_knots
-            exc["comment"]=comment
-            exc["oldcomment"]=oldcomment
-            le.append(exc)
         # If we have DA,U,E data, then we can use the mapping file
         # to add all the actual passes implemented by this exercise
         try:
             for (course,phase,day,pass_no) in mapping.exercises[(e.da,e.usu,e.ejer)]:
-                append_exercise(e.fir,e.sector,e.comment,e.oldcomment,e.n_flights,course,
-                                phase,day,pass_no,e.shift,e.wind_azimuth,e.wind_knots)
+                ne=e.copy()
+                del(ne.file)  # The copy is not based on any file
+                ne.course,ne.phase,ne.day,ne.pass_no=course,phase,day,pass_no
+                del(ne.flights)
+                le.append(ne)
             if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
                 logging.error("The exercise reported to be C-P-D-P "+str((e.course,e.phase,e.day,e.pass_no))+\
                               " but it's not shown on the mappings for DA-U-E "+str((e.da,e.usu,e.ejer)))
         except:
             # Since we didn't find mappings, we use the exercises own.
-            append_exercise(e.fir,e.sector,e.comment,e.oldcomment,e.n_flights,e.course,
-                            e.phase,e.day,e.pass_no,e.shift,e.wind_azimuth,e.wind_knots)
+            del(e.flights)
+            le.append(e)
         
     exercises += le
-    cache = open(cache,'w')  # Cache used to be the file name, now the file object
-    cache.write(pickle.dumps((CACHE_VERSION,le)))
+    cache = open(cache,'wb')  # Cache used to be the file name, now the file object
+    cache.write(zlib.compress(cPickle.dumps((CACHE_VERSION,le))))
     cache.close
             
     return exercises    
     
 class Exercise:
     """All data representing a single exercise"""
-    def __init__(self,file):
+    def __init__(self,file=None):
+        if file: self.load(file)
+        
+    def load(self,file):
         import re
 
         self.file=file
@@ -160,6 +150,7 @@ class Exercise:
         try: self.comment = exc.get('datos','comment')
         except: self.comment = self.oldcomment
         
+        flightops = ()
         try:
             self.n_flights = len(exc.options('vuelos'))        
             flightopts = exc.options('vuelos')
@@ -235,6 +226,11 @@ class Exercise:
                 break
             except:
                 continue
+            
+    def copy(self):
+        e = Exercise()
+        e.__dict__=self.__dict__.copy()
+        return e
 
 class Flight:
     """All data related to a specific flight within an Exercise"""
@@ -365,4 +361,6 @@ if __name__=='__main__':
     logging.getLogger('').setLevel(logging.DEBUG)
     e=load_exercises("../pasadas/Ruta-FIRMadrid", reload=True)
     #print str(e)
+    
+    
     

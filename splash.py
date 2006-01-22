@@ -132,32 +132,32 @@ class Crujisim:
                 gtk.main_iteration()
             for e in load_exercises(dir):
                 # Add columns to the exercise list suitable for display
-                if (e["wind_azimuth"],e["wind_knots"])!=(0,0):
-                    e["wind_text"]="%03dº%02dkt"%(e["wind_azimuth"],e["wind_knots"])
-                else: e["wind_text"]=""
-                try: e["PDP"]="Fase %d - Día %02d - Pasada %d"%(e["phase"],e["day"],e["pass_no"])
-                except: e["PDP"]=""
-                try: e["course_text"]="Prom. %02d"%(e["course"])
-                except: e["course_text"]=""
-                if e["PDP"]=="" or e["course_text"]=="":
-                    e["CPDP"]=""
+                if (e.wind_azimuth,e.wind_knots)!=(0,0):
+                    e.wind_text="%03dº%02dkt"%(e.wind_azimuth,e.wind_knots)
+                else: e.wind_text=""
+                try: e.PDP="Fase %d - Día %02d - Pasada %d"%(e.phase,e.day,e.pass_no)
+                except: e.PDP=""
+                try: e.course_text="Prom. %02d"%(e.course)
+                except: e.course_text=""
+                if e.PDP=="" or e.course_text=="":
+                    e.CPDP=""
                     # We need to be able to show the user something
                     # so that he can reconstruct the missing data
-                    e["comment"]=e["oldcomment"]
+                    e.comment=e.oldcomment
                 else:
-                    e["CPDP"]=e["course_text"]+" - "+e["PDP"]
+                    e.CPDP=e.course_text+" - "+e.PDP
 
                 row=[]
                 ia = [(index,attr) for attr,index in self.exc_ls_cols.items()]
                 ia.sort()
                 for index,attr in ia:
                     if attr=="file":
-                        row.append(e["file"])
-                    elif type(e[attr]) is str:
-                        row.append(utf8conv(e[attr]))
-                    elif type(e[attr]) is int:
-                        row.append(e[attr])
-                    elif type(e[attr]) is NoneType:
+                        row.append(e.file)
+                    elif type(getattr(e,attr)) is str:
+                        row.append(utf8conv(getattr(e,attr)))
+                    elif type(getattr(e,attr)) is int:
+                        row.append(getattr(e,attr))
+                    elif type(getattr(e,attr)) is NoneType:
                         ct = exc_list.get_column_type(index)
                         # I don't really know how to map GTypes to python types,
                         # so rather than doing "if ct is int", I have to
