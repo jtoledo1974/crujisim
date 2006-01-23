@@ -87,10 +87,10 @@ def load_exercises(path, reload=False):
         # If we have DA,U,E data, then we can use the mapping file
         # to add all the actual passes implemented by this exercise
         try:
-            for (course,phase,day,pass_no) in mapping.exercises[(e.da,e.usu,e.ejer)]:
+            for (course,phase,day,pass_no,shift) in mapping.exercises[(e.da,e.usu,e.ejer)]:
                 ne=e.copy()
                 del(ne.file)  # The copy is not based on any file
-                ne.course,ne.phase,ne.day,ne.pass_no=course,phase,day,pass_no
+                ne.course,ne.phase,ne.day,ne.pass_no,ne.shift=course,phase,day,pass_no,shift
                 del(ne.flights)
                 le.append(ne)
             if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
@@ -338,9 +338,12 @@ class Mapping:
                 try:
                     (da,u,e)=(int(opt[2:4]),int(opt[5:7]),int(opt[8:11]))
                     self.exercises[(da,u,e)]=[]
-                    for s in mapping.get('Mappings',opt).split(","):                        
-                        (course,phase,day,pass_no)=(int(s[1:3]),int(s[4:5]),int(s[6:8]),int(s[9:10]))
-                        self.exercises[(da,u,e)].append((course,phase,day,pass_no))
+                    for s in mapping.get('Mappings',opt).split(","):
+                        try:
+                            (course,phase,day,pass_no, shift)=(int(s[1:3]),int(s[4:5]),int(s[6:8]),int(s[9:10]),s[11:12])
+                            self.exercises[(da,u,e)].append((course,phase,day,pass_no,shift))
+                        except:
+                            logging.warning("Incorrect mapping format "+s+" in mapping file "+f)
                 except:
                     logging.warning("Unable to read mapping for excercise "+opt+" in "+f)
         except:

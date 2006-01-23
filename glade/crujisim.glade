@@ -362,7 +362,7 @@ Seleccione una pasada</property>
 	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	  <child>
-	    <widget class="GtkTreeView" id="exc_view">
+	    <widget class="GtkTreeView" id="ex_view">
 	      <property name="border_width">1</property>
 	      <property name="height_request">191</property>
 	      <property name="visible">True</property>
@@ -453,7 +453,7 @@ Seleccione una pasada</property>
   </child>
 </widget>
 
-<widget class="GtkWindow" id="ExcEditor">
+<widget class="GtkWindow" id="ExEditor">
   <property name="title" translatable="yes">Crujisim: Editor</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER</property>
@@ -739,6 +739,7 @@ Seleccione una pasada</property>
 
 	  <child>
 	    <widget class="GtkLabel" id="label14">
+	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Turno:</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
@@ -939,6 +940,7 @@ Seleccione una pasada</property>
 	  <child>
 	    <widget class="GtkEntry" id="shift">
 	      <property name="width_request">60</property>
+	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>

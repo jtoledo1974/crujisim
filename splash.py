@@ -106,21 +106,21 @@ class Crujisim:
     def load(self):
         splash, gui = self.splash, self.gui
         
-        # Create the model for the excercise list (cols == columns)
-        self.exc_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
+        # Create the model for the exercise list (cols == columns)
+        self.ex_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
                                "course":4,"phase":5,"day":6,"pass_no":7,
                                "shift":8,"PDP":9,"course_text":10,"n_flights":11,
                                "CPDP":12,"wind_text":13}
-        exc_list = self.exc_list = gtk.ListStore(str,str,str,str,
+        ex_list = self.ex_list = gtk.ListStore(str,str,str,str,
                                                  int,int,int,int,
                                                  str,str,str,int,
                                                  str,str)
         # This is the mapping between actually displayed cols and the model cols
-        self.exc_tv_cols = (("FIR","fir"),("Sector","sector"),
+        self.ex_tv_cols = (("FIR","fir"),("Sector","sector"),
             ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),
             ("Viento","wind_text"),("Comentario","comment"))
         
-        # Process all excercise files
+        # Process all exercise files
         pb = splash.get_widget("progressbar")
         pb.set_text('Cargando ejercicios')
         dirs = [dir for dir in os.listdir(EX_DIR) if dir[-4:]!=".svn"
@@ -134,6 +134,7 @@ class Crujisim:
             pb.set_fraction(i)
             while gtk.events_pending():
                 gtk.main_iteration()
+            self.all_ex=[]
             for e in load_exercises(dir):
                 # Add columns to the exercise list suitable for display
                 if (e.wind_azimuth,e.wind_knots)!=(0,0):
@@ -152,7 +153,7 @@ class Crujisim:
                     e.CPDP=e.course_text+" - "+e.PDP
 
                 row=[]
-                ia = [(index,attr) for attr,index in self.exc_ls_cols.items()]
+                ia = [(index,attr) for attr,index in self.ex_ls_cols.items()]
                 ia.sort()
                 for index,attr in ia:
                     if attr=="file":
@@ -162,7 +163,7 @@ class Crujisim:
                     elif type(getattr(e,attr)) is int:
                         row.append(getattr(e,attr))
                     elif type(getattr(e,attr)) is NoneType:
-                        ct = exc_list.get_column_type(index)
+                        ct = ex_list.get_column_type(index)
                         # I don't really know how to map GTypes to python types,
                         # so rather than doing "if ct is int", I have to
                         # do this ugly hack
@@ -174,23 +175,26 @@ class Crujisim:
                             logging.error("Unknown type in liststore column")
                     else:
                         row.append(None)
-                exc_list.append(row)
+                ex_list.append(row)
+                self.all_ex.append(e)
               
-        self.exc_filter = exc_filter = exc_list.filter_new()
+        self.ex_filter = ex_filter = ex_list.filter_new()
         self.filters = {"fir":"---","sector":"---","course":"---","phase":"---"}
-        exc_filter.set_visible_func(self.exc_is_visible)
-        exc_view = self.exc_view
-        exc_view.set_model(gtk.TreeModelSort(exc_filter))
-        exc_view.get_selection().set_mode(gtk.SELECTION_SINGLE)
+        ex_filter.set_visible_func(self.ex_is_visible)
+        ex_view = self.ex_view
+        ex_view.set_model(gtk.TreeModelSort(ex_filter))
+        ex_view.get_selection().set_mode(gtk.SELECTION_SINGLE)
         renderer = gtk.CellRendererText()
-        for i, name in [(self.exc_ls_cols[ls_col],name) for (name,ls_col) in self.exc_tv_cols]:
+        for i, name in [(self.ex_ls_cols[ls_col],name) for (name,ls_col) in self.ex_tv_cols]:
             column = gtk.TreeViewColumn(utf8conv(name), renderer, text=i) 
             column.set_clickable(True) 
             column.set_sort_column_id(i) 
             column.set_resizable(True) 
-            exc_view.append_column(column)
+            ex_view.append_column(column)
         renderer.props.ypad=0
         
+        self.n_ex = len(ex_list)
+        self.statusbar.push(0,utf8conv("Cargados "+str(self.n_ex)+" ejercicios"))
         self.set_filter()  # Load all combos with all options
         self.set_active_text(self.fircombo, conf.fir_option)
         self.set_active_text(self.sectorcombo,conf.sector_option)
@@ -198,8 +202,6 @@ class Crujisim:
         self.set_active_text(self.phasecombo,conf.phase_option)
 
         # Everything's ready. Hide Splash, present Main Window
-        self.n_exc = len(exc_list)
-        self.statusbar.push(0,utf8conv("Cargados "+str(self.n_exc)+" ejercicios"))
         splash.get_widget("Splash").destroy()
         self.MainWindow.present()
     
@@ -230,6 +232,9 @@ class Crujisim:
         self.update_combo("sector",self.sectorcombo,("course","phase"))
         self.update_combo("course",self.coursecombo,("phase",))
         self.update_combo("phase",self.phasecombo,("course",))
+        ne = len(self.ex_filter)
+        self.statusbar.pop(0)
+        self.statusbar.push(0,utf8conv("Mostrando "+str(ne)+" de "+str(self.n_ex)+" ejercicios"))
 
     def update_combo(self,field,combo,childfields):
         self._updating_combos = True
@@ -243,9 +248,9 @@ class Crujisim:
         oldfilters = self.filters.copy()
         self.filters.update(tempfilter)
         self.filters[field]="---"
-        self.exc_filter.refilter()
-        for row in self.exc_filter:
-            values[row[self.exc_ls_cols[field]]]=0
+        self.ex_filter.refilter()
+        for row in self.ex_filter:
+            values[row[self.ex_ls_cols[field]]]=0
 
         old_value=self.get_active_text(combo)
         self.blank_combo(combo)
@@ -260,23 +265,17 @@ class Crujisim:
             
         self.filters=oldfilters.copy()
         self.filters[field]=self.get_active_text(combo)
-        self.exc_filter.refilter()
-        self._updating_combos = False
-        
+        self.ex_filter.refilter()
+        self._updating_combos = False        
             
-    def exc_is_visible(self,model,iter,user_data=None):
+    def ex_is_visible(self,model,iter,user_data=None):
         for field in self.filters.keys():
-            if str(model.get_value(iter,self.exc_ls_cols[field]))== self.filters[field] or \
+            if str(model.get_value(iter,self.ex_ls_cols[field]))== self.filters[field] or \
                 self.filters[field] == "---":
                 pass
             else:
                 return False
         return True
-        #if (model.get_value(iter,1) == f["fir"] or f["fir"]=="---") \
-        #  and (model.get_value(iter,2) == f["sector"] or f["sector"]=="---"):
-        #    return True
-        #else:
-        #    return False
         
     def gtk_main_quit(self,w=None,e=None):
         conf.fir_option=self.get_active_text(self.fircombo)
@@ -299,7 +298,7 @@ class Crujisim:
             x = int(event.x)
             y = int(event.y)
             time = event.time
-            tv = self.exc_view
+            tv = self.ex_view
             pthinfo = tv.get_path_at_pos(x, y)
             if pthinfo is not None:
                 path, col, cellx, celly = pthinfo
@@ -308,11 +307,11 @@ class Crujisim:
                 self.MainPopup.popup( None, None, None, event.button, time)
 
     def edit(self,button=None,event=None):
-        sel = self.exc_view.get_selection()
+        sel = self.ex_view.get_selection()
         (model, iter) = sel.get_selected()
         
         try:
-            exc_file = model.get_value(iter,0)
+            ex_file = model.get_value(iter,self.ex_ls_cols["file"])
         except:
             dlg=gtk.MessageDialog(parent=self.MainWindow,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -324,14 +323,14 @@ class Crujisim:
             dlg.run()
             return
         
-        ExcEditor(exc_file,parent=self.MainWindow)
+        ExEditor(ex_file,parent=self.MainWindow)
 
     def begin_simulation(self,button=None):
-        sel = self.exc_view.get_selection()
+        sel = self.ex_view.get_selection()
         (model, iter) = sel.get_selected()
 
         try:
-            fir_name = model.get_value(iter,1)
+            fir_name = model.get_value(iter,self.ex_ls_cols["fir"])
         except:
             dlg=gtk.MessageDialog(parent=self.MainWindow,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -346,7 +345,7 @@ class Crujisim:
             if fir_name==fir:
                 fir_elegido=(fir, fir_file)
                 break
-        sector_name = model.get_value(iter,2)
+        sector_name = model.get_value(iter,self.ex_ls_cols["sector"])
         for (sector, section) in get_sectores(fir_name):
             if sector==sector_name:
                 sector_elegido=(sector,section)
@@ -364,9 +363,9 @@ class Crujisim:
             sys.modules.pop('Simulador')
         import Simulador
 
-class ExcEditor:
-    def __init__(self,exc_file=None,parent=None):
-        gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExcEditor") 
+class ExEditor:
+    def __init__(self,ex_file=None,parent=None):
+        gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExEditor") 
         gui.signal_autoconnect(self)
         
         # Automatically make every widget in the window an attribute of this class
@@ -393,39 +392,39 @@ class ExcEditor:
             self.ftv.append_column(column)
         renderer.props.ypad=0
         
-        if exc_file: self.populate(exc_file)
+        if ex_file: self.populate(ex_file)
 
-        if parent: self.ExcEditor.set_transient_for(parent)
-        self.ExcEditor.set_position(gtk.WIN_POS_CENTER)
-        self.ExcEditor.present()
+        if parent: self.ExEditor.set_transient_for(parent)
+        self.ExEditor.set_position(gtk.WIN_POS_CENTER)
+        self.ExEditor.present()
     
-    def populate(self, exc_file):
+    def populate(self, ex_file):
         try:
-            exc=Exercise(exc_file)
+            ex=Exercise(ex_file)
         except:
-            dlg=gtk.MessageDialog(parent=self.ExcEditor,
+            dlg=gtk.MessageDialog(parent=self.ExEditor,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_CLOSE,
-                                  message_format="Imposible abrir archivo:\n"+utf8conv(exc_file))
+                                  message_format="Imposible abrir archivo:\n"+utf8conv(ex_file))
             dlg.set_position(gtk.WIN_POS_CENTER)
             dlg.connect('response',lambda dlg, r: dlg.destroy())
             dlg.run()
-            self.ExcEditor.destroy()
+            self.ExEditor.destroy()
             return
         
-        self.ExcEditor.set_title("Editor: "+utf8conv(exc_file))
-        self.fir.child.props.text=exc.fir
-        self.sector.child.props.text=exc.sector
+        self.ExEditor.set_title("Editor: "+utf8conv(ex_file))
+        self.fir.child.props.text=ex.fir
+        self.sector.child.props.text=ex.sector
         for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
                        "wind_azimuth","wind_knots","start_time"):
-            if type(getattr(exc,attrib)) is str:
-                getattr(self,attrib).props.text=utf8conv(getattr(exc,attrib))
+            if type(getattr(ex,attrib)) is str:
+                getattr(self,attrib).props.text=utf8conv(getattr(ex,attrib))
             else:
-                getattr(self,attrib).props.text=getattr(exc,attrib)
-        self.flights = exc.flights
+                getattr(self,attrib).props.text=getattr(ex,attrib)
+        self.flights = ex.flights
         
-        for i,f in exc.flights.items():
+        for i,f in ex.flights.items():
             # Column 0 of the model is the key in the flights dictionary
             self.fls.append((i,f.callsign,f.orig,f.dest,f.route))
 
@@ -441,7 +440,7 @@ class ExcEditor:
         try:
             index = model.get_value(iter,0)
         except:
-            dlg=gtk.MessageDialog(parent=self.ExcEditor,
+            dlg=gtk.MessageDialog(parent=self.ExEditor,
                                   flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_CLOSE,
@@ -451,10 +450,13 @@ class ExcEditor:
             dlg.run()
             return
         
-        FlightEditor(self.flights[index],parent=self.ExcEditor)
+        FlightEditor(self.flights[index],parent=self.ExEditor)
                 
     def close(self,w=None,e=None):
-        self.ExcEditor.destroy()
+        self.ExEditor.destroy()
+        
+    def __del__(self):
+        logging.debug("ExEditor.__del__")
         
 class FlightEditor:
     def __init__(self,flight=None,parent=None):
@@ -495,7 +497,9 @@ class FlightEditor:
 
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()
-        logging.debug("In FlightEditor.close")
+
+    def __del__(self):
+        logging.debug("FlightEditor.__del__")
 
 Crujisim()
 reactor.run()
