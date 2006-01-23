@@ -111,10 +111,11 @@ class Crujisim:
                                "course":4,"phase":5,"day":6,"pass_no":7,
                                "shift":8,"PDP":9,"course_text":10,"n_flights":11,
                                "CPDP":12,"wind_text":13}
-        ex_list = self.ex_list = gtk.ListStore(str,str,str,str,
-                                                 int,int,int,int,
-                                                 str,str,str,int,
-                                                 str,str)
+        # els = exercise list store
+        els = self.els = gtk.ListStore(str,str,str,str,
+                                        int,int,int,int,
+                                        str,str,str,int,
+                                        str,str)
         # This is the mapping between actually displayed cols and the model cols
         self.ex_tv_cols = (("FIR","fir"),("Sector","sector"),
             ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),
@@ -136,64 +137,25 @@ class Crujisim:
                 gtk.main_iteration()
             self.all_ex=[]
             for e in load_exercises(dir):
-                # Add columns to the exercise list suitable for display
-                if (e.wind_azimuth,e.wind_knots)!=(0,0):
-                    e.wind_text="%03dº%02dkt"%(e.wind_azimuth,e.wind_knots)
-                else: e.wind_text=""
-                try: e.PDP="Fase %d - Día %02d - Pasada %d"%(e.phase,e.day,e.pass_no)
-                except: e.PDP=""
-                try: e.course_text="Prom. %02d"%(e.course)
-                except: e.course_text=""
-                if e.PDP=="" or e.course_text=="":
-                    e.CPDP=""
-                    # We need to be able to show the user something
-                    # so that he can reconstruct the missing data
-                    e.comment=e.oldcomment
-                else:
-                    e.CPDP=e.course_text+" - "+e.PDP
-
-                row=[]
-                ia = [(index,attr) for attr,index in self.ex_ls_cols.items()]
-                ia.sort()
-                for index,attr in ia:
-                    if attr=="file":
-                        row.append(e.file)
-                    elif type(getattr(e,attr)) is str:
-                        row.append(utf8conv(getattr(e,attr)))
-                    elif type(getattr(e,attr)) is int:
-                        row.append(getattr(e,attr))
-                    elif type(getattr(e,attr)) is NoneType:
-                        ct = ex_list.get_column_type(index)
-                        # I don't really know how to map GTypes to python types,
-                        # so rather than doing "if ct is int", I have to
-                        # do this ugly hack
-                        if str(ct).find("gint")>0:
-                            row.append(0)
-                        elif str(ct).find("gchar")>0:
-                            row.append("")
-                        else:
-                            logging.error("Unknown type in liststore column")
-                    else:
-                        row.append(None)
-                ex_list.append(row)
+                els.append(self.get_tvrow_from_ex(e))
                 self.all_ex.append(e)
               
-        self.ex_filter = ex_filter = ex_list.filter_new()
+        self.etf = etf = els.filter_new()  # Exercise TreeFilter
         self.filters = {"fir":"---","sector":"---","course":"---","phase":"---"}
-        ex_filter.set_visible_func(self.ex_is_visible)
-        ex_view = self.ex_view
-        ex_view.set_model(gtk.TreeModelSort(ex_filter))
-        ex_view.get_selection().set_mode(gtk.SELECTION_SINGLE)
+        etf.set_visible_func(self.ex_is_visible)
+        etv = self.etv  # Exercise Tree View
+        etv.set_model(gtk.TreeModelSort(etf))
+        etv.get_selection().set_mode(gtk.SELECTION_SINGLE)
         renderer = gtk.CellRendererText()
         for i, name in [(self.ex_ls_cols[ls_col],name) for (name,ls_col) in self.ex_tv_cols]:
             column = gtk.TreeViewColumn(utf8conv(name), renderer, text=i) 
             column.set_clickable(True) 
             column.set_sort_column_id(i) 
             column.set_resizable(True) 
-            ex_view.append_column(column)
+            etv.append_column(column)
         renderer.props.ypad=0
         
-        self.n_ex = len(ex_list)
+        self.n_ex = len(els)
         self.statusbar.push(0,utf8conv("Cargados "+str(self.n_ex)+" ejercicios"))
         self.set_filter()  # Load all combos with all options
         self.set_active_text(self.fircombo, conf.fir_option)
@@ -205,6 +167,51 @@ class Crujisim:
         splash.get_widget("Splash").destroy()
         self.MainWindow.present()
     
+    def get_tvrow_from_ex(self,e):
+        """Return a row of attributes suitable to create a row in the
+        exercise list store from an Exercise object"""
+        els = self.els
+        # Add columns to the exercise list suitable for display
+        if (e.wind_azimuth,e.wind_knots)!=(0,0):
+            e.wind_text="%03dº%02dkt"%(e.wind_azimuth,e.wind_knots)
+        else: e.wind_text=""
+        try: e.PDP="Fase %d - Día %02d - Pasada %d"%(e.phase,e.day,e.pass_no)
+        except: e.PDP=""
+        try: e.course_text="Prom. %02d"%(e.course)
+        except: e.course_text=""
+        if e.PDP=="" or e.course_text=="":
+            e.CPDP=""
+            # We need to be able to show the user something
+            # so that he can reconstruct the missing data
+            e.comment=e.oldcomment
+        else:
+            e.CPDP=e.course_text+" - "+e.PDP
+
+        row=[]
+        ia = [(index,attr) for attr,index in self.ex_ls_cols.items()]
+        ia.sort()
+        for index,attr in ia:
+            if attr=="file":
+                row.append(e.file)
+            elif type(getattr(e,attr)) is str:
+                row.append(utf8conv(getattr(e,attr)))
+            elif type(getattr(e,attr)) is int:
+                row.append(getattr(e,attr))
+            elif type(getattr(e,attr)) is NoneType:
+                ct = els.get_column_type(index)
+                # I don't really know how to map GTypes to python types,
+                # so rather than doing "if ct is int", I have to
+                # do this ugly hack
+                if str(ct).find("gint")>0:
+                    row.append(0)
+                elif str(ct).find("gchar")>0:
+                    row.append("")
+                else:
+                    logging.error("Unknown type in liststore column")
+            else:
+                row.append(None)
+        
+        return row
 
     def get_active_text(self,combobox):
         model = combobox.get_model()
@@ -232,7 +239,7 @@ class Crujisim:
         self.update_combo("sector",self.sectorcombo,("course","phase"))
         self.update_combo("course",self.coursecombo,("phase",))
         self.update_combo("phase",self.phasecombo,("course",))
-        ne = len(self.ex_filter)
+        ne = len(self.etf)
         self.statusbar.pop(0)
         self.statusbar.push(0,utf8conv("Mostrando "+str(ne)+" de "+str(self.n_ex)+" ejercicios"))
 
@@ -248,8 +255,8 @@ class Crujisim:
         oldfilters = self.filters.copy()
         self.filters.update(tempfilter)
         self.filters[field]="---"
-        self.ex_filter.refilter()
-        for row in self.ex_filter:
+        self.etf.refilter()
+        for row in self.etf:
             values[row[self.ex_ls_cols[field]]]=0
 
         old_value=self.get_active_text(combo)
@@ -265,7 +272,7 @@ class Crujisim:
             
         self.filters=oldfilters.copy()
         self.filters[field]=self.get_active_text(combo)
-        self.ex_filter.refilter()
+        self.etf.refilter()
         self._updating_combos = False        
             
     def ex_is_visible(self,model,iter,user_data=None):
@@ -298,7 +305,7 @@ class Crujisim:
             x = int(event.x)
             y = int(event.y)
             time = event.time
-            tv = self.ex_view
+            tv = self.etv
             pthinfo = tv.get_path_at_pos(x, y)
             if pthinfo is not None:
                 path, col, cellx, celly = pthinfo
@@ -307,7 +314,7 @@ class Crujisim:
                 self.MainPopup.popup( None, None, None, event.button, time)
 
     def edit(self,button=None,event=None):
-        sel = self.ex_view.get_selection()
+        sel = self.etv.get_selection()
         (model, iter) = sel.get_selected()
         
         try:
@@ -326,7 +333,7 @@ class Crujisim:
         ExEditor(ex_file,parent=self.MainWindow)
 
     def begin_simulation(self,button=None):
-        sel = self.ex_view.get_selection()
+        sel = self.etv.get_selection()
         (model, iter) = sel.get_selected()
 
         try:

@@ -362,7 +362,7 @@ Seleccione una pasada</property>
 	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	  <child>
-	    <widget class="GtkTreeView" id="ex_view">
+	    <widget class="GtkTreeView" id="etv">
 	      <property name="border_width">1</property>
 	      <property name="height_request">191</property>
 	      <property name="visible">True</property>
