@@ -341,28 +341,57 @@ class ventana_auxiliar:
         
         w.delete(self.toolbar_id)
 
-        def b_izquierda():
-            master.x0 -= ancho/10/scale
+
+        MINIMUM_DISPLACEMENT = 80
+        NORMAL_DISPLACEMENT = 10
+        MAXIMUM_DISPLACEMENT = 3
+        
+        def set_displacement(mouse_pressed_button):
+            if mouse_pressed_button == 1:
+                return NORMAL_DISPLACEMENT
+            elif mouse_pressed_button == 2:
+                return MAXIMUM_DISPLACEMENT
+            elif mouse_pressed_button == 3:
+                return MINIMUM_DISPLACEMENT
+        
+        def b_izquierda(event):
+            master.x0 -= ancho/set_displacement(event.num)/scale
             master.reposition()
             
-        def b_derecha():
-            master.x0 += ancho/10/scale
+        def b_derecha(event):
+            master.x0 += ancho/set_displacement(event.num)/scale
             master.reposition()
             
-        def b_arriba():
-            master.y0 += ancho/10/scale
+        def b_arriba(event):
+            master.y0 += ancho/set_displacement(event.num)/scale
             master.reposition()
             
-        def b_abajo():
-            master.y0 -= ancho/10/scale
+        def b_abajo(event):
+            master.y0 -= ancho/set_displacement(event.num)/scale
             master.reposition()
             
-        def b_zoom_mas():
-            master.scale *= 1.1
+        MINIMUM_SCALE_FACTOR = 1.01
+        NORMAL_SCALE_FACTOR = 1.1
+        MAXIMUM_SCALE_FACTOR = 1.5
+        
+        LABEL_MIN_FONT_SIZE = 7
+        LABEL_MAX_FONT_SIZE = 11
+        LABEL_SIZE_STEP = 1
+
+        def set_zoom_scale_on_event (event_number=1):
+            if event_number==3:
+                return MINIMUM_SCALE_FACTOR
+            elif event_number==2:
+                return MAXIMUM_SCALE_FACTOR
+            elif event_number==1:
+                return NORMAL_SCALE_FACTOR
+            
+        def b_zoom_mas(event):
+            master.scale *= set_zoom_scale_on_event(event.num)
             master.reposition()
             
-        def b_zoom_menos():
-            master.scale /= 1.1
+        def b_zoom_menos(event):
+            master.scale /= set_zoom_scale_on_event(event.num)
             master.reposition()
             
         def b_standard():
@@ -387,9 +416,7 @@ class ventana_auxiliar:
                 reloj_funciona=False
                 
         def b_tamano_etiquetas():
-            LABEL_MIN_FONT_SIZE = 7
-            LABEL_MAX_FONT_SIZE = 11
-            LABEL_SIZE_STEP = 1
+
             for vt in self.master.tracks:
                 vt.l_font_size += LABEL_SIZE_STEP
                 if vt.l_font_size >= LABEL_MAX_FONT_SIZE:
@@ -981,18 +1008,43 @@ class ventana_auxiliar:
             self.but_inicio.pack(side=LEFT,expand=1,fill=X)
             self.but_parar = Button(ventana,bitmap='@'+IMGDIR+'pause.xbm',command=b_parar,state=DISABLED)
             self.but_parar.pack(side=LEFT,expand=1,fill=X)
-            self.but_izq = Button(ventana,bitmap='@'+IMGDIR+'left.xbm',command=b_izquierda)
+            
+            self.but_izq = Button(ventana,bitmap='@'+IMGDIR+'left.xbm')
             self.but_izq.pack(side=LEFT,expand=1,fill=X)
-            self.but_arriba = Button(ventana,bitmap='@'+IMGDIR+'up.xbm',command=b_arriba)
+            self.but_izq.bind("<Button-1>",b_izquierda)
+            self.but_izq.bind("<Button-2>",b_izquierda)
+            self.but_izq.bind("<Button-3>",b_izquierda)
+
+            self.but_arriba = Button(ventana,bitmap='@'+IMGDIR+'up.xbm')
             self.but_arriba.pack(side=LEFT,expand=1,fill=X)
-            self.but_abajo = Button(ventana,bitmap='@'+IMGDIR+'down.xbm',command=b_abajo)
+            self.but_arriba.bind("<Button-1>",b_arriba)
+            self.but_arriba.bind("<Button-2>",b_arriba)
+            self.but_arriba.bind("<Button-3>",b_arriba)            
+            
+            self.but_abajo = Button(ventana,bitmap='@'+IMGDIR+'down.xbm')
             self.but_abajo.pack(side=LEFT,expand=1,fill=X)
-            self.but_derecha = Button(ventana,bitmap='@'+IMGDIR+'right.xbm',command=b_derecha)
+            self.but_abajo.bind("<Button-1>",b_abajo)
+            self.but_abajo.bind("<Button-2>",b_abajo)
+            self.but_abajo.bind("<Button-3>",b_abajo)            
+        
+            self.but_derecha = Button(ventana,bitmap='@'+IMGDIR+'right.xbm')
             self.but_derecha.pack(side=LEFT,expand=1,fill=X)
-            self.but_zoom_mas = Button(ventana,bitmap='@'+IMGDIR+'zoom.xbm',command=b_zoom_mas)
+            self.but_derecha.bind("<Button-1>",b_derecha)
+            self.but_derecha.bind("<Button-2>",b_derecha)
+            self.but_derecha.bind("<Button-3>",b_derecha)            
+            
+#            self.but_zoom_mas = Button(ventana,bitmap='@'+IMGDIR+'zoom.xbm',command=b_zoom_mas)
+            self.but_zoom_mas = Button(ventana,bitmap='@'+IMGDIR+'zoom.xbm')
             self.but_zoom_mas.pack(side=LEFT,expand=1,fill=X)
-            self.but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm',command=b_zoom_menos)
+            self.but_zoom_mas.bind("<Button-1>",b_zoom_mas)
+            self.but_zoom_mas.bind("<Button-2>",b_zoom_mas)
+            self.but_zoom_mas.bind("<Button-3>",b_zoom_mas)
+#            self.but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm',command=b_zoom_menos)
+            self.but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm')
             self.but_zoom_menos.pack(side=LEFT,expand=1,fill=X)
+            self.but_zoom_menos.bind("<Button-1>",b_zoom_menos)
+            self.but_zoom_menos.bind("<Button-2>",b_zoom_menos)
+            self.but_zoom_menos.bind("<Button-3>",b_zoom_menos)
             self.but_standard = Button(ventana,bitmap='@'+IMGDIR+'center.xbm',command=b_standard)
             self.but_standard.pack(side=LEFT,expand=1,fill=X)
             self.but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_etiquetas)
