@@ -415,15 +415,24 @@ class ventana_auxiliar:
                 h_inicio=fact_t*time()-t0
                 reloj_funciona=False
                 
-        def b_tamano_etiquetas():
-
+        def b_tamano_etiquetas(event):
+            if event.num == 1:
+                step_increment = LABEL_SIZE_STEP
+            elif event.num == 3:
+                step_increment = -LABEL_SIZE_STEP
+            elif event.num == 2:
+                step_increment = LABEL_MIN_FONT_SIZE
+                
+            font_size = master.label_font_size
+            font_size += step_increment
+            if font_size > LABEL_MAX_FONT_SIZE:
+                font_size = LABEL_MIN_FONT_SIZE
+            elif font_size < LABEL_MIN_FONT_SIZE:
+                font_size = LABEL_MAX_FONT_SIZE
+            master.label_font_size = font_size
+            
             for vt in self.master.tracks:
-                vt.l_font_size += LABEL_SIZE_STEP
-                if vt.l_font_size >= LABEL_MAX_FONT_SIZE:
-                    vt.l_font_size = LABEL_MIN_FONT_SIZE
-            master.label_font_size += LABEL_SIZE_STEP
-            if master.label_font_size >= LABEL_MAX_FONT_SIZE:
-                master.label_font_size = LABEL_MIN_FONT_SIZE
+                vt.l_font_size = font_size
             master.label_font.configure(size=master.label_font_size)
                         
         def b_show_hide_localmaps():
@@ -1039,16 +1048,23 @@ class ventana_auxiliar:
             self.but_zoom_mas.bind("<Button-1>",b_zoom_mas)
             self.but_zoom_mas.bind("<Button-2>",b_zoom_mas)
             self.but_zoom_mas.bind("<Button-3>",b_zoom_mas)
+            
 #            self.but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm',command=b_zoom_menos)
             self.but_zoom_menos = Button(ventana,bitmap='@'+IMGDIR+'unzoom.xbm')
             self.but_zoom_menos.pack(side=LEFT,expand=1,fill=X)
             self.but_zoom_menos.bind("<Button-1>",b_zoom_menos)
             self.but_zoom_menos.bind("<Button-2>",b_zoom_menos)
             self.but_zoom_menos.bind("<Button-3>",b_zoom_menos)
+            
             self.but_standard = Button(ventana,bitmap='@'+IMGDIR+'center.xbm',command=b_standard)
             self.but_standard.pack(side=LEFT,expand=1,fill=X)
-            self.but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_etiquetas)
+            
+            self.but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm')
             self.but_tamano_etiq.pack(side=LEFT,expand=1,fill=X)
+            self.but_tamano_etiq.bind("<Button-1>",b_tamano_etiquetas)
+            self.but_tamano_etiq.bind("<Button-2>",b_tamano_etiquetas)
+            self.but_tamano_etiq.bind("<Button-3>",b_tamano_etiquetas)
+            
             self.but_term = Button(ventana,text='Kill',command=kill_acft,state=DISABLED)
             self.but_term.pack(side=LEFT,expand=1,fill=X)
             self.but_ruta = Button(ventana,text='Ruta',command=nueva_ruta,state=DISABLED)
