@@ -1202,16 +1202,16 @@ def b_tamano_etiquetas():
     LABEL_MIN_FONT_SIZE = 7
     LABEL_MAX_FONT_SIZE = 11
     LABEL_SIZE_STEP = 1
-    for acft in ejercicio:
-        acft.vt.l_font_size += LABEL_SIZE_STEP
-        if acft.vt.l_font_size >= LABEL_MAX_FONT_SIZE:
-            acft.vt.l_font_size = LABEL_MIN_FONT_SIZE
+    
     label_font_size += LABEL_SIZE_STEP
     if label_font_size >= LABEL_MAX_FONT_SIZE:
         label_font_size = LABEL_MIN_FONT_SIZE
+    
+    for acft in ejercicio:
+        acft.vt.l_font_size = label_font_size
+
     label_font.configure(size=label_font_size)
-    
-    
+      
 def b_show_hide_localmaps():
     global local_maps_shown
     local_maps_shown = []
