@@ -66,3 +66,34 @@ def compute_cross_points(xA, yA, headingA, speedA, xB, yB, headingB, speedB):
 def compute_mindist(xA, yA, headingA, speedA, xB, yB, headingB, speedB):
     (posAx, posAy, posBx, posBy) = compute_cross_points(xA, yA, headingA, speedA, xB, yB, headingB, speedB)
     return sqrt((posAx-posBx)*(posAx-posBx) + (posAy-posBy)*(posAy-posBy))
+
+def compute_all(xA, yA, headingA, speedA, xB, yB, headingB, speedB, distance, tmin, crosspoints, mindist):
+    try:
+        vxA = speedA * sin(radians(headingA))/60.0
+        vyA = speedA * cos(radians(headingA))/60.0
+        vxB = speedA * sin(radians(headingB))/60.0
+        vxB = speedA * sin(radians(headingB))/60.0
+        
+        #Compute relative coordenates, set A as origin
+        xoB = xB - xA
+        yoB = yB - yA
+        distance = sqrt(xoB ** 2 + yoB ** 2)
+        Deltavx = vxB - vxA
+        Deltavy = vyB - vyA
+        tmin = -(Deltavx * xob + Deltavy * yob)/(Deltavx ** 2 + Deltavy ** 2)
+        
+        #If tmin > 0 cross points and min distance should be calculated
+        if tmin > 0:
+            posAx = xA + vxA * tmin
+            posAy = yA + vyA * tmin
+            posBx = xB + vxB * tmin
+            posBy = yB + vyB * tmin
+            crosspoints = (posAx,posAy,posBx,posBy)
+            mindist = sqrt((posBx - posAx) ** 2 + (posBy - posAy) **2)
+        else:
+            crosspoints = None
+            mindist = None
+    except:
+        tmin = None
+        crosspoints = None
+        mindist = None
