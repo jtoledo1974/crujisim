@@ -2189,6 +2189,7 @@ class Storm(object):
     def __init__(self,radisplay,e):
     
         self.radisplay=radisplay
+        #dummy canvas
         canvas=radisplay.c
         
         # Start defining a storm
@@ -2197,6 +2198,7 @@ class Storm(object):
         self._motion_id = canvas.bind('<Motion>', self.update_storm_being_defined)
         self._button2_id = canvas.bind('<Button-2>', self.cancel_def_storm)
         self._button3_id = canvas.bind('<Button-3>', self.end_def_storm)
+        self.selected = False
 
     def update_storm_being_defined(self,e=None):
         canvas=self.radisplay.c        
@@ -2255,10 +2257,23 @@ class Storm(object):
         rx,ry=do_scale((self.wrx,self.wry))
         r=sqrt((x-rx)**2+(y-ry)**2)
         x0,x1,y0,y1=x-r,x+r,y-r,y+r
-        canvas.create_oval(x0, y0,x1,y1, fill="", outline="yellow", tags=(s+'storm','storm'))
+        if self.selected == True:
+            ts_color = 'red'
+        else:
+            ts_color = 'yellow'
+        canvas.create_oval(x0, y0,x1,y1, fill="", outline=ts_color, tags=(s+'storm','storm'))
         r *= 1.4
         x0,x1,y0,y1=x-r,x+r,y-r,y+r
-        canvas.create_oval(x0, y0,x1,y1, fill="", outline="yellow", tags=(s+'storm','storm'), dash=(10,10))
+        canvas.create_oval(x0, y0,x1,y1, fill="", outline=ts_color, tags=(s+'storm','storm'), dash=(10,10))
+        
+    def auto_select_storm(self,event=None,min_pixel_distance=50):
+        former_selection = self.selected
+        distance = sqrt((self.x-event.x)**2+(self.y-event.y)**2)
+        if distance < min_pixel_distance:
+            self.selected = True
+        else:
+            self.selected = False
+        if former_selection != self.selected:self.redraw()
 
 # This is here just for debugging purposes
 if __name__ == "__main__":

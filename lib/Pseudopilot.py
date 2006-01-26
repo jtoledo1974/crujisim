@@ -485,6 +485,11 @@ class ventana_auxiliar:
             all_lads = []  
         win_identifier=None
         
+        #def quitar_tormentas():
+        #    for s in storms[:]:
+        #        s.delete()
+        #        storms.remove(s)
+        
         def cancel_app_auth(sel):
             if sel.app_auth:
                 for i in range(len(sel.route),0,-1):
@@ -1075,6 +1080,8 @@ class ventana_auxiliar:
             self.but_quitar_lads.pack(side=LEFT,expand=1,fill=X)
             self.but_quitar_fpr = Button(ventana,text='Rutas', fg = 'red',command = self.master.delete_routes)
             self.but_quitar_fpr.pack(side=LEFT,expand=1,fill=X)
+            #self.but_quitar_tormentas = Button(ventana,text='TS', fg = 'red',command = self.master.quitar_tormentas)
+            #self.but_quitar_tormentas.pack(side=LEFT,expand=1,fill=X)
             self.but_ver_proc = Button(ventana, text = 'PROCs',state=DISABLED)
             self.but_ver_proc.pack(side=LEFT,expand=1,fill=X)
             def procs_buttons():

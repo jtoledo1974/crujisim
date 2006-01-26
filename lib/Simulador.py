@@ -1450,8 +1450,38 @@ def create_storm():
         w.configure(cursor="crosshair")
         r=phony_radisplay(w,do_scale,undo_scale)
         s=Storm(r,e)
+        
     w.bind("<Button-2>",start_storm)
     w.configure(cursor="crosshair")
+ 
+def destroy_storm():
+            
+    def remove_storm(event=None):
+        try:
+            for s in storms[:]:
+                if s.selected == True:
+                    s.delete()
+                    storms.remove(s)
+            w.configure(cursor="")
+            w.unbind("<Motion>")
+            w.unbind("<Button-1>")
+
+        except:
+            w.configure(cursor="")
+            w.unbind("<Motion>")
+            w.unbind("<Button-1>")
+
+            
+    def find_closest_storm(event=None):
+        for s in storms[:]:
+            s.auto_select_storm(event,10)
+    
+    w.bind("<Button-1>",remove_storm)
+    w.bind("<Motion>",find_closest_storm)
+    w.configure(cursor="crosshair")
+    
+ 
+ 
     
 def hdg_after_fix():
     """Show a dialog to command the selected aircraft to follow a heading after a certain fix"""
@@ -1858,6 +1888,8 @@ def ventana_auxiliar(e):
             but_quitar_lads.pack(side=LEFT,expand=1,fill=X)
             but_quitar_fpr = Button(ventana,text='Rutas', fg = 'red',command = quitar_fpr)
             but_quitar_fpr.pack(side=LEFT,expand=1,fill=X)
+            but_destroy_storm = Button(ventana,text='TS', fg = 'red',command = destroy_storm)
+            but_destroy_storm.pack(side=LEFT,expand=1,fill=X)
             but_ver_proc = Button(ventana, text = 'PROCs')
             but_ver_proc.pack(side=LEFT,expand=1,fill=X)
             def procs_buttons():
@@ -2004,6 +2036,9 @@ def ventana_auxiliar(e):
             but_quitar_lads.grid(column=11,row=1)
             but_quitar_fpr = Button(ventana,text='Rutas', fg = 'red',command = quitar_fpr)
             but_quitar_fpr.grid(column=12,row=1)
+            but_destroy_storm = Button(ventana,text='TS', fg = 'red',command = destroy_storm)
+            but_destroy_storm.grid(column=13,row=1)
+
             but_espera = Button(ventana, text='HLD', command = define_holding)
             but_espera.grid(column=13,row=1)
             but_hdg_fix = Button(ventana, text = 'HDG<FIX', command = hdg_after_fix)
