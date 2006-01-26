@@ -1455,31 +1455,22 @@ def create_storm():
     w.configure(cursor="crosshair")
  
 def destroy_storm():
-            
+
     def remove_storm(event=None):
-        try:
-            for s in storms[:]:
-                if s.selected == True:
-                    s.delete()
-                    storms.remove(s)
-            w.configure(cursor="")
-            w.unbind("<Motion>")
-            w.unbind("<Button-1>")
-
-        except:
-            w.configure(cursor="")
-            w.unbind("<Motion>")
-            w.unbind("<Button-1>")
-
-            
+        for s in storms[:]:
+            if s.selected == True:
+                s.delete()
+        w.configure(cursor="")
+        w.unbind("<Motion>")
+        w.unbind("<Button-1>")
+        
     def find_closest_storm(event=None):
         for s in storms[:]:
             s.auto_select_storm(event,10)
     
     w.bind("<Button-1>",remove_storm)
     w.bind("<Motion>",find_closest_storm)
-    w.configure(cursor="crosshair")
-    
+    w.configure(cursor="crosshair")    
  
  
     
