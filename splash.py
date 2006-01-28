@@ -43,6 +43,7 @@ except:
     sys.exit(1)
 from banner import *
 from Exercise import *
+from FIR import *
 import ConfMgr
 conf = ConfMgr.CrujiConfig()
 from twisted.internet import reactor
@@ -121,13 +122,19 @@ class Crujisim:
             ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),
             ("Viento","wind_text"),("Comentario","comment"))
         
-        # Process all exercise files
+        # Process all exercise and fir files
+        self.exercises = []
+        self.firs = []
+
+        # Find possible directories containing exercices
         pb = splash.get_widget("progressbar")
         pb.set_text('Cargando ejercicios')
         dirs = [dir for dir in os.listdir(EX_DIR) if dir[-4:]!=".svn"
                 and S_ISDIR(os.stat(os.path.join(EX_DIR,dir))[ST_MODE])]
         n_dirs = len(dirs)
         i=0.
+
+        logging.getLogger('').setLevel(logging.INFO)
         for dir in dirs:  # File includes the path, filename doesn't
             pb.set_text(dir)
             i += 1./n_dirs
@@ -135,10 +142,11 @@ class Crujisim:
             pb.set_fraction(i)
             while gtk.events_pending():
                 gtk.main_iteration()
-            self.exercises=[]
             for e in load_exercises(dir):
                 els.append(self.get_tvrow_from_ex(e))
                 self.exercises.append(e)
+            self.firs += load_firs(dir)
+        logging.getLogger('').setLevel(logging.DEBUG)
               
         self.etf = etf = els.filter_new()  # Exercise TreeFilter
         self.filters = {"fir":"---","sector":"---","course":"---","phase":"---"}
@@ -330,10 +338,10 @@ class Crujisim:
             dlg.run()
             return
         
-        ExEditor(ex_file,parent=self.MainWindow)
+        ExEditor(ex_file,parent=self.MainWindow, firs=self.firs)
 
     def add(self,button=None,event=None):
-        ExEditor(parent=self.MainWindow)
+        ExEditor(parent=self.MainWindow, firs=self.firs)
     
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
@@ -374,7 +382,7 @@ class Crujisim:
         import Simulador
 
 class ExEditor:
-    def __init__(self,ex_file=None,parent=None):
+    def __init__(self,ex_file=None,parent=None, firs=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExEditor") 
         gui.signal_autoconnect(self)
         
@@ -387,6 +395,7 @@ class ExEditor:
             except:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
+            
             
         # Create the flights treeview
         fls = self.fls = gtk.ListStore(int,str,str,str,str)  # Flights list store
@@ -401,13 +410,53 @@ class ExEditor:
             column.set_resizable(True) 
             self.ftv.append_column(column)
         renderer.props.ypad=0
+
+        # Populate FIR and Sector dropdowns
+        # self.firs is a list of firs
+        # self.fir is the combobox showing fir options
+        self.firs = firs  # Save firs list
+        for fir in [fir.name for fir in self.firs]:
+            self.fir.append_text(utf8conv(str(fir)))
         
         if ex_file: self.populate(ex_file)
 
         if parent: self.ExEditor.set_transient_for(parent)
         self.ExEditor.set_position(gtk.WIN_POS_CENTER)
         self.ExEditor.present()
-    
+
+    def update_combo(self,field,combo,childfields):
+        self._updating_combos = True
+        
+        tempfilter={}
+        for f in childfields:
+            tempfilter[f]="---"
+        
+        # Find unique values 
+        values = {}
+        oldfilters = self.filters.copy()
+        self.filters.update(tempfilter)
+        self.filters[field]="---"
+        self.etf.refilter()
+        for row in self.etf:
+            values[row[self.ex_ls_cols[field]]]=0
+
+        old_value=self.get_active_text(combo)
+        self.blank_combo(combo)
+        combo.append_text("---")
+        combo.set_active(0)
+        i=1
+        for value in values.keys():
+            combo.append_text(utf8conv(str(value)))
+            if str(value)==str(old_value):
+                combo.set_active(i)
+            i += 1
+            
+        self.filters=oldfilters.copy()
+        self.filters[field]=self.get_active_text(combo)
+        self.etf.refilter()
+        self._updating_combos = False        
+
+            
     def populate(self, ex_file):
         try:
             ex=Exercise(ex_file)
@@ -424,8 +473,8 @@ class ExEditor:
             return
         
         self.ExEditor.set_title("Editor: "+utf8conv(ex_file))
-        self.fir.child.props.text=ex.fir
-        self.sector.child.props.text=ex.sector
+        #self.fir.child.props.text=ex.fir
+        #self.sector.child.props.text=ex.sector
         for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
                        "wind_azimuth","wind_knots","start_time"):
             if type(getattr(ex,attrib)) is str:

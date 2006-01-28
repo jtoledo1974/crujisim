@@ -17,7 +17,6 @@
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_SPLASHSCREEN</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
   <signal name="delete_event" handler="gtk_main_quit" last_modification_time="Sat, 14 Jan 2006 18:23:35 GMT"/>
 
   <child>
@@ -47,8 +46,7 @@
 	  <property name="visible">True</property>
 	  <property name="orientation">GTK_PROGRESS_LEFT_TO_RIGHT</property>
 	  <property name="fraction">0</property>
-	  <property name="pulse_step">0.10000000149</property>
-	  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	  <property name="pulse_step">0.1</property>
 	</widget>
 	<packing>
 	  <property name="padding">2</property>
@@ -70,10 +68,6 @@
 	  <property name="yalign">1</property>
 	  <property name="xpad">5</property>
 	  <property name="ypad">5</property>
-	  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	  <property name="width_chars">-1</property>
-	  <property name="single_line_mode">False</property>
-	  <property name="angle">0</property>
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
@@ -98,7 +92,6 @@
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
   <signal name="delete_event" handler="gtk_main_quit" last_modification_time="Sat, 14 Jan 2006 18:23:35 GMT"/>
 
   <child>
@@ -124,14 +117,10 @@ Seleccione una pasada</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">False</property>
 	      <property name="selectable">False</property>
-	      <property name="xalign">0.0500000007451</property>
+	      <property name="xalign">0.05</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">20</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -162,10 +151,6 @@ Seleccione una pasada</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
 		</widget>
 		<packing>
 		  <property name="left_attach">0</property>
@@ -190,10 +175,6 @@ Seleccione una pasada</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
 		</widget>
 		<packing>
 		  <property name="left_attach">0</property>
@@ -218,10 +199,6 @@ Seleccione una pasada</property>
 		  <property name="yalign">0.5</property>
 		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
 		</widget>
 		<packing>
 		  <property name="left_attach">2</property>
@@ -237,8 +214,6 @@ Seleccione una pasada</property>
 		<widget class="GtkComboBox" id="sectorcombo">
 		  <property name="visible">True</property>
 		  <property name="items" translatable="yes">---</property>
-		  <property name="add_tearoffs">False</property>
-		  <property name="focus_on_click">True</property>
 		  <signal name="changed" handler="set_filter" last_modification_time="Sun, 15 Jan 2006 15:18:04 GMT"/>
 		</widget>
 		<packing>
@@ -256,8 +231,6 @@ Seleccione una pasada</property>
 		<widget class="GtkComboBox" id="coursecombo">
 		  <property name="visible">True</property>
 		  <property name="items" translatable="yes">---</property>
-		  <property name="add_tearoffs">False</property>
-		  <property name="focus_on_click">True</property>
 		  <signal name="changed" handler="set_filter" last_modification_time="Sun, 15 Jan 2006 15:18:04 GMT"/>
 		</widget>
 		<packing>
@@ -284,10 +257,6 @@ Seleccione una pasada</property>
 		  <property name="yalign">1</property>
 		  <property name="xpad">0</property>
 		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
 		</widget>
 		<packing>
 		  <property name="left_attach">2</property>
@@ -303,8 +272,6 @@ Seleccione una pasada</property>
 		<widget class="GtkComboBox" id="phasecombo">
 		  <property name="visible">True</property>
 		  <property name="items" translatable="yes">---</property>
-		  <property name="add_tearoffs">False</property>
-		  <property name="focus_on_click">True</property>
 		  <signal name="changed" handler="set_filter" last_modification_time="Sun, 15 Jan 2006 15:18:04 GMT"/>
 		</widget>
 		<packing>
@@ -322,8 +289,6 @@ Seleccione una pasada</property>
 		  <property name="width_request">52</property>
 		  <property name="visible">True</property>
 		  <property name="items" translatable="yes">---</property>
-		  <property name="add_tearoffs">False</property>
-		  <property name="focus_on_click">True</property>
 		  <signal name="changed" handler="set_filter" last_modification_time="Sun, 22 Jan 2006 10:58:40 GMT"/>
 		</widget>
 		<packing>
@@ -371,9 +336,6 @@ Seleccione una pasada</property>
 	      <property name="rules_hint">True</property>
 	      <property name="reorderable">True</property>
 	      <property name="enable_search">True</property>
-	      <property name="fixed_height_mode">False</property>
-	      <property name="hover_selection">False</property>
-	      <property name="hover_expand">False</property>
 	      <signal name="button_press_event" handler="list_clicked" last_modification_time="Sun, 15 Jan 2006 18:45:45 GMT"/>
 	    </widget>
 	  </child>
@@ -467,7 +429,6 @@ Seleccione una pasada</property>
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
   <signal name="delete_event" handler="close" last_modification_time="Wed, 18 Jan 2006 12:25:32 GMT"/>
 
   <child>
@@ -499,10 +460,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">0</property>
@@ -527,10 +484,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">2</property>
@@ -555,10 +508,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">4</property>
@@ -583,10 +532,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">6</property>
@@ -611,10 +556,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">8</property>
@@ -639,10 +580,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">0</property>
@@ -667,10 +604,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">2</property>
@@ -695,10 +628,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">4</property>
@@ -723,10 +652,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">6</property>
@@ -751,10 +676,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">8</property>
@@ -779,10 +700,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">5</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">0</property>
@@ -791,40 +708,6 @@ Seleccione una pasada</property>
 	      <property name="bottom_attach">3</property>
 	      <property name="x_options">fill</property>
 	      <property name="y_options"></property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkComboBoxEntry" id="fir">
-	      <property name="width_request">50</property>
-	      <property name="visible">True</property>
-	      <property name="add_tearoffs">False</property>
-	      <property name="has_frame">True</property>
-	      <property name="focus_on_click">True</property>
-	    </widget>
-	    <packing>
-	      <property name="left_attach">1</property>
-	      <property name="right_attach">2</property>
-	      <property name="top_attach">0</property>
-	      <property name="bottom_attach">1</property>
-	      <property name="y_options">fill</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkComboBoxEntry" id="sector">
-	      <property name="width_request">50</property>
-	      <property name="visible">True</property>
-	      <property name="add_tearoffs">False</property>
-	      <property name="has_frame">True</property>
-	      <property name="focus_on_click">True</property>
-	    </widget>
-	    <packing>
-	      <property name="left_attach">3</property>
-	      <property name="right_attach">4</property>
-	      <property name="top_attach">0</property>
-	      <property name="bottom_attach">1</property>
-	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
 
@@ -838,7 +721,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -860,7 +743,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -882,7 +765,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -904,7 +787,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -926,7 +809,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -948,7 +831,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -970,7 +853,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -992,7 +875,7 @@ Seleccione una pasada</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1020,7 +903,7 @@ Seleccione una pasada</property>
 		  <property name="max_length">3</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
-		  <property name="invisible_char">*</property>
+		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
 		  <property name="width_chars">3</property>
 		</widget>
@@ -1041,7 +924,7 @@ Seleccione una pasada</property>
 		  <property name="max_length">0</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
-		  <property name="invisible_char">*</property>
+		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
 		  <property name="width_chars">2</property>
 		</widget>
@@ -1074,10 +957,6 @@ Seleccione una pasada</property>
 	      <property name="yalign">1</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">2</property>
@@ -1101,7 +980,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1127,10 +1006,6 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">4</property>
@@ -1151,7 +1026,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">0</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">True</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1160,6 +1035,36 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="top_attach">2</property>
 	      <property name="bottom_attach">3</property>
 	      <property name="y_options"></property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkComboBox" id="fir">
+	      <property name="visible">True</property>
+	      <property name="items" translatable="yes">-</property>
+	    </widget>
+	    <packing>
+	      <property name="left_attach">1</property>
+	      <property name="right_attach">2</property>
+	      <property name="top_attach">0</property>
+	      <property name="bottom_attach">1</property>
+	      <property name="x_options">fill</property>
+	      <property name="y_options">fill</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkComboBox" id="sector">
+	      <property name="visible">True</property>
+	      <property name="items" translatable="yes">-</property>
+	    </widget>
+	    <packing>
+	      <property name="left_attach">3</property>
+	      <property name="right_attach">4</property>
+	      <property name="top_attach">0</property>
+	      <property name="bottom_attach">1</property>
+	      <property name="x_options">fill</property>
+	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
 	</widget>
@@ -1190,9 +1095,6 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="rules_hint">False</property>
 	      <property name="reorderable">False</property>
 	      <property name="enable_search">True</property>
-	      <property name="fixed_height_mode">False</property>
-	      <property name="hover_selection">False</property>
-	      <property name="hover_expand">False</property>
 	      <signal name="button_press_event" handler="list_clicked" last_modification_time="Sun, 22 Jan 2006 01:47:23 GMT"/>
 	    </widget>
 	  </child>
@@ -1283,7 +1185,6 @@ Formatos válidos son hhmm y hh:mm</property>
   <property name="skip_pager_hint">False</property>
   <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
-  <property name="focus_on_map">True</property>
   <signal name="delete_event" handler="close" last_modification_time="Fri, 20 Jan 2006 11:16:58 GMT"/>
 
   <child>
@@ -1306,9 +1207,9 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
 	      <property name="max_length">0</property>
-	      <property name="text"></property>
+	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1328,7 +1229,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1348,7 +1249,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1368,7 +1269,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1388,7 +1289,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1444,7 +1345,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">5</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1464,7 +1365,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="max_length">6</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1486,7 +1387,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="max_length">3</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1506,7 +1407,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="max_length">3</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1527,7 +1428,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1548,7 +1449,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="max_length">1</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1572,10 +1473,6 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">32</property>
@@ -1598,10 +1495,6 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">116</property>
@@ -1624,10 +1517,6 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">44</property>
@@ -1650,10 +1539,6 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">76</property>
@@ -1679,9 +1564,6 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="height_request">20</property>
 	      <property name="visible">True</property>
 	      <property name="items" translatable="yes"></property>
-	      <property name="add_tearoffs">False</property>
-	      <property name="has_frame">False</property>
-	      <property name="focus_on_click">True</property>
 	    </widget>
 	    <packing>
 	      <property name="x">8</property>
@@ -1702,7 +1584,7 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="max_length">3</property>
 	      <property name="text" translatable="yes"></property>
 	      <property name="has_frame">False</property>
-	      <property name="invisible_char">*</property>
+	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	    </widget>
 	    <packing>
@@ -1726,10 +1608,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">536</property>
@@ -1765,10 +1643,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">484</property>
@@ -1792,10 +1666,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">486</property>
@@ -1818,10 +1688,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">4</property>
@@ -1856,10 +1722,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">488</property>
@@ -1882,10 +1744,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="yalign">0.5</property>
 	      <property name="xpad">0</property>
 	      <property name="ypad">0</property>
-	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-	      <property name="width_chars">-1</property>
-	      <property name="single_line_mode">False</property>
-	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
 	      <property name="x">4</property>

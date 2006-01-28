@@ -30,6 +30,7 @@ class FIR:
     def __init__(self, fir_file):
         """Create a FIR instance"""
         
+        self.file = fir_file
         self.points=[]   # List of geo coordinates of points
         self.routes=[]   # List of points defining standard routes within the FIR
         self.tmas=[]     # List of points defining TMAs
@@ -52,6 +53,9 @@ class FIR:
         import ConfigParser
         self._firdef = ConfigParser.ConfigParser()
         self._firdef.readfp(open(fir_file,'r'))
+
+        # FIR name
+        self.name = self._firdef.get('datos','nombre')
         
         # Puntos del FIR
         logging.debug('Points')
@@ -136,7 +140,7 @@ class FIR:
                                 punto_esta=True
                         if not punto_esta:
                             incidencias.append('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
-                            logging.debug ('Punto ',nombre_punto,' no encontrado en procedimiento ', nombre_sid)
+                            logging.debug ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
                     sid[last_point] = (nombre_sid,points_sid)
                     # Procedimientos STAR
                 star = {}
@@ -157,9 +161,9 @@ class FIR:
                             #        points_star.pop(-1)
                     star[last_point] = (nombre_star,points_star)
                 self.procedimientos[pista] = (sid,star)
-        logging.debug ('Lista de procedimientos',self.procedimientos)
-        logging.debug ('Pistas: ',self.rwys)
-        logging.debug ('Pistas en uso:',self.rwyInUse)
+        logging.debug ('Lista de procedimientos'+ str(self.procedimientos))
+        logging.debug ('Pistas: '+ str(self.rwys))
+        logging.debug ('Pistas en uso:' + str(self.rwyInUse))
         # Procedimientos de aproximación
         for aerop in self.rwys.keys():
             for pista in self.rwys[aerop].split(','):
@@ -167,7 +171,7 @@ class FIR:
                 procs_app=self._firdef.items('app_'+pista)
                 for [fijo,lista] in procs_app:
                     lista = lista.split(',')
-                    logging.debug (pista,'Datos APP ',fijo,' son ',lista)
+                    logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
                     points_app = []
                     for i in range(0,len(lista),2):
                         dato = lista[i]
@@ -182,7 +186,7 @@ class FIR:
                                     punto_esta=True
                             if not punto_esta:
                                 incidencias.append('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
-                                logging.debug ('Punto ',nombre_punto,' no encontrado en procedimiento  app_'+pista+' APP')
+                                logging.debug ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
                     llz_data = []
                     nombre_ayuda = lista[i+1]
                     rdl_ayuda = float(lista[i+2])
@@ -195,11 +199,11 @@ class FIR:
                             break
                     if llz_data == []:
                         incidencias.append('Localizador no encontrado en procedimiento app_'+pista+' APP')
-                        logging.debug ('Localizador no encontrado en procedimiento  app_'+pista+' APP')
+                        logging.debug ('Localizador no encontrado en procedimiento app_'+pista+' APP')
                         # Ahora vamos a por los puntos de la frustrada        
                     points_map = []
                     lista = lista [i+7:]
-                    logging.debug ('Resto para MAp: ',lista)
+                    logging.debug ('Resto para MAp: '+str(lista))
                     for i in range(0,len(lista),2):
                         dato = lista[i]
                         altitud=lista[i+1]
@@ -210,16 +214,16 @@ class FIR:
                                 punto_esta=True
                         if not punto_esta:
                             incidencias.append('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
-                            logging.debug ('Punto ',nombre_punto,' no encontrado en procedimiento  app_'+pista+' MAP')
+                            logging.debug ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
                             # Guardamos los procedimientos
                     self.proc_app[fijo.upper()]=(points_app,llz_data,points_map)
-        logging.debug ('Lista de procedimientos de aproximación',self.proc_app)
+        logging.debug ('Lista de procedimientos de aproximación'+str(self.proc_app))
         
         # Deltas del FIR
         if self._firdef.has_section('deltas'):
             lista=self._firdef.items('deltas')
             for (num,aux) in lista:
-                logging.debug ('Leyendo delta ',num,)
+                logging.debug ('Leyendo delta '+str(num))
                 linea=aux.split(',')
                 aux2=()
                 for p in linea:
@@ -252,7 +256,7 @@ class FIR:
                         auxi=False
                 if auxi:
                     incidencias.append(('En el límite de sector no encontrado el self.points '+a))
-                    logging.debug ('En límite de sector no encontrado el self.points ',a)
+                    logging.debug ('En límite de sector no encontrado el self.points '+a)
                     
                     # Separación mínima del sector
             if self._firdef.has_option(section,'min_sep'):
@@ -289,7 +293,7 @@ class FIR:
                         auxi=False
                 if auxi:
                     incidencias.append(('No encontrado fijo de impresión '+a))
-                    logging.debug ('No encontrado el fijo de impresión ',a)
+                    logging.debug ('No encontrado el fijo de impresión '+a)
             logging.debug
             # Fijos de impresión secundarios
             fijos_impresion_secundarios=[]
@@ -303,7 +307,7 @@ class FIR:
                             auxi=False
                     if auxi:
                         incidencias.append(('No encontrado fijo secundario de impresión '+a))
-                        logging.debug ('No encontrado el fijo secundario de impresión ',a)
+                        logging.debug ('No encontrado el fijo secundario de impresión '+a)
             else:
                 logging.debug ('No hay fijos de impresión secundarios (no hay problema)')
                 
@@ -321,19 +325,20 @@ def load_firs(path):
         if not S_ISDIR(mode) or d[-4:]==".svn": continue
         firs += load_firs(d)
     
-    for f in [f for f in os.listdir(d) if f[-4:]==".fir"]:
-        f = os.path.join(d,f)
+    for f in [f for f in os.listdir(path) if f[-4:]==".fir"]:
+        f = os.path.join(path,f)
         try:
             fir=FIR(f)
         except:
             logging.warning("Unable to read FIR file"+f)
             continue
                 
-        firs += fir
+        firs.append(fir)
             
     return firs
 
 if __name__ == "__main__":
-    FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
-    load_firs('.')
+    #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
+    print [fir.file for fir in load_firs('..')]
+    
     

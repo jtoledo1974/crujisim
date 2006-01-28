@@ -22,7 +22,7 @@
 from Tix import *
 
 class Dialog:
-
+    """Standard dialog to be used with Tkinter"""
     def __init__(self,master,type,transient=True):
     
         dlg=self.dlg=Toplevel()
