@@ -71,3 +71,25 @@ class Dialog:
         px = (screen_width - window_width) / 2
         py = (screen_height - window_height) / 2
         self.dlg.wm_geometry("+%d+%d" % (px,py))
+
+def blank_combo(combo):
+    """Remove all items of a GTK combo with a list store model"""
+    while len(combo.get_model())>0:
+        combo.remove_text(0)
+
+def get_active_text(combobox):
+    """Get the current selected text from a GTK combo with a list store model"""
+    model = combobox.get_model()
+    active = combobox.get_active()
+    if active < 0:
+        return None
+    return model[active][0]
+
+def set_active_text(combobox, text):
+    """Set the option of a combobox to the given text if the option exists"""
+    model = combobox.get_model()
+    for row, i in zip(model, range(len(model))):
+        if row[0] == text:
+            combobox.set_active(i)
+            break
+

@@ -44,6 +44,7 @@ except:
 from banner import *
 from Exercise import *
 from FIR import *
+import UI
 import ConfMgr
 conf = ConfMgr.CrujiConfig()
 from twisted.internet import reactor
@@ -166,10 +167,10 @@ class Crujisim:
         self.n_ex = len(els)
         self.statusbar.push(0,utf8conv("Cargados "+str(self.n_ex)+" ejercicios"))
         self.set_filter()  # Load all combos with all options
-        self.set_active_text(self.fircombo, conf.fir_option)
-        self.set_active_text(self.sectorcombo,conf.sector_option)
-        self.set_active_text(self.coursecombo,conf.course_option)
-        self.set_active_text(self.phasecombo,conf.phase_option)
+        UI.set_active_text(self.fircombo, conf.fir_option)
+        UI.set_active_text(self.sectorcombo,conf.sector_option)
+        UI.set_active_text(self.coursecombo,conf.course_option)
+        UI.set_active_text(self.phasecombo,conf.phase_option)
 
         # Everything's ready. Hide Splash, present Main Window
         splash.get_widget("Splash").destroy()
@@ -221,24 +222,6 @@ class Crujisim:
         
         return row
 
-    def get_active_text(self,combobox):
-        model = combobox.get_model()
-        active = combobox.get_active()
-        if active < 0:
-            return None
-        return model[active][0]
-    
-    def set_active_text(self, combobox, text):
-        model = combobox.get_model()
-        for row, i in zip(model, range(len(model))):
-            if row[0] == text:
-                combobox.set_active(i)
-                break
-    
-    def blank_combo(self,combo):
-        while len(combo.get_model())>0:
-            combo.remove_text(0)
-
     def set_filter(self,combo=None):
         try:
             if self._updating_combos: return
@@ -267,8 +250,8 @@ class Crujisim:
         for row in self.etf:
             values[row[self.ex_ls_cols[field]]]=0
 
-        old_value=self.get_active_text(combo)
-        self.blank_combo(combo)
+        old_value=UI.get_active_text(combo)
+        UI.blank_combo(combo)
         combo.append_text("---")
         combo.set_active(0)
         i=1
@@ -279,7 +262,7 @@ class Crujisim:
             i += 1
             
         self.filters=oldfilters.copy()
-        self.filters[field]=self.get_active_text(combo)
+        self.filters[field]=UI.get_active_text(combo)
         self.etf.refilter()
         self._updating_combos = False        
             
@@ -293,10 +276,10 @@ class Crujisim:
         return True
         
     def gtk_main_quit(self,w=None,e=None):
-        conf.fir_option=self.get_active_text(self.fircombo)
-        conf.sector_option=self.get_active_text(self.sectorcombo)
-        conf.course_option=self.get_active_text(self.coursecombo)
-        conf.phase_option=self.get_active_text(self.phasecombo)
+        conf.fir_option=UI.get_active_text(self.fircombo)
+        conf.sector_option=UI.get_active_text(self.sectorcombo)
+        conf.course_option=UI.get_active_text(self.coursecombo)
+        conf.phase_option=UI.get_active_text(self.phasecombo)
         conf.save()
         gtk.main_quit()
         # Force exit or the reactor may become hanged
@@ -440,8 +423,8 @@ class ExEditor:
         for row in self.etf:
             values[row[self.ex_ls_cols[field]]]=0
 
-        old_value=self.get_active_text(combo)
-        self.blank_combo(combo)
+        old_value=UI.get_active_text(combo)
+        UI.blank_combo(combo)
         combo.append_text("---")
         combo.set_active(0)
         i=1
@@ -452,7 +435,7 @@ class ExEditor:
             i += 1
             
         self.filters=oldfilters.copy()
-        self.filters[field]=self.get_active_text(combo)
+        self.filters[field]=UI.get_active_text(combo)
         self.etf.refilter()
         self._updating_combos = False        
 
