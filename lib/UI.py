@@ -2,7 +2,7 @@
 #-*- coding:iso8859-15 -*-
 # $Id: banner.py 1145 2006-01-06 16:50:03Z toledo $
 
-# (c) 2005 CrujiMaster (crujisim@yahoo.com)
+# (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
 #
 # This file is part of CrujiSim.
 #

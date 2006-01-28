@@ -4,7 +4,7 @@
 
 # Movimiento de un móvil con velocidad uniforme
 
-# (c) 2005 CrujiMaster (crujisim@yahoo.com)
+# (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
 #
 # This file is part of CrujiSim.
 #
