@@ -175,6 +175,7 @@ class Crujisim:
         # Everything's ready. Hide Splash, present Main Window
         splash.get_widget("Splash").destroy()
         self.MainWindow.present()
+
     
     def get_tvrow_from_ex(self,e):
         """Return a row of attributes suitable to create a row in the
@@ -364,8 +365,7 @@ class ExEditor:
             except:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
-            
-            
+                
         # Create the flights treeview
         fls = self.fls = gtk.ListStore(int,str,str,str,str)  # Flights list store
               
@@ -384,8 +384,10 @@ class ExEditor:
         # self.firs is a list of firs
         # self.fir is the combobox showing fir options
         self.firs = firs  # Save firs list
+        UI.blank_combo(self.fircombo)
         for fir in [fir.name for fir in self.firs]:
-            self.fir.append_text(utf8conv(str(fir)))
+            self.fircombo.append_text(utf8conv(str(fir)))
+        UI.set_active_text(self.fircombo,[fir.name for fir in self.firs][0])
         
         if ex_file: self.populate(ex_file)
 
@@ -393,50 +395,37 @@ class ExEditor:
         self.ExEditor.set_position(gtk.WIN_POS_CENTER)
         self.ExEditor.present()
 
-    def update_combo(self,field,combo,childfields):
-        self._updating_combos = True
-        
-        tempfilter={}
-        for f in childfields:
-            tempfilter[f]="---"
-        
-        # Find unique values 
-        values = {}
-        oldfilters = self.filters.copy()
-        self.filters.update(tempfilter)
-        self.filters[field]="---"
-        self.etf.refilter()
-        for row in self.etf:
-            values[row[self.ex_ls_cols[field]]]=0
+    def update_sectors(self,combo=None):
 
-        old_value=UI.get_active_text(combo)
-        UI.blank_combo(combo)
-        combo.append_text("---")
-        combo.set_active(0)
-        i=1
-        for value in values.keys():
-            combo.append_text(utf8conv(str(value)))
-            if str(value)==str(old_value):
-                combo.set_active(i)
-            i += 1
+        sel_fir = UI.get_active_text(self.fircombo)
+        for (fir, firname) in [(fir, fir.name) for fir in self.firs]:
+            if firname == sel_fir:
+                self.fir = fir
+                break;
             
-        self.filters=oldfilters.copy()
-        self.filters[field]=UI.get_active_text(combo)
-        self.etf.refilter()
-        self._updating_combos = False        
-
+        UI.blank_combo(self.sectorcombo)
+        first = True
+        for sector in self.fir.sectors:
+            self.sectorcombo.append_text(utf8conv(str(sector)))
+            if first:
+                self.sectorcombo.set_active(0)
+                first = False
+        
+        try:
+            UI.set_active_text(self.sectorcombo,self.ex.sector)
+        except:
+            pass
             
     def populate(self, ex_file):
         try:
-            ex=Exercise(ex_file)
+            ex = self.ex = Exercise(ex_file)
         except:
             UI.alert("Imposible abrir archivo:\n"+utf8conv(ex_file), parent=self.ExEditor)
             self.ExEditor.destroy()
             return
         
         self.ExEditor.set_title("Editor: "+utf8conv(ex_file))
-        #self.fir.child.props.text=ex.fir
-        #self.sector.child.props.text=ex.sector
+        UI.set_active_text(self.fircombo,ex.fir)  # Also sets the sector automatically
         for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
                        "wind_azimuth","wind_knots","start_time"):
             if type(getattr(ex,attrib)) is str:
@@ -456,15 +445,16 @@ class ExEditor:
     
     def edit(self,w=None):
         sel = self.ftv.get_selection()
-        (model, iter) = sel.get_selected()
-        
+        (model, iter) = sel.get_selected()        
         try:
             index = model.get_value(iter,0)
         except:
             UI.alert(utf8conv("No hay ningún vuelo seleccionado"), parent=self.ExEditor)
             return
-        
         FlightEditor(self.flights[index],parent=self.ExEditor)
+        
+    def add(self,w=None):
+        FlightEditor(parent=self.ExEditor)
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
@@ -497,13 +487,15 @@ class FlightEditor:
 
         # Populate the dialog
         if not flight: flight=Flight()
+        else: self.addbutton.hide()
 
         # I use the __dict_[attr] is another way to reference an some objects attr
         # object.__dict__["callsign"] == object.callsign
         for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             getattr(self,attr).props.text = getattr(flight,attr)
         self.route.child.props.text = flight.route.replace(","," ")
-        self.eto.props.text = hhmmss_to_hhmm(flight.eto)
+        try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
+        except: self.eto.props.text = ""
         self.set_firstfix(flight.route)
     
     def set_firstfix(self,route):
