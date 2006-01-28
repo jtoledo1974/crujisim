@@ -1041,3 +1041,39 @@ def pac(a,b):
         if dist_t(a,b,t+aviso*i/2)<min_sep and abs(a.alt+aviso*a.rate*i/2-b.alt-aviso*b.rate*i/2)<minvert:
             return True
     return False
+
+class Type:
+    """Data related to an aircraft type"""
+    def __init__(self,type,data):
+        """Create an aircraft type instance from the ICAO code and the
+        comma separated list of performance numbers"""        
+        self.type = type.upper()
+        data = data.split(',')
+        self.wtc = data[0][0].upper()  # Only the first letter
+        self.max_fl = int(data[1])
+        self.max_roc = int(data[2])  # Feet per minute
+        self.std_roc = int(data[3])
+        self.max_rod = int(data[4])
+        self.std_rod = int(data[5])
+        self.cruise_ias = int(data[6])  # Knots
+        self.max_ias = int(data[7])
+        self.tma_ias = int(data[8])
+        self.app_ias = int(data[9])   
+
+def load_types(file):
+    types = []
+    import ConfigParser
+    cp = ConfigParser.ConfigParser()
+    cp.readfp(open(file,"r"))
+    for typename in cp.options('performances'):
+        try:
+            type = Type(typename,cp.get('performances',typename))
+            types.append(type)
+        except:
+            logging.warning("Unable to parse aircraft type "+typename)
+    return types
+
+if __name__=='__main__':
+    t=load_types("../modelos_avo.txt")
+    #print [type.type for type in t]
+    pass    
