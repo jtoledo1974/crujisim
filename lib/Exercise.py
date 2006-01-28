@@ -28,7 +28,7 @@ import zlib
 from ConfigParser import ConfigParser
 
 # CONSTANTS
-CACHE_VERSION = 6
+CACHE_VERSION = 7
 MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
@@ -58,12 +58,13 @@ def load_exercises(path, reload=False):
     if not reload and os.access(cache,os.F_OK|os.R_OK) and os.stat(cache)[ST_MTIME]>recent:
         try:
             c = open(cache,"rb")
-            version,le = cPickle.loads(zlib.decompress(c.read()))
+            version,le,routes = cPickle.loads(zlib.decompress(c.read()))
             if version==CACHE_VERSION:
                 exercises += le
                 return exercises
             else:
                 logging.info("Cache file "+cache+" is version "+str(version)+", different than currently supported version "+str(CACHE_VERSION))
+            c.close()
         except:
             logging.warning("Unable to load cache file: "+cache)
     else:
@@ -76,6 +77,9 @@ def load_exercises(path, reload=False):
     # Load the mapping file for the directory in case it exists
     mapping = Mapping(os.path.join(d,MAPPING_FILE_NAME))
     
+    # RouteDB for this particular directory
+    routes = RouteDB()
+    
     for f in [f for f in os.listdir(d) if f[-4:]==".eje"]:
         f = os.path.join(d,f)
         try:
@@ -83,6 +87,12 @@ def load_exercises(path, reload=False):
         except:
             logging.warning("Unable to read exercise "+f)
             continue
+
+        def append_exercise(e):
+            for f in e.flights.values():
+                routes.append(f.route,f.orig,f.dest)
+            del(e.flights)
+            le.append(e)
         
         # If we have DA,U,E data, then we can use the mapping file
         # to add all the actual passes implemented by this exercise
@@ -91,22 +101,30 @@ def load_exercises(path, reload=False):
                 ne=e.copy()
                 del(ne.file)  # The copy is not based on any file
                 ne.course,ne.phase,ne.day,ne.pass_no,ne.shift=course,phase,day,pass_no,shift
-                del(ne.flights)
-                le.append(ne)
+                append_exercise(ne)
             if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
                 logging.error("The exercise reported to be C-P-D-P "+str((e.course,e.phase,e.day,e.pass_no))+\
                               " but it's not shown on the mappings for DA-U-E "+str((e.da,e.usu,e.ejer)))
         except:
             # Since we didn't find mappings, we use the exercises own.
-            del(e.flights)
-            le.append(e)
+            append_exercise(e)
         
     exercises += le
     cache = open(cache,'wb')  # Cache used to be the file name, now the file object
-    cache.write(zlib.compress(cPickle.dumps((CACHE_VERSION,le))))
+    cache.write(zlib.compress(cPickle.dumps((CACHE_VERSION,le,routes))))
     cache.close
             
     return exercises    
+
+def load_routedb(dir):
+    """Loads the routedb stored in the cache file of an exercise directory
+    
+    This function does not verify that the cache file is not stale, so
+    a call to load_exercises should be done before calling this function"""
+    cachefile = os.path.join(dir,'.cache')
+    cache = open(cachefile,'rb')
+    version,le,routedb = cPickle.loads(zlib.decompress(cache.read()))
+    return routedb
     
 class Exercise:
     """All data representing a single exercise"""
@@ -150,20 +168,7 @@ class Exercise:
         try: self.comment = exc.get('datos','comment')
         except: self.comment = self.oldcomment
         
-        flightops = ()
-        try:
-            self.n_flights = len(exc.options('vuelos'))        
-            flightopts = exc.options('vuelos')
-        except:
-            logging.warning("Unable to read any flights from "+file)
-        self.flights={}
-        i=0
-        for flightopt in flightopts:
-            try:
-                self.flights[i]=Flight(flightopt,exc.get('vuelos',flightopt))
-                i += 1
-            except:
-                logging.warning("Unable to read flight "+flightopt+" from "+file)
+        self.load_flights(exc)
         
         # Attempt to calculate course,phase,day,pass_no,and shift
         if self.course==self.phase==self.day==self.pass_no==None and self.shift=="":
@@ -226,7 +231,32 @@ class Exercise:
                 break
             except:
                 continue
-            
+
+    def load_flights(self,exc):
+        """Load flights from exercise config parser instance exc"""
+        flightops = ()
+        try:
+            self.n_flights = len(exc.options('vuelos'))        
+            flightopts = exc.options('vuelos')
+        except:
+            logging.warning("Unable to read any flights from "+file)
+        self.flights={}
+        i=0
+        for flightopt in flightopts:
+            try:
+                self.flights[i]=Flight(flightopt,exc.get('vuelos',flightopt))
+                i += 1
+            except:
+                logging.warning("Unable to read flight "+flightopt+" from "+file)
+                
+    def reload_flights(self):
+        """Make sure flights are loaded fresh from the exercise file"""
+        try: del(self.flights)
+        except: pass
+        exc = ConfigParser()
+        exc.readfp(open(self.file,"r"))
+        self.load_flights(exc)
+    
     def copy(self):
         e = Exercise()
         e.__dict__=self.__dict__.copy()
@@ -349,7 +379,88 @@ class Mapping:
         except:
             logging.warning("Section Mappings not found in mapping file "+f)
             
+class RouteDB:
+    """A database of routes that are known for a specific FIR"""
+    
+    def __init__(self):
+        self._routes={}
         
+    def append(self,route,orig,dest):
+        """Append a route together with the orig and dest to the DB of routes"""
+        if route not in self._routes.keys():
+          # We add the route to the database, with a frequency of one, and
+          # adding the first pair of orig and dest
+            self._routes[route]=(1,[orig+dest])
+            # logging.debug("New route: "+route)
+        else:
+          # If the route already exists, we increment the frequency for the route
+          # and if the orig_dest pair is new, add it to the list.
+            (frequency,orig_dest_list)=self._routes[route]
+            frequency=frequency+1
+            if (orig+dest) not in orig_dest_list:
+                orig_dest_list.append(orig+dest)
+            self._routes[route]=(frequency,orig_dest_list)
+            
+    def size(self):
+        """Return the number of known routes"""
+        len(self._routes)
+        
+    def matching_routes(self,fix_list,orig,dest):
+        """Given a list of points, and optional orig and dest airports, return
+        a sorted list of possible matching routes"""
+        match_routes=self._routes.copy()
+        potential_discards=[]
+        # Routes must contain the given fixes in the same order
+        for route in match_routes.keys():
+            i=0
+            rs=route.split(',')
+            for f in rs:
+                if f==fix_list[i]:
+                    i=i+1
+                    if i==len(fix_list):
+                        break;
+                        # If we have given a list of fixes, and we did not find them all in order,
+                        # remove the route. But it's OK if the list was empty to begin with
+                        # (meaning that we DO want to see all the available options).
+            if i<len(fix_list) and fix_list[0]<>'':
+                del match_routes[route]
+            else:
+              # We also mark for discarding routes that neither begin nor end on the
+              # given orig and dest
+                (f,orig_dest_list)=match_routes[route]
+                if orig<>'' or dest<>'':
+                    for od in orig_dest_list:
+                        if not (orig=='' or orig==od[0:4]) and not (dest=='' or dest==od[4:8]):
+                            if route not in potential_discards:
+                                potential_discards.append(route)
+                            break
+                            
+                            # Only discard routes based on orig and dest when it doesn't remove
+                            # all of our options
+        if len(potential_discards)<len(match_routes):
+            for d in potential_discards:
+                del match_routes[d]
+                
+                # Out of the remaining routes, we need to sort them first according to whether
+                # it is appropriate for the orig-dest pair, and then frequency 
+        sorted_routes=[]
+        for (route, (frequency, orig_dest_list)) in match_routes.items():
+            if (orig+dest) in orig_dest_list:
+              # Both origin and dest matches gives the highest score
+                matches_orig_dest=2
+            else:
+              # No matching whatsoever gives the lowest score
+                matches_orig_dest=0
+                for od in orig_dest_list:
+                    if (orig==od[0:4]) or (dest==od[4:8]):
+                      # But if either the orig or dest matched we get partial score
+                        matches_orig_dest=1
+            sorted_routes.append([matches_orig_dest,frequency,route])
+        sorted_routes.sort(reverse=True)
+        logging.debug(sorted_routes)
+        for i in range(len(sorted_routes)):
+            sorted_routes[i]=sorted_routes[i][2]
+        return sorted_routes        
 
 def hhmmss_to_hhmm(s):
     """Given a string formated as hhmmss return a string formated to hhmm correctly rounded"""

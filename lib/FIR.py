@@ -310,7 +310,13 @@ class FIR:
                         logging.debug ('No encontrado el fijo secundario de impresión '+a)
             else:
                 logging.debug ('No hay fijos de impresión secundarios (no hay problema)')
-                
+        
+        # Load the route database which correspond to this FIR
+        import Exercise
+        try:
+            self.routedb=Exercise.load_routedb(os.path.dirname(self.file))
+        except:
+            logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")
 
 def load_firs(path):
     import ConfigParser

@@ -44,6 +44,7 @@ except:
 from banner import *
 from Exercise import *
 from FIR import *
+import avion  # To load aircraft types
 import UI
 import ConfMgr
 conf = ConfMgr.CrujiConfig()
@@ -56,6 +57,7 @@ utf8conv = lambda x : unicode(x, encoding).encode('utf8')
 EX_DIR = "pasadas"
 GLADE_FILE = "glade/crujisim.glade" 
 JOKES = "jokes.txt"
+AIRCRAFT_FILE = "modelos_avo.txt"
 
 # Define which logging level messages will be output
 logging.getLogger('').setLevel(logging.DEBUG)
@@ -171,6 +173,9 @@ class Crujisim:
         UI.set_active_text(self.sectorcombo,conf.sector_option)
         UI.set_active_text(self.coursecombo,conf.course_option)
         UI.set_active_text(self.phasecombo,conf.phase_option)
+        
+        # Load aircraft type information
+        self.types = avion.load_types(AIRCRAFT_FILE)
 
         # Everything's ready. Hide Splash, present Main Window
         splash.get_widget("Splash").destroy()
@@ -289,11 +294,7 @@ class Crujisim:
         sys.exit()
         
     def list_clicked(self,widget=None,event=None):
-        if event.type == gtk.gdk._2BUTTON_PRESS and event.button==1:
-            #print str(widget.get_path_at_pos(event.x,event.y))
-            #print str((event.x,event.y))
-            self.begin_simulation()
-        elif event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+        if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
             x = int(event.x)
             y = int(event.y)
             time = event.time
@@ -315,10 +316,10 @@ class Crujisim:
             UI.alert("No hay ninguna pasada seleccionada",parent=self.MainWindow)
             return
         
-        ExEditor(ex_file,parent=self.MainWindow, firs=self.firs)
+        ExEditor(ex_file,parent=self.MainWindow, firs=self.firs, types=self.types)
 
     def add(self,button=None,event=None):
-        ExEditor(parent=self.MainWindow, firs=self.firs)
+        ExEditor(parent=self.MainWindow, firs=self.firs, types=self.types)
     
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
@@ -352,7 +353,7 @@ class Crujisim:
         import Simulador
 
 class ExEditor:
-    def __init__(self,ex_file=None,parent=None, firs=None):
+    def __init__(self,ex_file=None,parent=None, firs=None, types=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExEditor") 
         gui.signal_autoconnect(self)
         
@@ -388,6 +389,9 @@ class ExEditor:
         for fir in [fir.name for fir in self.firs]:
             self.fircombo.append_text(utf8conv(str(fir)))
         UI.set_active_text(self.fircombo,[fir.name for fir in self.firs][0])
+        
+        # Store types list
+        self.types = types
         
         if ex_file: self.populate(ex_file)
 
@@ -451,10 +455,10 @@ class ExEditor:
         except:
             UI.alert(utf8conv("No hay ningún vuelo seleccionado"), parent=self.ExEditor)
             return
-        FlightEditor(self.flights[index],parent=self.ExEditor)
+        FlightEditor(self.flights[index],parent=self.ExEditor, types=self.types)
         
     def add(self,w=None):
-        FlightEditor(parent=self.ExEditor)
+        FlightEditor(parent=self.ExEditor, types=self.types)
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
@@ -463,7 +467,7 @@ class ExEditor:
         logging.debug("ExEditor.__del__")
         
 class FlightEditor:
-    def __init__(self,flight=None,parent=None):
+    def __init__(self,flight=None,parent=None, types=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
