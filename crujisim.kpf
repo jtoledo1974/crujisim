@@ -13,9 +13,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\radisplay\splash.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -24,7 +24,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\radisplay\splash.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -41,6 +41,29 @@
 <file url="lib/ConfMgr.py" id="484ECD2F-E08E-41CC-88F3-D96E4C4BC735" name="ConfMgr.py">
 </file>
 <file url="lib/FIR.py" id="D0E9A292-D97E-4EE3-8160-CC0D92D6EECB" name="FIR.py">
+<preference-set id="">
+  <string id="lastInvocation">default</string>
+<preference-set id="Invocations">
+<preference-set id="default">
+  <string id="postparams"></string>
+  <string id="getparams"></string>
+  <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\crujisim\lib\FIR.py</string>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
+  <string id="userEnvironment"></string>
+  <boolean id="sim-cgi">0</boolean>
+  <string id="cwd"></string>
+  <string id="userCGIEnvironment"></string>
+</preference-set>
+</preference-set>
+</preference-set>
 </file>
 <file url="lib/lads.py" id="26B0BBCC-8C94-4DE9-A085-96092C345311" name="lads.py">
 </file>
@@ -66,9 +89,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\radisplay\lib\Exercise.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -77,7 +100,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\radisplay\lib\Exercise.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>

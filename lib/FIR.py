@@ -20,6 +20,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Information regarding a Flight Information Region"""
 
+import logging
+import os
+from stat import *
+
 class FIR:
     """FIR information and processess"""    
     
@@ -46,8 +50,6 @@ class FIR:
         self.fijos_impresion_secundarios={}
         
         import ConfigParser
-        import logging
-        
         self._firdef = ConfigParser.ConfigParser()
         self._firdef.readfp(open(fir_file,'r'))
         
@@ -305,7 +307,33 @@ class FIR:
             else:
                 logging.debug ('No hay fijos de impresión secundarios (no hay problema)')
                 
+
+def load_firs(path):
+    import ConfigParser
+    
+    firs = []
+    
+    # Walk each subdirectory looking for cached information. If stale,
+    # recalculate statistics
+    for d in os.listdir(path):
+        d = os.path.join(path,d)
+        mode = os.stat(d)[ST_MODE]
+        if not S_ISDIR(mode) or d[-4:]==".svn": continue
+        firs += load_firs(d)
+    
+    for f in [f for f in os.listdir(d) if f[-4:]==".fir"]:
+        f = os.path.join(d,f)
+        try:
+            fir=FIR(f)
+        except:
+            logging.warning("Unable to read FIR file"+f)
+            continue
                 
+        firs += fir
+            
+    return firs
+
 if __name__ == "__main__":
     FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
+    load_firs('.')
     

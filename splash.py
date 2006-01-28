@@ -135,10 +135,10 @@ class Crujisim:
             pb.set_fraction(i)
             while gtk.events_pending():
                 gtk.main_iteration()
-            self.all_ex=[]
+            self.exercises=[]
             for e in load_exercises(dir):
                 els.append(self.get_tvrow_from_ex(e))
-                self.all_ex.append(e)
+                self.exercises.append(e)
               
         self.etf = etf = els.filter_new()  # Exercise TreeFilter
         self.filters = {"fir":"---","sector":"---","course":"---","phase":"---"}
@@ -332,6 +332,9 @@ class Crujisim:
         
         ExEditor(ex_file,parent=self.MainWindow)
 
+    def add(self,button=None,event=None):
+        ExEditor(parent=self.MainWindow)
+    
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
         (model, iter) = sel.get_selected()
