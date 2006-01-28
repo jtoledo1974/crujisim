@@ -20,6 +20,7 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from Tix import *
+import logging
 
 class Dialog:
     """Standard dialog to be used with Tkinter"""
@@ -93,3 +94,22 @@ def set_active_text(combobox, text):
             combobox.set_active(i)
             break
 
+def alert(text, parent=None):
+    """Display a GTK dialog with user defined text"""
+    import pygtk 
+    pygtk.require("2.0") 
+    import gtk
+    import gtk.glade
+    import gobject
+    dlg=gtk.MessageDialog(parent=parent,
+                          flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          type=gtk.MESSAGE_INFO,
+                          buttons=gtk.BUTTONS_CLOSE,
+                          message_format=text)
+    dlg.set_position(gtk.WIN_POS_CENTER)
+    dlg.connect('response',lambda dlg, r: dlg.destroy())
+    dlg.run()
+
+if __name__=='__main__':
+    #alert("testing")
+    pass

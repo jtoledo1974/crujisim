@@ -311,14 +311,7 @@ class Crujisim:
         try:
             ex_file = model.get_value(iter,self.ex_ls_cols["file"])
         except:
-            dlg=gtk.MessageDialog(parent=self.MainWindow,
-                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_INFO,
-                                  buttons=gtk.BUTTONS_CLOSE,
-                                  message_format="No hay ninguna pasada seleccionada")
-            dlg.set_position(gtk.WIN_POS_CENTER)
-            dlg.connect('response',lambda dlg, r: dlg.destroy())
-            dlg.run()
+            UI.alert("No hay ninguna pasada seleccionada",parent=self.MainWindow)
             return
         
         ExEditor(ex_file,parent=self.MainWindow, firs=self.firs)
@@ -333,14 +326,7 @@ class Crujisim:
         try:
             fir_name = model.get_value(iter,self.ex_ls_cols["fir"])
         except:
-            dlg=gtk.MessageDialog(parent=self.MainWindow,
-                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_INFO,
-                                  buttons=gtk.BUTTONS_CLOSE,
-                                  message_format="No hay ninguna pasada seleccionada")
-            dlg.set_position(gtk.WIN_POS_CENTER)
-            dlg.connect('response',lambda dlg, r: dlg.destroy())
-            dlg.run()
+            UI.alert("No hay ninguna pasada seleccionada", parent=self.MainWindow)
             return
         for (fir,fir_file) in get_fires():
             if fir_name==fir:
@@ -444,14 +430,7 @@ class ExEditor:
         try:
             ex=Exercise(ex_file)
         except:
-            dlg=gtk.MessageDialog(parent=self.ExEditor,
-                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_INFO,
-                                  buttons=gtk.BUTTONS_CLOSE,
-                                  message_format="Imposible abrir archivo:\n"+utf8conv(ex_file))
-            dlg.set_position(gtk.WIN_POS_CENTER)
-            dlg.connect('response',lambda dlg, r: dlg.destroy())
-            dlg.run()
+            UI.alert("Imposible abrir archivo:\n"+utf8conv(ex_file), parent=self.ExEditor)
             self.ExEditor.destroy()
             return
         
@@ -482,14 +461,7 @@ class ExEditor:
         try:
             index = model.get_value(iter,0)
         except:
-            dlg=gtk.MessageDialog(parent=self.ExEditor,
-                                  flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_INFO,
-                                  buttons=gtk.BUTTONS_CLOSE,
-                                  message_format=utf8conv("No hay ningún vuelo seleccionado"))
-            dlg.set_position(gtk.WIN_POS_CENTER)
-            dlg.connect('response',lambda dlg, r: dlg.destroy())
-            dlg.run()
+            UI.alert(utf8conv("No hay ningún vuelo seleccionado"), parent=self.ExEditor)
             return
         
         FlightEditor(self.flights[index],parent=self.ExEditor)
