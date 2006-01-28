@@ -485,7 +485,8 @@ class FlightEditor:
         self.FlightEditor.set_position(gtk.WIN_POS_CENTER)
         self.FlightEditor.present()
                         
-        self.stripcontainer.set_focus_chain((self.callsign,self.type,self.orig, self.eobt,
+        self.stripcontainer.set_focus_chain((self.callsign,self.type,self.wtc,self.tas,
+                                             self.orig, self.eobt,
                                              self.dest,self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl))        
 
@@ -510,14 +511,28 @@ class FlightEditor:
     def on_type_changed(self,w):
         self.type.props.text = self.type.props.text.upper()
         if self.type.props.text not in [t.type for t in self.types]:
-            self.wtc.props.editable = True
-            #self.tas.props.editable = True
-            #self.wtc.grab_focus()
+            self.wtc.props.sensitive = self.wtc.props.editable = True
         else:
             (wtc,tas) = [(t.wtc,t.cruise_tas) for t in self.types if t.type==self.type.props.text][0]
             self.wtc.props.text = wtc
+            self.wtc.props.sensitive = self.wtc.props.editable = False
             #self.tas.props.text = tas
-
+            
+    def on_wtc_changed(self,w):
+        wtc=self.wtc.props.text
+        self.wtc.props.text=wtc.upper()
+        if wtc.upper() not in ("H","M","L",""):
+            self.wtc.props.text=""
+            gtk.gdk.beep()
+    
+    def force_numeric(self,w):
+        text=w.props.text
+        try: n=int(text)
+        except:
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()
+        w.previous_value = text
 
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()
