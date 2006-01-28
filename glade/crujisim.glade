@@ -1581,6 +1581,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="on_type_changed" last_modification_time="Sat, 28 Jan 2006 18:03:23 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">8</property>
@@ -1771,9 +1772,8 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="width_request">28</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
-	      <property name="sensitive">False</property>
 	      <property name="can_focus">True</property>
-	      <property name="editable">False</property>
+	      <property name="editable">True</property>
 	      <property name="visibility">True</property>
 	      <property name="max_length">4</property>
 	      <property name="text" translatable="yes"></property>
@@ -1792,7 +1792,6 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="width_request">16</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
-	      <property name="sensitive">False</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">False</property>
 	      <property name="visibility">True</property>

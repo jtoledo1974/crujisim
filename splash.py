@@ -489,6 +489,8 @@ class FlightEditor:
                                              self.dest,self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl))        
 
+        self.types = types        
+
         # Populate the dialog
         if not flight: flight=Flight()
         else: self.addbutton.hide()
@@ -505,11 +507,24 @@ class FlightEditor:
     def set_firstfix(self,route):
         self.firstfix.props.label=route.split(",")[0]
 
+    def on_type_changed(self,w):
+        self.type.props.text = self.type.props.text.upper()
+        if self.type.props.text not in [t.type for t in self.types]:
+            self.wtc.props.editable = True
+            #self.tas.props.editable = True
+            #self.wtc.grab_focus()
+        else:
+            (wtc,tas) = [(t.wtc,t.cruise_tas) for t in self.types if t.type==self.type.props.text][0]
+            self.wtc.props.text = wtc
+            #self.tas.props.text = tas
+
+
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()
 
     def __del__(self):
         logging.debug("FlightEditor.__del__")
 
-Crujisim()
-reactor.run()
+if __name__=="__main__":
+    Crujisim()
+    reactor.run()

@@ -1055,10 +1055,10 @@ class Type:
         self.std_roc = int(data[3])
         self.max_rod = int(data[4])
         self.std_rod = int(data[5])
-        self.cruise_ias = int(data[6])  # Knots
-        self.max_ias = int(data[7])
-        self.tma_ias = int(data[8])
-        self.app_ias = int(data[9])   
+        self.cruise_tas = int(data[6])  # Knots
+        self.max_tas = int(data[7])
+        self.tma_tas = int(data[8])
+        self.app_tas = int(data[9])   
 
 def load_types(file):
     types = []
