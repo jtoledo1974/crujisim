@@ -1833,6 +1833,8 @@ Formatos válidos son hhmm y hh:mm</property>
 		  <property name="width_request">64</property>
 		  <property name="height_request">20</property>
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Identificativo de la aeronave:
+Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los asteriscos correspondientes</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
@@ -2018,8 +2020,8 @@ Formatos válidos son hhmm y hh:mm</property>
 		  <property name="width_request">24</property>
 		  <property name="height_request">16</property>
 		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">Nivel autorizado
-Es el nivel al que evoluciona el avión desde el momento que aparece en el primer fijo de la ruta. Normalmente este nivel y el nivel en el primer fijo de la ruta serán iguales salvo cuando sea un despegue</property>
+		  <property name="tooltip" translatable="yes">Nivel autorizado:
+Es el nivel al que evoluciona el avión desde el momento que aparece en el primer fijo de la ruta.</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
@@ -2204,8 +2206,8 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 		  <property name="width_request">24</property>
 		  <property name="height_request">16</property>
 		  <property name="visible">True</property>
-		  <property name="tooltip" translatable="yes">Nivel en primer fijo de ruta. 
-Normalmente basta con que sea el mismo que el CFL, pero es importante que en los despegues se corresponda con la elevación del aeródromo.</property>
+		  <property name="tooltip" translatable="yes">Nivel en primer fijo de ruta: 
+Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
@@ -2257,7 +2259,7 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label23">
+		<widget class="GtkLabel" id="fl_separator">
 		  <property name="width_request">56</property>
 		  <property name="height_request">16</property>
 		  <property name="visible">True</property>
@@ -2276,29 +2278,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 		<packing>
 		  <property name="x">484</property>
 		  <property name="y">28</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkLabel" id="label22">
-		  <property name="width_request">34</property>
-		  <property name="height_request">16</property>
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">FL
-</property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_LEFT</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-		<packing>
-		  <property name="x">486</property>
-		  <property name="y">26</property>
 		</packing>
 	      </child>
 
@@ -2333,28 +2312,6 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 		<packing>
 		  <property name="x">288</property>
 		  <property name="y">8</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkLabel" id="firstfix">
-		  <property name="width_request">48</property>
-		  <property name="height_request">16</property>
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes"></property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_LEFT</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-		<packing>
-		  <property name="x">488</property>
-		  <property name="y">40</property>
 		</packing>
 	      </child>
 
@@ -2423,6 +2380,51 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 		<packing>
 		  <property name="x">588</property>
 		  <property name="y">8</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="firstfix">
+		  <property name="width_request">48</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"></property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">488</property>
+		  <property name="y">40</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="fl_label">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">FL
+</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">486</property>
+		  <property name="y">26</property>
 		</packing>
 	      </child>
 	    </widget>

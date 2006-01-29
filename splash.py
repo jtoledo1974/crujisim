@@ -586,18 +586,20 @@ class FlightEditor:
             return
         w.previous_value = text
         self.sb.pop(0)
+        eobt, eobt_separator = self.eobt.props, self.eobt_separator.props
+        arrow, fix, eto = self.arrow.props, self.fix.props, self.eto.props
+        firstlevel, firstfix = self.firstlevel.props, self.firstfix.props
+        fl_label, fl_separator = self.fl_label.props, self.fl_separator.props
         if orig.upper() in self.fir.local_ads[self.sector]:
-            self.eobt.props.sensitive = True
-            self.eobt_separator.props.visible = True
-            self.arrow.props.visible = True
-            self.fix.props.sensitive = False
-            self.eto.props.sensitive = False
+            eobt.sensitive = eobt_separator.visible = arrow.visible = True
+            fix.sensitive = fix.visible = eto.sensitive = eto.visible = False
+            firstlevel.sensitive = firstlevel.visible = firstfix.visible = False
+            fl_label.visible = fl_separator.visible = False
         else:
-            self.eobt.props.sensitive = False
-            self.eobt_separator.props.visible = False
-            self.arrow.props.visible = False
-            self.fix.props.sensitive = True
-            self.eto.props.sensitive = True
+            eobt.sensitive = eobt_separator.visible = arrow.visible = False
+            fix.sensitive = fix.visible = eto.sensitive = eto.visible = True
+            firstlevel.sensitive = firstlevel.visible = firstfix.visible = True
+            fl_label.visible = fl_separator.visible = True
         if w.props.max_length==len(text): UI.focus_next(w)
         
     def check_numeric(self,w):
