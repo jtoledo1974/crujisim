@@ -1879,7 +1879,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_alpha" last_modification_time="Sat, 28 Jan 2006 19:06:15 GMT"/>
+	      <signal name="changed" handler="on_orig_changed" last_modification_time="Sun, 29 Jan 2006 10:00:18 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">8</property>
@@ -1920,7 +1920,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_alpha" last_modification_time="Sat, 28 Jan 2006 19:06:31 GMT"/>
+	      <signal name="changed" handler="check_alpha" last_modification_time="Sun, 29 Jan 2006 10:03:13 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">92</property>
@@ -1966,7 +1966,7 @@ Formatos válidos son hhmm y hh:mm</property>
 
 	  <child>
 	    <widget class="GtkEntry" id="fix">
-	      <property name="width_request">36</property>
+	      <property name="width_request">44</property>
 	      <property name="height_request">16</property>
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -1977,7 +1977,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_alpha" last_modification_time="Sat, 28 Jan 2006 19:07:01 GMT"/>
+	      <signal name="changed" handler="on_fix_changed" last_modification_time="Sun, 29 Jan 2006 10:03:39 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">372</property>
@@ -1998,6 +1998,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="on_eto_changed" last_modification_time="Sun, 29 Jan 2006 10:03:49 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">360</property>
@@ -2062,7 +2063,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:59 GMT"/>
+	      <signal name="changed" handler="on_tas_changed" last_modification_time="Sun, 29 Jan 2006 10:02:46 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">104</property>
@@ -2383,6 +2384,40 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	    <packing>
 	      <property name="x">8</property>
 	      <property name="y">76</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkImage" id="grid">
+	      <property name="width_request">309</property>
+	      <property name="height_request">47</property>
+	      <property name="visible">True</property>
+	      <property name="pixbuf">grid.png</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">174</property>
+	      <property name="y">24</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkImage" id="arrow">
+	      <property name="width_request">52</property>
+	      <property name="height_request">56</property>
+	      <property name="visible">True</property>
+	      <property name="pixbuf">arrow.png</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="x">588</property>
+	      <property name="y">8</property>
 	    </packing>
 	  </child>
 	</widget>

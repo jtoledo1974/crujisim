@@ -1061,14 +1061,14 @@ class Type:
         self.app_tas = int(data[9])   
 
 def load_types(file):
-    types = []
+    types = {}
     import ConfigParser
     cp = ConfigParser.ConfigParser()
     cp.readfp(open(file,"r"))
     for typename in cp.options('performances'):
         try:
             type = Type(typename,cp.get('performances',typename))
-            types.append(type)
+            types[typename.upper()]=type
         except:
             logging.warning("Unable to parse aircraft type "+typename)
     return types

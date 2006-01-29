@@ -455,10 +455,14 @@ class ExEditor:
         except:
             UI.alert(utf8conv("No hay ningún vuelo seleccionado"), parent=self.ExEditor)
             return
-        FlightEditor(self.flights[index],parent=self.ExEditor, types=self.types)
+        firname = UI.get_active_text(self.fircombo)
+        fir = [fir for fir in self.firs if fir.name == firname][0]
+        FlightEditor(self.flights[index],parent=self.ExEditor, types=self.types, fir=fir)
         
     def add(self,w=None):
-        FlightEditor(parent=self.ExEditor, types=self.types)
+        firname = UI.get_active_text(self.fircombo)
+        fir = [fir for fir in self.firs if fir.name == firname][0]        
+        FlightEditor(parent=self.ExEditor, types=self.types, fir=fir)
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
@@ -509,11 +513,11 @@ class FlightEditor:
         self.firstfix.props.label=route.split(",")[0]
 
     def on_type_changed(self,w):
-        self.type.props.text = self.type.props.text.upper()
-        if self.type.props.text not in [t.type for t in self.types]:
+        type = self.type.props.text = self.type.props.text.upper()
+        if type not in self.types.keys():
             self.wtc.props.sensitive = self.wtc.props.editable = True
         else:
-            (wtc,tas) = [(t.wtc,t.cruise_tas) for t in self.types if t.type==self.type.props.text][0]
+            (wtc,tas) = self.types[type].wtc,self.types[type].cruise_tas
             self.wtc.props.text = wtc
             self.wtc.props.sensitive = self.wtc.props.editable = False
             #self.tas.props.text = tas
@@ -527,6 +531,37 @@ class FlightEditor:
             gtk.gdk.beep()
             return
         if len(wtc)==1: UI.focus_next(w)
+        
+    def on_tas_changed(self,w):
+        tas=self.tas.props.text
+        if not tas.isdigit() and not tas=="":
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()
+            return
+        w.previous_value = tas
+        # Find whether the input tas is reasonably close to the standard
+        try:
+            type_tas = self.types[self.type.props.text].cruise_tas
+            if not type_tas<int(tas)*1.5 or not type_tas>int(tas)/1.5: return
+            else:
+                UI.focus_next(w)
+                return
+        except: pass
+        # If we don't have any info on the standard tas, focus next after four digits
+        if len(tas)==w.props.max_length: UI.focus_next(w)
+        
+    def on_orig_changed(self,w):
+        text = w.props.text
+        w.props.text = text.upper()
+        if not text.isalpha() and text!="":
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()
+            return
+        w.previous_value = text
+        if w.props.max_length==len(text): UI.focus_next(w)
+        
     
     def check_numeric(self,w):
         text=w.props.text
@@ -560,7 +595,7 @@ class FlightEditor:
     def on_callsign_focusout(self,w,e=None):
         import re
         text = w.props.text
-        if not re.match("(\*){0,2}[a-zA-Z0-9]{3,8}",text):
+        if not re.match("^$|(\*){0,2}[a-zA-Z0-9]{3,8}",text):
             gtk.gdk.beep()
             w.grab_focus()
             return
