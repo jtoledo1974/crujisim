@@ -260,7 +260,24 @@ class Exercise:
     def copy(self):
         e = Exercise()
         e.__dict__=self.__dict__.copy()
+        e.flights=self.flights.copy()
+        for f in e.flights.keys():
+            e.flights[f]=e.flights[f].copy()
         return e
+
+    def __eq__(self,other):
+        try:
+            for (sa,sv) in self.__dict__.items():
+                if sa=='flights': continue
+                if getattr(other,sa)!=sv: return False
+            for f,f2 in zip(self.flights.values(),other.flights.values()):
+                if f!=f2: return False
+        except:
+            return False
+        return True
+
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
 class Flight:
     """All data related to a specific flight within an Exercise"""
@@ -296,6 +313,11 @@ class Flight:
             self.firstlevel=""
             self.cfl=""
             self.type=""
+            
+    def copy(self):
+        n = Flight()
+        n.__dict__=self.__dict__.copy()
+        return n
         
     def orig(self):
         """Return the departing aerodrome"""
@@ -350,6 +372,17 @@ class Flight:
         """Return the type"""
         data=self._data.split(',')
         return data[0]
+    
+    def __eq__(self,other):
+        try:
+            for (sa,sv) in self.__dict__.items():
+                if getattr(other,sa)!=sv: return False
+        except:
+            return False
+        return True
+                
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
 class Mapping:
     """Deals with the relationship between the unique exercises and on which day they were scheduled"""
