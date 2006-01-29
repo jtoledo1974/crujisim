@@ -398,7 +398,7 @@ auto_departure = AUTO
 limites:_PPN8,_CJN1,ANZAN,_TLD2,_TLD1,_PPN11,_PPN10,_PPN8
 fijos_de_impresion:CJN,SEGRE
 fijos_de_impresion_secundarios:ADUXO
-local_ads:LEMD,LEZG
+local_ads:LEZG
 
 [sector6]
 nombre:TOLEDO

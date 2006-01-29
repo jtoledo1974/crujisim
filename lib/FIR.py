@@ -49,6 +49,7 @@ class FIR:
         self.auto_departures={}  # Whether there are autodepartures for each sector
         self.fijos_impresion={}
         self.fijos_impresion_secundarios={}
+        self.local_ads={}
         
         import ConfigParser
         self._firdef = ConfigParser.ConfigParser()
@@ -242,8 +243,9 @@ class FIR:
                 self.boundaries[sector_name]=[]
                 self.fijos_impresion[sector_name]=[]
                 self.fijos_impresion_secundarios[sector_name]=[]
+                self.local_ads[sector_name]=[]
                 
-                # Load data for each of the sectors
+        # Load data for each of the sectors
         for (sector,section) in self._sector_sections.items():
         
             # Límites del sector
@@ -266,7 +268,7 @@ class FIR:
                 logging.debug ('No encontrada separación en sector '+sector+'. Se asumen 8 NM de separación mínima.')
                 self.min_sep[sector] = 8.0
                 
-                # Despegues automáticos o manuales
+            # Despegues automáticos o manuales
             if self._firdef.has_option(section,'auto_departure'):
                 aux2=self._firdef.get(section,'auto_departure').upper()
                 if aux2 == 'AUTO':
@@ -282,7 +284,7 @@ class FIR:
                 logging.debug ('Valor para despegues manual/automático para sector '+sector+' no encontrado. Se asume automático')
                 auto_departures[sector] = True
                 
-                # Fijos de impresión primarios
+            # Fijos de impresión primarios
             fijos_impresion=[]
             aux2=self._firdef.get(section,'fijos_de_impresion').split(',')
             for a in aux2:
@@ -296,7 +298,6 @@ class FIR:
                     logging.debug ('No encontrado el fijo de impresión '+a)
             logging.debug
             # Fijos de impresión secundarios
-            fijos_impresion_secundarios=[]
             if self._firdef.has_option(section,'fijos_de_impresion_secundarios'):
                 aux2=self._firdef.get(section,'fijos_de_impresion_secundarios').split(',')
                 for a in aux2:
@@ -310,6 +311,11 @@ class FIR:
                         logging.debug ('No encontrado el fijo secundario de impresión '+a)
             else:
                 logging.debug ('No hay fijos de impresión secundarios (no hay problema)')
+                
+            # Local ADs
+            try: ads=self._firdef.get(section,'local_ads').split(',')
+            except: ads=[]
+            self.local_ads[sector]=ads
         
         # Load the route database which correspond to this FIR
         import Exercise

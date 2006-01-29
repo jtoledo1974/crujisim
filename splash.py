@@ -457,12 +457,16 @@ class ExEditor:
             return
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
-        FlightEditor(self.flights[index],parent=self.ExEditor, types=self.types, fir=fir)
+        sectorname = UI.get_active_text(self.sectorcombo)
+        FlightEditor(self.flights[index],parent=self.ExEditor, types=self.types,
+                     fir=fir, sector=sectorname)
         
     def add(self,w=None):
         firname = UI.get_active_text(self.fircombo)
-        fir = [fir for fir in self.firs if fir.name == firname][0]        
-        FlightEditor(parent=self.ExEditor, types=self.types, fir=fir)
+        fir = [fir for fir in self.firs if fir.name == firname][0]
+        sectorname = UI.get_active_text(self.sectorcombo)
+        FlightEditor(parent=self.ExEditor, types=self.types, fir=fir,
+                     sector=sectorname)
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
@@ -471,7 +475,7 @@ class ExEditor:
         logging.debug("ExEditor.__del__")
         
 class FlightEditor:
-    def __init__(self,flight=None,parent=None, types=None, fir=None):
+    def __init__(self,flight=None,parent=None, types=None, fir=None, sector=""):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
@@ -494,7 +498,9 @@ class FlightEditor:
                                              self.dest, self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl))        
 
-        self.types = types        
+        self.types = types
+        self.fir = fir
+        self.sector = sector
 
         # Populate the dialog
         if not flight: flight=Flight()
@@ -511,6 +517,20 @@ class FlightEditor:
     
     def set_firstfix(self,route):
         self.firstfix.props.label=route.split(",")[0]
+
+    def on_callsign_changed(self,w):
+        w.props.text=w.props.text.upper()
+    
+    def on_callsign_focusout(self,w,e=None):
+        import re
+        text = w.props.text
+        if not re.match("^$|(\*){0,2}[a-zA-Z0-9]{3,8}",text):
+            gtk.gdk.beep()
+            w.grab_focus()
+            self.sb.push(0,"Formato incorrecto del indicativo")
+            return
+        w.props.text = text.upper()
+        self.sb.pop(0)
 
     def on_type_changed(self,w):
         type = self.type.props.text = self.type.props.text.upper()
@@ -529,7 +549,9 @@ class FlightEditor:
         if wtc.upper() not in ("H","M","L",""):
             self.wtc.props.text=""
             gtk.gdk.beep()
+            self.sb.push(0,"Categoría de estela turbulenta debe ser H, M o L")
             return
+        self.sb.pop(0)
         if len(wtc)==1: UI.focus_next(w)
         
     def on_tas_changed(self,w):
@@ -538,7 +560,9 @@ class FlightEditor:
             try: w.props.text=w.previous_value
             except: w.props.text=""
             gtk.gdk.beep()
+            self.sb.push(0,"Introduzca TAS en nudos")
             return
+        self.sb.pop(0)
         w.previous_value = tas
         # Find whether the input tas is reasonably close to the standard
         try:
@@ -552,26 +576,41 @@ class FlightEditor:
         if len(tas)==w.props.max_length: UI.focus_next(w)
         
     def on_orig_changed(self,w):
-        text = w.props.text
+        orig = text = w.props.text
         w.props.text = text.upper()
         if not text.isalpha() and text!="":
             try: w.props.text=w.previous_value
             except: w.props.text=""
             gtk.gdk.beep()
+            self.sb.push(0,utf8conv("Formato incorrecto de aeródromo de origen"))
             return
         w.previous_value = text
+        self.sb.pop(0)
+        if orig.upper() in self.fir.local_ads[self.sector]:
+            self.eobt.props.sensitive = True
+            self.eobt_separator.props.visible = True
+            self.arrow.props.visible = True
+            self.fix.props.sensitive = False
+            self.eto.props.sensitive = False
+        else:
+            self.eobt.props.sensitive = False
+            self.eobt_separator.props.visible = False
+            self.arrow.props.visible = False
+            self.fix.props.sensitive = True
+            self.eto.props.sensitive = True
         if w.props.max_length==len(text): UI.focus_next(w)
         
-    
     def check_numeric(self,w):
         text=w.props.text
         if text.isdigit() or text=="":
             w.previous_value = text
             if w.props.max_length==len(text): UI.focus_next(w)
+            self.sb.pop(0)
             return
         try: w.props.text=w.previous_value
         except: w.props.text=""
         gtk.gdk.beep()
+        self.sb.push(0,utf8conv("Introduzca únicamente caracteres numéricos"))
         
     def check_alpha(self,w):
         text=w.props.text
@@ -589,17 +628,6 @@ class FlightEditor:
         w.previous_value = text
         if w.props.max_length==len(text): UI.focus_next(w)
     
-    def on_callsign_changed(self,w):
-        w.props.text=w.props.text.upper()
-    
-    def on_callsign_focusout(self,w,e=None):
-        import re
-        text = w.props.text
-        if not re.match("^$|(\*){0,2}[a-zA-Z0-9]{3,8}",text):
-            gtk.gdk.beep()
-            w.grab_focus()
-            return
-        w.props.text = text.upper()
 
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()

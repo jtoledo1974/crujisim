@@ -1818,606 +1818,630 @@ Formatos válidos son hhmm y hh:mm</property>
       </child>
 
       <child>
-	<widget class="GtkFixed" id="stripcontainer">
-	  <property name="height_request">100</property>
+	<widget class="GtkVBox" id="vbox4">
 	  <property name="visible">True</property>
+	  <property name="homogeneous">False</property>
+	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkEntry" id="callsign">
-	      <property name="width_request">64</property>
-	      <property name="height_request">20</property>
+	    <widget class="GtkFixed" id="stripcontainer">
+	      <property name="height_request">100</property>
 	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">0</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="focus_out_event" handler="on_callsign_focusout" last_modification_time="Sat, 28 Jan 2006 19:47:29 GMT"/>
-	      <signal name="changed" handler="on_callsign_changed" last_modification_time="Sat, 28 Jan 2006 19:47:45 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">8</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="type">
-	      <property name="width_request">36</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">4</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="on_type_changed" last_modification_time="Sat, 28 Jan 2006 18:03:23 GMT"/>
-	      <signal name="key_press_event" handler="on_type_key_press_event" last_modification_time="Sat, 28 Jan 2006 23:44:47 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">8</property>
-	      <property name="y">36</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="callsign">
+		  <property name="width_request">64</property>
+		  <property name="height_request">20</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">0</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="focus_out_event" handler="on_callsign_focusout" last_modification_time="Sat, 28 Jan 2006 19:47:29 GMT"/>
+		  <signal name="changed" handler="on_callsign_changed" last_modification_time="Sat, 28 Jan 2006 19:47:45 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">8</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="orig">
-	      <property name="width_request">36</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">4</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="on_orig_changed" last_modification_time="Sun, 29 Jan 2006 10:00:18 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">8</property>
-	      <property name="y">52</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="type">
+		  <property name="width_request">36</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">4</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_type_changed" last_modification_time="Sat, 28 Jan 2006 18:03:23 GMT"/>
+		  <signal name="key_press_event" handler="on_type_key_press_event" last_modification_time="Sat, 28 Jan 2006 23:44:47 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">8</property>
+		  <property name="y">36</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="eobt">
-	      <property name="width_request">36</property>
-	      <property name="height_request">16</property>
-	      <property name="sensitive">False</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">4</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	    </widget>
-	    <packing>
-	      <property name="x">52</property>
-	      <property name="y">52</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="orig">
+		  <property name="width_request">36</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">4</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_orig_changed" last_modification_time="Sun, 29 Jan 2006 10:00:18 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">8</property>
+		  <property name="y">52</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="dest">
-	      <property name="width_request">36</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">4</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_alpha" last_modification_time="Sun, 29 Jan 2006 10:03:13 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">92</property>
-	      <property name="y">52</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="eobt">
+		  <property name="width_request">36</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="sensitive">False</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">4</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		</widget>
+		<packing>
+		  <property name="x">52</property>
+		  <property name="y">52</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator6">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">476</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="dest">
+		  <property name="width_request">36</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">4</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_alpha" last_modification_time="Sun, 29 Jan 2006 10:03:13 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">92</property>
+		  <property name="y">52</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator5">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">416</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkVSeparator" id="vseparator6">
+		  <property name="width_request">16</property>
+		  <property name="height_request">68</property>
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="x">476</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator4">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">352</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkVSeparator" id="vseparator5">
+		  <property name="width_request">16</property>
+		  <property name="height_request">68</property>
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="x">416</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="fix">
-	      <property name="width_request">44</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">5</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="on_fix_changed" last_modification_time="Sun, 29 Jan 2006 10:03:39 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">372</property>
-	      <property name="y">12</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkVSeparator" id="vseparator4">
+		  <property name="width_request">16</property>
+		  <property name="height_request">68</property>
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="x">352</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="eto">
-	      <property name="width_request">40</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">6</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="on_eto_changed" last_modification_time="Sun, 29 Jan 2006 10:03:49 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">360</property>
-	      <property name="y">44</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="fix">
+		  <property name="width_request">44</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">5</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_fix_changed" last_modification_time="Sun, 29 Jan 2006 10:03:39 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">372</property>
+		  <property name="y">12</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="cfl">
-	      <property name="width_request">24</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="tooltip" translatable="yes">Nivel autorizado
+	      <child>
+		<widget class="GtkEntry" id="eto">
+		  <property name="width_request">40</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">6</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_eto_changed" last_modification_time="Sun, 29 Jan 2006 10:03:49 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">360</property>
+		  <property name="y">44</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkEntry" id="cfl">
+		  <property name="width_request">24</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Nivel autorizado
 Es el nivel al que evoluciona el avión desde el momento que aparece en el primer fijo de la ruta. Normalmente este nivel y el nivel en el primer fijo de la ruta serán iguales salvo cuando sea un despegue</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">3</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:25 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">560</property>
-	      <property name="y">32</property>
-	    </packing>
-	  </child>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">3</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:25 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">560</property>
+		  <property name="y">32</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="rfl">
-	      <property name="width_request">28</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">3</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:36 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">136</property>
-	      <property name="y">52</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="rfl">
+		  <property name="width_request">28</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">3</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:36 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">136</property>
+		  <property name="y">52</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="tas">
-	      <property name="width_request">28</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">4</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="on_tas_changed" last_modification_time="Sun, 29 Jan 2006 10:02:46 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">104</property>
-	      <property name="y">36</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="tas">
+		  <property name="width_request">28</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">4</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_tas_changed" last_modification_time="Sun, 29 Jan 2006 10:02:46 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">104</property>
+		  <property name="y">36</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="wtc">
-	      <property name="width_request">16</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="sensitive">False</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">False</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">1</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="on_wtc_changed" last_modification_time="Sat, 28 Jan 2006 18:46:35 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">64</property>
-	      <property name="y">36</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkEntry" id="wtc">
+		  <property name="width_request">16</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="sensitive">False</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">False</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">1</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_wtc_changed" last_modification_time="Sat, 28 Jan 2006 18:46:35 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">64</property>
+		  <property name="y">36</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label16">
-	      <property name="width_request">34</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">/</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">32</property>
-	      <property name="y">52</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkLabel" id="eobt_separator">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="label" translatable="yes">/</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">32</property>
+		  <property name="y">52</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label17">
-	      <property name="width_request">34</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">/</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">116</property>
-	      <property name="y">52</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkLabel" id="label17">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">/</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">116</property>
+		  <property name="y">52</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label18">
-	      <property name="width_request">34</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">/</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">44</property>
-	      <property name="y">36</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkLabel" id="label18">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">/</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">44</property>
+		  <property name="y">36</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label19">
-	      <property name="width_request">34</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">/ C /</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">76</property>
-	      <property name="y">36</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkLabel" id="label19">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">/ C /</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">76</property>
+		  <property name="y">36</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator1">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">168</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkVSeparator" id="vseparator1">
+		  <property name="width_request">16</property>
+		  <property name="height_request">68</property>
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="x">168</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkEntry" id="firstlevel">
-	      <property name="width_request">24</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="tooltip" translatable="yes">Nivel en primer fijo de ruta. 
+	      <child>
+		<widget class="GtkEntry" id="firstlevel">
+		  <property name="width_request">24</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Nivel en primer fijo de ruta. 
 Normalmente basta con que sea el mismo que el CFL, pero es importante que en los despegues se corresponda con la elevación del aeródromo.</property>
-	      <property name="can_focus">True</property>
-	      <property name="editable">True</property>
-	      <property name="visibility">True</property>
-	      <property name="max_length">3</property>
-	      <property name="text" translatable="yes"></property>
-	      <property name="has_frame">False</property>
-	      <property name="invisible_char" translatable="yes">*</property>
-	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:08:24 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="x">508</property>
-	      <property name="y">24</property>
-	    </packing>
-	  </child>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">3</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">False</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:08:24 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">508</property>
+		  <property name="y">24</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label25">
-	      <property name="width_request">34</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">FL</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">536</property>
-	      <property name="y">32</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkLabel" id="label25">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">FL</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">536</property>
+		  <property name="y">32</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator2">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">228</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
+	      <child>
+		<widget class="GtkVSeparator" id="vseparator2">
+		  <property name="width_request">16</property>
+		  <property name="height_request">68</property>
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="x">228</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label23">
-	      <property name="width_request">56</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">______
+	      <child>
+		<widget class="GtkLabel" id="label23">
+		  <property name="width_request">56</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">______
 </property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">484</property>
-	      <property name="y">28</property>
-	    </packing>
-	  </child>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">484</property>
+		  <property name="y">28</property>
+		</packing>
+	      </child>
 
-	  <child>
-	    <widget class="GtkLabel" id="label22">
-	      <property name="width_request">34</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">FL
+	      <child>
+		<widget class="GtkLabel" id="label22">
+		  <property name="width_request">34</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">FL
 </property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">486</property>
+		  <property name="y">26</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label20">
+		  <property name="width_request">492</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">________________________________________________________________________________</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">4</property>
+		  <property name="y">16</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkVSeparator" id="vseparator3">
+		  <property name="width_request">16</property>
+		  <property name="height_request">68</property>
+		  <property name="visible">True</property>
+		</widget>
+		<packing>
+		  <property name="x">288</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="firstfix">
+		  <property name="width_request">48</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes"></property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">488</property>
+		  <property name="y">40</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label21">
+		  <property name="width_request">640</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">_________________________________________________________________________________________________________</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">4</property>
+		  <property name="y">56</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkComboBoxEntry" id="route">
+		  <property name="width_request">637</property>
+		  <property name="height_request">20</property>
+		  <property name="visible">True</property>
+		  <property name="items" translatable="yes"></property>
+		</widget>
+		<packing>
+		  <property name="x">8</property>
+		  <property name="y">76</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkImage" id="grid">
+		  <property name="width_request">309</property>
+		  <property name="height_request">47</property>
+		  <property name="visible">True</property>
+		  <property name="pixbuf">grid.png</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">174</property>
+		  <property name="y">24</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkImage" id="arrow">
+		  <property name="width_request">52</property>
+		  <property name="height_request">56</property>
+		  <property name="pixbuf">arrow.png</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">588</property>
+		  <property name="y">8</property>
+		</packing>
+	      </child>
 	    </widget>
 	    <packing>
-	      <property name="x">486</property>
-	      <property name="y">26</property>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
 	    </packing>
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label20">
-	      <property name="width_request">492</property>
-	      <property name="height_request">16</property>
+	    <widget class="GtkStatusbar" id="sb">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">________________________________________________________________________________</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
+	      <property name="has_resize_grip">True</property>
 	    </widget>
 	    <packing>
-	      <property name="x">4</property>
-	      <property name="y">16</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkVSeparator" id="vseparator3">
-	      <property name="width_request">16</property>
-	      <property name="height_request">68</property>
-	      <property name="visible">True</property>
-	    </widget>
-	    <packing>
-	      <property name="x">288</property>
-	      <property name="y">8</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkLabel" id="firstfix">
-	      <property name="width_request">48</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes"></property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">488</property>
-	      <property name="y">40</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkLabel" id="label21">
-	      <property name="width_request">640</property>
-	      <property name="height_request">16</property>
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_________________________________________________________________________________________________________</property>
-	      <property name="use_underline">False</property>
-	      <property name="use_markup">False</property>
-	      <property name="justify">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap">False</property>
-	      <property name="selectable">False</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">4</property>
-	      <property name="y">56</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkComboBoxEntry" id="route">
-	      <property name="width_request">637</property>
-	      <property name="height_request">20</property>
-	      <property name="visible">True</property>
-	      <property name="items" translatable="yes"></property>
-	    </widget>
-	    <packing>
-	      <property name="x">8</property>
-	      <property name="y">76</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkImage" id="grid">
-	      <property name="width_request">309</property>
-	      <property name="height_request">47</property>
-	      <property name="visible">True</property>
-	      <property name="pixbuf">grid.png</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">174</property>
-	      <property name="y">24</property>
-	    </packing>
-	  </child>
-
-	  <child>
-	    <widget class="GtkImage" id="arrow">
-	      <property name="width_request">52</property>
-	      <property name="height_request">56</property>
-	      <property name="visible">True</property>
-	      <property name="pixbuf">arrow.png</property>
-	      <property name="xalign">0.5</property>
-	      <property name="yalign">0.5</property>
-	      <property name="xpad">0</property>
-	      <property name="ypad">0</property>
-	    </widget>
-	    <packing>
-	      <property name="x">588</property>
-	      <property name="y">8</property>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
 	    </packing>
 	  </child>
 	</widget>
