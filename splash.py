@@ -510,10 +510,19 @@ class FlightEditor:
         # object.__dict__["callsign"] == object.callsign
         for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             getattr(self,attr).props.text = getattr(flight,attr)
-        self.route.child.props.text = flight.route.replace(","," ")
+        self.route.props.text = flight.route.replace(","," ")
         try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
         except: self.eto.props.text = ""
         self.set_firstfix(flight.route)
+        
+        # Create completion widget
+        self.completion = completion = gtk.EntryCompletion()
+        completion.set_match_func(self.match_func)
+        completion.connect("match-selected",
+                            self.on_completion_match)
+        completion.set_model(gtk.ListStore(str))
+        completion.set_text_column(0)
+        self.route.set_completion(completion)
     
     def set_firstfix(self,route):
         self.firstfix.props.label=route.split(",")[0]
@@ -602,6 +611,29 @@ class FlightEditor:
             fl_label.visible = fl_separator.visible = True
         if w.props.max_length==len(text): UI.focus_next(w)
         
+    def on_route_changed(self,w):
+        text=w.props.text
+        w.props.text=text.replace(','," ").upper()       
+        valid = True
+        for c in text:
+            if c.isalnum() or c=="_" or c==" " or c==",": continue
+            valid = False
+            break
+        if not valid:
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()
+            return        
+        w.previous_value = text
+        # Fill up the completion list
+        self.completion.get_model().clear()
+        fix_list = [f for f in text.split(" ") if f!=""]
+        if fix_list == []: fix_list = [""]
+        logging.getLogger('').setLevel(logging.INFO)            
+        for r in self.fir.routedb.matching_routes(fix_list,self.orig.props.text,self.dest.props.text):
+            self.completion.get_model().append([r.replace(","," ")])
+        logging.getLogger('').setLevel(logging.DEBUG)            
+        
     def check_numeric(self,w):
         text=w.props.text
         if text.isdigit() or text=="":
@@ -630,6 +662,13 @@ class FlightEditor:
         w.previous_value = text
         if w.props.max_length==len(text): UI.focus_next(w)
     
+    def match_func(self, completion, key, iter):
+        # Because we are resetting the completion on every key change
+        # all of the items in the completion should be displayed
+        return True
+    
+    def on_completion_match(self, completion, model, iter):
+        UI.focus_next(self.route)
 
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()

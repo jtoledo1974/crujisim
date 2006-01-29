@@ -1996,13 +1996,13 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 
 	      <child>
 		<widget class="GtkEntry" id="eto">
-		  <property name="width_request">40</property>
+		  <property name="width_request">31</property>
 		  <property name="height_request">16</property>
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">6</property>
+		  <property name="max_length">4</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char" translatable="yes">*</property>
@@ -2282,28 +2282,6 @@ Normalmente basta con que sea el mismo que el CFL</property>
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="label20">
-		  <property name="width_request">492</property>
-		  <property name="height_request">16</property>
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">________________________________________________________________________________</property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_LEFT</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-		<packing>
-		  <property name="x">4</property>
-		  <property name="y">16</property>
-		</packing>
-	      </child>
-
-	      <child>
 		<widget class="GtkVSeparator" id="vseparator3">
 		  <property name="width_request">16</property>
 		  <property name="height_request">68</property>
@@ -2312,58 +2290,6 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		<packing>
 		  <property name="x">288</property>
 		  <property name="y">8</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkLabel" id="label21">
-		  <property name="width_request">640</property>
-		  <property name="height_request">16</property>
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">_________________________________________________________________________________________________________</property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_LEFT</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-		<packing>
-		  <property name="x">4</property>
-		  <property name="y">56</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkComboBoxEntry" id="route">
-		  <property name="width_request">637</property>
-		  <property name="height_request">20</property>
-		  <property name="visible">True</property>
-		  <property name="items" translatable="yes"></property>
-		</widget>
-		<packing>
-		  <property name="x">8</property>
-		  <property name="y">76</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkImage" id="grid">
-		  <property name="width_request">309</property>
-		  <property name="height_request">47</property>
-		  <property name="visible">True</property>
-		  <property name="pixbuf">grid.png</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		</widget>
-		<packing>
-		  <property name="x">174</property>
-		  <property name="y">24</property>
 		</packing>
 	      </child>
 
@@ -2427,6 +2353,88 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="y">26</property>
 		</packing>
 	      </child>
+
+	      <child>
+		<widget class="GtkImage" id="grid">
+		  <property name="width_request">309</property>
+		  <property name="height_request">47</property>
+		  <property name="visible">True</property>
+		  <property name="pixbuf">grid.png</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">174</property>
+		  <property name="y">24</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label20">
+		  <property name="width_request">492</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">________________________________________________________________________________</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">4</property>
+		  <property name="y">16</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label21">
+		  <property name="width_request">640</property>
+		  <property name="height_request">16</property>
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">_________________________________________________________________________________________________________</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">0.5</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		</widget>
+		<packing>
+		  <property name="x">4</property>
+		  <property name="y">56</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkEntry" id="route">
+		  <property name="width_request">632</property>
+		  <property name="height_request">20</property>
+		  <property name="visible">True</property>
+		  <property name="can_focus">True</property>
+		  <property name="editable">True</property>
+		  <property name="visibility">True</property>
+		  <property name="max_length">0</property>
+		  <property name="text" translatable="yes"></property>
+		  <property name="has_frame">True</property>
+		  <property name="invisible_char" translatable="yes">*</property>
+		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_route_changed" last_modification_time="Sun, 29 Jan 2006 15:03:05 GMT"/>
+		</widget>
+		<packing>
+		  <property name="x">8</property>
+		  <property name="y">72</property>
+		</packing>
+	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -2438,7 +2446,7 @@ Normalmente basta con que sea el mismo que el CFL</property>
 	  <child>
 	    <widget class="GtkStatusbar" id="sb">
 	      <property name="visible">True</property>
-	      <property name="has_resize_grip">True</property>
+	      <property name="has_resize_grip">False</property>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
