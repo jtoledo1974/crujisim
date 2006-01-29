@@ -36,6 +36,7 @@ class FIR:
         self.tmas=[]     # List of points defining TMAs
         self.local_maps={}  # Dictionary of local maps
         self.aerodromes=[]  # List of aerodrome codes
+        self.ad_alevations=[] #List of AD elevations
         self.holds=[]    # List of published holds [fix,hdg,time,turns]   
         self.rwys={}     # IFR rwys of each AD
         self.rwyInUse={} # Rwy in use at each AD
@@ -110,6 +111,11 @@ class FIR:
                 for a in aux.split(','):
                     self.aerodromes.append(a)
                     # Published holding patterns
+        if self._firdef.has_section('elevaciones'):
+            lista=self._firdef.items('elevaciones')
+            for (num,aux) in lista:
+                for a in aux.split(','):
+                    self.ad_alevations.append(int(a))
         if self._firdef.has_section('esperas_publicadas'):
             lista=self._firdef.items('esperas_publicadas')
             for (fijo,datos) in lista:
