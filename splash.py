@@ -609,11 +609,13 @@ class FlightEditor:
             fix.sensitive = fix.visible = eto.sensitive = eto.visible = True
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = True
             fl_label.visible = fl_separator.visible = True
-        if w.props.max_length==len(text): UI.focus_next(w)
+        if w.props.max_length==len(text):
+            UI.focus_next(w)
+            self.fill_completion()
         
     def on_route_changed(self,w):
         text=w.props.text
-        w.props.text=text.replace(','," ").upper()       
+        text=w.props.text=text.replace(','," ").upper()       
         valid = True
         for c in text:
             if c.isalnum() or c=="_" or c==" " or c==",": continue
@@ -625,15 +627,42 @@ class FlightEditor:
             gtk.gdk.beep()
             return        
         w.previous_value = text
+        l = len(text.split(" ")[-1])  # Refill matches after we have finished writing a fix
+        if l in (2,3,5):  # eg, GE PDT DOBAN
+            self.fill_completion()
+        self.firstfix.props.label=text.split(" ")[0]
+        
+    def fill_completion(self):
         # Fill up the completion list
         self.completion.get_model().clear()
-        fix_list = [f for f in text.split(" ") if f!=""]
+        fix_list = [f for f in self.route.props.text.split(" ") if f!=""]
         if fix_list == []: fix_list = [""]
         logging.getLogger('').setLevel(logging.INFO)            
         for r in self.fir.routedb.matching_routes(fix_list,self.orig.props.text,self.dest.props.text):
             self.completion.get_model().append([r.replace(","," ")])
         logging.getLogger('').setLevel(logging.DEBUG)            
         
+    def on_fix_changed(self,w):
+        text =  w.props.text = w.props.text.upper()
+        valid = False
+        for f in self.route.props.text.split(" "):
+            if f==text:
+                w.previous_value = text
+                self.sb.pop(0)
+                UI.focus_next(w)
+                return
+            if f.startswith(text):
+                valid = True
+                break
+        if not valid and text!="":
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()
+            self.sb.push(0,utf8conv("El fijo debe pertenecer a la ruta"))
+            return
+        w.previous_value = text
+        self.sb.pop(0)
+
     def check_numeric(self,w):
         text=w.props.text
         if text.isdigit() or text=="":
@@ -660,8 +689,24 @@ class FlightEditor:
             return
         w.props.text = text.upper()
         w.previous_value = text
-        if w.props.max_length==len(text): UI.focus_next(w)
+        if w.props.max_length==len(text):
+            UI.focus_next(w)
+            self.fill_completion()
     
+    def check_time(self,w):
+        import time
+        t = w.props.text
+        try:
+            if time.strftime("%H%M",time.strptime(t.ljust(4,"0"),"%H%M")) == t.ljust(4,"0"):
+                w.previous_value = t
+                self.sb.pop(0)
+                if len(t)==4: UI.focus_next(w)
+        except:
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()                
+            self.sb.push(0,utf8conv("Introduzca una hora en formato hhmm"))
+
     def match_func(self, completion, key, iter):
         # Because we are resetting the completion on every key change
         # all of the items in the completion should be displayed
