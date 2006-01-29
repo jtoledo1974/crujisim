@@ -1835,6 +1835,8 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="focus_out_event" handler="on_callsign_focusout" last_modification_time="Sat, 28 Jan 2006 19:47:29 GMT"/>
+	      <signal name="changed" handler="on_callsign_changed" last_modification_time="Sat, 28 Jan 2006 19:47:45 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">8</property>
@@ -1856,6 +1858,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
 	      <signal name="changed" handler="on_type_changed" last_modification_time="Sat, 28 Jan 2006 18:03:23 GMT"/>
+	      <signal name="key_press_event" handler="on_type_key_press_event" last_modification_time="Sat, 28 Jan 2006 23:44:47 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">8</property>
@@ -1876,6 +1879,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="check_alpha" last_modification_time="Sat, 28 Jan 2006 19:06:15 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">8</property>
@@ -1916,6 +1920,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="check_alpha" last_modification_time="Sat, 28 Jan 2006 19:06:31 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">92</property>
@@ -1972,6 +1977,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="check_alpha" last_modification_time="Sat, 28 Jan 2006 19:07:01 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">372</property>
@@ -2014,6 +2020,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:25 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">560</property>
@@ -2034,6 +2041,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:36 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">136</property>
@@ -2054,7 +2062,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
-	      <signal name="changed" handler="force_numeric" last_modification_time="Sat, 28 Jan 2006 18:57:28 GMT"/>
+	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:59 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">104</property>
@@ -2199,6 +2207,7 @@ Normalmente basta con que sea el mismo que el CFL, pero es importante que en los
 	      <property name="has_frame">False</property>
 	      <property name="invisible_char" translatable="yes">*</property>
 	      <property name="activates_default">False</property>
+	      <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:08:24 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="x">508</property>

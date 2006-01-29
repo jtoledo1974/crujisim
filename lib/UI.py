@@ -96,11 +96,7 @@ def set_active_text(combobox, text):
 
 def alert(text, parent=None):
     """Display a GTK dialog with user defined text"""
-    import pygtk 
-    pygtk.require("2.0") 
     import gtk
-    import gtk.glade
-    import gobject
     dlg=gtk.MessageDialog(parent=parent,
                           flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_INFO,
@@ -109,6 +105,19 @@ def alert(text, parent=None):
     dlg.set_position(gtk.WIN_POS_CENTER)
     dlg.connect('response',lambda dlg, r: dlg.destroy())
     dlg.run()
+    
+def focus_next(w):
+    """Sends a tab keypress to the widget to force it to cycle the focus"""
+    import gtk
+    cont = w.parent
+    fc = cont.get_focus_chain()
+    next = {}
+    for (widget,nextwidget) in zip(fc,fc[1:]+[fc[0]]):
+        next[widget]=nextwidget
+    n = next[w]
+    while not n.props.sensitive or not n.props.editable: n = next[n]
+    next[w].grab_focus()
+    print "on focus_next"
 
 if __name__=='__main__':
     #alert("testing")

@@ -467,7 +467,7 @@ class ExEditor:
         logging.debug("ExEditor.__del__")
         
 class FlightEditor:
-    def __init__(self,flight=None,parent=None, types=None):
+    def __init__(self,flight=None,parent=None, types=None, fir=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
@@ -487,7 +487,7 @@ class FlightEditor:
                         
         self.stripcontainer.set_focus_chain((self.callsign,self.type,self.wtc,self.tas,
                                              self.orig, self.eobt,
-                                             self.dest,self.rfl,self.route,self.fix,self.eto,
+                                             self.dest, self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl))        
 
         self.types = types        
@@ -517,6 +517,7 @@ class FlightEditor:
             self.wtc.props.text = wtc
             self.wtc.props.sensitive = self.wtc.props.editable = False
             #self.tas.props.text = tas
+        if len(self.type.props.text)>=4: UI.focus_next(w)
             
     def on_wtc_changed(self,w):
         wtc=self.wtc.props.text
@@ -524,15 +525,46 @@ class FlightEditor:
         if wtc.upper() not in ("H","M","L",""):
             self.wtc.props.text=""
             gtk.gdk.beep()
+            return
+        if len(wtc)==1: UI.focus_next(w)
     
-    def force_numeric(self,w):
+    def check_numeric(self,w):
         text=w.props.text
-        try: n=int(text)
-        except:
+        if text.isdigit() or text=="":
+            w.previous_value = text
+            if w.props.max_length==len(text): UI.focus_next(w)
+            return
+        try: w.props.text=w.previous_value
+        except: w.props.text=""
+        gtk.gdk.beep()
+        
+    def check_alpha(self,w):
+        text=w.props.text
+        valid = True
+        for c in text:
+            if c.isalpha() or c=="_": continue
+            valid = False
+            break
+        if not valid:
             try: w.props.text=w.previous_value
             except: w.props.text=""
             gtk.gdk.beep()
+            return
+        w.props.text = text.upper()
         w.previous_value = text
+        if w.props.max_length==len(text): UI.focus_next(w)
+    
+    def on_callsign_changed(self,w):
+        w.props.text=w.props.text.upper()
+    
+    def on_callsign_focusout(self,w,e=None):
+        import re
+        text = w.props.text
+        if not re.match("(\*){0,2}[a-zA-Z0-9]{3,8}",text):
+            gtk.gdk.beep()
+            w.grab_focus()
+            return
+        w.props.text = text.upper()
 
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()
