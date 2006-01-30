@@ -436,7 +436,11 @@ class ExEditor:
                 getattr(self,attrib).props.text=getattr(ex,attrib)
         self.flights = ex.flights
         
-        for i,f in ex.flights.items():
+        self.populate_flights()
+
+    def populate_flights(self):
+        self.fls.clear() 
+        for i,f in self.ex.flights.items():
             # Column 0 of the model is the key in the flights dictionary
             self.fls.append((i,f.callsign,f.orig,f.dest,f.route))
 
@@ -459,8 +463,11 @@ class ExEditor:
         fe=FlightEditor(action="edit",flight=self.flights[index],
                      parent=self.ExEditor, types=self.types,
                      fir=fir, sector=sectorname)
-        fe.run()
+        r = fe.run()
+        if r == fe.SAVE:
+            self.populate_flights()  # Make sure the list is updated
         fe.destroy()
+        self.ExEditor.present()
         
     def add(self,w=None):
         firname = UI.get_active_text(self.fircombo)
@@ -516,9 +523,8 @@ class FlightEditor:
 
         if action=="edit":
             self.addbutton.hide()
+            self.FlightEditor.set_default_response(self.SAVE)
         self.flight = flight
-        self.departure = False  # Marks whether the flight is a departure from a local AD
-
         
         # Create completion widget
         self.completion = completion = gtk.EntryCompletion()
@@ -534,9 +540,12 @@ class FlightEditor:
         for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             getattr(self,attr).props.text = getattr(flight,attr)
         try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
-        except: self.eto.props.text = ""
+        except: self.eto.props.text = flight.eto
         self.firstfix.props.label=self.flight.route.split(",")[0]
-            
+        
+        self.set_departure(False)  # By default maintain the old format so that we can edit old flights
+        self.callsign.grab_focus()
+        
         # Saves a copy of the flight to check for modifications later
         self.flightcopy = self.flight.copy()  
 
@@ -612,11 +621,20 @@ class FlightEditor:
             return
         w.previous_value = text
         self.sb.pop(0)
+        if orig.upper() in self.fir.local_ads[self.sector]:
+            self.set_departure(True)
+        else:
+            self.set_departure(False)
+        if w.props.max_length==len(text):
+            UI.focus_next(w)
+            self.fill_completion()
+        
+    def set_departure(self,dep):
         eobt, eobt_separator = self.eobt.props, self.eobt_separator.props
         arrow, fix, eto = self.arrow.props, self.fix.props, self.eto.props
         firstlevel, firstfix = self.firstlevel.props, self.firstfix.props
         fl_label, fl_separator = self.fl_label.props, self.fl_separator.props
-        if orig.upper() in self.fir.local_ads[self.sector]:
+        if dep:
             eobt.sensitive = eobt.visible = eobt_separator.visible = arrow.visible = True
             fix.sensitive = fix.visible = eto.sensitive = eto.visible = False
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = False
@@ -628,10 +646,7 @@ class FlightEditor:
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = True
             fl_label.visible = fl_separator.visible = True
             self.departure = False
-        if w.props.max_length==len(text):
-            UI.focus_next(w)
-            self.fill_completion()
-        
+
     def on_route_changed(self,w):
         text=w.props.text
         text=text.replace(','," ").upper()       
@@ -783,7 +798,7 @@ class FlightEditor:
         valid = True
         self.sb.pop(0)
         checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
-            ("type","^\w{3,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
+            ("type","^[A-Z0-9-]{3,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
             ("orig","^[A-Z]{4}$"),("dest","^[A-Z]{4}$"),
             ("route","^([A-Z_]{2,6} {0,1})+$"),
             ("rfl","^\d{2,3}$"),("cfl","^\d{2,3}$")]

@@ -279,7 +279,7 @@ class Exercise:
     def __ne__(self,other):
         return not self.__eq__(other)
 
-class Flight:
+class Flight(object):
     """All data related to a specific flight within an Exercise"""
     def __init__(self, callsign=None, data=None):
         """Construct a flight instance
@@ -377,7 +377,7 @@ class Flight:
         try:
             for (sa,sv) in self.__dict__.items():
                 if getattr(other,sa)!=sv:
-                    logging.debug(sa+" differs when comparing flights")
+                    logging.debug(sa+" differs when comparing flights ( "+str(sv)+" != "+str(getattr(other,sa))+" )")
                     return False
         except:
             return False
@@ -385,6 +385,12 @@ class Flight:
                 
     def __ne__(self,other):
         return not self.__eq__(other)
+
+    def __setattr__(self,name,value):
+        """Capture attribute setting so as to force formatting"""
+        object.__setattr__(self,name,value) # This actually sets the attributes
+        if name=="eto" and len(value)==4:
+            object.__setattr__(self,name,value+"00")
 
 class Mapping:
     """Deals with the relationship between the unique exercises and on which day they were scheduled"""
