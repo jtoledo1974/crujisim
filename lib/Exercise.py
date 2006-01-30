@@ -452,41 +452,47 @@ class RouteDB:
                     i=i+1
                     if i==len(fix_list):
                         break;
-                        # If we have given a list of fixes, and we did not find them all in order,
-                        # remove the route. But it's OK if the list was empty to begin with
-                        # (meaning that we DO want to see all the available options).
+            # If we have given a list of fixes, and we did not find them all in order,
+            # remove the route. But it's OK if the list was empty to begin with
+            # (meaning that we DO want to see all the available options).
             if i<len(fix_list) and fix_list[0]<>'':
                 del match_routes[route]
-            else:
-              # We also mark for discarding routes that neither begin nor end on the
-              # given orig and dest
-                (f,orig_dest_list)=match_routes[route]
-                if orig<>'' or dest<>'':
-                    for od in orig_dest_list:
-                        if not (orig=='' or orig==od[0:4]) and not (dest=='' or dest==od[4:8]):
-                            if route not in potential_discards:
-                                potential_discards.append(route)
-                            break
+                continue
+            
+            # Remove the route if it has the origin AD as the first route point
+            if orig==route.split(",")[0]:
+                del match_routes[route]
+                continue
+
+            # Mark for discarding routes that neither begin nor end on the
+            # given orig and dest
+            (f,orig_dest_list)=match_routes[route]
+            if orig<>'' or dest<>'':
+                for od in orig_dest_list:
+                    if not (orig=='' or orig==od[0:4]) and not (dest=='' or dest==od[4:8]):
+                        if route not in potential_discards:
+                            potential_discards.append(route)
+                        break
                             
-                            # Only discard routes based on orig and dest when it doesn't remove
-                            # all of our options
+        # Only discard routes based on orig and dest when it doesn't remove
+        # all of our options
         if len(potential_discards)<len(match_routes):
             for d in potential_discards:
                 del match_routes[d]
                 
-                # Out of the remaining routes, we need to sort them first according to whether
-                # it is appropriate for the orig-dest pair, and then frequency 
+        # Out of the remaining routes, we need to sort them first according to whether
+        # it is appropriate for the orig-dest pair, and then frequency 
         sorted_routes=[]
         for (route, (frequency, orig_dest_list)) in match_routes.items():
             if (orig+dest) in orig_dest_list:
-              # Both origin and dest matches gives the highest score
+                # Both origin and dest matches gives the highest score
                 matches_orig_dest=2
             else:
-              # No matching whatsoever gives the lowest score
+                # No matching whatsoever gives the lowest score
                 matches_orig_dest=0
                 for od in orig_dest_list:
                     if (orig==od[0:4]) or (dest==od[4:8]):
-                      # But if either the orig or dest matched we get partial score
+                        # But if either the orig or dest matched we get partial score
                         matches_orig_dest=1
             sorted_routes.append([matches_orig_dest,frequency,route])
         sorted_routes.sort(reverse=True)

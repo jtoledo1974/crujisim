@@ -1799,7 +1799,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <property name="response_id">-3</property>
+	      <property name="response_id">2</property>
 	      <signal name="clicked" handler="save" last_modification_time="Sat, 28 Jan 2006 14:33:32 GMT"/>
 
 	      <child>
@@ -1872,10 +1872,11 @@ Formatos válidos son hhmm y hh:mm</property>
 	    <widget class="GtkButton" id="addbutton">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
+	      <property name="has_default">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <property name="response_id">0</property>
+	      <property name="response_id">3</property>
 	      <signal name="clicked" handler="add" last_modification_time="Sat, 28 Jan 2006 14:33:49 GMT"/>
 
 	      <child>
@@ -1977,7 +1978,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="focus_out_event" handler="on_callsign_focusout" last_modification_time="Sat, 28 Jan 2006 19:47:29 GMT"/>
 		  <signal name="changed" handler="on_callsign_changed" last_modification_time="Sat, 28 Jan 2006 19:47:45 GMT"/>
 		</widget>
@@ -1999,7 +2000,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="on_type_changed" last_modification_time="Sat, 28 Jan 2006 18:03:23 GMT"/>
 		  <signal name="key_press_event" handler="on_type_key_press_event" last_modification_time="Sat, 28 Jan 2006 23:44:47 GMT"/>
 		</widget>
@@ -2021,7 +2022,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="on_orig_changed" last_modification_time="Sun, 29 Jan 2006 10:00:18 GMT"/>
 		</widget>
 		<packing>
@@ -2043,7 +2044,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="check_time" last_modification_time="Sun, 29 Jan 2006 17:40:35 GMT"/>
 		</widget>
 		<packing>
@@ -2064,7 +2065,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="check_alpha" last_modification_time="Sun, 29 Jan 2006 10:03:13 GMT"/>
 		</widget>
 		<packing>
@@ -2121,7 +2122,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="on_fix_changed" last_modification_time="Sun, 29 Jan 2006 10:03:39 GMT"/>
 		</widget>
 		<packing>
@@ -2142,7 +2143,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="check_time" last_modification_time="Sun, 29 Jan 2006 17:40:44 GMT"/>
 		</widget>
 		<packing>
@@ -2165,7 +2166,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:25 GMT"/>
 		</widget>
 		<packing>
@@ -2186,7 +2187,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:07:36 GMT"/>
 		</widget>
 		<packing>
@@ -2207,7 +2208,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="on_tas_changed" last_modification_time="Sun, 29 Jan 2006 10:02:46 GMT"/>
 		</widget>
 		<packing>
@@ -2229,7 +2230,7 @@ Es el nivel al que evoluciona el avión desde el momento que aparece en el prime
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="on_wtc_changed" last_modification_time="Sat, 28 Jan 2006 18:46:35 GMT"/>
 		</widget>
 		<packing>
@@ -2367,7 +2368,7 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="check_numeric" last_modification_time="Sat, 28 Jan 2006 19:08:24 GMT"/>
 		</widget>
 		<packing>
@@ -2601,9 +2602,9 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
 		  <property name="text" translatable="yes"></property>
-		  <property name="has_frame">True</property>
+		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
+		  <property name="activates_default">True</property>
 		  <signal name="changed" handler="on_route_changed" last_modification_time="Sun, 29 Jan 2006 15:03:05 GMT"/>
 		</widget>
 		<packing>

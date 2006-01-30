@@ -344,8 +344,6 @@ class Crujisim:
             sys.modules.pop('tpv')
 
         import tpv
-        print "importing tpv"
-        #import tpv
         tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , 1])
 
         if "Simulador" in sys.modules:
@@ -458,17 +456,21 @@ class ExEditor:
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
         sectorname = UI.get_active_text(self.sectorcombo)
-        FlightEditor(action="edit",flight=self.flights[index],
+        fe=FlightEditor(action="edit",flight=self.flights[index],
                      parent=self.ExEditor, types=self.types,
                      fir=fir, sector=sectorname)
+        fe.run()
+        fe.destroy()
         
     def add(self,w=None):
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
         sectorname = UI.get_active_text(self.sectorcombo)
         f = Flight()
-        FlightEditor(action="add", flight=f, parent=self.ExEditor,
+        fe=FlightEditor(action="add", flight=f, parent=self.ExEditor,
                      types=self.types, fir=fir, sector=sectorname)
+        fe.run()
+        fe.destroy()
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
@@ -477,7 +479,13 @@ class ExEditor:
         logging.debug("ExEditor.__del__")
         
 class FlightEditor:
-    def __init__(self,action="",flight=None,parent=None, types=None, fir=None, sector=""):
+    
+    # Response constants
+    CANCEL = gtk.RESPONSE_CANCEL
+    SAVE = 2
+    ADD = 3
+    
+    def __init__(self,action="add",flight=None,parent=None, types=None, fir=None, sector=""):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
@@ -514,9 +522,9 @@ class FlightEditor:
         
         # Create completion widget
         self.completion = completion = gtk.EntryCompletion()
-        completion.set_match_func(self.match_func)
-        completion.connect("match-selected",
-                            self.on_completion_match)
+        completion.set_match_func(lambda c,k,i: True)
+        completion.hid = completion.connect("match-selected",
+                            lambda c,m,i: UI.focus_next(self.route))
         completion.set_model(gtk.ListStore(str))
         completion.set_text_column(0)
         self.route.set_completion(completion)
@@ -531,6 +539,10 @@ class FlightEditor:
             
         # Saves a copy of the flight to check for modifications later
         self.flightcopy = self.flight.copy()  
+
+    def run(self): return self.FlightEditor.run()
+
+    def destroy(self): self.FlightEditor.destroy()
     
     def on_callsign_changed(self,w):
         w.props.text=w.props.text.upper()
@@ -563,7 +575,7 @@ class FlightEditor:
         if wtc.upper() not in ("H","M","L",""):
             self.wtc.props.text=""
             gtk.gdk.beep()
-            self.sb.push(0,"Categoría de estela turbulenta debe ser H, M o L")
+            self.sb.push(0,utf8conv("Categoría de estela turbulenta debe ser H, M o L"))
             return
         self.sb.pop(0)
         if len(wtc)==1: UI.focus_next(w)
@@ -605,13 +617,13 @@ class FlightEditor:
         firstlevel, firstfix = self.firstlevel.props, self.firstfix.props
         fl_label, fl_separator = self.fl_label.props, self.fl_separator.props
         if orig.upper() in self.fir.local_ads[self.sector]:
-            eobt.sensitive = eobt_separator.visible = arrow.visible = True
+            eobt.sensitive = eobt.visible = eobt_separator.visible = arrow.visible = True
             fix.sensitive = fix.visible = eto.sensitive = eto.visible = False
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = False
             fl_label.visible = fl_separator.visible = False
             self.departure = True
         else:
-            eobt.sensitive = eobt_separator.visible = arrow.visible = False
+            eobt.sensitive = eobt.visible = eobt_separator.visible = arrow.visible = False
             fix.sensitive = fix.visible = eto.sensitive = eto.visible = True
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = True
             fl_label.visible = fl_separator.visible = True
@@ -622,22 +634,34 @@ class FlightEditor:
         
     def on_route_changed(self,w):
         text=w.props.text
-        text=w.props.text=text.replace(','," ").upper()       
+        text=text.replace(','," ").upper()       
         valid = True
         for c in text:
             if c.isalnum() or c=="_" or c==" " or c==",": continue
             valid = False
+            err = ""
             break
+        if self.orig.props.text==text.split(" ")[0] and text!="":
+            valid = False
+            err = "El aeropuerto de origen no puede formar parte de la ruta. Use el VOR (p. ej: LEMD -> BRA)"
         if not valid:
             try: w.props.text=w.previous_value
             except: w.props.text=""
+            self.sb.push(0,utf8conv(err))
             gtk.gdk.beep()
+            w.grab_focus()
             return        
+        self.sb.pop(0)
+        w.props.text = text
         w.previous_value = text
         l = len(text.split(" ")[-1])  # Refill matches after we have finished writing a fix
         if l in (2,3,5):  # eg, GE PDT DOBAN
             self.fill_completion()
         self.firstfix.props.label=text.split(" ")[0]
+        if self.fix.props.text not in text.split(" "):
+            self.eto.props.text = self.fix.props.text = ""
+            w.grab_focus()
+            
         
     def fill_completion(self):
         # Fill up the completion list
@@ -649,7 +673,7 @@ class FlightEditor:
             self.completion.get_model().append([r.replace(","," ")])
         logging.getLogger('').setLevel(logging.DEBUG)            
         
-    def on_fix_changed(self,w):
+    def on_fix_changed(self,w, event=None):
         text =  w.props.text = w.props.text.upper()
         valid = False
         for f in self.route.props.text.split(" "):
@@ -713,42 +737,49 @@ class FlightEditor:
             except: w.props.text=""
             gtk.gdk.beep()                
             self.sb.push(0,utf8conv("Introduzca una hora en formato hhmm"))
-
-    def match_func(self, completion, key, iter):
-        # Because we are resetting the completion on every key change
-        # all of the items in the completion should be displayed
-        return True
-    
-    def on_completion_match(self, completion, model, iter):
-        UI.focus_next(self.route)
         
     def on_flighteditor_response(self, dialog, response, **args):
-        if response==gtk.RESPONSE_CANCEL:
+        if response==gtk.RESPONSE_DELETE_EVENT:
             dialog.emit_stop_by_name("response")
-            print "Response cancel"
-            dialog.response(("a list","item"))
-        else:
-            print "response not cancel"
+            dialog.response(gtk.RESPONSE_CANCEL)
+            return
+        elif response!=gtk.RESPONSE_CANCEL and not self.validate():
+            dialog.emit_stop_by_name("response")
+            return
+        self.completion.disconnect(self.completion.hid)
 
     def validate(self):
         import re
+        valid = True
+        self.sb.pop(0)
         checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
-            ("type","^\w{3,4}$"),("wtc","^[HML]$"),("tas","^\d$"),
+            ("type","^\w{3,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
             ("orig","^[A-Z]{4}$"),("dest","^[A-Z]{4}$"),
-            ("route","^([A-Z_]{2,6} {0,1})*$"),("cfl","^\d$"),
-            ("rfl","^\d$")]
+            ("route","^([A-Z_]{2,6} {0,1})+$"),
+            ("rfl","^\d{2,3}$"),("cfl","^\d{2,3}$")]
         if self.departure:
-            pass
+            checklist += [("eobt","^\d{4}$")]
         else:
-            pass
+            checklist += [("fix","^[A-Z_]{2,6}$"),("eto","^\d{4}$"),
+                ("firstlevel","^\d{2,3}$")]
+            fix = self.fix.props.text
+            route = self.route.props.text
+            if fix not in route.split(" "):
+                culprit = self.fix
+                valid = False                
+                self.sb.push(0,utf8conv("El fijo debe pertenecer a la ruta"))
         for (field, pattern) in checklist:
             widget = getattr(self,field)
             value = widget.props.text
             if not re.match(pattern,value):
-                gtk.gdk.beep()
-                widget.grab_focus()
-                return False
-        return True
+                culprit = widget
+                valid = False
+                break
+        if not valid:            
+            gtk.gdk.beep()
+            UI.flash_red(culprit)
+            culprit.grab_focus()
+        return valid
 
     def __del__(self):
         logging.debug("FlightEditor.__del__")

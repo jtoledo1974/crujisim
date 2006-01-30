@@ -119,6 +119,25 @@ def focus_next(w):
         or not n.props.sensitive:
         n = next[n]
     n.grab_focus()
+    
+def flash_red(w):
+    import gtk
+    import gobject
+    w.flash_count = 0
+    w.flash_color="white"
+    def flash(w):
+        if w.flash_color=="white": w.flash_color="red"
+        else:
+            w.flash_color="white"
+            w.flash_count += 1
+        w.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(w.flash_color))
+        while gtk.events_pending():  # I'm not sure this makes any difference
+            gtk.main_iteration()
+        if w.flash_count==3:
+            return False
+        else:
+            return True
+    gobject.timeout_add(100,flash,w)
 
 if __name__=='__main__':
     #alert("testing")
