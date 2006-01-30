@@ -496,7 +496,8 @@ class FlightEditor:
         self.stripcontainer.set_focus_chain((self.callsign,self.type,self.wtc,self.tas,
                                              self.orig, self.eobt,
                                              self.dest, self.rfl,self.route,self.fix,self.eto,
-                                             self.firstlevel,self.cfl))        
+                                             self.firstlevel,self.cfl, self.addbutton,
+                                             self.savebutton))        
 
         self.types = types
         self.fir = fir
@@ -505,16 +506,9 @@ class FlightEditor:
         # Populate the dialog
         if not flight: flight=Flight()
         else: self.addbutton.hide()
+        self.flight = flight
+        self.departure = False  # Marks whether the flight is a departure from a local AD
 
-        # I use the __dict_[attr] is another way to reference an some objects attr
-        # object.__dict__["callsign"] == object.callsign
-        for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
-            getattr(self,attr).props.text = getattr(flight,attr)
-        self.route.props.text = flight.route.replace(","," ")
-        try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
-        except: self.eto.props.text = ""
-        self.set_firstfix(flight.route)
-        
         # Create completion widget
         self.completion = completion = gtk.EntryCompletion()
         completion.set_match_func(self.match_func)
@@ -523,10 +517,19 @@ class FlightEditor:
         completion.set_model(gtk.ListStore(str))
         completion.set_text_column(0)
         self.route.set_completion(completion)
-    
-    def set_firstfix(self,route):
-        self.firstfix.props.label=route.split(",")[0]
 
+        # I use the __dict_[attr] is another way to reference an some objects attr
+        # object.__dict__["callsign"] == object.callsign
+        self.route.props.text = flight.route.replace(","," ")
+        for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
+            getattr(self,attr).props.text = getattr(flight,attr)
+        try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
+        except: self.eto.props.text = ""
+        self.firstfix.props.label=self.flight.route.split(",")[0]
+            
+        # Saves a copy of the flight to check for modifications later
+        self.flightcopy = self.flight.copy()  
+    
     def on_callsign_changed(self,w):
         w.props.text=w.props.text.upper()
     
@@ -604,11 +607,13 @@ class FlightEditor:
             fix.sensitive = fix.visible = eto.sensitive = eto.visible = False
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = False
             fl_label.visible = fl_separator.visible = False
+            self.departure = True
         else:
             eobt.sensitive = eobt_separator.visible = arrow.visible = False
             fix.sensitive = fix.visible = eto.sensitive = eto.visible = True
             firstlevel.sensitive = firstlevel.visible = firstfix.visible = True
             fl_label.visible = fl_separator.visible = True
+            self.departure = False
         if w.props.max_length==len(text):
             UI.focus_next(w)
             self.fill_completion()
@@ -715,8 +720,32 @@ class FlightEditor:
     def on_completion_match(self, completion, model, iter):
         UI.focus_next(self.route)
 
+    def validate(self):
+        import re
+        checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
+            ("type","^\w{3,4}$"),("wtc","^[HML]$"),("tas","^\d$"),
+            ("orig","^[A-Z]{4}$"),("dest","^[A-Z]{4}$"),
+            ("route","^([A-Z_]{2,6} {0,1})*$"),("cfl","^\d$"),
+            ("rfl","^\d$")]
+        if self.departure:
+            pass
+        else:
+            pass
+        for (field, pattern) in checklist:
+            widget = getattr(self,field)
+            value = widget.props.text
+            if not re.match(pattern,value):
+                gtk.gdk.beep()
+                widget.grab_focus()
+                return False
+        return True
+
     def close(self,w=None,e=None):
         self.FlightEditor.destroy()
+        
+    def add(self,w=None):
+        self.validate()
+        return True
 
     def __del__(self):
         logging.debug("FlightEditor.__del__")
