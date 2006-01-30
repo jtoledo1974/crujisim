@@ -1704,6 +1704,7 @@ Formatos válidos son hhmm y hh:mm</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
   <property name="has_separator">True</property>
+  <signal name="delete_event" handler="on_flighteditor_delete_event" last_modification_time="Mon, 30 Jan 2006 19:56:22 GMT"/>
 
   <child internal-child="vbox">
     <widget class="GtkVBox" id="dialog-vbox1">
@@ -2604,7 +2605,7 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">False</property>
 		  <property name="invisible_char">*</property>
-		  <property name="activates_default">True</property>
+		  <property name="activates_default">False</property>
 		  <signal name="changed" handler="on_route_changed" last_modification_time="Sun, 29 Jan 2006 15:03:05 GMT"/>
 		</widget>
 		<packing>

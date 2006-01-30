@@ -751,7 +751,12 @@ class FlightEditor:
             eto, firstlevel, fix = self.eto.props.text, self.firstlevel.props.text, self.fix.props.text
         f.eto , f.firstlevel, f.fix = eto, firstlevel, fix
         return f
-        
+
+    def on_flighteditor_delete_event(self, w, e):
+        # Since we are dealing with the delete event from the response handler
+        # don't do anything here, and do not propagate
+        return True
+    
     def on_flighteditor_response(self, dialog, response, **args):
         if response==gtk.RESPONSE_DELETE_EVENT:
             dialog.emit_stop_by_name("response")
@@ -761,13 +766,16 @@ class FlightEditor:
             dialog.emit_stop_by_name("response")
             return
         elif response==gtk.RESPONSE_CANCEL:
-            if self.flightcopy != self.fill_flight(self.flight):
+            if self.flight != self.fill_flight(self.flight.copy()):
                 r = UI.alert(utf8conv("Se ha modificado el vuelo. ¿Desea abandonar los cambios?"),
                              type = gtk.MESSAGE_WARNING,
                              buttons = gtk.BUTTONS_OK_CANCEL)
                 if r!=gtk.RESPONSE_OK:
                     dialog.emit_stop_by_name("response")
                     return
+        else:
+            self.fill_flight(self.flight)  # Copy the validated form data into the given flight
+
         self.completion.disconnect(self.completion.hid)
 
     def validate(self):
