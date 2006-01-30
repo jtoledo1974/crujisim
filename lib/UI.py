@@ -94,17 +94,20 @@ def set_active_text(combobox, text):
             combobox.set_active(i)
             break
 
-def alert(text, parent=None):
+def alert(text, parent=None, type=None, buttons=None):
     """Display a GTK dialog with user defined text"""
     import gtk
+    if type == None : type=gtk.MESSAGE_INFO
+    if buttons == None : buttons=gtk.BUTTONS_CLOSE
     dlg=gtk.MessageDialog(parent=parent,
                           flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=gtk.MESSAGE_INFO,
-                          buttons=gtk.BUTTONS_CLOSE,
+                          type=type,
+                          buttons=buttons,
                           message_format=text)
     dlg.set_position(gtk.WIN_POS_CENTER)
-    dlg.connect('response',lambda dlg, r: dlg.destroy())
-    dlg.run()
+    r = dlg.run()
+    dlg.destroy()
+    return r
     
 def focus_next(w):
     """Sends a tab keypress to the widget to force it to cycle the focus"""

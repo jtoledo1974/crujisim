@@ -641,7 +641,7 @@ class FlightEditor:
             valid = False
             err = ""
             break
-        if self.orig.props.text==text.split(" ")[0] and text!="":
+        if self.orig.props.text==text.split(" ")[0] and text!="" and self.orig.props.text!="":
             valid = False
             err = "El aeropuerto de origen no puede formar parte de la ruta. Use el VOR (p. ej: LEMD -> BRA)"
         if not valid:
@@ -660,7 +660,9 @@ class FlightEditor:
         self.firstfix.props.label=text.split(" ")[0]
         if self.fix.props.text not in text.split(" "):
             self.eto.props.text = self.fix.props.text = ""
-            w.grab_focus()
+            # If we grabbed the focus here selecting a match on the completion
+            # list wouldn't automatically focus cycle to the next item
+            #w.grab_focus()
             
         
     def fill_completion(self):
@@ -722,7 +724,7 @@ class FlightEditor:
         w.previous_value = text
         if w.props.max_length==len(text):
             UI.focus_next(w)
-            self.fill_completion()
+            self.fill_completion()    
     
     def check_time(self,w):
         import time
@@ -737,6 +739,18 @@ class FlightEditor:
             except: w.props.text=""
             gtk.gdk.beep()                
             self.sb.push(0,utf8conv("Introduzca una hora en formato hhmm"))
+
+    def fill_flight(self, f):
+        """Copies data from the dialog into the given flight object"""
+        f.route = self.route.props.text.strip().replace(" ",",")
+        for attr in ["callsign","orig","dest","rfl","cfl","wtc","tas","type"]:
+            setattr(f, attr, getattr(self,attr).props.text)
+        if self.departure:
+            eto, firstlevel, fix = self.eobt.props.text, "000", f.route.split(",")[0]
+        else:
+            eto, firstlevel, fix = self.eto.props.text, self.firstlevel.props.text, self.fix.props.text
+        f.eto , f.firstlevel, f.fix = eto, firstlevel, fix
+        return f
         
     def on_flighteditor_response(self, dialog, response, **args):
         if response==gtk.RESPONSE_DELETE_EVENT:
@@ -746,6 +760,14 @@ class FlightEditor:
         elif response!=gtk.RESPONSE_CANCEL and not self.validate():
             dialog.emit_stop_by_name("response")
             return
+        elif response==gtk.RESPONSE_CANCEL:
+            if self.flightcopy != self.fill_flight(self.flight):
+                r = UI.alert(utf8conv("Se ha modificado el vuelo. ¿Desea abandonar los cambios?"),
+                             type = gtk.MESSAGE_WARNING,
+                             buttons = gtk.BUTTONS_OK_CANCEL)
+                if r!=gtk.RESPONSE_OK:
+                    dialog.emit_stop_by_name("response")
+                    return
         self.completion.disconnect(self.completion.hid)
 
     def validate(self):

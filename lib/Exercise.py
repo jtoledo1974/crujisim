@@ -376,7 +376,9 @@ class Flight:
     def __eq__(self,other):
         try:
             for (sa,sv) in self.__dict__.items():
-                if getattr(other,sa)!=sv: return False
+                if getattr(other,sa)!=sv:
+                    logging.debug(sa+" differs when comparing flights")
+                    return False
         except:
             return False
         return True
