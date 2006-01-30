@@ -115,7 +115,8 @@ def focus_next(w):
     for (widget,nextwidget) in zip(fc,fc[1:]+[fc[0]]):
         next[widget]=nextwidget
     n = next[w]
-    while not n.props.can_focus or not n.props.editable or not n.props.sensitive:
+    while not n.props.can_focus or (hasattr(n.props,"editable") and  not n.props.editable) \
+        or not n.props.sensitive:
         n = next[n]
     n.grab_focus()
 

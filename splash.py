@@ -458,15 +458,17 @@ class ExEditor:
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
         sectorname = UI.get_active_text(self.sectorcombo)
-        FlightEditor(self.flights[index],parent=self.ExEditor, types=self.types,
+        FlightEditor(action="edit",flight=self.flights[index],
+                     parent=self.ExEditor, types=self.types,
                      fir=fir, sector=sectorname)
         
     def add(self,w=None):
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
         sectorname = UI.get_active_text(self.sectorcombo)
-        FlightEditor(parent=self.ExEditor, types=self.types, fir=fir,
-                     sector=sectorname)
+        f = Flight()
+        FlightEditor(action="add", flight=f, parent=self.ExEditor,
+                     types=self.types, fir=fir, sector=sectorname)
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
@@ -475,7 +477,7 @@ class ExEditor:
         logging.debug("ExEditor.__del__")
         
 class FlightEditor:
-    def __init__(self,flight=None,parent=None, types=None, fir=None, sector=""):
+    def __init__(self,action="",flight=None,parent=None, types=None, fir=None, sector=""):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
@@ -498,17 +500,18 @@ class FlightEditor:
                                              self.dest, self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl, self.addbutton,
                                              self.savebutton))        
+        self.FlightEditor.connect("response", self.on_flighteditor_response)
 
         self.types = types
         self.fir = fir
         self.sector = sector
 
-        # Populate the dialog
-        if not flight: flight=Flight()
-        else: self.addbutton.hide()
+        if action=="edit":
+            self.addbutton.hide()
         self.flight = flight
         self.departure = False  # Marks whether the flight is a departure from a local AD
 
+        
         # Create completion widget
         self.completion = completion = gtk.EntryCompletion()
         completion.set_match_func(self.match_func)
@@ -518,8 +521,7 @@ class FlightEditor:
         completion.set_text_column(0)
         self.route.set_completion(completion)
 
-        # I use the __dict_[attr] is another way to reference an some objects attr
-        # object.__dict__["callsign"] == object.callsign
+        # Populate the dialog
         self.route.props.text = flight.route.replace(","," ")
         for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             getattr(self,attr).props.text = getattr(flight,attr)
@@ -719,6 +721,14 @@ class FlightEditor:
     
     def on_completion_match(self, completion, model, iter):
         UI.focus_next(self.route)
+        
+    def on_flighteditor_response(self, dialog, response, **args):
+        if response==gtk.RESPONSE_CANCEL:
+            dialog.emit_stop_by_name("response")
+            print "Response cancel"
+            dialog.response(("a list","item"))
+        else:
+            print "response not cancel"
 
     def validate(self):
         import re
@@ -738,13 +748,6 @@ class FlightEditor:
                 gtk.gdk.beep()
                 widget.grab_focus()
                 return False
-        return True
-
-    def close(self,w=None,e=None):
-        self.FlightEditor.destroy()
-        
-    def add(self,w=None):
-        self.validate()
         return True
 
     def __del__(self):
