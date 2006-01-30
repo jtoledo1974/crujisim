@@ -473,11 +473,21 @@ class ExEditor:
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
         sectorname = UI.get_active_text(self.sectorcombo)
-        f = Flight()
-        fe=FlightEditor(action="add", flight=f, parent=self.ExEditor,
-                     types=self.types, fir=fir, sector=sectorname)
-        fe.run()
+        while True:
+            f = Flight()
+            fe=FlightEditor(action="add", flight=f, parent=self.ExEditor,
+                         types=self.types, fir=fir, sector=sectorname)
+            r=fe.run()
+            if r!=fe.ADD:
+                next = max(self.ex.flights.keys())+1
+                self.ex.flights[next]=f
+                fe.destroy()
+                break
+            fe.destroy()
+            self.populate_flights()  # Make sure the list is updated
         fe.destroy()
+        self.ExEditor.present()
+        self.populate_flights()  # Make sure the list is updated
                 
     def close(self,w=None,e=None):
         self.ExEditor.destroy()
