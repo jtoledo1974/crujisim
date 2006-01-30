@@ -442,7 +442,7 @@ class ExEditor:
         self.fls.clear() 
         for i,f in self.ex.flights.items():
             # Column 0 of the model is the key in the flights dictionary
-            self.fls.append((i,f.callsign,f.orig,f.dest,f.route))
+            self.fls.append((i,f.callsign,f.orig,f.dest,f.route.replace(","," ")))
 
     def list_clicked(self,w=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS:
@@ -683,7 +683,7 @@ class FlightEditor:
         if l in (2,3,5):  # eg, GE PDT DOBAN
             self.fill_completion()
         self.firstfix.props.label=text.split(" ")[0]
-        if self.fix.props.text not in text.split(" "):
+        if self.fix.props.text not in text.split(" ") and text!="":
             self.eto.props.text = self.fix.props.text = ""
             # If we grabbed the focus here selecting a match on the completion
             # list wouldn't automatically focus cycle to the next item
