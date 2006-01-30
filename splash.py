@@ -478,13 +478,13 @@ class ExEditor:
             fe=FlightEditor(action="add", flight=f, parent=self.ExEditor,
                          types=self.types, fir=fir, sector=sectorname)
             r=fe.run()
-            if r!=fe.ADD:
+            if r==fe.ADD:
                 next = max(self.ex.flights.keys())+1
                 self.ex.flights[next]=f
                 fe.destroy()
+                self.populate_flights()  # Make sure the list is updated
+            else:
                 break
-            fe.destroy()
-            self.populate_flights()  # Make sure the list is updated
         fe.destroy()
         self.ExEditor.present()
         self.populate_flights()  # Make sure the list is updated
