@@ -276,7 +276,33 @@ class Exercise:
             return max(self.flights.keys())+1
         except:
             return 0
-    
+
+    def save(self,file):
+        self.file = file
+        try:
+            exc = ConfigParser()
+            exc.readfp(open(self.file,"r"))
+        except:
+            logging.error("Unable to load exercise for saving")
+            return
+        
+        try: exc.add_section('datos')
+        except: pass
+        for field in ("fir","sector","shift","da","usu","ejer","course",
+                      "phase", "day", "pass_no","comment"):
+            exc.set('datos',field, getattr(self,field))
+        # Old field formats
+        exc.set('datos','comentario',self.oldcomment)
+        exc.set('datos','hora_inicio',self.start_time)
+        exc.set('datos','viento',"%03d"%self.wind_azimuth+","+"%02d"%self.wind_knots)
+        
+        try: exc.add_section('vuelos')
+        except: pass
+        for f in self.flights.values():
+            exc.set('vuelos',f.callsign,f.get_config_string())
+
+        exc.write(open(self.file,"w"))        
+            
     def copy(self):
         e = Exercise()
         e.__dict__=self.__dict__.copy()
@@ -292,8 +318,14 @@ class Exercise:
                 if getattr(other,sa)!=sv:
                     logging.debug(sa+" differs when comparing exercises ( "+str(sv)+" "+str(type(sv))+" != "+str(getattr(other,sa))+" "+str(type(getattr(other,sa)))+" )")
                     return False
-            for f,f2 in zip(self.flights.values(),other.flights.values()):
-                if f!=f2: return False
+            for f in self.flights.values():
+                f2 = [f2 for f2 in other.flights.values() if f2.callsign==f.callsign][0]
+                if f!=f2:
+                    return False
+            for f2 in other.flights.values():
+                f = [f for f in self.flights.values() if f.callsign==f2.callsign][0]
+                if f!=f2:
+                    return False
         except:
             return False
         return True
@@ -394,6 +426,14 @@ class Flight(object):
         """Return the type"""
         data=self._data.split(',')
         return data[0]
+    
+    def get_config_string(self):
+        s = self.type+","+self.wtc+","+self.orig+","+self.dest+","+self.rfl+","+self.cfl
+        for f in self.route.split(","):
+            s += ","+f
+            if f==self.fix:
+                s += ",H"+self.eto+"F"+self.firstlevel+"V"+self.tas
+        return s
     
     def __eq__(self,other):
         try:
