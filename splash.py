@@ -514,12 +514,18 @@ class ExEditor:
         for field in ("start_time", "shift", "comment"):
             value = getattr(self,field).props.text
             setattr(e,field,value)
-        for field in ("da","usu","ejer","course", "phase", "day", "pass_no","wind_azimuth","wind_knots"):
+        for field in ("da","usu","ejer","course", "phase", "day", "pass_no"):
             value = getattr(self,field).props.text
             try:
                 setattr(e,field,int(value))
             except:
                 setattr(e,field,None)
+        for field in ("wind_azimuth","wind_knots"):
+            value = getattr(self,field).props.text
+            try:
+                setattr(e,field,int(value))
+            except:
+                setattr(e,field,0)
         #print str(e.__dict__)
         return e
 
@@ -546,7 +552,13 @@ class ExEditor:
                     dialog.emit_stop_by_name("response")
                     return
         else:
-            self.fill_ex(self.ex)  # Copy the validated form data into the given flight
+            # Save the exercise
+            if self.ex != self.fill_ex(self.ex.copy()):
+                self.fill_ex(self.ex)
+                try:
+                    self.ex.save(self.ex.file)
+                except:
+                    UI.alert("Imposible guardar ejercicio en archivo "+file)                    
 
     def validate(self):
         return True

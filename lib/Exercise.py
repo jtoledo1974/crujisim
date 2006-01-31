@@ -28,7 +28,7 @@ import zlib
 from ConfigParser import ConfigParser
 
 # CONSTANTS
-CACHE_VERSION = 7
+CACHE_VERSION = 8
 MAPPING_FILE_NAME = "exercises-passes.dat"
 
 def load_exercises(path, reload=False):
