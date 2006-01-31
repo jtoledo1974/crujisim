@@ -508,6 +508,20 @@ class ExEditor:
                 
     def fill_ex(self, e):
         """Copies data from the dialog into the given exercise object"""
+        # File is more delicate and we don't edit it here
+        for field, combo in [("fir", self.fircombo), ("sector", self.sectorcombo)]:
+            setattr(e,field, UI.get_active_text(combo))
+        for field in ("start_time", "shift", "comment"):
+            value = getattr(self,field).props.text
+            setattr(e,field,value)
+        e.oldcomment = e.comment
+        for field in ("da","usu","ejer","course", "phase", "day", "pass_no","wind_azimuth","wind_knots"):
+            value = getattr(self,field).props.text
+            try:
+                setattr(e,field,int(value))
+            except:
+                setattr(e,field,None)
+        #print str(e.__dict__)
         return e
 
     def on_exeditor_delete_event(self, w, e):
@@ -524,6 +538,7 @@ class ExEditor:
             dialog.emit_stop_by_name("response")
             return
         elif response==gtk.RESPONSE_CANCEL:
+            print "Received cancel"
             if self.ex != self.fill_ex(self.ex.copy()):
                 r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
                              type = gtk.MESSAGE_WARNING,

@@ -134,7 +134,7 @@ class Exercise:
             return
 
         self.file = self.fir = self.sector = self.start_time = self.shift = ""
-        self.da = self.usu = self.ejer = self.course = self.phase = self.day = self.pass_no = ""
+        self.da = self.usu = self.ejer = self.course = self.phase = self.day = self.pass_no = None
         self.wind_azimuth = self.wind_knots = 0
         self.oldcomment = self.comment = ""        
         
@@ -288,7 +288,9 @@ class Exercise:
         try:
             for (sa,sv) in self.__dict__.items():
                 if sa=='flights': continue
-                if getattr(other,sa)!=sv: return False
+                if getattr(other,sa)!=sv:
+                    logging.debug(sa+" differs when comparing exercises ( "+str(sv)+" != "+str(getattr(other,sa))+" )")
+                    return False
             for f,f2 in zip(self.flights.values(),other.flights.values()):
                 if f!=f2: return False
         except:
