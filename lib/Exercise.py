@@ -99,7 +99,8 @@ def load_exercises(path, reload=False):
         try:
             for (course,phase,day,pass_no,shift) in mapping.exercises[(e.da,e.usu,e.ejer)]:
                 ne=e.copy()
-                del(ne.file)  # The copy is not based on any file
+                # Don't delete the file just yet because it's currently required
+                #del(ne.file)  # The copy is not based on any file
                 ne.course,ne.phase,ne.day,ne.pass_no,ne.shift=course,phase,day,pass_no,shift
                 append_exercise(ne)
             if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
@@ -206,7 +207,6 @@ class Exercise:
                     continue
 
         # Attempt to extract only the useful comment:
-        # Attempt to calculate course,phase,day,pass_no,and shift
         formats = []
         comment = self.comment
         #20-Fase-1-Día-02-T-Toledo-1-1020h(29)
@@ -233,8 +233,9 @@ class Exercise:
             match=re.match(r,comment)
             try:
                 for attrib,index in m.items():
-                    if attrib in ("da","usu","eje") and self.__dict__[attrib]!=None:
-                        self.__dict__[attrib]=int(match.group(index))
+                    if attrib in ("da","usu","ejer"):
+                        if self.__dict__[attrib]==None:
+                            self.__dict__[attrib]=int(match.group(index))
                     else:
                         self.__dict__[attrib]=match.group(index).strip()
                 break
@@ -289,7 +290,7 @@ class Exercise:
             for (sa,sv) in self.__dict__.items():
                 if sa=='flights': continue
                 if getattr(other,sa)!=sv:
-                    logging.debug(sa+" differs when comparing exercises ( "+str(sv)+" != "+str(getattr(other,sa))+" )")
+                    logging.debug(sa+" differs when comparing exercises ( "+str(sv)+" "+str(type(sv))+" != "+str(getattr(other,sa))+" "+str(type(getattr(other,sa)))+" )")
                     return False
             for f,f2 in zip(self.flights.values(),other.flights.values()):
                 if f!=f2: return False

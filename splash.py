@@ -514,7 +514,6 @@ class ExEditor:
         for field in ("start_time", "shift", "comment"):
             value = getattr(self,field).props.text
             setattr(e,field,value)
-        e.oldcomment = e.comment
         for field in ("da","usu","ejer","course", "phase", "day", "pass_no","wind_azimuth","wind_knots"):
             value = getattr(self,field).props.text
             try:
