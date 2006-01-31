@@ -316,7 +316,12 @@ class Crujisim:
             UI.alert("No hay ninguna pasada seleccionada",parent=self.MainWindow)
             return
         
-        ExEditor(ex_file,parent=self.MainWindow, firs=self.firs, types=self.types)
+        ee=ExEditor(ex_file,parent=self.MainWindow, firs=self.firs, types=self.types)
+        r = ee.run()
+        if r == ee.SAVE:
+            # Should update exercise information here
+            pass
+        ee.destroy()
 
     def add(self,button=None,event=None):
         ExEditor(parent=self.MainWindow, firs=self.firs, types=self.types)
@@ -351,6 +356,9 @@ class Crujisim:
         import Simulador
 
 class ExEditor:
+    # Response constants
+    CANCEL = gtk.RESPONSE_CANCEL
+    SAVE = 2
     def __init__(self,ex_file=None,parent=None, firs=None, types=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExEditor") 
         gui.signal_autoconnect(self)
@@ -364,6 +372,8 @@ class ExEditor:
             except:
                 logging.error("Failed with attr "+name)
             setattr(self, name, w)
+
+        self.ExEditor.connect("response", self.on_exeditor_response)
                 
         # Create the flights treeview
         fls = self.fls = gtk.ListStore(int,str,str,str,str)  # Flights list store
@@ -396,6 +406,10 @@ class ExEditor:
         if parent: self.ExEditor.set_transient_for(parent)
         self.ExEditor.set_position(gtk.WIN_POS_CENTER)
         self.ExEditor.present()
+
+    def run(self): return self.ExEditor.run()
+
+    def destroy(self): self.ExEditor.destroy()
 
     def update_sectors(self,combo=None):
 
@@ -489,9 +503,37 @@ class ExEditor:
         self.ExEditor.present()
         self.populate_flights()  # Make sure the list is updated
                 
-    def close(self,w=None,e=None):
-        self.ExEditor.destroy()
-        
+    def fill_ex(self, e):
+        """Copies data from the dialog into the given exercise object"""
+        return e
+
+    def on_exeditor_delete_event(self, w, e):
+        # Since we are dealing with the delete event from the response handler
+        # don't do anything here, and do not propagate
+        return True
+    
+    def on_exeditor_response(self, dialog, response, **args):
+        if response==gtk.RESPONSE_DELETE_EVENT:
+            dialog.emit_stop_by_name("response")
+            dialog.response(gtk.RESPONSE_CANCEL)
+            return
+        elif response!=gtk.RESPONSE_CANCEL and not self.validate():
+            dialog.emit_stop_by_name("response")
+            return
+        elif response==gtk.RESPONSE_CANCEL:
+            if self.ex != self.fill_ex(self.ex.copy()):
+                r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
+                             type = gtk.MESSAGE_WARNING,
+                             buttons = gtk.BUTTONS_OK_CANCEL)
+                if r!=gtk.RESPONSE_OK:
+                    dialog.emit_stop_by_name("response")
+                    return
+        else:
+            self.fill_ex(self.ex)  # Copy the validated form data into the given flight
+
+    def validate(self):
+        return True
+
     def __del__(self):
         logging.debug("ExEditor.__del__")
         
