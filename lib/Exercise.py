@@ -129,7 +129,16 @@ def load_routedb(dir):
 class Exercise:
     """All data representing a single exercise"""
     def __init__(self,file=None):
-        if file: self.load(file)
+        if file:
+            self.load(file)
+            return
+
+        self.file = self.fir = self.sector = self.start_time = self.shift = ""
+        self.da = self.usu = self.ejer = self.course = self.phase = self.day = self.pass_no = ""
+        self.wind_azimuth = self.wind_knots = 0
+        self.oldcomment = self.comment = ""        
+        
+        self.flights = {}        
         
     def load(self,file):
         import re
@@ -253,9 +262,19 @@ class Exercise:
         """Make sure flights are loaded fresh from the exercise file"""
         try: del(self.flights)
         except: pass
-        exc = ConfigParser()
-        exc.readfp(open(self.file,"r"))
-        self.load_flights(exc)
+        try:
+            exc = ConfigParser()
+            exc.readfp(open(self.file,"r"))
+            self.load_flights(exc)
+        except:
+            self.flights = {}
+            logging.debug("Unable to reload flights for exercise")
+    
+    def next_flight_id(self):
+        try:
+            return max(self.flights.keys())+1
+        except:
+            return 0
     
     def copy(self):
         e = Exercise()

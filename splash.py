@@ -114,12 +114,12 @@ class Crujisim:
         self.ex_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
                                "course":4,"phase":5,"day":6,"pass_no":7,
                                "shift":8,"PDP":9,"course_text":10,"n_flights":11,
-                               "CPDP":12,"wind_text":13}
+                               "CPDP":12,"wind_text":13,"exercise_id":14}
         # els = exercise list store
         els = self.els = gtk.ListStore(str,str,str,str,
                                         int,int,int,int,
                                         str,str,str,int,
-                                        str,str)
+                                        str,str,int)
         # This is the mapping between actually displayed cols and the model cols
         self.ex_tv_cols = (("FIR","fir"),("Sector","sector"),
             ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),
@@ -208,6 +208,8 @@ class Crujisim:
         for index,attr in ia:
             if attr=="file":
                 row.append(e.file)
+            elif attr=="exercise_id":
+                row.append(id(e))
             elif type(getattr(e,attr)) is str:
                 row.append(utf8conv(getattr(e,attr)))
             elif type(getattr(e,attr)) is int:
@@ -311,12 +313,14 @@ class Crujisim:
         (model, iter) = sel.get_selected()
         
         try:
-            ex_file = model.get_value(iter,self.ex_ls_cols["file"])
+            exercise_id = model.get_value(iter,self.ex_ls_cols["exercise_id"])
         except:
             UI.alert("No hay ninguna pasada seleccionada",parent=self.MainWindow)
             return
         
-        ee=ExEditor(ex_file,parent=self.MainWindow, firs=self.firs, types=self.types)
+        e = [e for e in self.exercises if id(e)==exercise_id][0]
+        
+        ee=ExEditor(e,parent=self.MainWindow, firs=self.firs, types=self.types)
         r = ee.run()
         if r == ee.SAVE:
             # Should update exercise information here
@@ -324,7 +328,8 @@ class Crujisim:
         ee.destroy()
 
     def add(self,button=None,event=None):
-        ExEditor(parent=self.MainWindow, firs=self.firs, types=self.types)
+        e = Exercise()
+        ExEditor(e, parent=self.MainWindow, firs=self.firs, types=self.types)
     
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
@@ -359,7 +364,7 @@ class ExEditor:
     # Response constants
     CANCEL = gtk.RESPONSE_CANCEL
     SAVE = 2
-    def __init__(self,ex_file=None,parent=None, firs=None, types=None):
+    def __init__(self,exercise = None, parent=None, firs=None, types=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExEditor") 
         gui.signal_autoconnect(self)
         
@@ -401,7 +406,9 @@ class ExEditor:
         # Store types list
         self.types = types
         
-        if ex_file: self.populate(ex_file)
+        self.ex = exercise
+        self.ex.reload_flights()
+        self.populate(exercise)
 
         if parent: self.ExEditor.set_transient_for(parent)
         self.ExEditor.set_position(gtk.WIN_POS_CENTER)
@@ -432,13 +439,9 @@ class ExEditor:
         except:
             pass
             
-    def populate(self, ex_file):
-        try:
-            ex = self.ex = Exercise(ex_file)
-        except:
-            UI.alert("Imposible abrir archivo:\n"+utf8conv(ex_file), parent=self.ExEditor)
-            self.ExEditor.destroy()
-            return
+    def populate(self, ex):
+
+        ex_file = ex.file
         
         self.ExEditor.set_title("Editor: "+utf8conv(ex_file))
         UI.set_active_text(self.fircombo,ex.fir)  # Also sets the sector automatically
@@ -492,12 +495,12 @@ class ExEditor:
             fe=FlightEditor(action="add", flight=f, parent=self.ExEditor,
                          types=self.types, fir=fir, sector=sectorname)
             r=fe.run()
-            if r==fe.ADD:
-                next = max(self.ex.flights.keys())+1
+            if r==fe.ADD or r==fe.SAVE:
+                next = self.ex.next_flight_id()
                 self.ex.flights[next]=f
                 fe.destroy()
                 self.populate_flights()  # Make sure the list is updated
-            else:
+            if r!=fe.ADD:
                 break
         fe.destroy()
         self.ExEditor.present()
