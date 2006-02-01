@@ -283,8 +283,7 @@ class Exercise:
             exc = ConfigParser()
             exc.readfp(open(self.file,"r"))
         except:
-            logging.error("Unable to load exercise for saving")
-            return
+            logging.error("Unable to open exercise for reading prior to saving")
         
         try: exc.add_section('datos')
         except: pass

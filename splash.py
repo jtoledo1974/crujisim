@@ -325,11 +325,24 @@ class Crujisim:
         if r == ee.SAVE:
             # Should update exercise information here
             pass
+            self.els.clear()
+            for e in self.exercises:
+                self.els.append(self.get_tv_row_from_ex(e))
+                self.etf.refilter()
         ee.destroy()
 
     def add(self,button=None,event=None):
         e = Exercise()
-        ExEditor(e, parent=self.MainWindow, firs=self.firs, types=self.types)
+        e.fir = UI.get_active_text(self.fircombo)
+        e.sector = UI.get_active_text(self.sectorcombo)
+        ee = ExEditor(e, parent=self.MainWindow, firs=self.firs, types=self.types)
+        r = ee.run()
+        if r == ee.SAVE:
+            self.els.clear()
+            for e in self.exercises:
+                self.els.append(self.get_tvrow_from_ex(e))
+                self.etf.refilter()
+        ee.destroy()
     
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
@@ -554,9 +567,15 @@ class ExEditor:
         else:
             # Save the exercise
             if self.ex != self.fill_ex(self.ex.copy()):
-                self.fill_ex(self.ex)
+                ex = self.ex
+                self.fill_ex(ex)
+                if ex.file=="":
+                    name = str(ex.course)+"-Fase-"+str(ex.phase)+"-Dia-"+"%02d"%ex.day+"-Pasada-"+str(ex.pass_no)+"-"+ex.shift+"-"+ex.sector+".eje"
+                    ex.file=os.path.join(os.path.dirname(self.fir.file),name)
+                ex.oldcomment = os.path.basename(ex.file)+" ("+str(len(ex.flights.keys()))+")"
+                ex.n_flights = len(ex.flights.keys())
                 try:
-                    self.ex.save(self.ex.file)
+                    ex.save(ex.file)
                 except:
                     UI.alert("Imposible guardar ejercicio en archivo "+file)                    
 
