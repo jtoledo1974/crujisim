@@ -304,7 +304,7 @@ class Crujisim:
                 try: os.remove("backup.eje")
                 except: logging.info("Unable to delete backup file")
             self.MainWindow.present()
-        except: logging.info("Error loading the exercise backup file")
+        except: pass
         
     def gtk_main_quit(self,w=None,e=None):
         conf.fir_option=UI.get_active_text(self.fircombo)
@@ -351,6 +351,7 @@ class Crujisim:
             for e in self.exercises:
                 self.els.append(self.get_tvrow_from_ex(e))
             self.etf.refilter()
+            
         ee.destroy()
         self.MainWindow.present()
 
@@ -671,6 +672,15 @@ class ExEditor:
                     UI.alert("Imposible guardar ejercicio en archivo "+file)
             else:
                 logging.debug("User clicked save but exercise was not modified")
+            # Upload exercise file
+            r = UI.alert(utf8conv("""¿Desea subir el archivo a la Tortuga?"""),
+                     parent = self.ExEditor,
+                     type = gtk.MESSAGE_QUESTION,
+                     buttons = gtk.BUTTONS_YES_NO)
+            if r==gtk.RESPONSE_YES:
+                tsvn_add_commit(ex.file)
+            self.ExEditor.present()
+
         
         # Remove backup file
         try: os.remove("backup.eje")
@@ -1065,6 +1075,28 @@ class FlightEditor:
     def __del__(self):
         logging.debug("FlightEditor.__del__")
 
+def tsvn_add_commit(file):
+    found = False
+    for f in ("c:\\Program Files\\TortoiseSVN\\bin\\TortoiseProc.exe",
+              "c:\\Archivos de Programa\\TortoiseSVN\\bin\\TortoiseProc.exe"):
+        if os.path.exists(f):
+            tsvn = '"'+f.replace("\\\\","\\")+'"'
+            found = True
+            print f
+            break
+    if not found: return
+    fileop = "/path:"+'"'+file+'"'
+    addcommand = tsvn+" /command:add "+fileop+" /notempfile /closeonend:1"
+    commitcommand = tsvn+" /command:commit "+fileop+" /notempfile /closeonend"
+    try:
+        name = os.path.basename(file)+".svn-base"
+        svncopy = os.path.join(os.path.dirname(file),".svn","text-base",name)
+        if not os.path.exists(svncopy):
+            os.system('"'+addcommand+'"')
+        os.system('"'+commitcommand+'"')
+    except:
+        pass
+    
 if __name__=="__main__":
     Crujisim()
     reactor.run()
