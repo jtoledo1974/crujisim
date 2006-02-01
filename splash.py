@@ -103,9 +103,9 @@ class Crujisim:
         splash_window.set_position(gtk.WIN_POS_CENTER)
         splash_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
                 
-        #splash.get_widget('Splash').idle_add(self.load)
         splash.get_widget("progressbar").set_text("Obteniendo lista de ejercicios")
-        gobject.idle_add(self.load)        
+        self.load()
+        self.check_backup()
                 
     def load(self):
         splash, gui = self.splash, self.gui
@@ -282,6 +282,27 @@ class Crujisim:
             else:
                 return False
         return True
+
+    def check_backup(self):
+        """If there is a backup file from a previous session offer the user to continue editing it"""
+        import cPickle
+        import zlib
+        try:
+            f = open("backup.eje","rb")
+            e = cPickle.loads(zlib.decompress(f.read()))
+            r = UI.alert(utf8conv("""Crujisim se cerró sin haber guardado un ejercicio.
+¿Desea editar la copia de seguridad?"""),
+                     parent = self.MainWindow,
+                     type = gtk.MESSAGE_QUESTION,
+                     buttons = gtk.BUTTONS_YES_NO)
+            if r==gtk.RESPONSE_YES:
+                ee=ExEditor(e,parent=self.MainWindow, firs=self.firs, types=self.types)
+                ee.run()
+                ee.destroy()
+            else:
+                try: os.remove("backup.eje")
+                except: pass                
+        except: logging.info("Error loading the exercise backup file")
         
     def gtk_main_quit(self,w=None,e=None):
         conf.fir_option=UI.get_active_text(self.fircombo)
@@ -422,7 +443,8 @@ class ExEditor:
         self.types = types
         
         self.ex = exercise
-        self.ex.reload_flights()
+        if not hasattr(self.ex,"flights"):
+            self.ex.reload_flights()
         self.ex_copy = self.ex.copy()  # To be used to check for modifications
         self.populate(exercise)
 
@@ -480,7 +502,6 @@ class ExEditor:
     def list_clicked(self,w=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS:
             self.edit()
-        pass
     
     def edit(self,w=None):
         sel = self.ftv.get_selection()
@@ -499,6 +520,7 @@ class ExEditor:
         r = fe.run()
         if r == fe.SAVE:
             self.populate_flights()  # Make sure the list is updated
+            self.save_backup()
         fe.destroy()
         self.ExEditor.present()
         
@@ -513,9 +535,9 @@ class ExEditor:
                             sector=sectorname)
             r=fe.run()
             if r==fe.ADD or r==fe.SAVE:
-                next = self.ex.next_flight_id()
-                self.ex.flights[next]=f
+                self.ex.add_flight(f)
                 fe.destroy()
+                self.save_backup()
                 self.populate_flights()  # Make sure the list is updated
             if r!=fe.ADD:
                 break
@@ -533,6 +555,13 @@ class ExEditor:
             return
         del self.ex.flights[index]
         self.fls.remove(iter)
+        
+    def save_backup(self):
+        import cPickle
+        import zlib
+        cache = open("backup.eje",'wb')
+        cache.write(zlib.compress(cPickle.dumps(self.ex)))
+        cache.close
         
     def fill_ex(self, e):
         """Copies data from the dialog into the given exercise object"""
@@ -594,6 +623,10 @@ class ExEditor:
                     UI.alert("Imposible guardar ejercicio en archivo "+file)
             else:
                 logging.debug("User clicked save but exercise was not modified")
+        
+        # Remove backup file
+        try: os.remove("backup.eje")
+        except: pass
 
     def validate(self):
         return True
