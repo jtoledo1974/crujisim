@@ -571,7 +571,7 @@ class ExEditor:
             dialog.emit_stop_by_name("response")
             return
         elif response==gtk.RESPONSE_CANCEL:
-            if self.ex != self.ex_copy:
+            if self.fill_ex(self.ex.copy()) != self.ex_copy:
                 r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
                              type = gtk.MESSAGE_WARNING,
                              buttons = gtk.BUTTONS_OK_CANCEL)
