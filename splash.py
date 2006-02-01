@@ -585,8 +585,11 @@ class ExEditor:
         if text not in ("T","M",""):
             gtk.gdk.beep()
             self.sb.push(0,utf8conv("Introduzca T o M"))
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
             return
         self.sb.pop(0)
+        w.previous_value = text
             
     def on_start_time_changed(self,w):
         text=w.props.text
@@ -605,6 +608,12 @@ class ExEditor:
     def fill_ex(self, e):
         """Copies data from the dialog into the given exercise object"""
         # File is more delicate and we don't edit it here
+
+        # Change the start time to the proper format
+        st = self.start_time.props.text.strip()
+        if len(st)==4: st=st[:2]+":"+st[2:]
+        self.start_time.props.text = st
+
         for field, combo in [("fir", self.fircombo), ("sector", self.sectorcombo)]:
             setattr(e,field, UI.get_active_text(combo))
         for field in ("start_time", "shift", "comment"):
@@ -668,7 +677,28 @@ class ExEditor:
         except: pass
 
     def validate(self):
-        return True
+        import re
+        valid = True
+        self.sb.pop(0)
+        checklist = [
+            #("da","^\d{1,3}$"),("usu","^\d{1,3}$"),("ejer","^\d{1,3}$"),
+            ("course","^\d{2}$"),("phase","^\d{1}$"),("day","^\d{1,2}$"),
+            ("pass_no","^\d{1,2}$"),("shift","^[MT]$"),
+            ("wind_azimuth","^\d{1,3}$"),("wind_knots","^\d{1,3}$"),
+            ("start_time","^\d{2}:{0,1}\d{2}$")]
+
+        for (field, pattern) in checklist:
+            widget = getattr(self,field)
+            value = widget.props.text
+            if not re.match(pattern,value):
+                culprit = widget
+                valid = False
+                break
+        if not valid:            
+            gtk.gdk.beep()
+            UI.flash_red(culprit)
+            culprit.grab_focus()
+        return valid
 
     def __del__(self):
         logging.debug("ExEditor.__del__")
