@@ -866,7 +866,11 @@ class FlightEditor:
         for attr in ["callsign","orig","dest","rfl","cfl","wtc","tas","type"]:
             setattr(f, attr, getattr(self,attr).props.text)
         if self.departure:
-            eto, firstlevel, fix = self.eobt.props.text, "000", f.route.split(",")[0]
+            eto, fix = self.eobt.props.text, f.route.split(",")[0]
+            try:
+                firstlevel = "%03d"%self.fir.ad_elevations[f.orig]
+            except:
+                firstlevel = "000"
         else:
             eto, firstlevel, fix = self.eto.props.text, self.firstlevel.props.text, self.fix.props.text
         f.eto , f.firstlevel, f.fix = eto, firstlevel, fix
