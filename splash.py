@@ -324,12 +324,12 @@ class Crujisim:
         r = ee.run()
         if r == ee.SAVE:
             # Should update exercise information here
-            pass
             self.els.clear()
             for e in self.exercises:
-                self.els.append(self.get_tv_row_from_ex(e))
-                self.etf.refilter()
+                self.els.append(self.get_tvrow_from_ex(e))
+            self.etf.refilter()
         ee.destroy()
+        self.MainWindow.present()
 
     def add(self,button=None,event=None):
         e = Exercise()
@@ -338,11 +338,13 @@ class Crujisim:
         ee = ExEditor(e, parent=self.MainWindow, firs=self.firs, types=self.types)
         r = ee.run()
         if r == ee.SAVE:
+            self.exercises.append(e)    
             self.els.clear()
             for e in self.exercises:
                 self.els.append(self.get_tvrow_from_ex(e))
-                self.etf.refilter()
+            self.etf.refilter()
         ee.destroy()
+        self.MainWindow.present()
     
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
@@ -421,6 +423,7 @@ class ExEditor:
         
         self.ex = exercise
         self.ex.reload_flights()
+        self.ex_copy = self.ex.copy()  # To be used to check for modifications
         self.populate(exercise)
 
         if parent: self.ExEditor.set_transient_for(parent)
@@ -557,7 +560,7 @@ class ExEditor:
             return
         elif response==gtk.RESPONSE_CANCEL:
             print "Received cancel"
-            if self.ex != self.fill_ex(self.ex.copy()):
+            if self.ex != self.ex_copy:
                 r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
                              type = gtk.MESSAGE_WARNING,
                              buttons = gtk.BUTTONS_OK_CANCEL)
@@ -566,7 +569,7 @@ class ExEditor:
                     return
         else:
             # Save the exercise
-            if self.ex != self.fill_ex(self.ex.copy()):
+            if self.fill_ex(self.ex.copy()) != self.ex_copy :
                 ex = self.ex
                 self.fill_ex(ex)
                 if ex.file=="":
@@ -577,7 +580,9 @@ class ExEditor:
                 try:
                     ex.save(ex.file)
                 except:
-                    UI.alert("Imposible guardar ejercicio en archivo "+file)                    
+                    UI.alert("Imposible guardar ejercicio en archivo "+file)
+            else:
+                logging.debug("User clicked save but exercise was not modified")
 
     def validate(self):
         return True
