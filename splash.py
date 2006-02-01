@@ -930,7 +930,7 @@ class FlightEditor:
         valid = True
         self.sb.pop(0)
         checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
-            ("type","^[A-Z0-9-]{3,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
+            ("type","^[A-Z0-9-]{2,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
             ("orig","^[A-Z]{4}$"),("dest","^[A-Z]{4}$"),
             ("route","^([A-Z_]{2,6} {0,1})+$"),
             ("rfl","^\d{2,3}$"),("cfl","^\d{2,3}$")]
