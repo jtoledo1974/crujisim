@@ -921,7 +921,9 @@ class FlightEditor:
                     dialog.emit_stop_by_name("response")
                     return
         else:
-            self.fill_flight(self.flight)  # Copy the validated form data into the given flight
+            f = self.flight
+            self.fill_flight(f)  # Copy the validated form data into the given flight
+            self.fir.routedb.append(f.route,f.orig,f.dest)
 
         self.completion.disconnect(self.completion.hid)
 

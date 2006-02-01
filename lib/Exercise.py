@@ -489,6 +489,7 @@ class RouteDB:
         
     def append(self,route,orig,dest):
         """Append a route together with the orig and dest to the DB of routes"""
+        route=route.strip().replace(" ",",")
         if route not in self._routes.keys():
           # We add the route to the database, with a frequency of one, and
           # adding the first pair of orig and dest
