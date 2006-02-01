@@ -2654,6 +2654,7 @@ Formatos válidos son hhmm y hh:mm</property>
 		      <property name="can_focus">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
+		      <signal name="clicked" handler="delete" last_modification_time="Wed, 01 Feb 2006 16:37:25 GMT"/>
 
 		      <child>
 			<widget class="GtkAlignment" id="alignment3">

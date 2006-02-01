@@ -493,7 +493,7 @@ class ExEditor:
         firname = UI.get_active_text(self.fircombo)
         fir = [fir for fir in self.firs if fir.name == firname][0]
         sectorname = UI.get_active_text(self.sectorcombo)
-        fe=FlightEditor(action="edit",flight=self.flights[index],
+        fe=FlightEditor(action="edit",flight=self.flights[index], flights=self.flights.values(),
                      parent=self.ExEditor, types=self.types,
                      fir=fir, sector=sectorname)
         r = fe.run()
@@ -508,8 +508,9 @@ class ExEditor:
         sectorname = UI.get_active_text(self.sectorcombo)
         while True:
             f = Flight()
-            fe=FlightEditor(action="add", flight=f, parent=self.ExEditor,
-                         types=self.types, fir=fir, sector=sectorname)
+            fe=FlightEditor(action="add", flight=f, flights=self.flights.values(),
+                            parent=self.ExEditor, types=self.types, fir=fir,
+                            sector=sectorname)
             r=fe.run()
             if r==fe.ADD or r==fe.SAVE:
                 next = self.ex.next_flight_id()
@@ -522,6 +523,17 @@ class ExEditor:
         self.ExEditor.present()
         self.populate_flights()  # Make sure the list is updated
                 
+    def delete(self,w=None):
+        sel = self.ftv.get_selection()
+        (model, iter) = sel.get_selected()        
+        try:
+            index = model.get_value(iter,0)
+        except:
+            UI.alert(utf8conv("No hay ningún vuelo seleccionado"), parent=self.ExEditor)
+            return
+        del self.ex.flights[index]
+        self.fls.remove(iter)
+        
     def fill_ex(self, e):
         """Copies data from the dialog into the given exercise object"""
         # File is more delicate and we don't edit it here
@@ -559,7 +571,6 @@ class ExEditor:
             dialog.emit_stop_by_name("response")
             return
         elif response==gtk.RESPONSE_CANCEL:
-            print "Received cancel"
             if self.ex != self.ex_copy:
                 r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
                              type = gtk.MESSAGE_WARNING,
@@ -597,7 +608,8 @@ class FlightEditor:
     SAVE = 2
     ADD = 3
     
-    def __init__(self,action="add",flight=None,parent=None, types=None, fir=None, sector=""):
+    def __init__(self,action="add",flight=None, flights=None,
+                 parent=None, types=None, fir=None, sector=""):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "FlightEditor") 
         gui.signal_autoconnect(self)
         
@@ -625,6 +637,7 @@ class FlightEditor:
         self.types = types
         self.fir = fir
         self.sector = sector
+        self.flights = flights
 
         if action=="edit":
             self.addbutton.hide()
@@ -669,6 +682,16 @@ class FlightEditor:
             w.grab_focus()
             self.sb.push(0,"Formato incorrecto del indicativo")
             return
+        try:
+            if text in [f.callsign for f in self.flights] and text!=self.flight.callsign:
+                gtk.gdk.beep()
+                w.grab_focus()
+                self.sb.push(0,"Vuelo ya introducido")
+                return
+        except:
+            print "something failed"
+            pass
+                
         w.props.text = text.upper()
         self.sb.pop(0)
 
