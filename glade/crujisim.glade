@@ -576,7 +576,7 @@ Seleccione una pasada</property>
       </child>
 
       <child>
-	<widget class="GtkStatusbar" id="statusbar">
+	<widget class="GtkStatusbar" id="sb">
 	  <property name="visible">True</property>
 	  <property name="has_resize_grip">True</property>
 	</widget>
@@ -2001,11 +2001,12 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">2</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:02:30 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">1</property>
@@ -2023,11 +2024,12 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">2</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:02:39 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">3</property>
@@ -2042,14 +2044,16 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		<widget class="GtkEntry" id="da">
 		  <property name="width_request">60</property>
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">DA (Datos de Adaptación), Usuario y Ejercicio son valores que identifican unívocamente el ejercicio. Aparecen en la posición del pseudopiloto en la parte inferior de la pantalla</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">3</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:01:01 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">5</property>
@@ -2064,14 +2068,16 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		<widget class="GtkEntry" id="usu">
 		  <property name="width_request">60</property>
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">DA (Datos de Adaptación), Usuario y Ejercicio son valores que identifican unívocamente el ejercicio. Aparecen en la posición del pseudopiloto en la parte inferior de la pantalla</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">2</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:01:35 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">7</property>
@@ -2086,14 +2092,16 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		<widget class="GtkEntry" id="ejer">
 		  <property name="width_request">60</property>
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">DA (Datos de Adaptación), Usuario y Ejercicio son valores que identifican unívocamente el ejercicio. Aparecen en la posición del pseudopiloto en la parte inferior de la pantalla</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">3</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:01:46 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">9</property>
@@ -2108,14 +2116,16 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		<widget class="GtkEntry" id="shift">
 		  <property name="width_request">60</property>
 		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">Introduzca M o T para indicar mañana o tarde</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">1</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_shift_changed" last_modification_time="Wed, 01 Feb 2006 19:02:55 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">9</property>
@@ -2133,11 +2143,12 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">1</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:03:12 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">7</property>
@@ -2155,11 +2166,12 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">2</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="check_numeric" last_modification_time="Wed, 01 Feb 2006 19:03:25 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">5</property>
@@ -2189,6 +2201,7 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		      <property name="invisible_char" translatable="yes">*</property>
 		      <property name="activates_default">False</property>
 		      <property name="width_chars">3</property>
+		      <signal name="changed" handler="check_wind" last_modification_time="Wed, 01 Feb 2006 19:12:45 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -2204,12 +2217,13 @@ Normalmente basta con que sea el mismo que el CFL</property>
 		      <property name="can_focus">True</property>
 		      <property name="editable">True</property>
 		      <property name="visibility">True</property>
-		      <property name="max_length">0</property>
+		      <property name="max_length">3</property>
 		      <property name="text" translatable="yes"></property>
 		      <property name="has_frame">True</property>
 		      <property name="invisible_char" translatable="yes">*</property>
 		      <property name="activates_default">False</property>
 		      <property name="width_chars">2</property>
+		      <signal name="changed" handler="check_wind" last_modification_time="Wed, 01 Feb 2006 19:13:00 GMT"/>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -2260,11 +2274,12 @@ Formatos válidos son hhmm y hh:mm</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
+		  <property name="max_length">5</property>
 		  <property name="text" translatable="yes"></property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char" translatable="yes">*</property>
 		  <property name="activates_default">False</property>
+		  <signal name="changed" handler="on_start_time_changed" last_modification_time="Wed, 01 Feb 2006 19:03:45 GMT"/>
 		</widget>
 		<packing>
 		  <property name="left_attach">3</property>
@@ -2634,7 +2649,7 @@ Formatos válidos son hhmm y hh:mm</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkStatusbar" id="statusbar">
+	    <widget class="GtkStatusbar" id="sb">
 	      <property name="visible">True</property>
 	      <property name="has_resize_grip">True</property>
 	    </widget>

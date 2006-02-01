@@ -167,7 +167,7 @@ class Crujisim:
         renderer.props.ypad=0
         
         self.n_ex = len(els)
-        self.statusbar.push(0,utf8conv("Cargados "+str(self.n_ex)+" ejercicios"))
+        self.sb.push(0,utf8conv("Cargados "+str(self.n_ex)+" ejercicios"))
         self.set_filter()  # Load all combos with all options
         UI.set_active_text(self.fircombo, conf.fir_option)
         UI.set_active_text(self.sectorcombo,conf.sector_option)
@@ -239,8 +239,8 @@ class Crujisim:
         self.update_combo("course",self.coursecombo,("phase",))
         self.update_combo("phase",self.phasecombo,("course",))
         ne = len(self.etf)
-        self.statusbar.pop(0)
-        self.statusbar.push(0,utf8conv("Mostrando "+str(ne)+" de "+str(self.n_ex)+" ejercicios"))
+        self.sb.pop(0)
+        self.sb.push(0,utf8conv("Mostrando "+str(ne)+" de "+str(self.n_ex)+" ejercicios"))
 
     def update_combo(self,field,combo,childfields):
         self._updating_combos = True
@@ -290,6 +290,7 @@ class Crujisim:
         try:
             f = open("backup.eje","rb")
             e = cPickle.loads(zlib.decompress(f.read()))
+            f.close()
             r = UI.alert(utf8conv("""Crujisim se cerró sin haber guardado un ejercicio.
 ¿Desea editar la copia de seguridad?"""),
                      parent = self.MainWindow,
@@ -301,7 +302,8 @@ class Crujisim:
                 ee.destroy()
             else:
                 try: os.remove("backup.eje")
-                except: pass                
+                except: logging.info("Unable to delete backup file")
+            self.MainWindow.present()
         except: logging.info("Error loading the exercise backup file")
         
     def gtk_main_quit(self,w=None,e=None):
@@ -485,10 +487,14 @@ class ExEditor:
         UI.set_active_text(self.fircombo,ex.fir)  # Also sets the sector automatically
         for attrib in ("da","usu","ejer","course","phase","day","pass_no","shift","comment",
                        "wind_azimuth","wind_knots","start_time"):
-            if type(getattr(ex,attrib)) is str:
-                getattr(self,attrib).props.text=utf8conv(getattr(ex,attrib))
-            else:
-                getattr(self,attrib).props.text=getattr(ex,attrib)
+            try:
+                if type(getattr(ex,attrib)) is str:
+                    getattr(self,attrib).props.text=utf8conv(getattr(ex,attrib))
+                else:
+                    getattr(self,attrib).props.text=getattr(ex,attrib)
+            except:
+                logging.debug("Unable to populate field "+attrib+". Using blank")
+                getattr(self,attrib).props.text=""
         self.flights = ex.flights
         
         self.populate_flights()
@@ -563,6 +569,39 @@ class ExEditor:
         cache.write(zlib.compress(cPickle.dumps(self.ex)))
         cache.close
         
+    def check_numeric(self,w):
+        text=w.props.text
+        if text.isdigit() or text=="":
+            w.previous_value = text
+            self.sb.pop(0)
+            return
+        try: w.props.text=w.previous_value
+        except: w.props.text=""
+        gtk.gdk.beep()
+        self.sb.push(0,utf8conv("Introduzca únicamente caracteres numéricos"))
+        
+    def on_shift_changed(self,w):
+        text=w.props.text=w.props.text.upper()
+        if text not in ("T","M",""):
+            gtk.gdk.beep()
+            self.sb.push(0,utf8conv("Introduzca T o M"))
+            return
+        self.sb.pop(0)
+            
+    def on_start_time_changed(self,w):
+        text=w.props.text
+        import time
+        t = text.replace(":","")
+        try:
+            if time.strftime("%H%M",time.strptime(t.ljust(4,"0"),"%H%M")) == t.ljust(4,"0"):
+                w.previous_value = text
+                self.sb.pop(0)
+        except:
+            try: w.props.text=w.previous_value
+            except: w.props.text=""
+            gtk.gdk.beep()                
+            self.sb.push(0,utf8conv("Introduzca una hora en formato hhmm o hh:mm"))        
+
     def fill_ex(self, e):
         """Copies data from the dialog into the given exercise object"""
         # File is more delicate and we don't edit it here
