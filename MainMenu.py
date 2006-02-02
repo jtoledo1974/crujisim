@@ -27,10 +27,28 @@ import Metepasadas
 import tpv
 import logging
 import update
+import UI
 
 # Define which logging level messages will be output
 logging.getLogger('').setLevel(logging.DEBUG)
 
+#dlg=UI.Dialog(master=None,type="accept",transient=False)
+class warndlg(UI.Dialog):
+    def __init__(self):
+        import Tkinter
+        UI.Dialog.__init__(self,master=None,type="accept",transient=False)
+        t="""ATENCIÓN!!!
+El MainMenu.py se considera anticuado. Asegúrate de que tienes instaladas las bibliotecas
+que se mencionan en el archivo doc/Guía de instalación en el punto 4
+y arranca splash.py en lugar de MainMenu.py
+
+Si tienes dudas pregunta en el foro, pero ten presente que muy pronto este
+programa dejará de funcionar y sólo quedará el splash.py"""
+        texto=Tkinter.Label(self.content,text=t)
+        texto.pack()
+        
+dlg=warndlg().run()
+        
 while 1:
     [accion, fir_elegido , sector_elegido , ejercicio_elegido , imprimir_fichas] = banner.seleccion_usuario()
     

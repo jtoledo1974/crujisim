@@ -19,38 +19,53 @@
 # You should have received a copy of the GNU General Public License
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-from Tix import *
-import logging
 
 class Dialog:
     """Standard dialog to be used with Tkinter"""
+    import Tkinter
+    import logging
+
     def __init__(self,master,type,transient=True):
-    
-        dlg=self.dlg=Toplevel()
+        import Tkinter
+        import logging
+        
+        if not master:
+            dlg=self.dlg=Tkinter.Tk()   
+            master=dlg
+        else:
+            dlg=self.dlg=Tkinter.Toplevel()
+            
         if transient: dlg.transient(master)
-        content=Frame(dlg)
-        buttonbar=Frame(dlg)
+        content=Tkinter.Frame(dlg)
+        buttonbar=Tkinter.Frame(dlg)
         
         content.grid()
         buttonbar.grid(padx=5, pady=5)
 
         if type=='retry-cancel':
-            butretry=Button(buttonbar, text='     Reintentar    ', command=self.retry)
-            butcancel=Button(buttonbar,text='      Cancelar      ', command=self.cancel)
+            butretry=Tkinter.Button(buttonbar, text='     Reintentar    ', command=self.retry)
+            butcancel=Tkinter.Button(buttonbar,text='      Cancelar      ', command=self.cancel)
             butretry.grid(row=0,column=0, padx=10)
             butcancel.grid(row=0,column=1, padx=10)
         elif type=='accept':
-            butaccept=Button(buttonbar, text='     Aceptar    ', command=self.accept, default="active")
+            butaccept=Tkinter.Button(buttonbar, text='     Aceptar    ', command=self.accept, default="active")
             butaccept.grid(row=0,column=0, padx=10)
             dlg.bind("<Return>", lambda event: self.accept())
                 
-        dlg.protocol("WM_DELETE_WINDOW", self.cancel)
-        dlg.focus_set()
-        dlg.after_idle(self.set_window_size)
         
         self.dlg=dlg
         self.content=content
         self.master=master
+        
+    def run(self):
+
+        dlg = self.dlg        
+        dlg.protocol("WM_DELETE_WINDOW", self.cancel)
+        dlg.focus_set()
+        dlg.after_idle(self.set_window_size)
+        
+        if self.master==self.dlg:
+            self.dlg.mainloop()
     
     def accept(self):
         self.dlg.destroy()
