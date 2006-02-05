@@ -21,6 +21,10 @@
 
 import sys
 sys.path.append("lib")
+outf = open("out.txt","w")
+sys.stdout = outf
+sys.stderr = outf
+
 import logging
 import random
 import locale
