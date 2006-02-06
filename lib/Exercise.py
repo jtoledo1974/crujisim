@@ -437,7 +437,7 @@ class Flight(object):
         for f in self.route.split(","):
             s += ","+f
             if f==self.fix:
-                s += ",H"+self.eto+"F"+self.firstlevel+"V"+self.tas
+                s += ",H"+self.eto+"F"+"%03d"%(int(self.firstlevel))+"V"+"%03d"%(int(self.tas))
         return s
     
     def __eq__(self,other):
