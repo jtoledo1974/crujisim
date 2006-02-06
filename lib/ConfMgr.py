@@ -79,7 +79,7 @@ class CrujiConfig(object):
             else:
                 value=self.cp.get(section,name)
         except:
-            logging.debug("Failed to read option: ",name)
+            logging.debug("Failed to read option: "+str(name))
             value=default_value
 
         return value

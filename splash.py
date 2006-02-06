@@ -19,38 +19,60 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+import logging
+def setup_logging():
+    # For whatever reason basicConfig doesn't work for me, so
+    # I'm setting the file output manually
+    
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filename='crujisim.log',
+                    filemode='w')
+    l = logging.getLogger()
+    #l.setLevel(logging.DEBUG)
+    #fh = logging.FileHandler("crujisim.log","w")
+    #fh.setLevel(logging.DEBUG)
+    #fh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-6s %(message)s'))
+    #l.addHandler(fh)
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    console.setFormatter(logging.Formatter('%(levelname)-6s %(message)s'))
+    l.addHandler(console)
+
+if __name__=="__main__":
+    setup_logging()
+
 import sys
 sys.path.append("lib")
-outf = open("out.txt","w")
-sys.stdout = outf
-sys.stderr = outf
-
-import logging
 import random
 import locale
 import os
 from stat import *
 
-from twisted.internet import gtk2reactor # for gtk-2.0
-gtk2reactor.install()
+try:
+    from twisted.internet import gtk2reactor # for gtk-2.0
+    gtk2reactor.install()
+except:
+    logging.exception("Unable to load Twisted library")
 try: 
     import pygtk 
     pygtk.require("2.0") 
 except:
-    logging.error("Unable to load pygtk")
+    logging.exception("Unable to load pygtk")
 try: 
     import gtk
     import gtk.glade
     import gobject
 except:
-    logging.error("unable to load gtk")
+    logging.exception("Unable to load gtk")
     sys.exit(1)
 from banner import *
 from Exercise import *
 from FIR import *
 import avion  # To load aircraft types
 import UI
-import ConfMgr
+import ConfMgr  
 conf = ConfMgr.CrujiConfig()
 from twisted.internet import reactor
 
@@ -62,9 +84,6 @@ EX_DIR = "pasadas"
 GLADE_FILE = "glade/crujisim.glade" 
 JOKES = "jokes.txt"
 AIRCRAFT_FILE = "modelos_avo.txt"
-
-# Define which logging level messages will be output
-logging.getLogger('').setLevel(logging.DEBUG)
 
 class Crujisim:
     
@@ -141,7 +160,6 @@ class Crujisim:
         n_dirs = len(dirs)
         i=0.
 
-        logging.getLogger('').setLevel(logging.INFO)
         for dir in dirs:  # File includes the path, filename doesn't
             pb.set_text(dir)
             i += 1./n_dirs
@@ -153,7 +171,6 @@ class Crujisim:
                 els.append(self.get_tvrow_from_ex(e))
                 self.exercises.append(e)
             self.firs += load_firs(dir)
-        logging.getLogger('').setLevel(logging.DEBUG)
               
         self.etf = etf = els.filter_new()  # Exercise TreeFilter
         self.filters = {"fir":"---","sector":"---","course":"---","phase":"---"}
@@ -635,7 +652,6 @@ class ExEditor:
                 setattr(e,field,int(value))
             except:
                 setattr(e,field,0)
-        #print str(e.__dict__)
         return e
 
     def on_exeditor_delete_event(self, w, e):
@@ -715,7 +731,7 @@ class ExEditor:
 
     def __del__(self):
         logging.debug("ExEditor.__del__")
-        
+
 class FlightEditor:
     
     # Response constants
@@ -928,10 +944,8 @@ class FlightEditor:
         self.completion.get_model().clear()
         fix_list = [f for f in self.route.props.text.split(" ") if f!=""]
         if fix_list == []: fix_list = [""]
-        logging.getLogger('').setLevel(logging.INFO)            
         for r in self.fir.routedb.matching_routes(fix_list,self.orig.props.text,self.dest.props.text):
             self.completion.get_model().append([r.replace(","," ")])
-        logging.getLogger('').setLevel(logging.DEBUG)            
         
     def on_fix_changed(self,w, event=None):
         text =  w.props.text = w.props.text.upper()
@@ -1085,7 +1099,6 @@ def tsvn_add_commit(file):
         if os.path.exists(f):
             tsvn = '"'+f.replace("\\\\","\\")+'"'
             found = True
-            print f
             break
     if not found: return
     fileop = "/path:"+'"'+file+'"'
@@ -1099,7 +1112,12 @@ def tsvn_add_commit(file):
         os.system('"'+commitcommand+'"')
     except:
         pass
+
     
 if __name__=="__main__":
-    Crujisim()
-    reactor.run()
+    logging.info("Arrancando crujisim")
+    try:
+        Crujisim()
+        reactor.run()
+    except:
+        logging.exception("An error occurred")
