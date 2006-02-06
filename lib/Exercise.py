@@ -272,8 +272,8 @@ class Exercise:
             logging.debug("Unable to reload flights for exercise")
 
     def add_flight(self, f):
-        next = self.ex.next_flight_id()
-        self.ex.flights[next]=f
+        next = self.next_flight_id()
+        self.flights[next]=f
 
     def next_flight_id(self):
         try:

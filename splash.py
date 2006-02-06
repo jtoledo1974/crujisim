@@ -545,14 +545,13 @@ class ExEditor:
                             parent=self.ExEditor, types=self.types, fir=fir,
                             sector=sectorname)
             r=fe.run()
-            if r==fe.ADD or r==fe.SAVE:
+            fe.destroy()
+            if r==FlightEditor.ADD or r==FlightEditor.SAVE:
                 self.ex.add_flight(f)
-                fe.destroy()
                 self.save_backup()
                 self.populate_flights()  # Make sure the list is updated
-            if r!=fe.ADD:
+            if r!=FlightEditor.ADD:
                 break
-        fe.destroy()
         self.ExEditor.present()
         self.populate_flights()  # Make sure the list is updated
                 
@@ -805,7 +804,7 @@ class FlightEditor:
                 self.sb.push(0,"Vuelo ya introducido")
                 return
         except:
-            print "something failed"
+            logging.debug("Unable to check for repeated callsign")
             pass
                 
         w.props.text = text.upper()
