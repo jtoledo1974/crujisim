@@ -391,7 +391,7 @@ auto_departure = AUTO
 limites:_DGO2,_PPN1,_PPN2,ENDAY,THUNE,_PPN3,_PPN4,_PPN5,LURAN,LATEK,_PPN6,SOVAR,_PPN7,MARIO,KUMAN,_PPN8,_PPN10,_PPN11,_PPN9,_DGO4,_DGO3,_DGO2
 fijos_de_impresion:PPN,SURCO,LARDA,OLTRE
 fijos_de_impresion_secundarios:ENDAY,ZZA
-local_ads:LEPP,LEZG
+local_ads:LEPP,LEZG,LEBB
 
 [sector5]
 nombre:CASTEJON
