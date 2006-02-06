@@ -22,20 +22,13 @@
 # Setup logging
 import logging
 def setup_logging():
-    # For whatever reason basicConfig doesn't work for me, so
-    # I'm setting the file output manually
-    
+    # Full logging goes to 'crujisim.log'
     logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(levelname)s %(message)s',
                     filename='crujisim.log',
                     filemode='w')
     l = logging.getLogger()
-    #l.setLevel(logging.DEBUG)
-    #fh = logging.FileHandler("crujisim.log","w")
-    #fh.setLevel(logging.DEBUG)
-    #fh.setFormatter(logging.Formatter('%(asctime)s %(levelname)-6s %(message)s'))
-    #l.addHandler(fh)
-
+    # Important log messeges go to the console as well
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(levelname)-6s %(message)s'))
@@ -697,7 +690,9 @@ class ExEditor:
                 try:
                     ex.save(ex.file)
                 except:
-                    UI.alert("Imposible guardar ejercicio en archivo "+file)
+                    logging.exception("Unable to save exercise"+ex.file)
+                    UI.alert("Imposible guardar ejercicio en archivo "+ex.file)
+                    return
             else:
                 logging.debug("User clicked save but exercise was not modified")
             # Upload exercise file

@@ -433,12 +433,16 @@ class Flight(object):
         return data[0]
     
     def get_config_string(self):
-        s = self.type+","+self.wtc+","+self.orig+","+self.dest+","+"%03d"%(int(self.rfl))+","+"%03d"%(int(self.cfl))
-        for f in self.route.split(","):
-            s += ","+f
-            if f==self.fix:
-                s += ",H"+self.eto+"F"+"%03d"%(int(self.firstlevel))+"V"+"%03d"%(int(self.tas))
-        return s
+        try:
+            s = self.type+","+self.wtc+","+self.orig+","+self.dest+","+"%03d"%(int(self.rfl))+","+"%03d"%(int(self.cfl))
+            for f in self.route.split(","):
+                s += ","+f
+                if f==self.fix:
+                    s += ",H"+self.eto+"F"+"%03d"%(int(self.firstlevel))+"V"+"%03d"%(int(self.tas))
+            return s
+        except:
+            logging.error("Failure to create config string for "+str(self.callsign))
+            raise
     
     def __eq__(self,other):
         try:
