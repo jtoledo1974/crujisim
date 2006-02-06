@@ -19,6 +19,7 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+# Setup logging
 import logging
 def setup_logging():
     # For whatever reason basicConfig doesn't work for me, so
@@ -43,6 +44,7 @@ def setup_logging():
 if __name__=="__main__":
     setup_logging()
 
+# Import system modules
 import sys
 sys.path.append("lib")
 import random
@@ -50,9 +52,11 @@ import locale
 import os
 from stat import *
 
+# Import libraries
 try:
     from twisted.internet import gtk2reactor # for gtk-2.0
     gtk2reactor.install()
+    from twisted.internet import reactor
 except:
     logging.exception("Unable to load Twisted library")
 try: 
@@ -67,15 +71,20 @@ try:
 except:
     logging.exception("Unable to load gtk")
     sys.exit(1)
-from banner import *
-from Exercise import *
-from FIR import *
-import avion  # To load aircraft types
-import UI
-import ConfMgr  
-conf = ConfMgr.CrujiConfig()
-from twisted.internet import reactor
-
+    
+# Import program modules
+try:
+    from banner import *
+    from Exercise import *
+    from FIR import *
+    import avion  # To load aircraft types
+    import UI
+    import ConfMgr  
+    conf = ConfMgr.CrujiConfig()
+except:
+    logging.exception("Error loading program modules")
+    sys.exit(1)
+                  
 encoding = locale.getpreferredencoding()
 utf8conv = lambda x : unicode(x, encoding).encode('utf8')
 
@@ -1112,7 +1121,6 @@ def tsvn_add_commit(file):
         os.system('"'+commitcommand+'"')
     except:
         pass
-
     
 if __name__=="__main__":
     logging.info("Arrancando crujisim")

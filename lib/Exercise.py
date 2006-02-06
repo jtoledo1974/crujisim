@@ -104,7 +104,9 @@ def load_exercises(path, reload=False):
                 ne.course,ne.phase,ne.day,ne.pass_no,ne.shift=course,phase,day,pass_no,shift
                 append_exercise(ne)
             if (e.course,e.phase,e.day,e.pass_no) not in mapping.exercises[(e.da,e.usu,e.ejer)]:
-                logging.error("The exercise reported to be C-P-D-P "+str((e.course,e.phase,e.day,e.pass_no))+\
+                # This should be an error, but since we are not really dealing with these,
+                # right now it's just distracting
+                logging.debug("The exercise reported to be C-P-D-P "+str((e.course,e.phase,e.day,e.pass_no))+\
                               " but it's not shown on the mappings for DA-U-E "+str((e.da,e.usu,e.ejer)))
         except:
             # Since we didn't find mappings, we use the exercises own.
