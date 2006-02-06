@@ -433,7 +433,7 @@ class Flight(object):
         return data[0]
     
     def get_config_string(self):
-        s = self.type+","+self.wtc+","+self.orig+","+self.dest+","+self.rfl+","+self.cfl
+        s = self.type+","+self.wtc+","+self.orig+","+self.dest+","+"%03d"%(int(self.rfl))+","+"%03d"%(int(self.cfl))
         for f in self.route.split(","):
             s += ","+f
             if f==self.fix:
