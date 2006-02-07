@@ -246,6 +246,7 @@ class Exercise:
 
     def load_flights(self,exc):
         """Load flights from exercise config parser instance exc"""
+        file = self.file
         flightops = ()
         try:
             self.n_flights = len(exc.options('vuelos'))        
@@ -259,7 +260,8 @@ class Exercise:
                 self.flights[i]=Flight(flightopt,exc.get('vuelos',flightopt))
                 i += 1
             except:
-                logging.warning("Unable to read flight "+flightopt+" from "+file)
+                logging.warning("Unable to read flight "+str(flightopt).upper()+" from "+str(file))
+                logging.debug("Exception data follows",exc_info=True)
                 
     def reload_flights(self):
         """Make sure flights are loaded fresh from the exercise file"""
@@ -271,7 +273,7 @@ class Exercise:
             self.load_flights(exc)
         except:
             self.flights = {}
-            logging.debug("Unable to reload flights for exercise")
+            logging.exception("Unable to reload flights for exercise")
 
     def add_flight(self, f):
         next = self.next_flight_id()
@@ -400,15 +402,20 @@ class Flight(object):
 
     def fix_eto_firstlevel_tas(self):
         """Return the fix for which the eto is valid"""
+        import re
         data=self._data.split(',')
         route=data[6:]
         for fix,i in zip(route,range(len(route)-1)):
-            if len(route[i+1])==15:
+            m = re.match("H(\d+)F(\d+)V(\d+)",route[i+1])
+            if m:
                 break
-        s = route[i+1]
-        eto = s[1:7]
-        firstlevel = s[8:11]
-        tas = s[12:]
+        try:
+            eto = m.group(1).ljust(6,"0")  # Make sure it's six chars long, and right pad with zeroes
+            firstlevel = m.group(2).rjust(3,"0")
+            tas = m.group(3).rjust(3,"0")
+        except:
+            logging.warning("Unable to extract HFV field in '"+self._data+"'")
+            raise
         
         return fix,eto,firstlevel,tas
         
