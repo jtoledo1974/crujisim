@@ -742,9 +742,8 @@ def redraw_all():
     # Poner las fichas que se imprimen
     draw_print_list()
     # Dibujar los aviones
-    for vt in [acft.vt for acft in ejercicio]:
-        (x,y)=do_scale((vt.wx,vt.wy))
-        vt.coords(x,y,None)
+    for acft in ejercicio:
+        acft.redraw(w)
         
     draw_all_lads(w)
     for s in storms[:]:
