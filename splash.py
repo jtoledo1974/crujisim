@@ -139,15 +139,18 @@ class Crujisim:
         self.ex_ls_cols = {"file": 0,"fir":1,"sector":2,"comment":3,
                                "course":4,"phase":5,"day":6,"pass_no":7,
                                "shift":8,"PDP":9,"course_text":10,"n_flights":11,
-                               "CPDP":12,"wind_text":13,"exercise_id":14}
+                               "CPDP":12,"wind_text":13,"exercise_id":14,
+                               "ejer":15}
         # els = exercise list store
         els = self.els = gtk.ListStore(str,str,str,str,
                                         int,int,int,int,
                                         str,str,str,int,
-                                        str,str,int)
+                                        str,str,int,
+                                        int)
         # This is the mapping between actually displayed cols and the model cols
         self.ex_tv_cols = (("FIR","fir"),("Sector","sector"),
-            ("Prom - Fase - Día - Pasada","CPDP"),("Vuelos","n_flights"),
+            ("Prom - Fase - Día - Pasada","CPDP"),
+            ("Ejer.","ejer"),("Vuelos","n_flights"),
             ("Viento","wind_text"),("Comentario","comment"))
         
         # Process all exercise and fir files
