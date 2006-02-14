@@ -596,6 +596,36 @@ def hhmmss_to_hhmm(s):
     dt+=datetime.timedelta(seconds=30)
     return dt.strftime("%H%M")
 
+def export_callsigns(el, filename, reload=True):
+    """Creates a tab separated value file containing the callsigns of the
+    actual flights used in the exercices"""
+    if reload:
+        for e in el:
+            e.reload_flights()
+    
+    csl = [f.callsign.strip("*")[:3] for e in el for f in e.flights.values()]
+    callsigns = {}
+    cp = ConfigParser()
+    cp.readfp(open("Modelos_avo.txt"))
+    for cs in cp.options("indicativos_de_compania"):
+        callsigns[cs.upper()] = cp.get('indicativos_de_compania',cs)
+    
+    csd = {}
+    for cs in csl:
+        try:
+            csd[cs][0]+=1
+        except:
+            try:
+                csd[cs]=[1,callsigns[cs]]
+            except:
+                csd[cs]=[1,""]
+    
+    f=open(filename,"w")
+    
+    for code, (n, cs) in csd.items():
+        f.write(code+"\t"+cs+"\t"+str(n)+"\n")
+        
+
 if __name__=='__main__':
     #Exercise("../pasadas\APP-RadarBasico\21-phase-1-Día-01-M-TMA Madrid-1.eje"
     logging.getLogger('').setLevel(logging.DEBUG)
