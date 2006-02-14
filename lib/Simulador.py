@@ -780,6 +780,7 @@ def redraw_all():
     ho=int(t/60/60)
     m=int(t/60)-ho*60
     s=int(t)-60*60*ho-60*m
+    w.stop_separating = True
     
 fact_t=1.0
 t0=fact_t*time()-h_inicio
@@ -804,6 +805,7 @@ def separate_labels(canvas):
         tracks.append(acft.vt)
     
     crono = time()
+    canvas.stop_separating = False
     
     # Find the tracks that we have to separate
     sep_list = []  # List of track whose labels we must separate
@@ -886,6 +888,7 @@ def separate_labels(canvas):
         #    logging.debug("Conflict among "+str([t.cs for t in conflict_list]))
         while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono2)<1:
             canvas.update()
+            if canvas.stop_separating: return  # Set, for instance, when moving the display
             # Try rotating one of the labels on the list
             for k in range(len(conflict_list)-1,-1,-1):
                 t = conflict_list[k]
