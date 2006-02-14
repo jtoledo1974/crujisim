@@ -1041,7 +1041,7 @@ TSO:TRANSAERO
 TSU:[Contract Air Cargo]
 TSW:TOPSWISS
 TUA:AKHAL
-TUB:[Jet Air / TUI Airlines Belgium]
+TUB:BEAUTY
 TVA:AIR TAHITI
 TVL:AVIATA (Travel Service Hungary)
 TVS:SKYTRAVEL
