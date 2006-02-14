@@ -1681,6 +1681,7 @@ class RaDisplay(object):
         if not self.auto_separation: return
         
         crono = time()
+        canvas.stop_separating = False
         
         # Find the tracks that we have to separate
         sep_list = []  # List of track whose labels we must separate
@@ -1768,6 +1769,7 @@ class RaDisplay(object):
             #    logging.debug("Conflict among "+str([t.cs for t in conflict_list]))
             while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono2)<1:
                 canvas.update()
+                if canvas.stop_separating: return  # Set, for instance, when moving the display
                 # Try rotating one of the labels on the list
                 for k in range(len(conflict_list)-1,-1,-1):
                     t = conflict_list[k]
@@ -2161,6 +2163,7 @@ class RaDisplay(object):
             (x,y)=self.do_scale((vt.wx,vt.wy))
             vt.coords(x,y,None)
         self.update_lads()
+        self.c.stop_separating = True
         
     def do_scale(self,a):
         """Convert world coordinates into screen coordinates"""
