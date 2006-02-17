@@ -17,7 +17,7 @@ APP: JKK2327, reduzca indicada a 120 nudos.|JKK2327: ¿Sabe Vd cuál es la velocid
 APP: T2207, climb to FL380. Climb at 5000 fpm or higher.|...|APP: T2207, report heading.|T2207: Up, Sir.
 TWR: IBE2365, llame a APP en 121,7. Buen vuelo.|IBE2365: APP en 121,7. Hemos visto alguna clase de animal muerto en el|extremo de pista.|TWR: JKK2328, autorizado a despegar, viento 24010. ¿Ha copiado del IBE2365?|JKK2328: Hemos copiado y avisado a catering. Muchas gracias.
 APP: AFR9027, are you an Airbus 340 or an Airbus 320?|AFR9027: An Airbus 340, Sir, AFR9027.|APP: Would you mind switching the other two engines on and climbing at 1000 fpm?
-BAW789: This is Speedbird 789, requesting pushback.|ATC: And where is the world's most experienced pilot going today|without filing a flight plan?
+BAW789: This is Speedbird 789, requesting pushback.|ATC: And where is the world's most experienced pilot going today without filing a flight plan?
 TWR: Have you got enough fuel or not?|Piloto: Yes.|TWR: Yes what?|Piloto: Yes, SIR!
 KLM242: Good morning, Frankfurt ground, KLM 242 request start up and push back.|TWR: KLM242 expect start up in two hours.|KLM242: Please confirm two hours delay?|TWR: Affirmative.|KLM242: Roger. In that case, cancel the good morning!
 APP: ECECB, notifique altura y posición.|ECECB: Mido 1,80 y estoy sentado.
