@@ -1,4 +1,4 @@
-# App Radar fase b�ica
+# App Radar fase b ica
 [datos]
 nombre: AppRadarIntr-Avnzd
 
@@ -335,8 +335,31 @@ LED126 = _LED1261,_LED1262,_LED1263,_LED1261
 LED104 = _LED1041,_LED1042,_LED1043,_LED1044,_LED1045,_LED1046,_LED1047,_LED1048,_LED1049,_LED10410,_LED10411,_LED10412,_LED1041
 
 [mapas_locales]
-mapas=mapa1,SID33,STAR33,STAR18,SID18,LEMDILS33,LEMDILS18
+mapas=mapa1,SID33,STAR33,STAR18,SID18,LEMDILS33,LEMDILS18,LETOILS23		;COORDSYS
 
+[LETOILS23]
+nombre:LETO ILS23
+lineaF01:linea,367.3827,-389.7818,380.6497,-378.6494,gray60		;Linea LLZ
+lineaF02:linea,375.1642,-384.577,373.8786,-383.0256,gray60		;8 millas al umbral RWY23
+lineaF03:linea,376.6963,-383.2721,375.4107,-381.74,gray60		;10 millas al umbral RWY23
+lineaF04:linea,378.2284,-381.9865,376.9428,-380.4545,gray60		;12 millas al umbral RWY23
+lineaF05:linea,379.7604,-380.701,378.4749,-379.1689,gray60		;14 millas al umbral
+lineaF06:linea,366.9428,-390.1599,365.4108,-391.4455,gray60		;pista LETO
+lineaF07:linea,366.7399,-389.0157,368.0254,-390.5478,gray60		;MM y MAPT
+
+textoF01:texto,375.1642,-384.577,8,gray60					;Texto 8
+textoF02:texto,378.2284,-381.9865,12,gray60				;texto 12
+textoF03:texto,368.0254,-390.5478,MM,gray60				;texto 60
+
+[COORDSYS]
+nombre:ejes
+xaxis:linea,-10,0,10,0,gray30
+yaxis:linea,0,-10,0,10,gray30
+
+coord01:texto,-10,0,(-10 0),gray30
+coord02:texto,10,0,(10 0),gray30
+coord03:texto,0,-10,(0 -10),gray30
+coord04:texto,0,10,(0 10),gray30
 
 
 [mapa1]
@@ -406,7 +429,7 @@ linea1C:linea,346.977,-381.284,322.224,-396.049,gray60
 linea2A:linea,350.706,-386.88,369.993,-369.993,gray60
 linea2B:linea,369.993,-369.993,393.009,-273.587,gray60
 linea3:linea,369.993,-369.993,399.523,-343.503,gray60
-linea4:linea,369.993,-369.993,399.957,-364.348,gray60
+linea4:linea,369.993,-36,.993,399.957,-364.348,gray60
 linea5A:linea,350.706,-386.88,371.018,-386.709,gray60
 linea5B:linea,371.018,-386.709,399.957,-401.694,gray60
 linea6:linea,399.957,-401.694,454.24,-486.81,gray60
@@ -545,8 +568,8 @@ NVS1A: NVS,GE,PARLA,_2DME
 TLD1A: TLD,PARLA,_2DME
 VTB1A: VTB,_VTB1A1,PARLA,_2DME
 
-[app_LEMD33]; Procedimientos de aproximaci� (APP) y aproximaci� frustrada (MAP)
-PDT = _12,4000,_8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Despu� viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci� aterrizaje y puntos MAP
+[app_LEMD33]; Procedimientos de aproximaci  (APP) y aproximaci  frustrada (MAP)
+PDT = _12,4000,_8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Despu  viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci  aterrizaje y puntos MAP
 _2DME = _12,4000,_8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
 
 [star_LEMD18]
@@ -602,7 +625,7 @@ CJN1T = CJN,DUKKE
 BAN1T = BAN,PINAR,DUKKE
 
 [app_LETO23]
-; Puntos anteriores hasta LLZ. Despu� viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci� aterrizaje y puntos MAP
+; Puntos anteriores hasta LLZ. Despu  viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci  aterrizaje y puntos MAP
 DUKKE = _LETO_7DME,5000,VJZ,4000,LLZ,TJZ,050,1.0,0.0472,1992,True,TJZ,4000,_LETO_I,4000,VJZ,4000
 35DME = _35DME2,20000,_LETO_25DME,5500,VJZ,4000,LLZ,TJZ,050,1.0,0.0472,1992,True,TJZ,4000,_LETO_I,4000,VJZ,4000
 
