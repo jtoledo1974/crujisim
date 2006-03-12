@@ -335,7 +335,9 @@ LED126 = _LED1261,_LED1262,_LED1263,_LED1261
 LED104 = _LED1041,_LED1042,_LED1043,_LED1044,_LED1045,_LED1046,_LED1047,_LED1048,_LED1049,_LED10410,_LED10411,_LED10412,_LED1041
 
 [mapas_locales]
-mapas=mapa1,SID33,STAR33,STAR18,SID18
+mapas=mapa1,SID33,STAR33,STAR18,SID18,LEMDILS33,LEMDILS18
+
+
 
 [mapa1]
 nombre:MVA
@@ -461,17 +463,6 @@ lineaB12:linea,362.440,-406.240,355.662,-435.133,gray60
 lineaB13:linea,341.020,-412.700,316.579,-420.368,gray60
 
 lineaB14:linea,369.993,-369.993,355.113,-374.260,gray60
-lineaB15:linea,353.664,-366.183,353.664,-387.183,gray60
-
-lineaB16:linea,352.664,-380.183,354.664,-380.183,gray60
-lineaB17:linea,352.664,-378.183,354.664,-378.183,gray60
-lineaB18:linea,352.664,-376.183,354.664,-376.183,gray60
-lineaB19:linea,352.664,-374.183,354.664,-374.183,gray60
-lineaB20:linea,352.664,-372.183,354.664,-372.183,gray60
-textoB01:texto,351.664,-378.183,10,gray60
-textoB02:texto,351.664,-374.183,14,gray60
-
-lineaB21:linea,353.664,-388.183,353.664,-390.183,gray60
 
 [SID18]
 nombre:SIDs LEMD18
@@ -488,6 +479,32 @@ lineaC08:linea,399.960,-403.460,362.440,-406.240,gray60
 lineaC09:linea,399.960,-403.460,399.957,-364.348,gray60
 lineaC10:linea,399.523,-343.503,399.957,-364.348,gray60
 lineaC11:linea,399.960,-403.460,452.069,-354.360,gray60
+
+[LEMDILS33]
+nombre:LEMD ILS33
+lineaD01:linea,355.23,-394.24,366.04,-412.24,gray60		;Linea central LLZ
+lineaD02:linea,357.46,-399.90,359.17,-398.87,gray60		;Marca 8 millas
+lineaD03:linea,358.49,-401.61,360.20,-400.58,gray60		;Marca 10 millas
+lineaD04:linea,359.52,-403.33,361.23,-402.30,gray60		;Marca 12 millas
+lineaD05:linea,360.55,-405.04,362.26,-404.01,gray60		;Marca 14 millas
+lineaD06:linea,355.40,-396.47,357.11,-395.44,gray60		;Marca MA
+
+textoD01:texto,358.32,-399.38,8,gray60				;Texto 8
+textoD02:texto,360.38,-402.81,12,gray60				;Texto 12
+textoD03:texto,356.26,-395.95,MA,gray60				;Texto MA
+
+[LEMDILS18]
+nombre:LEMD ILS18
+lineaE01:linea,352.664,-380.183,354.664,-380.183,gray60	;Marca 8 Millas
+lineaE02:linea,352.664,-378.183,354.664,-378.183,gray60	;Marca 10 Millas
+lineaE03:linea,352.664,-376.183,354.664,-376.183,gray60	;Marca 12 Millas
+lineaE04:linea,352.664,-374.183,354.664,-374.183,gray60	;Marca 14 Millas
+lineaE05:linea,352.664,-372.183,354.664,-372.183,gray60	;Marca 16 Millas
+textoE01:texto,352.000,-378.583,10,gray60				;Texto 10
+textoE02:texto,352.000,-374.583,14,gray60				;Texto 14
+
+lineaE06:linea,353.664,-388.183,353.664,-390.183,gray60	;Pista 18
+lineaE07:linea,353.664,-366.183,353.664,-387.183,gray60	;Linea central LLZ
 
 
 [esperas_publicadas] ; fijo:rumbo acercamiento,tiempo de alejamiento y giros D/I
