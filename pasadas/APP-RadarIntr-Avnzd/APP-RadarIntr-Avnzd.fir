@@ -235,9 +235,11 @@ _16_D:361.58,-406.76
 _16_I:363.29,-405.73
 _27:366.04,-412.24
 _BRA_ILS:352.87,-390.64
-VJZ:371.018,-386.709
-PARLA:341.02,-412.70
-CANES:385.52,-404.72
+_13DMEPDT:375.3431,-404.6557
+;VJZ:371.018,-386.709
+VJZ:369.6072,-387.8596
+PARLA:342.2535,-412.0274
+CANES:385.3525,-404.2354
 GE:339.756,-408.009
 PDT:362.44,-406.24
 _PDT_ILS:360.66,-403.234
@@ -263,7 +265,7 @@ _GE_INV2:338.64,-409.01
 DUKKE:383.492,-386.080
 TJZ: 364.89,-391.85
 _LETO_I: 364.31,-391.76
-_LETO_7DME: 376.38,-382.21
+_LETO_7DME: 374.9696,-383.3825
 _LETO_25DME:384.94,-376.96
 35DME:398.85,-383.38
 _35DME2:397.85,-382.38
@@ -353,17 +355,17 @@ textoG03:texto,345.1628,-404.317,L,gray60					;texto L
 
 [LETOILS23]
 nombre:LETO ILS23
-lineaF01:linea,367.3827,-389.7818,380.6497,-378.6494,gray60		;Linea LLZ
-lineaF02:linea,375.1642,-384.577,373.8786,-383.0256,gray60		;8 millas al umbral RWY23
-lineaF03:linea,376.6963,-383.2721,375.4107,-381.74,gray60		;10 millas al umbral RWY23
-lineaF04:linea,378.2284,-381.9865,376.9428,-380.4545,gray60		;12 millas al umbral RWY23
-lineaF05:linea,379.7604,-380.701,378.4749,-379.1689,gray60		;14 millas al umbral
-lineaF06:linea,366.9428,-390.1599,365.4108,-391.4455,gray60		;pista LETO
-lineaF07:linea,366.7399,-389.0157,368.0254,-390.5478,gray60		;MM y MAPT
+lineaF01:linea,365.9719,-390.9324,379.239,-379.8,gray60		;Linea LLZ
+lineaF02:linea,372.368,-386.8135,371.0824,-385.2814,gray60		;8 millas al umbral RWY23
+lineaF03:linea,373.8139,-385.6334,372.5283,-384.1013,gray60		;10 millas al umbral RWY23
+lineaF04:linea,375.3,-384.3321,374.0144,-382.8,gray60			;12 millas al umbral RWY23
+lineaF05:linea,376.8856,-383.0321,375.6,-381.5,gray60			;14 millas al umbral
+lineaF06:linea,365.5321,-391.3105,364,-392.5961,gray60		;pista LETO
+lineaF07:linea,365.3291,-390.1664,366.6147,-391.6985,gray60		;MM y MAPT
 
-textoF01:texto,375.1642,-384.577,8,gray60					;Texto 8
-textoF02:texto,378.2284,-381.9865,12,gray60				;texto 12
-textoF03:texto,368.0254,-390.5478,MM,gray60				;texto 60
+textoF01:texto,372.368,-386.8135,8,gray60					;Texto 8
+textoF02:texto,375.3,-384.3321,12,gray60					;texto 12
+textoF03:texto,364.3291,-390.1664,MM,gray60				;texto MM
 
 [COORDSYS]
 nombre:ejes
@@ -443,7 +445,7 @@ linea1C:linea,346.977,-381.284,322.224,-396.049,gray60
 linea2A:linea,350.706,-386.88,369.993,-369.993,gray60
 linea2B:linea,369.993,-369.993,393.009,-273.587,gray60
 linea3:linea,369.993,-369.993,399.523,-343.503,gray60
-linea4:linea,369.993,-36,.993,399.957,-364.348,gray60
+linea4:linea,369.993,-369.993,399.957,-364.348,gray60
 linea5A:linea,350.706,-386.88,371.018,-386.709,gray60
 linea5B:linea,371.018,-386.709,399.957,-401.694,gray60
 linea6:linea,399.957,-401.694,454.24,-486.81,gray60
@@ -583,6 +585,8 @@ TLD1A: TLD,PARLA,_2DME
 VTB1A: VTB,_VTB1A1,PARLA,_2DME
 
 [app_LEMD33]; Procedimientos de aproximaci  (APP) y aproximaci  frustrada (MAP)
+PARLA = PARLA,4000,_12,4000,_8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
+CANES = CANES,6000,_13DMEPDT,5000,PDT,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
 PDT = _12,4000,_8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Despu  viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci  aterrizaje y puntos MAP
 _2DME = _12,4000,_8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
 
