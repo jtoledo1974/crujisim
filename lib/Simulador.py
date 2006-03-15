@@ -627,6 +627,67 @@ def print_fs(callsign):
             print_fs._callsigns[callsign]=0
         print_fs._callsigns[callsign]+=1
         
+        
+        
+
+        
+def draw_SID_STAR(object,procedimientos,canvas = w):
+    
+    def draw_single_SID_STAR(single_sid_star,remove_underscored = True):
+        for i in range(0,len(single_sid_star[1])-1):
+            #We are not going to plot points which name starts with undescore
+            first_point_chosen = False
+            last_point_chosen = False
+            if single_sid_star[1][i][1][0]<>'_' or not remove_underscored:
+                cx0 = float(single_sid_star[1][i][0][0])
+                cy0 = float(single_sid_star[1][i][0][1])
+                first_point_chosen = True
+                for j in range(i+1,len(single_sid_star[1])):
+                    if single_sid_star[1][j][1][0]<>'_' or not remove_underscored:
+                        cx1 = float(single_sid_star[1][j][0][0])
+                        cy1 = float(single_sid_star[1][j][0][1])
+                        last_point_chosen = True
+                        break
+            if first_point_chosen and last_point_chosen:
+                (px0, py0) = do_scale((cx0,cy0))
+                (px1, py1) = do_scale((cx1,cy1))
+                canvas.create_line(px0, py0, px1, py1, fill=color, tag='local_maps')
+    
+    sid_star_index = 0              #plot SID by default
+    if object[0] == 'draw_sid':
+        sid_star_index = 0
+    elif object[0] == 'draw_star':
+        sid_star_index = 1
+        
+    sid_star_rwy = object[1]
+    sid_star_name = object[2]
+    if len(object) > 3:
+        color = object[3]
+    else:
+        color = 'white'
+        
+    for sid_star_index_word in procedimientos[sid_star_rwy][sid_star_index]:              #cycle through al SID's or STAR's of one RWY
+        sid_star=procedimientos[sid_star_rwy][sid_star_index][sid_star_index_word]
+        if (sid_star_name == '') or (sid_star_name == sid_star[0]):
+            draw_single_SID_STAR(sid_star,True)
+            
+def draw_polyline(object,fir1,canvas):
+    #draw a series of lines from point to point defined in object[2:]. object[2:] contains
+    #points' names and points_definition contains de names and coordinates.
+    color = object[1]
+    if object[1]=='':
+        color = 'white'
+    if len(object) > 3:
+        point_name = str(object[2])
+#        (px0, py0) = do_scale(fir1.get_point_coordinates(point_name))
+        (px0, py0) = do_scale(fir1.get_point_coordinates(point_name))
+        for point in object[3:]:
+            (px1, py1) = do_scale(fir1.get_point_coordinates(point))
+            canvas.create_line(px0, py0, px1, py1, fill=color, tag='local_maps')
+            (px0, py0) = (px1,py1)
+        
+    
+  
 def redraw_all():
   # Dibujar las rutas y nombre de los puntos
     global x0,y0,scale,centro_x,centro_y,listado_salidas
@@ -737,6 +798,10 @@ def redraw_all():
                     col = 'white'
                 (px, py) = do_scale((x,y))
                 w.create_text(px, py, text=txt, fill=col,tag='local_maps',anchor=SW,font='-*-Times-Bold-*--*-10-*-')
+            elif ob[0] == 'draw_star' or ob[0] == 'draw_sid':
+                draw_SID_STAR(ob,fir.procedimientos,w)
+            elif ob[0] == 'polyline':
+                draw_polyline(ob,fir,w)
                 
     w.delete('fichas')
     # Poner las fichas que se imprimen
