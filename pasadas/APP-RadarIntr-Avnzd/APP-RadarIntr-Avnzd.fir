@@ -439,85 +439,20 @@ mva57:texto,365.66640458,-436.054131043,6000,gray60
 
 [SID33]
 nombre:SIDs LEMD33
-linea1A:linea,354.197,-392.526,350.706,-386.88,gray60
-linea1B:linea,350.706,-386.88,346.977,-381.284,gray60
-linea1C:linea,346.977,-381.284,322.224,-396.049,gray60
-linea2A:linea,350.706,-386.88,369.993,-369.993,gray60
-linea2B:linea,369.993,-369.993,393.009,-273.587,gray60
-linea3:linea,369.993,-369.993,399.523,-343.503,gray60
-linea4:linea,369.993,-369.993,399.957,-364.348,gray60
-linea5A:linea,350.706,-386.88,371.018,-386.709,gray60
-linea5B:linea,371.018,-386.709,399.957,-401.694,gray60
-linea6:linea,399.957,-401.694,454.24,-486.81,gray60
-linea7:linea,399.957,-401.694,465.531,-444.252,gray60
-linea8:linea,399.957,-364.348,409.946,-362.611,gray60
-linea9:linea,409.946,-362.611,452.069,-354.36,gray60
-linea10:linea,322.224,-396.049,316.579,-420.368,gray60
-
-
+comando2:draw_sid,LEMD33,,gray60
 
 [STAR33]
 nombre:STARs LEMD33
-linea8A:linea,329.172,-342.635,346.977,-381.284,gray60
-linea8B:linea,346.977,-381.284,339.756,-408.009,gray60
-linea8C:linea,339.756,-408.009,341.02,-412.70,gray60
-linea8D:linea,341.02,-412.70,359.29,-407.46,gray60
-linea9:linea,322.224,-396.049,339.756,-408.009,gray60
-linea10:linea,355.662,-435.133,341.02,-412.70,gray60
-
-linea11:linea,316.579,-420.368,341.02,-412.70,gray60
-linea12A:linea,399.523,-343.503,399.957,-364.348,gray60
-linea12B:linea,399.957,-364.348,399.957,-401.694,gray60
-linea12C:linea,399.957,-401.694,385.141,-404.245,gray60
-linea12D:linea,385.141,-404.245,362.44,-406.24,gray60
-linea13:linea,422.105,-394.746,399.957,-401.694,gray60
-linea14:linea,399.957,-401.694,454.24,-486.81,gray60
-linea15:linea,399.957,-401.694,465.531,-444.252,gray60
-
-regla01:linea,355.230,-394.240,366.040,-412.240,gray60
-regla02:linea,357.460,-399.900,359.170,-398.870,gray60
-regla03:linea,358.490,-401.610,360.200,-400.580,gray60
-regla04:linea,359.520,-403.330,361.230,-402.300,gray60
-regla05:linea,360.550,-405.040,362.260,-404.010,gray60
-regla06:texto,356.260,-395.950,MA,gray60
-regla07:texto,357.460,-399.900,8,gray60
-regla08:texto,359.000,-404.000,12,gray60
-regla09:texto,361.000,-407.240,16,gray60
-
+comando1:draw_star,LEMD33,,gray60		;Procedures should be in capitals, sid or star's name in lowercase
+comando2:polyline,gray60,PARLA,_2DME
 
 [STAR18]
 nombre:STARs LEMD18
-lineaB01:linea,399.523,-343.503,377.175,-350.196,gray60
-lineaB02:linea,353.159,-353.741,377.175,-350.196,gray60
-lineaB03:linea,353.159,-353.741,329.172,-342.635,gray60
-lineaB04:linea,266.204,-319.619,329.172,-342.635,gray60
-lineaB05:linea,377.175,-350.196,369.993,-369.993,gray60
-lineaB06:linea,383.492,-386.080,369.993,-369.993,gray60
-lineaB07:linea,383.492,-386.080,399.960,-403.460,gray60
-lineaB08:linea,383.492,-386.080,362.440,-406.240,gray60
-lineaB09:linea,399.960,-403.460,422.105,-394.746,gray60
-lineaB10:linea,362.440,-406.240,322.224,-396.049,gray60
-lineaB11:linea,362.440,-406.240,341.020,-412.700,gray60
-lineaB12:linea,362.440,-406.240,355.662,-435.133,gray60
-lineaB13:linea,341.020,-412.700,316.579,-420.368,gray60
-
-lineaB14:linea,369.993,-369.993,355.113,-374.260,gray60
+comandob01:draw_star,LEMD18,,gray60
 
 [SID18]
 nombre:SIDs LEMD18
-lineaC01:linea,353.664,-388.183,353.664,-396.183,gray60
-lineaC02:linea,355.225,-401.868,353.664,-396.183,gray60
-
-lineaC03:linea,322.224,-396.049,342.905,-399.696,gray60
-lineaC04:linea,355.225,-401.868,362.440,-406.240,gray60
-lineaC05:linea,355.225,-401.868,342.905,-399.696,gray60
-lineaC06:linea,345.433,-377.036,342.905,-399.696,gray60
-lineaC07:linea,345.433,-377.036,353.159,-353.741,gray60
-
-lineaC08:linea,399.960,-403.460,362.440,-406.240,gray60
-lineaC09:linea,399.960,-403.460,399.957,-364.348,gray60
-lineaC10:linea,399.523,-343.503,399.957,-364.348,gray60
-lineaC11:linea,399.960,-403.460,452.069,-354.360,gray60
+comandoC01:draw_sid,LEMD18,,gray60
 
 [LEMDILS33]
 nombre:LEMD ILS33

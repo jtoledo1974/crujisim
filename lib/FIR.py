@@ -23,6 +23,7 @@
 import logging
 import os
 from stat import *
+from MathUtil import *
 
 class FIR:
     """FIR information and processess"""    
@@ -32,6 +33,7 @@ class FIR:
         
         self.file = fir_file
         self.points=[]   # List of geo coordinates of points
+        self.rel_points={}#Dictionary of points relative to another. Format: [RELATIVE_POINT NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
         self.routes=[]   # List of points defining standard routes within the FIR
         self.tmas=[]     # List of points defining TMAs
         self.local_maps={}  # Dictionary of local maps
@@ -63,11 +65,42 @@ class FIR:
         logging.debug('Points')
         lista=self._firdef.items('puntos')
         for (nombre,coord) in lista:
-            (x,y)=coord.split(',')
-            x=float(x)
-            y=float(y)
-            self.points.append([nombre.upper(),(x,y)])
-            # FIR Routes
+            coord_lista=coord.split(',')
+            if len(coord_lista)==2:
+                (x,y)=coord.split(',')
+                x=float(x)
+                y=float(y)
+                self.points.append([nombre.upper(),(x,y)])
+            elif len(coord_lista)==3:                              #if len coord is 3, the point is defined referenced to another
+                (nombre_base,x,y)=coord.split(',')
+                x=float(x)
+                y=float(y)
+                self.rel_points[nombre.upper()]=[nombre_base.upper(),(x,y)]
+        if len(self.rel_points)>0:
+            #If at least one relative point has been read we should try to convert it to
+            #cartessian coordinates
+            scan_again = True
+            while scan_again:
+                scan_again = False
+                for relative_point_name in self.rel_points:
+                    #First check if the new relative point already exists
+                    dummy = [p[0] for p in self.points if p[0]==relative_point_name]
+                    if len(dummy) == 0:
+                    #The point does not exist, lets try if I can ad it
+                    #To do so I have to check if the base points exists
+                        base_point_name = self.rel_points[relative_point_name][0]
+                        base_point_coordinates = [p[1] for p in self.points if p[0]==base_point_name]
+                        if len(base_point_coordinates)>0:
+                            
+                            #Exists, so lets make the conversion to cartesian's and add the point to the list
+                            (x,y)=pr(self.rel_points[relative_point_name][1])
+                            (x,y)=(x+base_point_coordinates[0][0],y+base_point_coordinates[0][1])
+                            self.points.append([relative_point_name,(x,y)])
+                            scan_again = True
+
+                    
+                        
+        # FIR Routes
         lista=self._firdef.items('rutas')
         for (num,aux) in lista:
             linea=aux.split(',')
@@ -328,6 +361,18 @@ class FIR:
             self.routedb=Exercise.load_routedb(os.path.dirname(self.file))
         except:
             logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")
+            
+    def get_point_coordinates(self,point_name):
+        try:
+            return [p[1] for p in self.points if p[0]==point_name][0]
+        except:
+            pass
+            login.error('No existe el punto'+point_name)
+
+def pr(a):  # Polares a rectangulares
+    r=a[0]
+    ang=a[1]
+    return(r*sin(radians(ang)),r*cos(radians(ang)))
 
 def load_firs(path):
     import ConfigParser
@@ -353,6 +398,8 @@ def load_firs(path):
         firs.append(fir)
             
     return firs
+
+
 
 if __name__ == "__main__":
     #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
