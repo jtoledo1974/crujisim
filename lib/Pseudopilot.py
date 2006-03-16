@@ -167,6 +167,7 @@ class PpDisplay(RaDisplay):
                     track.route_direct(pto)  # Only to give an immediate appearance
                     canvas.delete(track.name+'wp')
                     self.show_hide_fpr(track)
+                    close_win()
                 but_cancel['command'] = close_win
                 but_direct['command'] = direct_to
             canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)
