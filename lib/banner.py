@@ -20,6 +20,16 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+
+#############################
+# W A R N I N G ! ! !
+#
+# Do not edit this code. This code is considered old and deprecated
+# Functionality here is implemented in splash.py (to be renamed Crujisim.py)
+#
+#############################
+
+
 # Module imports
 from Tix import *
 from Tkconstants import *
@@ -71,6 +81,7 @@ def get_sectores(fir):
             archivo = fir_file
     config=ConfigParser()
     lista=[]
+    print fir,archivo
     config.readfp(open(archivo,'r'))
     for sector in config.sections():
         if sector[0:6]=='sector':
@@ -118,9 +129,9 @@ def get_ejercicios(fir, sector):
     
     
 images = {}
-def load_image(image_name):
+def load_image(image_name, master):
     new_img = Image.open(IMGDIR+image_name+".gif").convert("RGBA")
-    tkimg = ImageTk.PhotoImage(image=new_img)
+    tkimg = ImageTk.PhotoImage(image=new_img, master=master)
     images[image_name] = tkimg
     return tkimg
     
@@ -144,9 +155,9 @@ def seleccion_usuario():
     message_lines = message_text.split("|")
     num_message_lines = len(message_lines)
     
-    root = Tk()	
+    root = Toplevel()
     message_font = tkFont.Font(family="Helvetica",size=message_font_size)
-    banner_image = load_image("banner")
+    banner_image = load_image("banner", master=root)
     w = banner_image.width()
     h = banner_image.height() + (message_line_gap + message_font_size) * num_message_lines
     root.title("CrujiSim")
@@ -194,14 +205,14 @@ def seleccion_usuario():
     butAceptar = Button(frmAcciones, text="Practicar")
     butAceptar.grid(row=0, column=0, padx=1)
     
-    butModificar = Button(frmAcciones, text="Modificar")
-    butModificar.grid(row=0,column=1, padx=1)
-    
-    butCrear = Button(frmAcciones, text="Crear pasada")
-    butCrear.grid(row=0,column=2, padx=1)
-    
-    butActualizar = Button(frmAcciones, text="Actualizar")
-    butActualizar.grid(row=0, column=3, padx=1)
+    #butModificar = Button(frmAcciones, text="Modificar")
+    #butModificar.grid(row=0,column=1, padx=1)
+    #
+    #butCrear = Button(frmAcciones, text="Crear pasada")
+    #butCrear.grid(row=0,column=2, padx=1)
+    #
+    #butActualizar = Button(frmAcciones, text="Actualizar")
+    #butActualizar.grid(row=0, column=3, padx=1)
     frmAcciones.grid(row=4, column=0, columnspan=4, sticky=E, padx=5, pady=5)
     
     def salir(e=None):
@@ -255,33 +266,35 @@ def seleccion_usuario():
     
     def devolver_seleccion(e=None):
         global accion
+        logging.critical("En devolver selección")
         ejercicio_elegido = varEjercicio.get()
         if not(ejercicio_elegido in ["", "--------", '()']):
             accion = "ejecutar"
             root.destroy()
+            root.quit()
     butAceptar['command'] = devolver_seleccion
     
-    def devolver_modificar(e=None):
-        global accion
-        ejercicio_elegido = varEjercicio.get()
-        if not(ejercicio_elegido in ["", "--------", '()']):
-            accion = "modificar"
-            root.destroy()
-    butModificar['command'] = devolver_modificar
-    
-    def devolver_nueva(e=None):
-        global accion
-        ejercicio_elegido = varEjercicio.get()
-        if not(ejercicio_elegido in ["", "--------", '()']):
-            accion = "nueva"
-            root.destroy()
-    butCrear['command'] = devolver_nueva
-    
-    def devolver_actualizar(e=None):
-        global accion
-        accion = "actualizar"
-        root.destroy()
-    butActualizar['command'] = devolver_actualizar
+    #def devolver_modificar(e=None):
+    #    global accion
+    #    ejercicio_elegido = varEjercicio.get()
+    #    if not(ejercicio_elegido in ["", "--------", '()']):
+    #        accion = "modificar"
+    #        root.destroy()
+    #butModificar['command'] = devolver_modificar
+    #
+    #def devolver_nueva(e=None):
+    #    global accion
+    #    ejercicio_elegido = varEjercicio.get()
+    #    if not(ejercicio_elegido in ["", "--------", '()']):
+    #        accion = "nueva"
+    #        root.destroy()
+    #butCrear['command'] = devolver_nueva
+    #
+    #def devolver_actualizar(e=None):
+    #    global accion
+    #    accion = "actualizar"
+    #    root.destroy()
+    #butActualizar['command'] = devolver_actualizar
     
     root.mainloop()
     if accion=="actualizar":

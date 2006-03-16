@@ -21,15 +21,15 @@
 """Classes useful for designing a radar display"""
 
 from math import *
-from Tkinter import *
+from Tix import *
 import tkFont
 import logging
-from Tix import *
 import sys
 from FIR import *
 from MathUtil import *
 from time import time
 from math import floor
+from twisted.internet import reactor
 
 # Globals
 
@@ -39,24 +39,39 @@ _radialogs={} # List of all dialogs, to avoid duplicates
 # binding canvas elements, we have to keep track of every binding to make sure
 # the the unbind is properly handled, including the funcid
 _tag_binds = []
+_binds = []
 
 # Constants
 IMGDIR='./img/'
+
+def ra_bind(object, widget, sequence, callback):
+    """Creates a TK binding and stores information for later deletion"""
+    funcid = widget.bind(sequence, callback)
+    _binds.append((object, widget, sequence, funcid),)
+    
+def ra_unbind(object, widget, sequence):
+    for (o, w, s, f) in [(o, w, s, f) for (o, w, s, f) in _binds if (o==object and w==widget and sequence==s)]:
+        w.unbind(s, f)
+        _binds.remove((o, w, s, f))
+        
+def ra_clearbinds(object):
+    for (o, w, s) in [(o, w, s) for (o, w, s, f) in _binds if (o==object)]:
+        ra_unbind(o,w,s)
 
 def ra_tag_bind(canvas, tag_or_id, sequence, func):
     """Creates a tag binding and stores information for later deletion"""
     if tag_or_id==None: return
     funcid = canvas.tag_bind(tag_or_id, sequence, func, add=True)
-    _tag_binds.append([canvas, tag_or_id, sequence, funcid])
+    _tag_binds.append((canvas, tag_or_id, sequence, funcid))
     
 def ra_tag_unbind(canvas_remove, tag_remove, sequence_remove):
-    for b in _tag_binds:
+    for b in _tag_binds[:]:
         [canvas,tag,seq,funcid] = b
         if (tag == tag_remove) and (canvas == canvas_remove) and (sequence_remove == seq):
             canvas.tag_unbind(tag, seq, funcid)
             _tag_binds.remove(b)
             
-def ra_clearbinds(tag_to_remove):
+def ra_cleartagbinds(tag_to_remove):
     # Because we are messing with the list within the iterator,
     # we iterate over a copy of the list (that's what _tag_binds[:] is, a copy)
     for b in _tag_binds[:]:
@@ -166,18 +181,19 @@ class RaFrame:
             
     def _place(self):
         # If we are not given any position info, just use 0,0
-        if not self._kw.has_key('position'):
-            pos=(0,0)
-        else:
-            pos=self._kw['position']
-            # We reset x and y only if this is the first time we are placing the
-            # frame. If the user moved it himself, then use the las known position.
+        if not self._kw.has_key('position'): pos=(0,0)
+        else: pos=self._kw['position']
+        if not self._kw.has_key('anchor'): anchor=CENTER
+        else: anchor=self._kw['anchor']
+
+        # We reset x and y only if this is the first time we are placing the
+        # frame. If the user moved it himself, then use the last known position.
         if self._x==0 and self._y==0:
             (self._x, self._y) = pos
             
-            # Currently the master must be a canvas if not windowed
+        # Currently the master must be a canvas if not windowed
         if not self.windowed:
-            self._master_ident = self._master.create_window((self._x, self._y), window=self.container)
+            self._master_ident = self._master.create_window((self._x, self._y), window=self.container, anchor=anchor)
             
     def configure(self,**ckw):
         if ckw.has_key('position'):
@@ -429,7 +445,7 @@ class RaClock(RaFrame):
         SPECIFIC OPTIONS
         time -- a text string to display
         """
-        def_opt={'position':(50,22), 'closebutton':False, 'undockbutton':False}
+        def_opt={'position':(5,-5), 'anchor':NW, 'closebutton':False, 'undockbutton':False}
         def_opt.update(kw)
         # The frame constructor method will call _build
         RaFrame.__init__(self, master, **def_opt)
@@ -487,6 +503,16 @@ class RaTabular(RaFrame):
             index=len(self._items)
         self._items.insert(index, elements)
         
+    def adjust(self,min_height=0, min_width=0, max_height=0, max_width=10):
+        """Reduce the size of the list to the minimum that fits
+        or whatever is given as parameters
+        max_height = 0 means unlimited"""
+        items = self.list.get(0,END)
+        mw = min((min([len(i) for i in items]+[0]),min_width))
+        mh = min((self.list.size(), min_height))
+        if mw>max_width and max_width!=0: mw = max_width
+        if mh>max_height and max_height!=0: mh=max_height
+        self.list.configure(height=mh, width=mw)
         
 class VisTrack(object): # ensure a new style class
     """Visual representation of a radar track on either a pseudopilot display
@@ -674,7 +700,7 @@ class VisTrack(object): # ensure a new style class
         """Delete the visual plot and unbind bindings"""
         if self._pitem:  # Delete old plot
             # Remove bindings
-            ra_clearbinds(self._pitem)
+            ra_cleartagbinds(self._pitem)
             # Delete the canvas item
         self._c.delete(self._pitem)
         
@@ -737,7 +763,7 @@ class VisTrack(object): # ensure a new style class
         s=str(self)
         
         if (self._lineid):
-            ra_clearbinds(self._lineid)
+            ra_cleartagbinds(self._lineid)
         self._lineid = None
         
         # Delete old label, leader and selection box
@@ -896,6 +922,12 @@ class VisTrack(object): # ensure a new style class
         elif name in ['plot_only','visible']:
             self.redraw()
             
+    def destroy(self):
+        self._l.destroy()
+        del(self._message_handler)
+        del(self.do_scale)
+        del(self.undo_scale)
+            
     class Label:
         """Contains the information regarding label formatting"""        
         formats={'pp':{-1:['pac','vac'],
@@ -959,10 +991,14 @@ class VisTrack(object): # ensure a new style class
             s = str(self.vt)
             
             for i in self.items:
-                ra_clearbinds(self[i].i)
+                ra_cleartagbinds(self[i].i)
                 self[i].i=None
             c.delete(s+'labelitem')
             self.items=[]
+            
+        def destroy(self):
+            self.delete()
+            del(self.vt)
             
         def redraw(self):
             """Redraw the label and reset bindings"""
@@ -1328,14 +1364,21 @@ class LAD(object):
     
     def __init__(self,radisplay,e):
     
-        self.radisplay=radisplay
-        canvas=radisplay.c
+        rd=self.radisplay=radisplay
+        c=radisplay.c
         
         # No se estaba definiendo un LAD. Comenzar a definir uno
         self.orig = self.get_acft_or_point(e.x,e.y)
-        self._motion_id = canvas.bind('<Motion>', self.update_lad_being_defined)
-        self._button2_id = canvas.bind('<Button-2>', self.cancel_def_lad)
-        self._button3_id = canvas.bind('<Button-3>', self.end_def_lad)
+        #self._motion_id = canvas.bind('<Motion>', self.update_lad_being_defined)
+        #self._button2_id = canvas.bind('<Button-2>', self.cancel_def_lad)
+        #self._button3_id = canvas.bind('<Button-3>', self.end_def_lad)
+        ra_unbind(rd, c, '<Motion>')
+        ra_unbind(rd, c, '<Button-2>')
+        ra_unbind(rd, c, '<Button-3>')
+        ra_bind(rd, c, '<Motion>', self.update_lad_being_defined)
+        ra_bind(rd, c, '<Button-2>', self.cancel_def_lad)
+        ra_bind(rd, c, '<Button-3>', self.end_def_lad)
+        
         self.superlad = False
         self.text_id1 = None
         self.text_id2 = None
@@ -1370,15 +1413,21 @@ class LAD(object):
         return closest_track
         
     def cancel_def_lad(self,e=None):
-        canvas=self.radisplay.c
-        canvas.delete('lad_defined')
-        canvas.unbind('<Motion>',self._motion_id)
-        canvas.unbind('<Button-2>',self._button2_id)
-        canvas.unbind('<Button-3>',self._button3_id)
-        canvas.bind('<Button-2>',self.radisplay.b2_cb)
-        canvas.bind('<Button-3>',self.radisplay.b3_cb)
-        self.radisplay.b2_cb(e)
-        self.radisplay.defining_lad = False
+        rd = self.radisplay
+        c = rd.c
+        c.delete('lad_defined')
+        #canvas.unbind('<Motion>',self._motion_id)
+        #canvas.unbind('<Button-2>',self._button2_id)
+        #canvas.unbind('<Button-3>',self._button3_id)
+        #canvas.bind('<Button-2>',self.radisplay.b2_cb)
+        #canvas.bind('<Button-3>',self.radisplay.b3_cb)
+        ra_unbind(rd, c, '<Motion>')
+        ra_unbind(rd, c, '<Button-2>')
+        ra_unbind(rd, c, '<Button-3>')
+        ra_bind(rd, c, '<Button-2>', rd.b2_cb)
+        ra_bind(rd, c, '<Button-3>', rd.b3_cb)
+        rd.b2_cb(e)
+        rd.defining_lad = False
         
     def update_lad_being_defined(self,e=None):
         canvas=self.radisplay.c        
@@ -1411,17 +1460,18 @@ class LAD(object):
         canvas.create_text(lad_center_x, lad_center_y - (lad_lines-2) * lad_line_height, text=lad_text3, fill="orange", tags="lad_defined")
         
     def end_def_lad(self,e=None):
-        canvas=self.radisplay.c
-        canvas.delete('lad_defined')
-        canvas.unbind('<Motion>',self._motion_id)
-        canvas.unbind('<Button-2>',self._button2_id)
-        canvas.unbind('<Button-3>',self._button3_id)
+        rd = self.radisplay
+        c = rd.c
+        c.delete('lad_defined')
+        ra_unbind(rd, c, '<Motion>')
+        ra_unbind(rd, c, '<Button-2>')
+        ra_unbind(rd, c, '<Button-3>')
         self.dest=self.get_acft_or_point(e.x,e.y)
         self.radisplay.lads.append(self)
-        canvas.bind('<Button-2>', self.radisplay.b2_cb)
-        canvas.bind('<Button-3>', self.radisplay.b3_cb)
-        self.radisplay.b3_cb(e)
-        self.radisplay.defining_lad = False
+        ra_bind(rd, c, '<Button-2>', rd.b2_cb)
+        ra_bind(rd, c, '<Button-3>', rd.b3_cb)
+        rd.b3_cb(e)
+        rd.defining_lad = False
         self.redraw()
         
     def delete(self,e=None):
@@ -1429,10 +1479,10 @@ class LAD(object):
         s=str(self)
         
         if self.text_id1!=None:
-            ra_clearbinds(self.text_id1)
-        if self.text_id2!=None: ra_clearbinds(self.text_id2)
-        if self.text_id3!=None: ra_clearbinds(self.text_id3)
-        if self.text_id4!=None: ra_clearbinds(self.text_id4)
+            ra_cleartagbinds(self.text_id1)
+        if self.text_id2!=None: ra_cleartagbinds(self.text_id2)
+        if self.text_id3!=None: ra_cleartagbinds(self.text_id3)
+        if self.text_id4!=None: ra_cleartagbinds(self.text_id4)
         canvas.delete(s+'lad')
         self.radisplay.lads.remove(self)
         if e!=None:
@@ -1557,6 +1607,7 @@ class RaDisplay(object):
         fir -- fir object
         sector -- name of the sector to work with
         """
+
         
         self.fir=fir
         self.sector=sector
@@ -1574,7 +1625,10 @@ class RaDisplay(object):
         
         self.c = c = Canvas(tl,bg='black')
         c.pack(expand=1,fill=BOTH)
-        c.bind('<Configure>',self.change_size)
+        ra_bind(self, c, '<Configure>', self.change_size)
+
+        # Used to prevent the label separation code to be run nested
+        self.separating_labels = False
         
         # Screen parameters
         self.width=tl.winfo_width()
@@ -1588,6 +1642,10 @@ class RaDisplay(object):
         self.y0=0.  # in world coordinates
         self.scale=1.0  # Scale factor between screen and world coordinates
         
+        self.draw_routes = True
+        self.draw_point = True
+        self.draw_sector = True
+        self.draw_lim_sector = True
         self.draw_point_names = True
         self.draw_tmas = True
         self.draw_deltas = False
@@ -1605,13 +1663,71 @@ class RaDisplay(object):
         self.label_font = tkFont.Font(family="Helvetica",size=self.label_font_size)
         self.label_moved = False  # Whether a label has recently been manually moved
         
-        self.c.bind('<Button-1>', self.b1_cb)
-        self.c.bind('<Button-2>', self.b2_cb)
-        self.c.bind('<Button-3>', self.b3_cb)
+        #self.c.bind('<Button-1>', self.b1_cb)
+        #self.c.bind('<Button-2>', self.b2_cb)
+        #self.c.bind('<Button-3>', self.b3_cb)
+        ra_bind(self, self.c, '<Button-1>', self.b1_cb)
+        ra_bind(self, self.c, '<Button-2>', self.b2_cb)
+        ra_bind(self, self.c, '<Button-3>', self.b3_cb)
         
         self.get_scale() # Calculate initial x0, y0 and scale
         self.redraw()
+
+    def draw_polyline(self,object):
+        #draw a series of lines from point to point defined in object[2:]. object[2:] contains
+        #points' names and points_definition contains de names and coordinates.
+        color = object[1]
+        if object[1]=='':
+            color = 'white'
+        if len(object) > 3:
+            point_name = str(object[2])
+            (px0, py0) = self.do_scale(self.fir.get_point_coordinates(point_name))
+            for point in object[3:]:
+                (px1, py1) = self.do_scale(self.fir.get_point_coordinates(point))
+                self.c.create_line(px0, py0, px1, py1, fill=color, tag='local_maps')
+                (px0, py0) = (px1,py1)
+                
+    def draw_SID_STAR(self,object):
         
+        def draw_single_SID_STAR(single_sid_star,remove_underscored = True):
+            for i in range(0,len(single_sid_star[1])-1):
+                #We are not going to plot points which name starts with undescore
+                first_point_chosen = False
+                last_point_chosen = False
+                if single_sid_star[1][i][1][0]<>'_' or not remove_underscored:
+                    cx0 = float(single_sid_star[1][i][0][0])
+                    cy0 = float(single_sid_star[1][i][0][1])
+                    first_point_chosen = True
+                    for j in range(i+1,len(single_sid_star[1])):
+                        if single_sid_star[1][j][1][0]<>'_' or not remove_underscored:
+                            cx1 = float(single_sid_star[1][j][0][0])
+                            cy1 = float(single_sid_star[1][j][0][1])
+                            last_point_chosen = True
+                            break
+                if first_point_chosen and last_point_chosen:
+                    (px0, py0) = self.do_scale((cx0,cy0))
+                    (px1, py1) = self.do_scale((cx1,cy1))
+                    self.c.create_line(px0, py0, px1, py1, fill=color, tag='local_maps')
+        
+        sid_star_index = 0              #plot SID by default
+        if object[0] == 'draw_sid':
+            sid_star_index = 0
+        elif object[0] == 'draw_star':
+            sid_star_index = 1
+            
+        sid_star_rwy = object[1]
+        sid_star_name = object[2]
+        if len(object) > 3:
+            color = object[3]
+        else:
+            color = 'white'
+            
+        for sid_star_index_word in self.fir.procedimientos[sid_star_rwy][sid_star_index]:              #cycle through al SID's or STAR's of one RWY
+            sid_star=self.fir.procedimientos[sid_star_rwy][sid_star_index][sid_star_index_word]
+            if (sid_star_name == '') or (sid_star_name == sid_star[0]):
+                draw_single_SID_STAR(sid_star,True)
+
+      
     def change_size(self,e):
         self.width = e.width
         self.height = e.height
@@ -1621,6 +1737,16 @@ class RaDisplay(object):
         for track in self.tracks:
             track.speed_vector_length=minutes
         
+    def process_message(self, m):
+        if m['message']=='update':
+            flights = m['flights']
+            for (old,new) in zip(self.flights,flights):
+                for name,value in new.__dict__.items():
+                    old.__dict__[name]=value
+            self.wind = m['wind']
+            self.stop_separating = True
+            self.update()
+            
     def vt_handler(self,vt,item,action,value,e=None):
         if action=="<Button-2>" and item!='plot':
             self.cancel_lad_serial=e.serial
@@ -1638,12 +1764,13 @@ class RaDisplay(object):
                     self.selected_track = vt
                     vt.selected = True
                 if self.label_moved:
-                    self.separate_labels()
+                    #self.separate_labels(vt)
+                    reactor.callInThread(self.separate_labels, vt)
                     self.label_moved = False
         if item=='leader':
             if action=='<Button-1>' or action=='<Button-3>':
-                self.separate_labels(vt)
-            
+                #self.separate_labels(vt)
+                reactor.callInThread(self.separate_labels, vt)            
     
     def b1_cb(self,e=None):
         pass
@@ -1667,21 +1794,24 @@ class RaDisplay(object):
         # Tracks are updated by the superclass when it gives them the new coords
         self.update_lads()
         self.update_stca()
-        self.separate_labels()
+        #self.separate_labels()
+        reactor.callInThread(self.separate_labels)
     
     def toggle_auto_separation(self):
         self.auto_separation = not self.auto_separation
         if self.auto_separation:
-            self.separate_labels()
+            #self.separate_labels()
+            reactor.callInThread(self.separate_labels)
         
     def separate_labels(self, single_track=None):
         tracks = self.tracks
         width,height = self.width,self.height
         canvas = self.c
-        if not self.auto_separation: return
+        if not self.auto_separation or self.separating_labels: return
         
         crono = time()
-        canvas.stop_separating = False
+        self.separating_labels = True
+        self.stop_separating = False
         
         # Find the tracks that we have to separate
         sep_list = []  # List of track whose labels we must separate
@@ -1767,9 +1897,12 @@ class RaDisplay(object):
             conflict_list.sort(lambda x,y: -cmp(x.last_rotation,y.last_rotation))
             #if len(conflict_list)>1:
             #    logging.debug("Conflict among "+str([t.cs for t in conflict_list]))
-            while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono2)<1:
-                canvas.update()
-                if canvas.stop_separating: return  # Set, for instance, when moving the display
+            while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels:
+                #canvas.update()
+                if self.stop_separating:
+                    logging.debug("Cancelling label separation after "+str(time()-crono2)+" seconds")
+                    self.separating_labels = False
+                    return  # Set, for instance, when moving the display
                 # Try rotating one of the labels on the list
                 for k in range(len(conflict_list)-1,-1,-1):
                     t = conflict_list[k]
@@ -1904,6 +2037,8 @@ class RaDisplay(object):
         for t in move_list:
             (x,y)=best_pos[t]
             t.label_coords(x,y)
+            
+        self.separating_labels = False
 
     def update_stca(self):
         """Process short term collision alert"""
@@ -1927,7 +2062,11 @@ class RaDisplay(object):
                 nalt = alt + track.rate*t
                 track.future_pos.append((nx,ny,nalt))
         
-        min_sep = 8.0  # 8 nautical miles
+        try: min_sep = self.fir.min_sep[self.sector]
+        except:
+            min_sep = 8.0  # 8 nautical miles
+            logging.warning("Sector minimum separation not found. Using 8nm")
+        
         minvert = 9.5  # 950 feet minimum vertical distance
                 
         for i in range(len(self.tracks)):
@@ -1995,119 +2134,153 @@ class RaDisplay(object):
         self.scale=min(x_scale,y_scale)*0.9
     
     def redraw_maps(self):
+        
         c = self.c  # Canvas
         fir = self.fir
         sector = self.sector
         do_scale = self.do_scale
         
-        # TODO We need to get all graphic functionality out of avion
-        # and into this class
-        # avion.set_canvas_info(self.x0,self.y0,self.scale,self.center_x,self.center_y)
         self.c.delete('radisplay')
-        # Dibujar límites del FIR
-        aux=()
-        for a in self.fir.boundaries[self.sector]:
-            aux=aux+do_scale(a)
-        c.create_polygon(aux,fill='gray9',outline='blue',tag=('boundary','radisplay'))
-        # Dibujar TMA's
-        if self.draw_tmas:
-            for a in fir.tmas:
-                aux=()
-                for i in range(0,len(a[0]),2):
-                    aux=aux+do_scale((a[0][i],a[0][i+1]))
-                c.create_line(aux,fill='gray25',tag=('tmas','radisplay'))
-                # Dibujar las rutas
-        for a in fir.routes:
-            aux=()
-            for i in range(0,len(a[0]),2):
-                aux=aux+do_scale((a[0][i],a[0][i+1]))
-            c.create_line(aux,fill='gray30',tag=('routes','radisplay'))
-            # Dibujar los fijos
-        for a in fir.points:
-            if a[0][0]<>'_':
-                (cx,cy) = do_scale(a[1])
-                coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
-                c.create_polygon(coord_pol,outline='gray40',fill='',tag=('points','radisplay'))
-                # Dibujar el nombre de los puntos
-        if self.draw_point_names:
-            for a in fir.points:
-                if a[0][0]<>'_':
-                    c.create_text(do_scale(a[1]),text=a[0],fill='gray50',tag=('pointnames','radisplay'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
-                    # Dibujar zonas delta
-        if self.draw_deltas:
-            for a in fir.deltas:
-                aux=()
-                for i in range(0,len(a[0]),2):
-                    aux=aux+do_scale((a[0][i],a[0][i+1]))
-                c.create_line(aux,fill='gray25',tag=('deltas','radisplay'))
-                # Dibujar mapas locales
-        for map_name in self.local_maps_shown:
-            objects = local_maps[map_name]
-            for ob in objects:
-                if ob[0] == 'linea':
-                    cx0 = float(ob[1])
-                    cy0 = float(ob[2])
-                    cx1 = float(ob[3])
-                    cy1 = float(ob[4])
-                    if len(ob) > 5:
-                        col = ob[5]
-                    else:
-                        col = 'white'
-                    (px0, py0) = do_scale((cx0,cy0))
-                    (px1, py1) = do_scale((cx1,cy1))
-                    c.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
-                elif ob[0] == 'arco':
-                    cx0 = float(ob[1])
-                    cy0 = float(ob[2])
-                    cx1 = float(ob[3])
-                    cy1 = float(ob[4])
-                    start_value = float(ob[5])
-                    extent_value = float(ob[6])
-                    if len(ob) > 7:
-                        col = ob[7]
-                    else:
-                        col = 'white'
-                    (px0, py0) = do_scale((cx0,cy0))
-                    (px1, py1) = do_scale((cx1,cy1))
-                    c.create_arc(px0, py0, px1, py1, start=start_value, extent=extent_value, outline=col, style='arc', tag='local_maps')
-                elif ob[0] == 'ovalo':
-                    cx0 = float(ob[1])
-                    cy0 = float(ob[2])
-                    cx1 = float(ob[3])
-                    cy1 = float(ob[4])
-                    if len(ob) > 5:
-                        col = ob[5]
-                    else:
-                        col = 'white'
-                    (px0, py0) = do_scale((cx0,cy0))
-                    (px1, py1) = do_scale((cx1,cy1))
-                    c.create_oval(px0, py0, px1, py1, fill=col, tag='local_maps')
-                elif ob[0] == 'rectangulo':
-                    cx0 = float(ob[1])
-                    cy0 = float(ob[2])
-                    cx1 = float(ob[3])
-                    cy1 = float(ob[4])
-                    if len(ob) > 5:
-                        col = ob[5]
-                    else:
-                        col = 'white'
-                    (px0, py0) = do_scale((cx0,cy0))
-                    (px1, py1) = do_scale((cx1,cy1))
-                    c.create_rectangle(px0, py0, px1, py1, fill=col, tag='local_maps')
-                elif ob[0] == 'texto':
-                    x = float(ob[1])
-                    y = float(ob[2])
-                    txt = ob[3]
-                    if len(ob) > 4:
-                        col = ob[4]
-                    else:
-                        col = 'white'
-                    (px, py) = do_scale((x,y))
-                    c.create_text(px, py, text=txt, fill=col,tag='local_maps',anchor=SW,font='-*-Times-Bold-*--*-10-*-')
-        c.addtag_withtag('radisplay','local_maps')
-        c.lower('radisplay')
         
-    
+        
+        def _draw_sector():
+            # Dibujar SECTOR
+            if self.draw_sector:
+                aux=()
+                for a in self.fir.boundaries[self.sector]:
+                    aux=aux+do_scale(a)
+                c.create_polygon(aux,fill='gray9',outline='gray9',tag=('sector','radisplay'))
+                
+        def _draw_lim_sector():
+            # Dibujar límites del SECTOR
+            if self.draw_lim_sector:
+                aux=()
+                for a in self.fir.boundaries[self.sector]:
+                    aux=aux+do_scale(a)
+                #c.create_polygon(aux,fill='',outline='blue',tag=('sector','radisplay'))
+                c.create_line(aux,fill='blue',tag=('boundary','radisplay'))
+                
+        def _draw_tma():
+            # Dibujar TMA's
+            if self.draw_tmas:
+                for a in fir.tmas:
+                    aux=()
+                    for i in range(0,len(a[0]),2):
+                        aux=aux+do_scale((a[0][i],a[0][i+1]))
+                    c.create_line(aux,fill='gray60',tag=('tmas','radisplay'))
+                    
+        def _draw_routes():
+            # Dibujar las rutas
+            if self.draw_routes:
+                for a in fir.airways:
+                    aux=()
+                    for i in range(0,len(a[0]),2):
+                        aux=aux+do_scale((a[0][i],a[0][i+1]))
+                    c.create_line(aux,fill='gray25',tag=('routes','radisplay'))
+        def _draw_fix():
+            # Dibujar fijos
+            if self.draw_point:
+                for a in fir.points:
+                    if a[0][0]<>'_':
+                        (cx,cy) = do_scale(a[1])
+                        coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
+                        c.create_polygon(coord_pol,outline='gray25',fill='',tag=('points','radisplay'))
+        def _draw_fix_names():
+            # Dibujar el nombre de los puntos
+            if self.draw_point_names:
+                for a in fir.points:
+                    if a[0][0]<>'_':
+                        c.create_text(do_scale(a[1]),text=a[0],fill='gray40',tag=('pointnames','radisplay'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
+        # Dibujar zonas delta
+        def _draw_deltas():
+            if self.draw_deltas:
+                for a in fir.deltas:
+                    aux=()
+                    for i in range(0,len(a[0]),2):
+                        aux=aux+do_scale((a[0][i],a[0][i+1]))
+                    c.create_line(aux,fill='gray40',tag=('deltas','radisplay'))
+        def _draw_local_maps():
+            # Dibujar mapas locales
+            for map_name in self.local_maps_shown:
+                objects = fir.local_maps[map_name]
+                for ob in objects:
+                    if ob[0] == 'linea':
+                        cx0 = float(ob[1])
+                        cy0 = float(ob[2])
+                        cx1 = float(ob[3])
+                        cy1 = float(ob[4])
+                        if len(ob) > 5:
+                            col = ob[5]
+                        else:
+                            col = 'white'
+                        (px0, py0) = do_scale((cx0,cy0))
+                        (px1, py1) = do_scale((cx1,cy1))
+                        c.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
+                    elif ob[0] == 'arco':
+                        cx0 = float(ob[1])
+                        cy0 = float(ob[2])
+                        cx1 = float(ob[3])
+                        cy1 = float(ob[4])
+                        start_value = float(ob[5])
+                        extent_value = float(ob[6])
+                        if len(ob) > 7:
+                            col = ob[7]
+                        else:
+                            col = 'white'
+                        (px0, py0) = do_scale((cx0,cy0))
+                        (px1, py1) = do_scale((cx1,cy1))
+                        c.create_arc(px0, py0, px1, py1, start=start_value, extent=extent_value, outline=col, style='arc', tag='local_maps')
+                    elif ob[0] == 'ovalo':
+                        cx0 = float(ob[1])
+                        cy0 = float(ob[2])
+                        cx1 = float(ob[3])
+                        cy1 = float(ob[4])
+                        if len(ob) > 5:
+                            col = ob[5]
+                        else:
+                            col = 'white'
+                        (px0, py0) = do_scale((cx0,cy0))
+                        (px1, py1) = do_scale((cx1,cy1))
+                        c.create_oval(px0, py0, px1, py1, fill=col, tag='local_maps')
+                    elif ob[0] == 'rectangulo':
+                        cx0 = float(ob[1])
+                        cy0 = float(ob[2])
+                        cx1 = float(ob[3])
+                        cy1 = float(ob[4])
+                        if len(ob) > 5:
+                            col = ob[5]
+                        else:
+                            col = 'white'
+                        (px0, py0) = do_scale((cx0,cy0))
+                        (px1, py1) = do_scale((cx1,cy1))
+                        c.create_rectangle(px0, py0, px1, py1, fill=col, tag='local_maps')
+                    elif ob[0] == 'texto':
+                        x = float(ob[1])
+                        y = float(ob[2])
+                        txt = ob[3]
+                        if len(ob) > 4:
+                            col = ob[4]
+                        else:
+                            col = 'white'
+                        (px, py) = do_scale((x,y))
+                        c.create_text(px, py, text=txt, fill=col,tag='local_maps',anchor=SW,font='-*-Times-Bold-*--*-10-*-')
+                    elif ob[0] == 'draw_star' or ob[0] == 'draw_sid':
+                        self.draw_SID_STAR(ob)
+                    elif ob[0] == 'polyline':
+                        self.draw_polyline(ob)
+            c.addtag_withtag('radisplay','local_maps')
+            c.lower('radisplay')
+
+        _draw_sector()
+        _draw_local_maps()
+        _draw_deltas()
+        _draw_fix()
+        _draw_fix_names()
+        _draw_routes()
+        _draw_tma()
+        _draw_local_maps()
+        _draw_lim_sector()
+         
     def redraw(self):
         """Delete and redraw all elements of the radar display"""
 
@@ -2163,7 +2336,10 @@ class RaDisplay(object):
             (x,y)=self.do_scale((vt.wx,vt.wy))
             vt.coords(x,y,None)
         self.update_lads()
-        self.c.stop_separating = True
+        self.stop_separating = True  # If the repositioning code
+                    # when refreshing the display while running
+                    # the label separation algorithm, we want it
+                    # to stop or there will be artifacts
         
     def do_scale(self,a):
         """Convert world coordinates into screen coordinates"""
@@ -2176,8 +2352,24 @@ class RaDisplay(object):
         """Convert screen coodinates into world coordinates"""
         return s((self.x0,self.y0),p(r((a[0],-a[1]),(self.center_x,-self.center_y)),1/self.scale))
         
+    def toggle_routes(self):
+        self.draw_routes = not self.draw_routes
+        self.redraw_maps()    
+    
     def toggle_point_names(self):
         self.draw_point_names = not self.draw_point_names
+        self.redraw_maps()
+        
+    def toggle_point(self):
+        self.draw_point = not self.draw_point
+        self.redraw_maps()
+
+    def toggle_sector(self):
+        self.draw_sector = not self.draw_sector
+        self.redraw_maps()
+        
+    def toggle_lim_sector(self):
+        self.draw_lim_sector = not self.draw_lim_sector
         self.redraw_maps()
 
     def toggle_tmas(self):
@@ -2187,6 +2379,17 @@ class RaDisplay(object):
     def toggle_deltas(self):
         self.draw_deltas = not self.draw_deltas
         self.redraw_maps()
+        
+    def exit(self):
+        ra_clearbinds(self)
+        for t in self.tracks:
+            t.destroy()
+        self.top_level.destroy()
+        try: self.sendMessage = None  # Clear the callback to the protocol
+        except: pass
+        
+    def __del__(self):
+        logging.debug("RaDisplay.__del__")
 
 class Storm(object):
     def __init__(self,radisplay,e):
@@ -2291,7 +2494,7 @@ if __name__ == "__main__":
     #l = canvas.create_line(0,0,1,1)
     #ra_tag_bind(canvas,l,"<2>",ra_tag_bind)
     #ra_tag_unbind(canvas,l,"<2>")
-    #ra_clearbinds(l)
+    #ra_cleartagbinds(l)
     fir=FIR('pasadas/Ruta-FIRMadrid/Ruta-FIRMadrid.fir')
     logging.getLogger('').setLevel(logging.DEBUG)    
     display=Pseudopilot.PpDisplay([],'testing','./img/crujisim.ico',fir,'CASTEJON')

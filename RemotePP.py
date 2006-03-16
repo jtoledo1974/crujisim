@@ -19,6 +19,7 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import sys
+import gc
 sys.path.append ("lib")
 from twisted.internet import reactor, tksupport, defer
 from twisted.internet.protocol import ClientCreator
@@ -102,6 +103,10 @@ class RemoteClient:
             elif self.type==ATC:
                 d=self.display=UCS(self.flights,'testing','./img/crujisim.ico',fir,sector,mode='atc')
             d.sendMessage = self.protocol.sendMessage
+            #logging.debug("REFS despues de asignar"+str(sys.getrefcount(self.display)))
+            #self.client.exit()
+            #logging.debug("REFS despues de exit"+str(sys.getrefcount(d)))            
+            #logging.debug("REFS despues de exit"+str(gc.get_referrers(d)))            
             self.display.top_level.protocol("WM_DELETE_WINDOW",lambda :reactor.callLater(0,self.exit))
             return
         
@@ -113,7 +118,11 @@ class RemoteClient:
         d = self.display
         d.exit()
         self.display = p.client = None
-#        del(d)
+        logging.debug(str(gc.get_referrers(d)))
+        logging.debug(str(gc.get_referrers(p)))
+        #logging.debug(str([str(f.__dict__) for f in gc.get_referrers(d)]))
+        del(d)
+        gc.collect()
     
     def __del__(self):
         logging.debug("RemoteClient.__del__")
@@ -169,7 +178,7 @@ def main():
             reactor.stop()
             return
         print "Connecting "+ip+", port "+str(port)
-        RemoteClient().connect(ip,port,ATC, connectionLost).addErrback(failed_connection)
+        RemoteClient().connect(ip,port,PSEUDOPILOT, connectionLost).addErrback(failed_connection)
 
     reactor.callWhenRunning(ask_ip)
     

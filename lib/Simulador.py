@@ -21,6 +21,14 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
+#############################
+# W A R N I N G ! ! !
+#
+# Do not edit this code. This code is considered old and deprecated
+# Functionality here is or will be implemented in GTA.py and Pseudopilot.py
+#
+#############################
+
 
 def set_latest_lad(num):
     global latest_lad_event_processed

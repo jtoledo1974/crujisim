@@ -35,6 +35,7 @@ class FIR:
         self.points=[]   # List of geo coordinates of points
         self.rel_points={}#Dictionary of points relative to another. Format: [RELATIVE_POINT NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
         self.routes=[]   # List of points defining standard routes within the FIR
+        self.airways=[] #List of airways... just for displaying on map
         self.tmas=[]     # List of points defining TMAs
         self.local_maps={}  # Dictionary of local maps
         self.aerodromes=[]  # List of aerodrome codes
@@ -52,7 +53,12 @@ class FIR:
         self.auto_departures={}  # Whether there are autodepartures for each sector
         self.fijos_impresion={}
         self.fijos_impresion_secundarios={}
+        self.local_maps_order=[]
+        # TODO: ADs should be a class on its own, with attributes
+        # like elevation, rwys, which sector has to approve a departure if any,
+        # etc.
         self.local_ads={}
+        self.release_required_ads={}
         
         import ConfigParser
         self._firdef = ConfigParser.ConfigParser()
@@ -91,16 +97,13 @@ class FIR:
                         base_point_name = self.rel_points[relative_point_name][0]
                         base_point_coordinates = [p[1] for p in self.points if p[0]==base_point_name]
                         if len(base_point_coordinates)>0:
-                            
                             #Exists, so lets make the conversion to cartesian's and add the point to the list
                             (x,y)=pr(self.rel_points[relative_point_name][1])
                             (x,y)=(x+base_point_coordinates[0][0],y+base_point_coordinates[0][1])
                             self.points.append([relative_point_name,(x,y)])
                             scan_again = True
 
-                    
-                        
-        # FIR Routes
+            # FIR Routes
         lista=self._firdef.items('rutas')
         for (num,aux) in lista:
             linea=aux.split(',')
@@ -110,6 +113,17 @@ class FIR:
                     if p==q[0]:
                         aux2=aux2+q[1]
             self.routes.append([aux2])
+            
+        #FIR Airways   
+        lista=self._firdef.items('aerovias')
+        for (num,aux) in lista:
+            linea=aux.split(',')
+            aux2=()
+            for p in linea:
+                for q in self.points:
+                    if p==q[0]:
+                        aux2=aux2+q[1]
+            self.airways.append([aux2])
             # FIR TMAs
         if self._firdef.has_section('tmas'):
             lista=self._firdef.items('tmas')
@@ -129,6 +143,7 @@ class FIR:
                 if self._firdef.has_section(map_section):
                     map_name = self._firdef.get(map_section, 'nombre')
                     map_items = self._firdef.items(map_section)
+                    self.local_maps_order.append(map_name)
                     # Store map name and graphical objects in local_maps
                     # dictionary (key: map name)
                     map_objects = []
@@ -161,10 +176,10 @@ class FIR:
                 self.rwys[airp.upper()] = total_rwys
                 # First runway if the preferential
                 self.rwyInUse[airp.upper()] = total_rwys.split(',')[0]
-                # SID and STAR procedures
+        # SID and STAR procedures
         for aerop in self.rwys.keys():
             for pista in self.rwys[aerop].split(','):
-              # SID
+                # SID
                 sid = {}
                 lista = self._firdef.items('sid_'+pista)
                 for (nombre_sid,puntos_sid) in lista:
@@ -181,7 +196,7 @@ class FIR:
                             incidencias.append('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
                             logging.debug ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
                     sid[last_point] = (nombre_sid,points_sid)
-                    # Procedimientos STAR
+                # Procedimientos STAR
                 star = {}
                 lista = self._firdef.items('star_'+pista)
                 for (nombre_star,puntos_star) in lista:
@@ -271,7 +286,7 @@ class FIR:
                             aux2=aux2+q[1]
                 self.deltas.append([aux2])
                 
-                # Sector characteristics
+        # Sector characteristics
                 
         for section in self._firdef.sections():
             if section[0:6]=='sector':
@@ -282,6 +297,7 @@ class FIR:
                 self.fijos_impresion[sector_name]=[]
                 self.fijos_impresion_secundarios[sector_name]=[]
                 self.local_ads[sector_name]=[]
+                self.release_required_ads[sector_name]=[]
                 
         # Load data for each of the sectors
         for (sector,section) in self._sector_sections.items():
@@ -297,7 +313,8 @@ class FIR:
                 if auxi:
                     incidencias.append(('En el límite de sector no encontrado el self.points '+a))
                     logging.debug ('En límite de sector no encontrado el self.points '+a)
-                    
+             
+             #Build TWO LOCAL MAPS: One with sectors limits, and the other with the transparency
                     # Separación mínima del sector
             if self._firdef.has_option(section,'min_sep'):
                 self.min_sep[sector]=float(self._firdef.get(section,'min_sep'))
@@ -355,6 +372,11 @@ class FIR:
             except: ads=[]
             self.local_ads[sector]=ads
         
+            # Release required ADs
+            try: ads=self._firdef.get(section,'release_required_ads').split(',')
+            except: ads=[]
+            self.release_required_ads[sector]=ads
+
         # Load the route database which correspond to this FIR
         import Exercise
         try:
@@ -368,12 +390,7 @@ class FIR:
         except:
             pass
             login.error('No existe el punto'+point_name)
-
-def pr(a):  # Polares a rectangulares
-    r=a[0]
-    ang=a[1]
-    return(r*sin(radians(ang)),r*cos(radians(ang)))
-
+            
 def load_firs(path):
     import ConfigParser
     
@@ -392,17 +409,13 @@ def load_firs(path):
         try:
             fir=FIR(f)
         except:
-            logging.warning("Unable to read FIR file"+f)
+            logging.warning("Unable to read FIR file"+f,exc_info=True)
             continue
                 
         firs.append(fir)
             
     return firs
 
-
-
 if __name__ == "__main__":
     #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
     print [fir.file for fir in load_firs('..')]
-    
-    

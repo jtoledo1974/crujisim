@@ -20,6 +20,8 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+"""Miscelaneuous GUI helper functions and classes"""
+
 class Dialog:
     """Standard dialog to be used with Tkinter"""
     import Tkinter

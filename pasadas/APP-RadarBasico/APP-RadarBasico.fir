@@ -3,6 +3,9 @@
 nombre: AppRadarBasico
 
 [puntos]
+_833DMEILS33:BRA,8.33,149
+_833RINT:_833DMEILS33,5.0,105
+_833LINT:_833DMEILS33,5.0,195
 HIDRO:80.773,-119.857
 DEMOS:104.223,-274.889
 NARBO:155.467,-269.244
@@ -255,16 +258,23 @@ _TMA10:325.633,-435.81
 _TMA11:311.985,-415.451
 _TMA12:318.254,-393.724
 
+[aerovias]
+1:NEA,ORBIS
+2:NEA,NVS,TLD,CRISA
+3:DGO,RBO,PDT,VTB,LOGRO
+4:PPN,BAN,PINAR,CJN,CLS
+6:ZMR,NVS,RBO,PINAR,SEGRE,PONEN
+7:BARDI,NVS,GE,PARLA
+8:RAKOD,NVS
+9:CCS,TLD,PARLA,PDT,CANES,CJN,ASTRO
+10:CRISA,VTB
 
 [rutas]
-36:_2DMEILS,MA,_6DMEILS,8,_10DMEILS,12,_14DMEILS,_16,_27
-38:_8_D,_8_I
-39:_10DMEILS_D,_10DMEILS_I
-40:_12_D,_12_I
-41:_14DMEILS_D,_14DMEILS_I
 
 [aeropuertos]
 1:LEMD,PDT,GE,_2DME
+[elevaciones]
+1:0020,0024,0021,0024
 
 [tmas]
 ;tma_santiago:_TSTG1,_TSTG2,_TSTG3,KORAV,MEGAT,ASTUR,LOMDA,FORNO,_TSTG4,_TSTG5,RALUS,_TSTG6,_TSTG7,NARBO,_TSTG8,_TSTG9,DEMOS
@@ -278,7 +288,11 @@ tma_madrid:_TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_TMA9,_TMA10,_TMA11,_
 [deltas]
 
 [mapas_locales]
-mapas=mapa1,SIDs,STARs
+mapas=mapa1,SIDs,STARs,ILS33,LM_1
+
+[LM_1]
+nombre:LM1
+comandZ01:polyline,#3409a6,_833LINT,_833DMEILS33,_833RINT
 
 [mapa1]
 nombre:MVA
@@ -339,6 +353,14 @@ mva55:texto,408.639193384,-357.301423664,8000,gray60
 mva56:texto,422.102770992,-398.429886768,7000,gray60
 mva57:texto,365.66640458,-436.054131043,6000,gray60
 
+[ILS33]
+nombre:ILS33
+a36:polyline,gray60,_2DMEILS,_27
+a38:polyline,gray60,_8_D,_8_I
+a39:polyline,gray60,_10DMEILS_D,_10DMEILS_I
+a40:polyline,gray60,_12_D,_12_I
+a41:polyline,gray60,_14DMEILS_D,_14DMEILS_I
+
 [SIDs]
 nombre:SIDs LEMD33
 comandoA01:draw_sid,LEMD33,,gray60
@@ -347,8 +369,6 @@ comandoA01:draw_sid,LEMD33,,gray60
 nombre:STARs LEMD33
 comandoB01:draw_star,LEMD33,,gray60
 comandoB02:polyline,gray60,PARLA,PDT
-comandoB03:polyline,gray60,CJN,CLS
-comandoB04:polyline,gray60,CJN,ASTRO
 
 [esperas_publicadas] ; fijo:rumbo acercamiento,tiempo de alejamiento y giros D/I
 ORBIS: 155,1.0,D

@@ -17,6 +17,16 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+
+#############################
+# W A R N I N G ! ! !
+#
+# Do not edit this code. This code is considered old and deprecated
+# This is currently not in use since everybody should use SVN clients for now
+# and will eventually be implemented inside Crujisim.py using GTK
+#
+#############################
+
 from Tix import *
 import tkMessageBox
 import urllib

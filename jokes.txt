@@ -13,7 +13,7 @@ APP: GBUBC, say fuelstate.|GBUBC: Fuelstate|APP: GBUBC, say again?|GBUBC: Again.
 RUTA: Delta 351, your traffic at 10 o'clock, 7 miles!|DAL351: Request another hint. We have digital watches!
 APP: BAW2327, confirm you have copied HOTEL information.|BAW2327: Negative, Sir. Report room number.
 TWR: GBEBU, are you a Cessna?|GBEBU: No, sir...I am a Caucasian male.
-APP: JKK2327, reduzca indicada a 120 nudos.|JKK2327: ¿Sabe Vd cuál es la velocidad de pérdida de este avión con flaps|extendidos?|APP: Ni idea, pero seguramente su copiloto pueda decÃ­rselo.
+APP: JKK2327, reduzca indicada a 120 nudos.|JKK2327: ¿Sabe Vd cuál es la velocidad de pérdida de este avión con flaps|extendidos?|APP: Ni idea, pero seguramente su copiloto pueda decírselo.
 APP: T2207, climb to FL380. Climb at 5000 fpm or higher.|...|APP: T2207, report heading.|T2207: Up, Sir.
 TWR: IBE2365, llame a APP en 121,7. Buen vuelo.|IBE2365: APP en 121,7. Hemos visto alguna clase de animal muerto en el|extremo de pista.|TWR: JKK2328, autorizado a despegar, viento 24010. ¿Ha copiado del IBE2365?|JKK2328: Hemos copiado y avisado a catering. Muchas gracias.
 APP: AFR9027, are you an Airbus 340 or an Airbus 320?|AFR9027: An Airbus 340, Sir, AFR9027.|APP: Would you mind switching the other two engines on and climbing at 1000 fpm?

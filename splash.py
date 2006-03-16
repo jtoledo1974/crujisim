@@ -49,7 +49,10 @@ from stat import *
 try:
     from twisted.internet import gtk2reactor # for gtk-2.0
     gtk2reactor.install()
-    from twisted.internet import reactor
+    from twisted.internet import reactor, tksupport
+    # The label separation code is run within it's own thread
+    from twisted.python import threadable
+    threadable.init()
 except:
     logging.exception("Unable to load Twisted library")
 try: 
@@ -67,13 +70,16 @@ except:
     
 # Import program modules
 try:
-    from banner import *
+    import Tix
+    import banner
     from Exercise import *
     from FIR import *
     import avion  # To load aircraft types
     import UI
     import ConfMgr  
     conf = ConfMgr.CrujiConfig()
+    from GTA import GTA
+    from RemoteClient import *
 except:
     logging.exception("Error loading program modules")
     sys.exit(1)
@@ -90,6 +96,12 @@ AIRCRAFT_FILE = "modelos_avo.txt"
 class Crujisim:
     
     def __init__(self):
+        
+        root = Tix.Tk()
+        root.withdraw()
+        tksupport.install(root)
+        self.tkroot = root
+
         gladefile = GLADE_FILE 
         self.windowname = "splash" 
 
@@ -333,16 +345,16 @@ class Crujisim:
         except: pass
         
     def gtk_main_quit(self,w=None,e=None):
+        logging.info("Exiting...")
         conf.fir_option=UI.get_active_text(self.fircombo)
         conf.sector_option=UI.get_active_text(self.sectorcombo)
         conf.course_option=UI.get_active_text(self.coursecombo)
         conf.phase_option=UI.get_active_text(self.phasecombo)
         conf.save()
-        gtk.main_quit()
-        # Force exit or the reactor may become hanged
-        # due to the loading and unloading of tksupport
-        # (a bug entry has been raised against twisted)
-        sys.exit()
+
+        # Calling gtk.main_quit() actually hanged here.
+        # Just reactor.stop() seems to do the trick, though.
+        reactor.stop()
         
     def list_clicked(self,widget=None,event=None):
         if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
@@ -405,12 +417,12 @@ class Crujisim:
         except:
             UI.alert("No hay ninguna pasada seleccionada", parent=self.MainWindow)
             return
-        for (fir,fir_file) in get_fires():
+        for (fir,fir_file) in banner.get_fires():
             if fir_name==fir:
                 fir_elegido=(fir, fir_file)
                 break
         sector_name = model.get_value(iter,self.ex_ls_cols["sector"])
-        for (sector, section) in get_sectores(fir_name):
+        for (sector, section) in banner.get_sectores(fir_name):
             if sector==sector_name:
                 sector_elegido=(sector,section)
                 break            
@@ -419,11 +431,28 @@ class Crujisim:
             sys.modules.pop('tpv')
 
         import tpv
-        tpv.set_seleccion_usuario([fir_elegido , sector_elegido , ejercicio_elegido , 1])
+        su = [fir_elegido , sector_elegido , ejercicio_elegido , 1]
+        tpv.set_seleccion_usuario(su)
 
-        if "Simulador" in sys.modules:
-            sys.modules.pop('Simulador')
-        import Simulador
+        #if "Simulador" in sys.modules:
+        #    sys.modules.pop('Simulador')
+        #import Simulador
+        
+        # TODO The following should be done using a deferred
+        [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv.tpv()
+        fir = FIR(su[0][1])
+        sector = su[1][0]
+        [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv.tpv()
+
+        def exit(var):
+            self.MainWindow.present()
+            pass
+            
+        gta = GTA(fir,sector,ejercicio,h_inicio, wind)
+        gta.start().addCallback(exit)
+        
+        self.MainWindow.hide()
+        RemoteClient().connect("localhost",conf.server_port, PSEUDOPILOT)
 
 class ExEditor:
     # Response constants

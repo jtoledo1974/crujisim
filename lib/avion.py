@@ -22,14 +22,23 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-from Tkinter import *
+#from Tkinter import *
 from RaDisplay import *
 from MathUtil import *
-from Tix import *
-import tkFont
+#from Tix import *
+#import tkFont
 import lads
 import sys
 import logging
+
+# Constants
+LEFT = "LEFT"
+RIGHT = "RIGHT"
+
+PREACTIVE = "PREACTIVE"
+READY = "READY"
+
+# Globals
 
 all_lads = []
 definiendo_lad = 0
@@ -436,8 +445,11 @@ class Airplane:
         self.vt = None
             
     def __getstate__(self):
+        """This function is called by the pickler. We remove the attributes
+        that we don't want to send through the wire"""
         odict = self.__dict__.copy()
-        del odict['canvas']
+        try: del odict['canvas']
+        except: pass
         del odict['vt']
         return odict
         
@@ -634,10 +646,12 @@ class Airplane:
         print self.to_do,self.to_do_aux
         
     def set_route(self,route):
+        self.cancel_app_auth()
         self.route = route
         self.vfp = True
         self.to_do = 'fpr'
         self.to_do_aux = []
+        self.set_app_fix()
         
     def set_initial_t(self,t):
         self.t = t
@@ -764,7 +778,116 @@ class Airplane:
         
     def set_sector_entry_time(self,time):
         self.sector_entry_time=time
+
+    def cancel_app_auth(self):
+        if self.app_auth:
+            for i in range(len(self.route),0,-1):
+                if self.route[i-1][1] == self.fijo_app:
+                    self.route = self.route[:i]
+                    break
+    
+    def hold(self, fix, inbound_track, outbound_time, turn_direction):
+        self.vfp = False
+        self.to_do = 'hld'
+        self.to_do_aux = [fix, inbound_track, outbound_time, 0.0, False, turn_direction]
+        self.cancel_app_auth()
         
+    def hdg_after_fix(self, aux, hdg):
+        self.vfp = False
+        self.to_do = 'hdg<fix'
+        self.to_do_aux = [aux, hdg]
+        self.cancel_app_auth()
+        
+    def int_rdl(self, aux, track):
+        if self.to_do <> 'hdg':
+            self.hold_hdg = self.hdg
+        self.vfp = False
+        self.to_do = 'int_rdl'
+        self.to_do_aux = [aux, track]
+        self.cancel_app_auth()
+        
+    def execute_map(self):
+        self._map = True
+        
+    def int_ils(self):
+        if self.to_do <> 'hdg':
+            self.hold_hdg = self.hdg
+            # Se supone que ha sido autorizado previamente
+        self.to_do = 'app'
+        self.app_auth = True
+        (puntos_alt,llz,puntos_map) = fir.proc_app[self.fijo_app]
+        [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
+        self.route = [[xy_llz,'_LLZ','']]
+        self.int_loc = True
+        (puntos_alt,llz,puntos_map) = fir.proc_app[self.fijo_app]
+        # En este paso se desciende el tráfico y se añaden los puntos
+        logging.debug('Altitud: '+str(puntos_alt[0][3]))
+        self.set_cfl(puntos_alt[0][3]/100.)
+        self.set_std_rate()
+
+    def int_llz(self):
+        if self.to_do <> 'hdg':
+            self.hold_hdg = self.hdg
+            # Se supone que ha sido autorizado previamente
+        (puntos_alt,llz,puntos_map) = fir.proc_app[self.fijo_app]
+        [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
+        self.to_do = 'int_rdl'
+        self.to_do_aux = [xy_llz, rdl]
+        
+    def orbit(self, turn_direction):
+        self.to_do = 'orbit'
+        if turn_direction == LEFT:
+            self.to_do_aux = ['IZDA']
+        else:
+            self.to_do_aux = ['DCHA']
+            
+    def execute_app(self, dest, iaf):
+        # TODO Currently we are not checking which destination the
+        # user asked for, and just clear for approach to the current destination
+        self.app_auth = True
+        self._map = False
+        self.fijo_app = ''
+        for i in range(len(self.route),0,-1):
+            if self.route[i-1][1] in fir.proc_app.keys():
+                self.fijo_app = self.route[i-1][1]
+                break
+        if self.fijo_app == '': # No encuentra procedimiento de aprox.
+            pass
+        (puntos_alt,llz,puntos_map) = fir.proc_app[self.fijo_app]
+        # En este paso se desciende el tráfico y se añaden los puntos
+        logging.debug('Altitud: '+str(puntos_alt[0][3]))
+        self.set_cfl(puntos_alt[0][3]/100.)
+        self.set_std_rate()
+        if self.to_do == 'hld':
+            pass
+        else:
+            self.to_do = 'app'
+            for i in range(len(self.route),0,-1):
+                if self.route[i-1][1] == self.fijo_app:
+                    self.route = self.route[:i]
+                    break
+            for [a,b,c,h] in puntos_alt:
+                self.route.append([a,b,c,0.0])
+            self.route.append([llz[0],'_LLZ',''])
+        logging.debug("Autorizado aproximación: " +str(self.route))
+        
+    def depart(self, sid, cfl, t):
+        if sid.upper() != self.sid.upper():  # self.sid is set in GTA.py
+            for [p,(x,y)] in fir.points:
+                if p==self.sid[:-2]:
+                    break
+            for i in range(len(self.route)):
+                if self.route[i][1] in sid.upper():
+                    self.route = self.route[i+1:]
+                    self.route.insert(0,[(x,y),p,''])
+                    complete_flight_plan(self)
+                    break
+        # Ahora se depega el avión y se elimina de la lista
+        self.t = t
+        self.t_ficha = t-100.
+        self.ficha_imprimida = True
+        self.cfl = cfl
+        self.next(t)        
         
     def se_debe_imprimir(self,t):
       # Definimos cuánto tiempo antes nos sale la ficha y el tiempo de permanencia del mensaje

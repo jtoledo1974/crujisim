@@ -74,7 +74,13 @@ _AIRP2:101.73,99.0
 _AIRP3:100.1,100.17
 _AIRP4:101.83,99.17
 
-[rutas]; rutas que queremos ver en la presentación radar
+[aerovias]
+1: BELEN,NORTA,CNA,MANTO,BAN
+2: PATEL,TACOS,CNA,TERRA,BOPAR,LURKO,DUMAS,PPN
+3: SNR,ROKIS,CNA,LURKO
+4: _AIRP1,_AIRP2,_AIRP4,_AIRP3,_AIRP1,_AIPR4,_AIRP2,_AIRP3
+
+[rutas]
 1: BELEN,NORTA,CNA,MANTO,BAN
 2: PATEL,TACOS,CNA,TERRA,BOPAR,LURKO,DUMAS,PPN
 3: SNR,ROKIS,CNA,LURKO
@@ -82,6 +88,7 @@ _AIRP4:101.83,99.17
 
 [aeropuertos] ; Debemos incluir los aeropuertos y los IAF
 1:LECE,TERRA,MARES
+2:0001,0010,0010
 
 [esperas_publicadas] ; fijo:rumbo acercamiento,tiempo de alejamiento y giros D/I
 terra : 300.0,1.0,D

@@ -23,6 +23,15 @@
 
 from math import sin, cos, sqrt, radians
 
+#############################
+# W A R N I N G ! ! !
+#
+# Do not edit this code. This code is considered old and deprecated
+# Functionality here is implemented in RaDisplay.py
+#
+#############################
+
+
 class LAD:
     def __init__(self, origin, destination):
         self.origin = origin
