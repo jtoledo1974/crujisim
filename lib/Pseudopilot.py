@@ -163,38 +163,10 @@ class PpDisplay(RaDisplay):
                     canvas.delete(ident)
                 def direct_to():
                     pto=id_pto.get()
-                    # Caso de dar directo al punto seleccionado
-                    if pto == point_name:
-                        print "Selected plane should fly direct to point", point_coord
-                        for i in range(len(track.route)):
-                            if point_coord==track.route[i][0]:
-                                aux=track.route[i:]
-                        track.set_route(aux)
-                        close_win()
-                        canvas.delete(track.name+'wp')
-                    else:
-                        aux = None
-                        # Si es un punto intermedio de la ruta, lo detecta
-                        for i in range(len(track.route)):
-                            if track.route[i][1] == pto.upper():
-                                aux = track.route[i:]
-                                # Si no estáen la ruta, insertamos el punto como n 1
-                        if aux == None:
-                            for [nombre,coord] in self.fir.points:
-                                if nombre == pto.upper():
-                                    aux = [[coord,nombre,'']]
-                                    print "Selected plane should fly direct to point", nombre,coord
-                                    for a in track.route:
-                                        aux.append(a)
-                                        # Si no encuentra el punto, fondo en rojo y no hace nada
-                        if aux == None:
-                            id_pto.config(bg='red')
-                            print 'Punto ',pto.upper(),' no encontrado'
-                        else:
-                            track.set_route(aux)
-                            close_win()
-                            canvas.delete(track.name+'wp')
-                            show_hide_fpr()
+                    self.sendMessage({"message":"route_direct", "cs":track.name, "fix":pto})
+                    track.route_direct(pto)  # Only to give an immediate appearance
+                    canvas.delete(track.name+'wp')
+                    self.show_hide_fpr(track)
                 but_cancel['command'] = close_win
                 but_direct['command'] = direct_to
             canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)

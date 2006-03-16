@@ -870,6 +870,29 @@ class Airplane:
                 self.route.append([a,b,c,0.0])
             self.route.append([llz[0],'_LLZ',''])
         logging.debug("Autorizado aproximación: " +str(self.route))
+    
+    def route_direct(self, fix):
+        aux = None
+        # Si es un punto intermedio de la ruta, lo detecta
+        for i in range(len(self.route)):
+            if self.route[i][1] == fix.upper():
+                aux = self.route[i:]
+        # Si no estáen la ruta, insertamos el punto como n 1
+        if aux == None:
+            for [nombre,coord] in self.fir.points:
+                if nombre == fix.upper():
+                    aux = [[coord,nombre,'']]
+                    for a in self.route:
+                        aux.append(a)
+        # Si no encuentra el punto, fondo en rojo y no hace nada
+        if aux == None:
+            # TODO we need to deal with exceptions on the networking code
+            logging.warning('Punto '+fix.upper()+' no encontrado al tratar de hacer una ruta directa')
+            return
+
+        # This is what actually sets the route
+        self.set_route(aux)
+        
         
     def depart(self, sid, cfl, t):
         if sid.upper() != self.sid.upper():  # self.sid is set in GTA.py

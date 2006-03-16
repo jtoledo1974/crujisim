@@ -280,6 +280,12 @@ class GTA:
                 else: f.set_spd(int(m["ias"]), force=m["force_speed"])
             except: logging.warning("Error while setting IAS",
                                     exc_info = True)
+        elif m['message']=="route_direct":
+            logging.debug("Route direct "+str(m))
+            try:
+                f.route_direct(m["fix"])
+            except: logging.warning("Error while setting direct routing",
+                                    exc_info = True)
         elif m['message']=="depart":
             logging.debug("Depart "+str(m))
             try:
@@ -289,6 +295,8 @@ class GTA:
                         del self.departure_list[airp][m['cs']]
             except: logging.warning("Error while departing acft",
                                     exc_info = True)
+        else:
+            loging.critical("Unknown message type in message "+str(m))
             
     def exit(self):
         # Close connection with all connected clients
