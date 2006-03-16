@@ -166,7 +166,7 @@ class PpDisplay(RaDisplay):
                     self.sendMessage({"message":"route_direct", "cs":track.name, "fix":pto})
                     track.route_direct(pto)  # Only to give an immediate appearance
                     canvas.delete(track.name+'wp')
-                    self.show_hide_fpr(track)
+                    self.waypoints.remove(track)
                     close_win()
                 but_cancel['command'] = close_win
                 but_direct['command'] = direct_to
