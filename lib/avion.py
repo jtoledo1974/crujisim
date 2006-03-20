@@ -113,9 +113,6 @@ def v(self):
         #     p=min((self.alt-vel_tma)/(self.fl_max-vel_tma),1.)
         #     return min(self.spd_max * p + self.spd_tma * (1-p),self.spd_std)
         
-def mach(self):
-  # Devuelve el nmero de mach
-    return mach_from_tas(self.spd,self.alt * 100)
     
 def f_vert(self):
   # Devuelve factor corrección de velocidad vertical
@@ -717,6 +714,11 @@ class Airplane:
         
     def get_speed(self):
         return self.spd
+    
+    def get_mach(self):
+    # Devuelve el nmero de mach
+      return mach_from_tas(self.spd,self.alt * 100)
+
         
     def get_ias_max(self):
         return self.spd_max/(1.0+0.002*self.fl_max)

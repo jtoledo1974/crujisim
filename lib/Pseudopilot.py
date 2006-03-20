@@ -208,6 +208,7 @@ class PpDisplay(RaDisplay):
             vt.wake=f.estela
             vt.echo=f.campo_eco
             vt.gs=f.ground_spd
+            vt.mach=f.get_mach()
             vt.hdg=f.hdg
             vt.track=f.track
             vt.rate=f.get_rate_descend()

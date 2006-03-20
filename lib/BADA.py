@@ -271,7 +271,7 @@ class Atmosphere:
         h = h = 0.3048 * h  #Turn it into m
         T = self.get_temperature(h)
         tas = tas * 0.514444444 # Turn into m/s
-        mach = tas / ((1.4 * 287.04 * T) ** 2)
+        mach = tas / sqrt(1.4 * 287.04 * T)
         return mach
 
 try: load_equiv("Modelos_avo.txt")
@@ -286,3 +286,4 @@ if __name__=='__main__':
         print "Sound speed", a.get_sound_speed(h)
         print "TAS", a.get_tas_from_cas(200, h)
         print "CAS", a.get_cas_from_tas(a.get_tas_from_cas(200, h), h)
+        print "MACH", a.get_mach_from_tas(a.get_tas_from_cas(200, h), h)
