@@ -256,7 +256,23 @@ class Atmosphere:
         aux = 2 * self.P0_isa * aux / (mu * self.rho0_isa)
         cas = sqrt(aux)
         cas = cas / 0.514444444  # Turn it into knots
-        return cas    
+        return cas
+    
+    def get_tas_from_mach(self, mach, h):
+        """returns a TAS speed (Knots), given a MACH number and Height(feet)"""
+        h = 0.3048 * h  #Turn it into m
+        T = self.get_temperature(h)
+        tas = mach * sqrt(1.4 * 287.04 * T)
+        tas = tas / 0.514444444 # Turn it into knots
+        return tas
+    
+    def get_mach_from_tas(self,tas, h):
+        """returns a MACH number, given a tas (knots) and a Height (feet)"""
+        h = h = 0.3048 * h  #Turn it into m
+        T = self.get_temperature(h)
+        tas = tas * 0.514444444 # Turn into m/s
+        mach = tas / ((1.4 * 287.04 * T) ** 2)
+        return mach
 
 try: load_equiv("modelos_avo.txt")
 except: load_equiv("../modelos_avo.txt")
