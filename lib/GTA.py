@@ -316,6 +316,9 @@ class GTA:
     
 class GTA_Protocol(NetstringReceiver):
     
+    # TODO Pickle is not secure across a network
+    # I need to find a simple secure replacement
+    
     def __init__(self):
         self._deferred = None
         self.time_string = ''

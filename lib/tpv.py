@@ -35,6 +35,8 @@ warnings.filterwarnings('ignore','.*',DeprecationWarning)
 from StripSeries import StripSeries, FlightData
 from ConfigParser import *
 from avion import *
+from FIR import FIR
+import BADA
 import glob
 from Tix import *
 import Image
@@ -162,7 +164,6 @@ def tpv():
     except:
         wind = [0.0 , 0.0]
     # Inicialización de variables en avión.py
-    set_canvas_info(1.0,1.0,1.0,1.0,1.0)
     set_global_vars(punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse,procedimientos,proc_app,min_sep)
     
     aviones = config.items('vuelos')
@@ -173,6 +174,10 @@ def tpv():
         d=Airplane()
         d.set_callsign(nombre.upper())
         d.set_kind(lista[0])
+        try:
+            d.perf = BADA.Performance(lista[0], "bada.txt")
+        except: 
+            logging.warning("No BADA info for "+nombre.upper()+" ("+lista[0]+")")
         d.set_wake(lista[1])
         d.set_origin(lista[2])
         d.set_destination(lista[3])
@@ -233,7 +238,7 @@ def tpv():
             d.spd_tma = float(aux[8])
             d.spd_app = float(aux[9])
         else:
-            incidencias.append(d.get_callsign()+': No tengo parámetros del modelo ' + d.get_kind() + '. Usando datos estándar')
+            #incidencias.append(d.get_callsign()+': No tengo parámetros del modelo ' + d.get_kind() + '. Usando datos estándar')
             logging.warning('No tengo parámetros del modelo '+d.get_kind()+'. Usando datos estándar')
             if config.has_option('performances','estandar'+d.estela.upper()):
                 aux=config.get('performances','estandar'+d.estela.upper()).split(',')
@@ -246,7 +251,7 @@ def tpv():
                 d.spd_max = float(aux[7])
                 d.spd_tma = float(aux[8])
                 d.spd_app = float(aux[9])
-                # Load the aircraft requirements
+        # Load the aircraft requirements
         if config.has_section('req') and config.has_option('req',nombre):
             req=config.get('req',nombre)
             req_time_str=req[:4]

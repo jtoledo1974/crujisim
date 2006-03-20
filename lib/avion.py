@@ -22,14 +22,19 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#from Tkinter import *
-from RaDisplay import *
+#############################
+# W A R N I N G ! ! !
+#
+# Do not edit this code. This code is considered old and deprecated
+# This module is to be rewriten wholy as Aircraft.py
+#
+#############################
+
+# Module imports
 from MathUtil import *
-#from Tix import *
-#import tkFont
-import lads
 import sys
 import logging
+import BADA
 
 # Constants
 LEFT = "LEFT"
@@ -40,28 +45,13 @@ READY = "READY"
 
 # Globals
 
-all_lads = []
-definiendo_lad = 0
-latest_lad_event_processed = 0
-lad_origen = None
+a = BADA.Atmosphere()
+tas_from_cas = a.get_tas_from_cas
+cas_from_tas = a.get_cas_from_tas
 
-label_font = None
-label_font_size = 1
-
-xm=ym=0
-escala=1.0
-centro_x = 10
-centro_y = 10
 wind = [0.0,0.0]
-speed_time = 0./60.
 
-seleccionado = None
-
-
-def set_speed_time(new_speed_time):
-    global speed_time
-    speed_time = new_speed_time
-    
+# TODO This is old code still pending to be removed    
 def set_global_vars(_punto, _wind, _aeropuertos, _esperas_publicadas,_rwys,_rwyInUse,_procedimientos, _proc_app,_min_sep):
     global punto, wind, aeropuertos, esperas_publicadas,rwys,rwyInUse, procedimientos, proc_app, min_sep
     punto = _punto
@@ -74,33 +64,23 @@ def set_global_vars(_punto, _wind, _aeropuertos, _esperas_publicadas,_rwys,_rwyI
     proc_app = _proc_app
     min_sep = _min_sep
     
-def set_canvas_info(_xm, _ym, _escala, _centro_x, _centro_y):
-    global xm, ym, escala, centro_x, centro_y
-    xm = _xm
-    ym = _ym
-    escala = _escala
-    centro_x = _centro_x
-    centro_y = _centro_y
-    
-def do_scale(a):
-  # Devuelve las coordenadas en a transformadas centro_pantalla+(x-x0)*scale
-    return s((centro_x,centro_y),p(r((a[0],-a[1]),(xm,-ym)),escala))
-    
-def do_unscale(xy):
-    (x, y) = xy
-    return ( xm+(x-centro_x)/escala, ym-(y-centro_y)/escala )
-    
     
 def v(self):
   #Devuelve TAS
     if not self.es_spd_std: # Velocidad mínima manteniedo IAS
         ias_max=self.spd_max/(1+0.002*self.fl_max)
         tas_max=ias_max*(1+0.002*self.alt)
-        self.ias = self.spd/(1.0+0.002 *self.alt)
+        self.ias = cas_from_tas(self.spd, self.alt*100)
         if abs(self.ias_obj-self.ias)>1.:
             self.ias = self.ias_obj
-        return self.ias * (1.0+0.002 *self.alt)
-        #    return min(tas_max, self.ias * (1.0+0.002 *self.alt))
+        # return self.ias * (1.0+0.002 *self.alt)
+        return tas_from_cas(self.ias, self.alt*100)
+    if hasattr(self, "perf"):
+        if self.alt<self.cfl: tas = self.perf.get_climb_perf(self.alt)[0] 
+        elif self.alt>self.cfl: tas = self.perf.get_descent_perf(self.alt)[0]
+        else: tas = self.perf.get_cruise_perf(self.alt)[0]
+        return tas      
+    
     if self.fl_max > 290.: # Fast moving traffic
         inicio_app = 00.
         trans_tma = 50.
@@ -324,10 +304,8 @@ def get_hdg_obj(self,deriva,t):
                         for [a,b,c,h] in puntos_map:
                             self.route.append([a,b,c])
                     else:
-                        print "Aterrizando el ",self.name
+                        logging.debug("Aterrizando el "+str(self.name))
                         self.kill()
-                        self.esta_asumido = False
-                        self.vt.assumed = False
                         return 'Dead'
                 if self.esta_en_llz: # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = spd_app
                     fl_gp = (alt_pista/100. + dist_thr * pdte_ayuda * 60.)
@@ -440,17 +418,13 @@ class Airplane:
         self.reports = []  # List of things an aircraft should report.
                            # [{'time':1.65,'text':'Request climb FL230'},
                            #  ,{'time':2.34,'text':'Overflown DGO'}]
-        
-        # The visual track that actually displays on the screen		       
-        self.vt = None
             
     def __getstate__(self):
         """This function is called by the pickler. We remove the attributes
         that we don't want to send through the wire"""
         odict = self.__dict__.copy()
-        try: del odict['canvas']
+        try: del odict['perf']
         except: pass
-        del odict['vt']
         return odict
         
     def next(self,t):
@@ -461,15 +435,19 @@ class Airplane:
             return self.se_pinta # Con esto activamos los vuelos a la hora inicial y se dejan
         else:
             self.se_pinta=1
-            # Cálculo de la altitud
+        # Cálculo de la altitud
         if self.cfl>self.alt:
             if self.es_std:
                 self.rate = self.rate_climb_std * f_vert(self)
+                if hasattr(self, "perf"):
+                    self.rate=self.perf.get_climb_perf(self.alt)[2] * 60./100
             else:
                 self.rate = min(self.rate_climb_max * f_vert(self),abs(self.rate))
         elif self.cfl<self.alt:
             if self.es_std:
                 self.rate = -min(self.spd/0.2/100.*60.,self.rate_desc_max * f_vert(self))
+                if hasattr(self, "perf"):
+                    self.rate=-self.perf.get_descent_perf(self.alt)[1] * 60./100
             else:
                 self.rate = -min(self.rate_desc_max * f_vert(self),abs(self.rate))
         inch=self.rate*(t-self.t)
@@ -560,18 +538,7 @@ class Airplane:
                 self.t=t #Almacenamos el tiempo
             self.pos=s(s(self.pos,pr((self.salto,self.hdg))),efecto_viento) #Cambiamos la posición
         return self.se_pinta
-        
-    def tas(h):
-      #Devuelve TAS en función de la altitud      
-        if h>250:
-            return self.ias*(1+0.002*h)
-        elif h<200:
-            return min(self.ias,180+h)
-        else:
-            a0=ias*(1+0.002*250)
-            a1=min(self.ias,180+200)
-            return a0+(a1-a0)*(h-200)
-            
+    
     def set_initial_heading(self):
         self.pto = self.route[0][0] #Punto al que se dirige
         self.vect = rp(r(self.pto,self.pos))
@@ -608,8 +575,9 @@ class Airplane:
         
     def set_spd(self,ias,force=False):
         self.es_spd_std = False
-        vel=float(ias)*(1.0+0.002*self.alt)
+        vel=tas_from_cas(ias, self.alt*100)
         if float(ias)<1.:
+            # TODO Substitue with a proper mach calculation
             vel = mach_tas(float(ias))
             ias = vel / (1.+0.002*self.alt)
         ias_max=self.spd_max/(1.+0.002*self.fl_max)
@@ -643,7 +611,7 @@ class Airplane:
         self.vfp = False
         self.to_do = 'hdg'
         self.to_do_aux = [hdg,opt]
-        print self.to_do,self.to_do_aux
+        logging.debug(self.to_do,self.to_do_aux)
         
     def set_route(self,route):
         self.cancel_app_auth()
@@ -665,13 +633,6 @@ class Airplane:
         
     def set_campo_eco(self,eco):
         self.campo_eco = eco
-        
-    def set_asumido(self):
-        self.esta_asumido = not self.esta_asumido
-        # self.vt.assumed = not self.vt.assumed
-        
-    def get_asumido(self):
-        return self.esta_asumido
         
     def get_callsign(self):
         return self.name
@@ -747,6 +708,8 @@ class Airplane:
         return self.filed_tas
         
     def get_rate_descend(self):
+        if hasattr(self, "perf"):
+            return self.rate
         return self.rate/60.*100.
         
     def get_speed(self):
@@ -924,269 +887,16 @@ class Airplane:
         else:
             return False
             
-    def esta_seleccionado(self):
-        if seleccionado == self:
-            return True
-        else:
-            return False
-            
     def kill(self):
         """Kills aircraft
         
         Currently it just forces the plane not to be painted any more
         """
-        global seleccionado
         self.t=self.t+1000.
         self.se_pinta = False
-        seleccionado = None
-        self.redraw(self.canvas)
         
     def is_flying(self):
         return self.se_pinta
-        
-    def redraw(self, canvas):
-        self.canvas = canvas
-        
-        def show_hide_fpr(e=None,canvas=canvas):
-            if e != None:
-                self.last_lad = e.serial
-            if canvas.itemcget(self.name+'fpr',"fill")=='orange':
-                canvas.delete(self.name+'fpr')
-            else:
-                line=()
-                if self.vfp:
-                    line=line+do_scale(self.pos)
-                for a in self.route:
-                    pto=do_scale(a[0])
-                    if a[1][0] <> '_' or a[1] in proc_app.keys():
-                        canvas.create_text(pto,text=a[1],fill='orange',tag=self.name+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-                        canvas.create_text(pto,text=a[2],fill='orange',tag=self.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
-                    line=line+pto
-                if len(line)>3: canvas.create_line(line,fill='orange',tags=self.name+'fpr')
-                
-                # Define and create the VisTrack instance for this aircraft
-                
-        if self.vt==None:
-            def message_handler(vt,item,action,value,e=None):
-                if item=='plot':
-                    if action=='<Button-1>': show_hide_fpr()
-                if item=='cs':
-                    if action=='<Button-1>':
-                        asumir_vuelo(e)
-                    if action=='<Button-2>':
-                        self.last_lad=e.serial
-                    if action=='<ButtonRelease-2>':
-                        seleccionar(e)
-                if item in ['gs','mach'] and action=='<Button-2>':
-                    self.last_lad=e.serial
-                if item=='alt':
-                    if action=='<Button-1>':
-                        self.last_lad=e.serial
-                if item=='pfl':
-                    if action=='update':
-                        self.set_pfl(int(value))
-                if item=='cfl':
-                    if action=='<Button-1>':
-                        self.last_lad=e.serial
-                    if action=='update':
-                        flag=self.set_cfl(int(value))
-                        if flag: self.redraw(canvas)
-                        return flag
-                if item=='rate':
-                    if action=='update':
-                        if value=='std':
-                            self.set_std_rate()
-                        else:
-                            return self.set_rate_descend(int(value))
-                if item=='hdg':
-                    if action=='<Button-1>':
-                        self.last_lad=e.serial
-                    if action=='update':
-                        (hdg,opt)=value
-                        self.set_heading(int(hdg),opt)
-                if item=='gs':
-                    if action=='<Button-1>':
-                        self.last_lad=e.serial
-                if item=='ias':
-                    if action=='update':
-                        (spd,force_speed)=value
-                        if spd=='std':
-                            self.set_std_spd()
-                        else:
-                            return self.set_spd(spd, force=force_speed)
-                if item=='echo':
-                    if action=='<Button-3>':
-                        show_hide_way_point(e)
-                        
-            self.vt=VisTrack(canvas, message_handler, do_scale, do_unscale)
-            
-        def show_hide_way_point(e,canvas=canvas):
-            global punto
-            if canvas.itemcget(self.name+'wp',"fill")=='yellow':
-                canvas.delete(self.name+'wp')
-            else:
-                canvas.delete(self.name+'fpr')
-                canvas.delete(self.name+'wp')
-                line=()
-                if self.vfp:
-                    line=line+do_scale(self.pos)
-                for a in self.route:
-                    pto=do_scale(a[0])
-                    if a[1][0] <> '_':
-                        canvas.create_text(pto,text=a[1],fill='yellow',tag=self.name+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-                        canvas.create_text(pto,text=a[2],fill='yellow',tag=self.name+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
-                    line=line+pto
-                if len(line)>3: canvas.create_line(line,fill='yellow',tags=self.name+'wp')
-                size=2
-                for a in self.route:
-                    (rect_x, rect_y) = do_scale(a[0])
-                    point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=self.name+'wp')
-                    def clicked_on_waypoint(e, point_coord=a[0],point_name=a[1]):
-                        # Display window offering "Direct to..." and "Cancel" options.
-                        global punto
-                        self.last_lad = e.serial
-                        win = Frame(canvas)
-                        id_avo = Label(win,text=self.name)
-                        id_avo.pack(side=TOP)                
-                        id_pto = Entry (win,width=8)
-                        id_pto.insert(0,point_name)
-                        id_pto.pack(side=TOP)
-                        but_direct = Button(win, text="Dar directo")
-                        but_cancel = Button(win, text="Cancelar")
-                        but_direct.pack(side=TOP)
-                        but_cancel.pack(side=TOP)
-                        win_identifier = canvas.create_window(e.x, e.y, window=win)
-                        def close_win(ident=win_identifier):
-                            canvas.delete(ident)
-                        def direct_to():
-                            global punto
-                            pto=id_pto.get()
-                            # Caso de dar directo al punto seleccionado
-                            if pto == point_name:
-                                print "Selected plane should fly direct to point", point_coord
-                                for i in range(len(self.route)):
-                                    if point_coord==self.route[i][0]:
-                                        aux=self.route[i:]
-                                self.set_route(aux)
-                                close_win()
-                                canvas.delete(self.name+'wp')
-                                #show_hide_fpr("")
-                            else:
-                                aux = None
-                                # Si es un punto intermedio de la ruta, lo detecta
-                                for i in range(len(self.route)):
-                                    if self.route[i][1] == pto.upper():
-                                        aux = self.route[i:]
-                                        # Si no estáen la ruta, insertamos el punto como n 1
-                                if aux == None:
-                                    for [nombre,coord] in punto:
-                                        if nombre == pto.upper():
-                                            aux = [[coord,nombre,'']]
-                                            print "Selected plane should fly direct to point", nombre,coord
-                                            for a in self.route:
-                                                aux.append(a)
-                                                # Si no encuentra el punto, fondo en rojo y no hace nada
-                                if aux == None:
-                                    id_pto.config(bg='red')
-                                    print 'Punto ',pto.upper(),' no encontrado'
-                                else:
-                                    self.set_route(aux)
-                                    close_win()
-                                    canvas.delete(self.name+'wp')
-                                    show_hide_fpr()
-                        but_cancel['command'] = close_win
-                        but_direct['command'] = direct_to
-                    canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)
-                    
-                    # Remove previous items
-        if canvas.itemcget(self.name+'fpr',"fill")=='orange':
-            canvas.delete(self.name+'fpr')
-            show_hide_fpr(None)
-        if canvas.itemcget(self.name+'wp',"fill")=='yellow':
-            canvas.delete(self.name+'wp')
-            show_hide_way_point(None)
-            
-            # Display updated items
-            # Plot
-            # By changing the values the class knows how to update the
-            # label items automagically
-        self.vt.alt=self.alt
-        self.vt.cs=self.name
-        self.vt.cfl=self.cfl
-        self.vt.wake=self.estela
-        self.vt.echo=self.campo_eco
-        self.vt.gs=self.ground_spd
-        self.vt.hdg=self.hdg
-        self.vt.track=self.track
-        self.vt.pfl=self.pfl
-        self.vt.rate=self.get_rate_descend()
-        self.vt.ias=self.get_ias()
-        self.vt.ias_max=self.get_ias_max()
-        self.vt.visible=self.se_pinta
-        self.vt.speed_vector_length=speed_time
-        
-        [x0,y0]=do_scale(self.pos)
-        self.vt.coords(x0,y0,self.t)
-        
-        def asumir_vuelo(e):
-            self.last_lad = e.serial
-            self.set_asumido()
-            print 'Cambiando estado vuelo ',self.name
-            self.redraw(canvas)
-            
-        def seleccionar(e):
-            global seleccionado
-            if seleccionado == self:
-              # Se ha pinchado sobre el ya seleccionado: deseleccionar
-                seleccionado = None
-                self.vt.selected=False
-                self.redraw(canvas)
-                return
-            anterior_seleccionado = seleccionado
-            seleccionado = self
-            if anterior_seleccionado != None:
-                anterior_seleccionado.vt.selected=False
-                anterior_seleccionado.redraw(canvas)
-            self.vt.selected=True
-            self.redraw(canvas)
-            
-            
-def dist_t(a,b,t):
-  # Distancia entre dos objetos a la hora t
-    pos_a_t=s(a.pos,pr(((t-a.t)*a.spd,a.hdg)))
-    pos_b_t=s(b.pos,pr(((t-b.t)*b.spd,b.hdg)))
-    return rp(r(pos_a_t,pos_b_t))[0]
-    
-def vac(a,b):
-  # Comprueba si es una violación de la separación
-    if not (a.esta_asumido and b.esta_asumido):
-        return False
-    if not (a.se_pinta) or not (b.se_pinta):
-        return False
-    minvert=9.00 #MINIMA DE SEPARACIÓn VERTICAL
-    t=max(a.t,b.t)
-    if dist_t(a,b,t)<min_sep and abs(a.alt-b.alt)<minvert:
-        return True
-    else:
-        return False
-        
-def pac(a,b):
-  # Aviso de pérdida de separación
-    if not (a.esta_asumido and b.esta_asumido):
-        return False
-    if not (a.se_pinta) or not (b.se_pinta):
-        return False
-    aviso=1.0/60.  # PARÁMETRO DE TIEMPO EN EL CUAL SE PREVÉ QUE HAY VAC (1 min)
-    if a.rate==0. and b.rate==0:
-        minvert=9.00
-    else:
-        minvert=14.00
-    t=max(a.t,b.t) #Tiempo actual
-    svert=a.alt+aviso*a.rate
-    for i in range(1,2):
-        if dist_t(a,b,t+aviso*i/2)<min_sep and abs(a.alt+aviso*a.rate*i/2-b.alt-aviso*b.rate*i/2)<minvert:
-            return True
-    return False
 
 class Type:
     """Data related to an aircraft type"""
@@ -1220,6 +930,4 @@ def load_types(file):
     return types
 
 if __name__=='__main__':
-    t=load_types("../modelos_avo.txt")
-    #print [type.type for type in t]
     pass    

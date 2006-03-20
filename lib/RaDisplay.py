@@ -1089,7 +1089,7 @@ class VisTrack(object): # ensure a new style class
             elif i=='mach':
                 self.mach.t = '.'+str(int(round(vt.mach*100)))
             elif i=='gs':
-                self.gs.t = str(int(vt.gs/10))
+                self.gs.t = str(int(round(vt.gs/10)))
             elif i=='wake':
                 self.wake.t = vt.wake
             elif i=='hdg':

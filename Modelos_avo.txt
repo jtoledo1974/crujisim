@@ -17,6 +17,16 @@
 #   If the CALLSIGN appears in SENASA's and does not in http://www.airframes.org/airlines/'s. SENASA's apppears as main and also the company's name in parentheses. Example  EXCELLENCE (Hapag-Lloyd Express)
 #   If no callsign has been found [] appears
 #Exceptions: RAF has been kept as Royal Air Force but actually its Farnas Aviation Services and has no CALLSIGN.
+
+###############################################################
+
+# W A R N I N G
+
+# Do not update the performances below. The are now deprecated since
+# performance information is now taken from the bada.txt file
+
+###############################################################
+
 # Modelo:Estela,FL_maximo,Regimen_U_max,Regimen_U_std,Regimen_D_max,Regimen_D_std,Velocidad_c,Velocidad_c_max,Velocidad_TMA,Velocidad_aprox
 [performances]
 A300:H,380,3000,2000,3000,2000,460,460,280,160
@@ -177,6 +187,102 @@ TOR:M,700,5000,3000,5000,3000,516,1280,280,180
 estandarH:H,410,3500,2000,3500,2000,475,480,280,160
 estandarM:M,350,3000,1700,3000,1700,440,450,280,180
 estandarL:L,150,600,600,600,600,140,140,140,120
+
+# This equivalences are used by BADA.py to assign the proper model
+# to aircraft for which a direct model does not exist
+[equivalences]
+A306: A306
+A30B: A30B,IL76
+A310: A310
+A319: A319
+A320: A320
+A321: A321
+A332: A330
+A333:
+A343: A340,A344,A345,A346
+AT43: AT43,AT44,CN35,CVLT,ATR42,AT42
+AT45: AT45
+AT72: A748,AT72,ATR72
+ATP: ATP
+B462: BA46
+B703: B701,B703,B720,C135,E3CF,E3TF,IL62,VC10
+B712:
+B722: B721,B722,B727
+B732: B731,B732
+B733: B733
+B734: B734
+B735: B735
+B736: B736
+B737: B737
+B738: B738
+B742: B741,B742,C5
+B743: B743
+B744: B744,B74S,B747
+B752: B752
+B753: B753,B757
+B762: B762
+B763: B763
+B764: B764,B767
+B772: B772
+B773: B773
+BA11: BA11
+BE20: AC6T,BE20,BE30
+BE99: BE99
+BE9L: BE9L
+C130: AN12,C130,IL18,L188,P3
+C160: C160
+C421: BE60,C414,C421
+C550: C500,C501,C525,C550,C551,MU30,S601,SK60
+C560: C560
+C750:
+CL60: CL60,GLF2,GLF3,GLF4,L29A
+CRJ1: CRJ1,CRJ2,CRJ9,CARJ
+D228: D228,E110,L410
+D328: D328
+DC10: DC10
+DC87: C141,DC85,DC86,DC87,IL86
+DC94: DC9
+DH8A: DH8A
+DH8C: DH8B,DH8C,DH8D,DH8C,YK40
+E120: E120
+E145: E145
+F100: F100
+F27: AN24,AN26,F27
+F28: F28
+F50: F50
+F70: F70
+F900: F900
+FA10: FA10
+FA20: FA20,SBR1
+FA50: FA50
+FGTH:
+FGTL:
+FGTN: A10,A4,A6,CONC,F4,F14,F15,F16,F18,FGTR,HAR,JAGR,MG21,MG23,MG25,MG29,MIR2,MIR4,MRF1,SB32,SB35,SB37,SB39,TOR
+H25B: H25B,WW24
+JS31: B190,JS31,JS32
+JS41: JS41
+L101: L101
+LJ35: C650,LJ31,LJ35,LJ55
+LJ45: LJ60 
+MD11: MD11
+MD82: MD80,MD87,MD88
+MD83: MD83
+MU2: MU2
+P28A: C172,C177,C182,HELI,P28A,TOBA
+PA27: BE58,PA23,PA27
+PA31: BE95,BN2P,C303,C310,C340,C402,D28D,PA31
+PA34: BE33,BE36,PA34
+PAY2: C425,PAY2
+PAY3: PAY3,PAY4
+RJ85:
+SB20: SB20
+SF34: SF34
+SH36: SH33,SH36
+SW3: SW2,SW3,SW4A,SW4
+T134: T134
+T154: T154
+TRIN: M20,P28R,TRIN
+
 [indicativos_de_compania]
 AAB:ABG
 AAF:AIGLE AZUR
