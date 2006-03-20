@@ -582,7 +582,7 @@ class Airplane:
         if float(ias)<1.:
             # TODO Substitue with a proper mach calculation
             vel = tas_from_mach(float(ias),self.alt*100)
-            ias = ias_from_tas(vel,self.alt*100)
+            ias = cas_from_tas(vel,self.alt*100)
         ias_max=self.spd_max/(1.+0.002*self.fl_max)
         tas_max=ias_max*(1.+0.002*self.alt)
         if (vel < tas_max) or (force == True):
