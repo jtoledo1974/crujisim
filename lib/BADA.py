@@ -274,8 +274,8 @@ class Atmosphere:
         mach = tas / ((1.4 * 287.04 * T) ** 2)
         return mach
 
-try: load_equiv("modelos_avo.txt")
-except: load_equiv("../modelos_avo.txt")
+try: load_equiv("Modelos_avo.txt")
+except: load_equiv("../Modelos_avo.txt")
         
 if __name__=='__main__':
     a = Atmosphere()
