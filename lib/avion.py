@@ -48,6 +48,9 @@ READY = "READY"
 a = BADA.Atmosphere()
 tas_from_cas = a.get_tas_from_cas
 cas_from_tas = a.get_cas_from_tas
+tas_from_mach = a.get_tas_from_mach
+mach_from_tas = a.get_mach_from_tas
+
 
 wind = [0.0,0.0]
 
@@ -69,7 +72,7 @@ def v(self):
   #Devuelve TAS
     if not self.es_spd_std: # Velocidad mínima manteniedo IAS
         ias_max=self.spd_max/(1+0.002*self.fl_max)
-        tas_max=ias_max*(1+0.002*self.alt)
+        tas_max=tas_from_cas(ias_max,self.alt)
         self.ias = cas_from_tas(self.spd, self.alt*100)
         if abs(self.ias_obj-self.ias)>1.:
             self.ias = self.ias_obj
@@ -112,7 +115,7 @@ def v(self):
         
 def mach(self):
   # Devuelve el nmero de mach
-    return self.spd/600
+    return mach_from_tas(self.spd,self.alt * 100)
     
 def f_vert(self):
   # Devuelve factor corrección de velocidad vertical
@@ -578,8 +581,8 @@ class Airplane:
         vel=tas_from_cas(ias, self.alt*100)
         if float(ias)<1.:
             # TODO Substitue with a proper mach calculation
-            vel = mach_tas(float(ias))
-            ias = vel / (1.+0.002*self.alt)
+            vel = tas_from_mach(float(ias),self.alt*100)
+            ias = ias_from_tas(vel,self.alt*100)
         ias_max=self.spd_max/(1.+0.002*self.fl_max)
         tas_max=ias_max*(1.+0.002*self.alt)
         if (vel < tas_max) or (force == True):
