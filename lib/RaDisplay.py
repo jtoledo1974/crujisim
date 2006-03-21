@@ -2225,9 +2225,16 @@ class RaDisplay(object):
             if self.draw_point:
                 for a in fir.points:
                     if a[0][0]<>'_':
-                        (cx,cy) = do_scale(a[1])
-                        coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
-                        c.create_polygon(coord_pol,outline='gray25',fill='',tag=('points','radisplay'))
+                        if not((len(a[0]) == 3) or (len(a[0]) == 2)):
+                            (cx,cy) = do_scale(a[1])
+                            coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
+                            c.create_polygon(coord_pol,outline='gray25',fill='',tag=('points','radisplay'),width=2)
+                        else:
+                            (cx,cy) = do_scale(a[1])
+                            radio = 5.0
+                            c.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline='gray25',fill='',width=2,tag=('points','radisplay'))
+                            c.create_line(cx+radio,cy-radio,cx-radio,cy+radio,fill='gray25',tag=('points','radisplay'))
+                            c.create_line(cx-radio,cy-radio,cx+radio,cy+radio,fill='gray25',tag=('points','radisplay'))
         def _draw_fix_names():
             # Dibujar el nombre de los puntos
             if self.draw_point_names:
