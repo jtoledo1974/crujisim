@@ -280,6 +280,13 @@ class GTA:
                 else: f.set_spd(int(m["ias"]), force=m["force_speed"])
             except: logging.warning("Error while setting IAS",
                                     exc_info = True)
+        elif m['message']=="set_mach":
+            logging.debug("Set MACH "+str(m))
+            try:
+                if m["mach"]=="std": f.set_std_mach()
+                else: f.set_mach(float(m["mach"])/100.0, force=m["force_speed"])
+            except: logging.warning("Error while setting MACH",
+                                    exc_info = True)
         elif m['message']=="route_direct":
             logging.debug("Route direct "+str(m))
             try:

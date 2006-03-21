@@ -43,6 +43,7 @@ _binds = []
 
 # Constants
 IMGDIR='./img/'
+CHANGE_WIDTH = 13
 
 def ra_bind(object, widget, sequence, callback):
     """Creates a TK binding and stores information for later deletion"""
@@ -1167,11 +1168,12 @@ class VisTrack(object): # ensure a new style class
             self.vt.label_format='pp'
             self.vt._message_handler(self.vt,'mach','<Button-2>',None,e)
         def echo_b3(self,e):
-            self.vt._message_handler(self.vt,'echo','<Button-3>',None,e)            
+            self.vt._message_handler(self.vt,'echo','<Button-3>',None,e)
             
+        
         def change_altitude(self,e=None):
             win = Frame(self.c)
-            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-1)
             lbl_CFL = Label(win, text="CFL:")
             ent_CFL = Entry(win, width=3)
             ent_CFL.insert(0, str(int(self.vt.cfl)))
@@ -1229,8 +1231,8 @@ class VisTrack(object): # ensure a new style class
             self.vt._message_handler(self.vt,'alt','<Button-1>',None,e)
             
         def change_rate(self,e):
-            win = Frame(self.c)
-            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
+            win = Frame(self.c,width=10)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-1)
             lbl_rate = Label(win, text="Rate:")
             ent_rate = Entry(win, width=4)
             ent_rate.insert(0, str(abs(int(self.vt.rate))))
@@ -1242,7 +1244,7 @@ class VisTrack(object): # ensure a new style class
             lbl_rate.grid(row=1, column=0)
             ent_rate.grid(row=1, column=1)
             but_Acp.grid(row=2, column=0, columnspan=2,sticky=W+E)
-            but_Can.grid(row=2, column=0, columnspan=2,sticky=W+E)
+            but_Can.grid(row=3, column=0, columnspan=2,sticky=W+E)
             but_Std.grid(row=4, column=0, columnspan=2,sticky=W+E)
             window_ident = self.c.create_window(e.x, e.y, window=win)
             ent_rate.focus_set()
@@ -1275,8 +1277,8 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<Escape>",close_win)
             
         def change_heading(self,e):
-            win = Frame(self.c)
-            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
+            win = Frame(self.c,width=10)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH)
             lbl_hdg = Label(win, text="Heading:")
             ent_hdg = Entry(win, width=3)
             ent_hdg.insert(0, str(int(self.vt.hdg)))
@@ -1315,12 +1317,21 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<Escape>",close_win)
             
         def change_speed(self,e):
-            win = Frame(self.c)
-            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
-            lbl_spd = Label(win, text="IAS:")
-            ent_spd = Entry(win, width=3)
-            ent_spd.insert(0, str(int(self.vt.ias)))
-            ent_spd.select_range(0, END)
+            if self.vt.label_format == 'pp':
+                win = Frame(self.c)
+                lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-2)
+                lbl_spd = Label(win, text="IAS:")
+                ent_spd = Entry(win, width=3)
+                ent_spd.insert(0, str(int(self.vt.ias)))
+                ent_spd.select_range(0, END)
+            elif self.vt.label_format == 'pp-mach':
+                win = Frame(self.c)
+                lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-2)
+                lbl_spd = Label(win, text="MACH:")
+                ent_spd = Entry(win, width=3)
+                ent_spd.insert(0, str(int(round(float(self.mach.t)*100.0))))
+                ent_spd.select_range(0, END)
+            
             but_Acp = Button(win, text="Aceptar")
             but_Can = Button(win, text="Cancelar")
             but_Std = Button(win, text="Estandar")
@@ -1338,24 +1349,48 @@ class VisTrack(object): # ensure a new style class
                 w.unbind_all("<Escape>")
                 self.c.delete(ident)
             def set_speed(e=None):
-                spd = ent_spd.get()
-                # If entry was already displaying maximum available, let
-                # the user force the desired speed, forcing whatever speed
-                # he requested.
-                if ent_spd['bg'] == 'red':
-                    force_speed = True
-                else:
-                    force_speed = False
-                flag = self.vt._message_handler(self.vt,'ias','update',(spd,force_speed),e)
-                if flag:
-                    close_win()
-                else:
-                    ent_spd.delete(0,END)
-                    ent_spd.insert(0, str(abs(int(self.vt.ias_max))))
-                    ent_spd['bg'] = 'red'
-                    ent_spd.focus_set()
+                if self.vt.label_format == 'pp':
+                    spd = ent_spd.get()
+                    # If entry was already displaying maximum available, let
+                    # the user force the desired speed, forcing whatever speed
+                    # he requested.
+                    if ent_spd['bg'] == 'red':
+                        force_speed = True
+                    else:
+                        force_speed = False
+                    flag = self.vt._message_handler(self.vt,'ias','update',(spd,force_speed),e)
+                    if flag:
+                        close_win()
+                    else:
+                        ent_spd.delete(0,END)
+                        ent_spd.insert(0, str(abs(int(self.vt.ias_max))))
+                        ent_spd['bg'] = 'red'
+                        ent_spd.focus_set()
+                    
+                elif self.vt.label_format == 'pp-mach':
+                    spd = ent_spd.get()
+                    spd = spd
+                    # If entry was already displaying maximum available, let
+                    # the user force the desired speed, forcing whatever speed
+                    # he requested.
+                    if ent_spd['bg'] == 'red':
+                        force_speed = True
+                    else:
+                        force_speed = False
+                    flag = self.vt._message_handler(self.vt,'mach','update',(spd,force_speed),e)
+                    if flag:
+                        close_win()
+                    else:
+                        ent_spd.delete(0,END)
+                        ent_spd.insert(0, str(abs(int(self.vt.ias_max))))
+                        ent_spd['bg'] = 'red'
+                        ent_spd.focus_set()
+
             def set_std():
-                self.vt._message_handler(self.vt,'ias','update',('std',None),e)
+                if self.vt.label_format == 'pp':
+                    self.vt._message_handler(self.vt,'ias','update',('std',None),e)
+                elif self.vt.label_format == 'pp-mach':
+                    self.vt._message_handler(self.vt,'mach','update',('std',None),e)
                 close_win()
             but_Acp['command'] = set_speed
             but_Can['command'] = close_win

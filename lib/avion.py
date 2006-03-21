@@ -71,7 +71,7 @@ def set_global_vars(_punto, _wind, _aeropuertos, _esperas_publicadas,_rwys,_rwyI
 def v(self):
   #Devuelve TAS
     if not self.es_spd_std: # Velocidad mínima manteniedo IAS
-        ias_max=self.spd_max/(1+0.002*self.fl_max)
+        ias_max=cas_from_tas(self.spd_max,self.alt*100)
         tas_max=tas_from_cas(ias_max,self.alt)
         self.ias = cas_from_tas(self.spd, self.alt*100)
         if abs(self.ias_obj-self.ias)>1.:
@@ -576,20 +576,29 @@ class Airplane:
     def set_spd(self,ias,force=False):
         self.es_spd_std = False
         vel=tas_from_cas(ias, self.alt*100)
-        if float(ias)<1.:
-            # TODO Substitue with a proper mach calculation
-            vel = tas_from_mach(float(ias),self.alt*100)
-            ias = cas_from_tas(vel,self.alt*100)
-        ias_max=self.spd_max/(1.+0.002*self.fl_max)
-        tas_max=ias_max*(1.+0.002*self.alt)
+        #if float(ias)<1.:
+        #    # TODO Substitue with a proper mach calculation
+        #    vel = tas_from_mach(float(ias),self.alt*100)
+        #    ias = cas_from_tas(vel,self.alt*100)
+        
+        ias_max=cas_from_tas(self.spd_max,self.alt*100)
+        tas_max=self.spd_max
         if (vel < tas_max) or (force == True):
             self.ias_obj = float(ias)
             return True
         else:
             self.ias_obj = ias_max
             return False
+        
+    def set_mach(self,mach,force=False):
+        ias = cas_from_tas(tas_from_mach(mach,self.alt*100),self.alt*100)
+        self.set_spd(ias,force)
+        
             
     def set_std_spd(self):
+        self.es_spd_std = True
+        
+    def set_std_mach(self):
         self.es_spd_std = True
         
     def set_cfl(self, alt):
