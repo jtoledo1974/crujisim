@@ -1171,6 +1171,7 @@ class VisTrack(object): # ensure a new style class
             
         def change_altitude(self,e=None):
             win = Frame(self.c)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
             lbl_CFL = Label(win, text="CFL:")
             ent_CFL = Entry(win, width=3)
             ent_CFL.insert(0, str(int(self.vt.cfl)))
@@ -1181,13 +1182,14 @@ class VisTrack(object): # ensure a new style class
             but_Comm = Button(win, text="Comunicar")
             but_Acp = Button(win, text="Aceptar")
             but_Can = Button(win, text="Cancelar")
-            lbl_CFL.grid(row=0, column=0)
-            ent_CFL.grid(row=0, column=1)
-            lbl_PFL.grid(row=1, column=0)
-            ent_PFL.grid(row=1, column=1)
-            but_Comm.grid(row=2, column=0, columnspan=2)
-            but_Acp.grid(row=3, column=0, columnspan=2,)
-            but_Can.grid(row=4, column=0, columnspan=2)
+            lbl_cls.grid(row=0,columnspan=2,sticky=W+E)
+            lbl_CFL.grid(row=1, column=0)
+            ent_CFL.grid(row=1, column=1)
+            lbl_PFL.grid(row=2, column=0)
+            ent_PFL.grid(row=2, column=1)
+            but_Comm.grid(row=3, column=0, columnspan=2,sticky=W+E)
+            but_Acp.grid(row=4, column=0, columnspan=2,sticky=W+E)
+            but_Can.grid(row=5, column=0, columnspan=2,sticky=W+E)
             window_ident = self.c.create_window(e.x, e.y, window=win)
             ent_CFL.focus_set()
             def close_win(e=None, ident=window_ident, w=self.c):
@@ -1228,6 +1230,7 @@ class VisTrack(object): # ensure a new style class
             
         def change_rate(self,e):
             win = Frame(self.c)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
             lbl_rate = Label(win, text="Rate:")
             ent_rate = Entry(win, width=4)
             ent_rate.insert(0, str(abs(int(self.vt.rate))))
@@ -1235,11 +1238,12 @@ class VisTrack(object): # ensure a new style class
             but_Acp = Button(win, text="Aceptar")
             but_Can = Button(win, text="Cancelar")
             but_Std = Button(win,text="Estandar")
-            lbl_rate.grid(row=0, column=0)
-            ent_rate.grid(row=0, column=1)
-            but_Acp.grid(row=1, column=0, columnspan=2)
-            but_Can.grid(row=2, column=0, columnspan=2)
-            but_Std.grid(row=3, column=0, columnspan=2)
+            lbl_cls.grid(row=0,columnspan=2,sticky=W+E)
+            lbl_rate.grid(row=1, column=0)
+            ent_rate.grid(row=1, column=1)
+            but_Acp.grid(row=2, column=0, columnspan=2,sticky=W+E)
+            but_Can.grid(row=2, column=0, columnspan=2,sticky=W+E)
+            but_Std.grid(row=4, column=0, columnspan=2,sticky=W+E)
             window_ident = self.c.create_window(e.x, e.y, window=win)
             ent_rate.focus_set()
             def close_win(e=None,ident=window_ident,w=self.c):
@@ -1272,11 +1276,12 @@ class VisTrack(object): # ensure a new style class
             
         def change_heading(self,e):
             win = Frame(self.c)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
             lbl_hdg = Label(win, text="Heading:")
             ent_hdg = Entry(win, width=3)
             ent_hdg.insert(0, str(int(self.vt.hdg)))
             ent_hdg.select_range(0, END)
-            ent_side = OptionMenu (win,bg='white')
+            ent_side = OptionMenu (win,bg='white',width=20)
             num = 0
             for opc in ['ECON','DCHA','IZDA']:
                 ent_side.add_command(opc)
@@ -1284,11 +1289,12 @@ class VisTrack(object): # ensure a new style class
             ent_side['value'] = 'ECON'
             but_Acp = Button(win, text="Aceptar")
             but_Can = Button(win, text="Cancelar")
-            lbl_hdg.grid(row=0, column=0)
-            ent_hdg.grid(row=0, column=1)
-            ent_side.grid(row=3,column=0,columnspan=2)
-            but_Acp.grid(row=1, column=0, columnspan=2)
-            but_Can.grid(row=2, column=0, columnspan=2)
+            lbl_cls.grid(row=0,columnspan=2,sticky=W+E)
+            lbl_hdg.grid(row=1, column=0)
+            ent_hdg.grid(row=1, column=1)
+            ent_side.grid(row=4,column=0,columnspan=2,sticky=W+E)
+            but_Acp.grid(row=2, column=0, columnspan=2,sticky=W+E)
+            but_Can.grid(row=3, column=0, columnspan=2,sticky=W+E)
             window_ident = self.c.create_window(e.x, e.y, window=win)
             ent_hdg.focus_set()
             def close_win(e=None,ident=window_ident,w=self.c):
@@ -1310,6 +1316,7 @@ class VisTrack(object): # ensure a new style class
             
         def change_speed(self,e):
             win = Frame(self.c)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white')
             lbl_spd = Label(win, text="IAS:")
             ent_spd = Entry(win, width=3)
             ent_spd.insert(0, str(int(self.vt.ias)))
@@ -1317,11 +1324,12 @@ class VisTrack(object): # ensure a new style class
             but_Acp = Button(win, text="Aceptar")
             but_Can = Button(win, text="Cancelar")
             but_Std = Button(win, text="Estandar")
-            lbl_spd.grid(row=0, column=0)
-            ent_spd.grid(row=0, column=1)
-            but_Acp.grid(row=1, column=0, columnspan=2)
-            but_Can.grid(row=2, column=0, columnspan=2)
-            but_Std.grid(row=3, column=0, columnspan=2)
+            lbl_cls.grid(row=0,columnspan=2,sticky=W+E)
+            lbl_spd.grid(row=1, column=0)
+            ent_spd.grid(row=1, column=1)
+            but_Acp.grid(row=2, column=0, columnspan=2,sticky=W+E)
+            but_Can.grid(row=3, column=0, columnspan=2,sticky=W+E)
+            but_Std.grid(row=4, column=0, columnspan=2,sticky=W+E)
             window_ident = self.c.create_window(e.x, e.y, window=win)
             ent_spd.focus_set()
             def close_win(e=None,ident=window_ident,w=self.c):
