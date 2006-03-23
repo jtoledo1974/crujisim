@@ -1781,6 +1781,10 @@ class RaDisplay(object):
             track.speed_vector_length=minutes
         
     def process_message(self, m):
+        """Deal with messages received from the server
+        The parent class (Pseudopilot or UCS) will have already dealt
+        with whatever information was relevant to it, and here
+        we deal with the generic stuff"""
         if m['message']=='update':
             flights = m['flights']
             for (old,new) in zip(self.flights,flights):
@@ -1791,6 +1795,10 @@ class RaDisplay(object):
             self.update()
             
     def vt_handler(self,vt,item,action,value,e=None):
+        """Handle events raised by visual tracks
+        Visual tracks have their own GUI code to present the user
+        with CFL and PFL dialog, for instance, but then they notify the parent
+        about the result using this function"""
         if action=="<Button-2>" and item!='plot':
             self.cancel_lad_serial=e.serial
         pass
@@ -1807,12 +1815,10 @@ class RaDisplay(object):
                     self.selected_track = vt
                     vt.selected = True
                 if self.label_moved:
-                    #self.separate_labels(vt)
                     reactor.callInThread(self.separate_labels, vt)
                     self.label_moved = False
         if item=='leader':
             if action=='<Button-1>' or action=='<Button-3>':
-                #self.separate_labels(vt)
                 reactor.callInThread(self.separate_labels, vt)            
     
     def b1_cb(self,e=None):
@@ -1837,13 +1843,11 @@ class RaDisplay(object):
         # Tracks are updated by the superclass when it gives them the new coords
         self.update_lads()
         self.update_stca()
-        #self.separate_labels()
         reactor.callInThread(self.separate_labels)
     
     def toggle_auto_separation(self):
         self.auto_separation = not self.auto_separation
         if self.auto_separation:
-            #self.separate_labels()
             reactor.callInThread(self.separate_labels)
         
     def separate_labels(self, single_track=None):
@@ -1852,9 +1856,9 @@ class RaDisplay(object):
         canvas = self.c
         if not self.auto_separation or self.separating_labels: return
         
-        crono = time()
         self.separating_labels = True
         self.stop_separating = False
+        crono = time()
         
         # Find the tracks that we have to separate
         sep_list = []  # List of track whose labels we must separate
@@ -2076,12 +2080,20 @@ class RaDisplay(object):
             d[track]=1
         move_list = d.keys()
         #logging.debug("Moving labels: "+str([t.cs for t in move_list if ((t.label_x,t.label_y)!=best_pos[t])]))
-        # Update the labels
-        for t in move_list:
-            (x,y)=best_pos[t]
-            t.label_coords(x,y)
-            
-        self.separating_labels = False
+        
+        # Once we have reached the result, we can't really update the labels from
+        # here, because Tkinter is not thread safe
+        
+        def move_labels(move_list):
+            # Update the labels
+            for t in move_list:
+                (x,y)=best_pos[t]
+                t.label_coords(x,y)
+                
+            self.separating_labels = False
+        
+        # We make sure that the label moving is done from the main thread and event loop    
+        reactor.callFromThread(move_labels, move_list)
 
     def update_stca(self):
         """Process short term collision alert"""

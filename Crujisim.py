@@ -407,6 +407,40 @@ class Crujisim:
             self.etf.refilter()
         ee.destroy()
         self.MainWindow.present()
+
+    def connect(self,button=None,event=None):
+        output = {"host": "", "type": ""}
+        cd = ConnectDialog(e, parent=self.MainWindow, output=output)
+        r = cd.run()
+        cd.destroy()
+        if r == cd.CANCEL: return
+        try: s = output["host"].strip()
+        except: s = ""
+        try: (host, port) = s.split(":")
+        except: host, port = s, 20123
+        
+        # Save MRU
+        if s!="" and s not in conf.connect_mru:
+            conf.connect_mru.append(s)
+            conf.connect_mru = conf.connect_mru[-10:]  # Keep only the last 10
+            conf.save()
+            
+        # Launch the client
+
+        def exit(var=None):
+            self.MainWindow.present()
+        def failed(var=None):
+            self.MainWindow.present()
+            UI.alert(utf8conv("Imposible conectar con "+host+":"+str(port)),
+                     parent=self.MainWindow,
+                     type = gtk.MESSAGE_WARNING)
+            
+        self.MainWindow.hide()
+        try:
+            defer = RemoteClient().connect(host, int(port), output["type"])
+        except:
+            failed()
+        defer.addCallback(exit).addErrback(failed)
     
     def begin_simulation(self,button=None):
         sel = self.etv.get_selection()
@@ -1148,7 +1182,59 @@ def tsvn_add_commit(file):
         os.system('"'+commitcommand+'"')
     except:
         pass
+
+class ConnectDialog:
+    CANCEL = gtk.RESPONSE_CANCEL
+
+    def __init__(self,exercise = None, parent=None, output={}):
+        gui = self.gui = gtk.glade.XML(GLADE_FILE, "ConnectDialog") 
+        gui.signal_autoconnect(self)
+        
+        # Automatically make every widget in the window an attribute of this class
+        for w in gui.get_widget_prefix(''):
+            name = w.get_name()
+            # make sure we don't clobber existing attributes
+            try: assert not hasattr(self, name)
+            except: logging.error("Failed with attr "+name)
+            setattr(self, name, w)
+
+        self.ConnectDialog.connect("response", self.on_connectdialog_response)
+        if parent: self.ConnectDialog.set_transient_for(parent)
+        #self.ConnectDialog.set_position(gtk.WIN_POS_CENTER)
+        #self.ConnectDialog.present()
+        
+        self.output = output
+        # Fill combobox.
+        UI.blank_combo(self.hostcombo)
+        for l in conf.connect_mru:
+            if l.strip() == "": continue
+            self.hostcombo.append_text(l)
+            
+        
+    def run(self): return self.ConnectDialog.run()
+    def destroy(self): self.ConnectDialog.destroy()
+
+    def on_connectdialog_delete_event(self, w, e):
+        # Since we are dealing with the delete event from the response handler
+        # don't do anything here, and do not propagate
+        return True
     
+    def on_connectdialog_response(self, dialog, response, **args):
+        if response==gtk.RESPONSE_DELETE_EVENT:
+            dialog.emit_stop_by_name("response")
+            dialog.response(gtk.RESPONSE_CANCEL)
+            return
+        elif response==gtk.RESPONSE_CANCEL:
+            return
+        else:
+            h=self.hostcombo.child.get_text()
+            if h.strip()=="":
+                dialog.emit_stop_by_name("response")
+            self.output["host"]=h
+            if self.radiobutATC.get_active(): type = ATC
+            else: type = PSEUDOPILOT
+            self.output["type"]=type
+            
 if __name__=="__main__":
     logging.info("Arrancando crujisim")
     try:

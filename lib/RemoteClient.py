@@ -83,13 +83,10 @@ class RemoteClient:
             p.connectionLostCB=self.connectionLost
         p.client=self
         self.protocol = p
-        self.d.callback(True)
-        del(self.d)
         
     def failed_connection(self,p):
         logging.critical("Error while connecting")        
         self.d.errback(False)
-        del(self.d)
         
     def process_message(self, m):
         if m['message']=='init':
@@ -110,10 +107,9 @@ class RemoteClient:
     def exit(self):
         p = self.protocol
         p.transport.loseConnection()
-        d = self.display
-        d.exit()
+        self.display.exit()
         self.display = p.client = None
-#        del(d)
+        self.d.callback(True)
     
     def __del__(self):
         logging.debug("RemoteClient.__del__")

@@ -40,7 +40,11 @@ conf = ConfMgr.CrujiConfig()
 from MathUtil import get_h_m_s
 
 class GTA:
-    def __init__(self, fir, sector, flights, start_time, wind):        
+    def __init__(self, fir, sector, flights, start_time, wind):
+        # TODO
+        # This will be cleaner once we have rewritten avion.py and tpv.py
+        # The GTA should do its own flight loading, rather than having
+        # tpv.py do it beforehand
         self.fir = fir
         self.sector = sector
         self.flights = flights
