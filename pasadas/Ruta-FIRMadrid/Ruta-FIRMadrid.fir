@@ -422,7 +422,7 @@ local_ads:LESA
 nombre:DOMINGO
 min_sep = 8.0
 auto_departure = AUTO
-limites:_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,_DGO1,_ZMR1,_ZMR2
+limites:_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,_DGO1,_ZMR2
 fijos_de_impresion:NEA,DGO,BLV
 fijos_de_impresion_secundarios:BGS,BELEN,RBO
 local_ads:LEBB
