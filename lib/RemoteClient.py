@@ -145,7 +145,12 @@ class ConnectDialog(UI.Dialog):
 
         
 def main():
-        
+    """Stand alone client launcher"""
+    # This used to be the main way of launching a remote client
+    # It is now left here only for reference, since Crujisim.py deals
+    # with that using classes from this module.
+    # It would not work now anyway unless executed from the main directory
+    
     root = Tk()
     root.withdraw()
     conf=CrujiConfig()

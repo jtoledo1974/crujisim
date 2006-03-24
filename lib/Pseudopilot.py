@@ -79,7 +79,6 @@ class PpDisplay(RaDisplay):
         self.dep_tabular = DepTabular(self, self.c)
         # self.dep_tabular.hide()
         
-        
         self.separate_labels()
         
     def process_message(self, m):
@@ -308,11 +307,12 @@ class PpDisplay(RaDisplay):
         
     def exit(self):
         self.clock.close()
+        # Avoid memory leaks due to circular references preventing
+        # the garbage collector from discarding this object
         del (self.clock)
         del(self.toolbar.master)
         del(self.dep_tabular.master)
         RaDisplay.exit(self)
-        print sys.getrefcount(self)
         
     def __del__(self):
         logging.debug("PpDisplay.__del__")

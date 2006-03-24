@@ -2443,6 +2443,8 @@ class RaDisplay(object):
         for t in self.tracks:
             t.destroy()
         self.top_level.destroy()
+        # Avoid memory leaks due to circular references preventing
+        # the garbage collector from discarding this object
         try: self.sendMessage = None  # Clear the callback to the protocol
         except: pass
         
