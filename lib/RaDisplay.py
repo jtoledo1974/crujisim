@@ -130,11 +130,15 @@ class RaFrame:
                 else:
                     i=self._closebutton.bind('<Button-1>',self.close)                    
                 self._bindings.append((self._closebutton,i,"<Button-1>"),)
-            if not kw.has_key('dockbutton') or kw['dockbutton']:
-                self._undockbutton=Label(self.container,text='O',bg=self.bd,fg='Black')
-                self._undockbutton.pack(side=RIGHT)
-                i=self._undockbutton.bind('<Button-1>',self.toggle_windowed)
-                self._bindings.append((self._undockbutton,i,'<Button-1>'),)
+            # TODO
+            # This is causing problems because it's really not well implemented
+            # Better not to have to avoid the crashes it creates until it's
+            # properly done.
+            #if not kw.has_key('dockbutton') or kw['dockbutton']:
+            #    self._undockbutton=Label(self.container,text='O',bg=self.bd,fg='Black')
+            #    self._undockbutton.pack(side=RIGHT)
+            #    i=self._undockbutton.bind('<Button-1>',self.toggle_windowed)
+            #    self._bindings.append((self._undockbutton,i,'<Button-1>'),)
                 
                 # Frame dragging
             def drag_frame(e=None):
