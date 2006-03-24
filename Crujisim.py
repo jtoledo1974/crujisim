@@ -476,7 +476,6 @@ class Crujisim:
         [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv.tpv()
         fir = FIR(su[0][1])
         sector = su[1][0]
-        [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv.tpv()
 
         def exit(var):
             self.MainWindow.present()
