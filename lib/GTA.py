@@ -170,6 +170,22 @@ class GTA:
         self.last_update=self.tlocal(self.t0)
         for f in self.flights:
             f.next(self.last_update/60./60.)
+            
+    def new_client(self, protocol):
+        m={'message':'init',
+           'data':{
+            'fir_file':self.protocol_factory.fir_file,
+            'sector':self.protocol_factory.sector,
+            'flights':self.protocol_factory.flights}
+        }
+        protocol.sendMessage(m)
+        # If this is the first connection the server receives
+        # make it the master connection (the server will close
+        # after this connection is lost)
+        if not hasattr(self.protocol_factory, "master_protocol"):
+            self.protocol_factory.master_protocol = protocol
+        self.protocol_factory.protocols.append(protocol)
+        logging.info("Incoming connection "+str(id(protocol)))
     
     def process_message(self, m):
         """Process a command message, possibly received through a network link"""
@@ -335,17 +351,7 @@ class GTA_Protocol(NetstringReceiver):
         self.time_string = ''
     
     def connectionMade(self):
-        m={'message':'init',
-           'data':{
-            'fir_file':self.factory.fir_file,
-            'sector':self.factory.sector,
-            'flights':self.factory.flights}
-        }
-        self.sendMessage(m)
-        if not hasattr(self.factory, "master_protocol"):
-            self.factory.master_protocol = self
-        self.factory.protocols.append(self)
-        logging.info("Incoming connection "+str(id(self)))
+        self.factory.gta.new_client(self)
         
     def sendMessage(self,m):
         line = pickle.dumps(m, bin=True)

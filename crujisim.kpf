@@ -9,68 +9,18 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
+  <string id="executable-params"></string>
+  <boolean id="show-dialog">1</boolean>
+  <string id="request-method">GET</string>
+  <string id="params"></string>
+  <string id="mpostparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="documentRoot"></string>
+  <string id="cookieparams"></string>
   <string id="filename">D:\Curso de Control\Crujisim\Crujisim2\MainMenu.py</string>
-  <string id="executable-params"></string>
-  <boolean id="show-dialog">1</boolean>
-  <string id="request-method">GET</string>
-  <string id="params"></string>
-  <string id="mpostparams"></string>
-  <string id="posttype">application/x-www-form-urlencoded</string>
-  <string id="documentRoot"></string>
-  <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
-  <boolean id="sim-cgi">0</boolean>
-  <string id="cwd"></string>
-  <string id="userCGIEnvironment"></string>
-</preference-set>
-</preference-set>
-</preference-set>
-</file>
-<file url="RemoteClient.py" id="F022C809-D700-4BE2-AA37-C0BFF5198401" name="RemoteClient.py">
-<preference-set id="">
-  <string id="lastInvocation">default</string>
-<preference-set id="Invocations">
-<preference-set id="default">
-  <string id="postparams"></string>
-  <string id="userEnvironment"></string>
-  <string id="getparams"></string>
-  <boolean id="use-console">0</boolean>
-  <string id="executable-params"></string>
-  <boolean id="show-dialog">1</boolean>
-  <string id="request-method">GET</string>
-  <string id="params"></string>
-  <string id="mpostparams"></string>
-  <string id="posttype">application/x-www-form-urlencoded</string>
-  <string id="documentRoot"></string>
-  <string id="cookieparams"></string>
-  <string id="filename">C:\temp\cleansim\RemoteClient.py</string>
-  <boolean id="sim-cgi">0</boolean>
-  <string id="cwd"></string>
-  <string id="userCGIEnvironment"></string>
-</preference-set>
-</preference-set>
-</preference-set>
-</file>
-<file url="splash.py" id="3D4999B0-4111-44C7-A987-FEB946E97488" name="splash.py">
-<preference-set id="">
-  <string id="lastInvocation">default</string>
-<preference-set id="Invocations">
-<preference-set id="default">
-  <string id="postparams"></string>
-  <string id="userEnvironment"></string>
-  <string id="getparams"></string>
-  <boolean id="use-console">0</boolean>
-  <string id="executable-params"></string>
-  <boolean id="show-dialog">1</boolean>
-  <string id="request-method">GET</string>
-  <string id="params"></string>
-  <string id="mpostparams"></string>
-  <string id="posttype">application/x-www-form-urlencoded</string>
-  <string id="documentRoot"></string>
-  <string id="cookieparams"></string>
-  <string id="filename">C:\temp\crujisim\splash.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -86,9 +36,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
-  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\crujisim\lib\avion.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -97,7 +47,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="filename">C:\temp\crujisim\lib\avion.py</string>
+  <string id="userEnvironment"></string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -115,9 +65,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\crujisim\lib\FIR.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -126,7 +76,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\crujisim\lib\FIR.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -146,9 +96,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\cleansim\lib\Pseudopilot.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -157,7 +107,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\cleansim\lib\Pseudopilot.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -171,9 +121,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\cleansim\lib\RaDisplay.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -182,7 +132,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\cleansim\lib\RaDisplay.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -202,9 +152,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\crujisim\lib\UI.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -213,7 +163,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\crujisim\lib\UI.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -227,9 +177,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
-  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
+  <string id="filename">C:\temp\radisplay\lib\Exercise.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -238,7 +188,7 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="filename">C:\temp\radisplay\lib\Exercise.py</string>
+  <string id="userEnvironment"></string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
@@ -256,9 +206,9 @@
 <preference-set id="Invocations">
 <preference-set id="default">
   <string id="postparams"></string>
+  <string id="userEnvironment"></string>
   <string id="getparams"></string>
   <boolean id="use-console">0</boolean>
-  <string id="filename">C:\temp\cleansim\lib\Bada.py</string>
   <string id="executable-params"></string>
   <boolean id="show-dialog">1</boolean>
   <string id="request-method">GET</string>
@@ -267,12 +217,16 @@
   <string id="posttype">application/x-www-form-urlencoded</string>
   <string id="documentRoot"></string>
   <string id="cookieparams"></string>
-  <string id="userEnvironment"></string>
+  <string id="filename">C:\temp\cleansim\lib\Bada.py</string>
   <boolean id="sim-cgi">0</boolean>
   <string id="cwd"></string>
   <string id="userCGIEnvironment"></string>
 </preference-set>
 </preference-set>
 </preference-set>
+</file>
+<file url="lib/RemoteClient.py" id="7321F042-0F02-4DB2-828B-7E9D5475A5FB" name="RemoteClient.py">
+</file>
+<file url="Crujisim.py" id="ADC09C00-4B29-4CDD-B97F-E67EAD91598F" name="Crujisim.py">
 </file>
 </project>
