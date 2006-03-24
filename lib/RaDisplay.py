@@ -1215,12 +1215,9 @@ class VisTrack(object): # ensure a new style class
             def aceptar(e=None):
                 cfl = ent_CFL.get()
                 pfl = ent_PFL.get()
-                print "New CFL:", cfl
-                print "New PFL:", pfl
                 set_FLs(cfl,pfl)
             def comm(e=None):
                 cfl=pfl=ent_PFL.get()
-                print "New CFL=New PFL:", cfl
                 set_FLs(cfl,pfl)
             but_Comm['command'] = comm
             but_Acp['command'] = aceptar
@@ -1266,7 +1263,6 @@ class VisTrack(object): # ensure a new style class
                     ent_rate.select_range(0, END)
                     ent_rate.focus_set()
             def set_std():
-                print "Standard rate:"
                 self.vt._message_handler(self.vt,'rate','update','std',e)
                 close_win()
             but_Acp['command'] = set_rate
@@ -1307,7 +1303,6 @@ class VisTrack(object): # ensure a new style class
             def set_heading(e=None):
                 hdg = ent_hdg.get()
                 opt = ent_side.cget('value')
-                print "New heading:", hdg,opt
                 self.vt._message_handler(self.vt,'hdg','update',(hdg,opt),e)
                 close_win()
             but_Acp['command'] = set_heading
