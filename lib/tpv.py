@@ -78,7 +78,8 @@ def tpv():
     imprimir_fichas=False
     #Elección del fir,sector y ejercicio
     [fir_elegido,sector_elegido,ejercicio_elegido,imprimir_fichas] = g_seleccion_usuario
-    print 'Total escogido: ',fir_elegido,sector_elegido,ejercicio_elegido
+    logging.debug('Total escogido: '+str(fir_elegido)+" "+str(sector_elegido)+" "+
+                  str(ejercicio_elegido))
 
     ejercicio = []
     incidencias = []
@@ -153,7 +154,7 @@ def tpv():
     config.readfp(open(ejercicio_elegido[1],'r'))
     hora = config.get('datos','hora_inicio')
     if hora=='':
-        incidencias.append('No hay hora de inicio en ejercicio')
+        # incidencias.append('No hay hora de inicio en ejercicio')
         logging.critical('No hay hora de inicio')
         return    
     h_inicio = float(hora[0:2])*60.*60.+ float(hora[3:5])*60.
@@ -199,7 +200,7 @@ def tpv():
                 hora=float(p[1:3])+float(p[3:5])/60.+float(p[5:7])/60/60
                 d.set_initial_t(0.)  #
             elif len(p)>10 and p[0]=='H':
-                incidencias.append(d.get_callsign()+': Grupo HhhmmssFfffVvvv no está comleto')
+                # incidencias.append(d.get_callsign()+': Grupo HhhmmssFfffVvvv no está comleto')
                 logging.warning('Grupo HhhmmssFfffVvvv no está completo')
                 auxi=True
                 return
@@ -211,7 +212,7 @@ def tpv():
                         fijo_ant=q[0]
                         punto_esta=True
                 if not punto_esta:
-                    incidencias.append(d.get_callsign()+': Punto ' + p + ' no encontrado')
+                    # incidencias.append(d.get_callsign()+': Punto ' + p + ' no encontrado')
                     logging.warning('Punto '+p+' no encontrado')
                     auxi=False
             if auxi:

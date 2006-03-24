@@ -1062,7 +1062,10 @@ class ventana_auxiliar:
                 master.sendMessage({"message":"clock_speed",
                                     "data": float(master.clock_speed_var.get())})
             except:
-                logging.warning("Unable to send clock_speed command", exc_info=True)
+                # TODO Tkinter will call this function at interface build time
+                # before the sendMessage function has been created
+                # and thus will always fail at first
+                logging.debug("Unable to send clock_speed command", exc_info=True)
         cnt_vel_reloj = Control(ventana, label="Clock X:", min=0.5, max=99.0, step=0.1, command=cambia_vel_reloj, variable=master.clock_speed_var)
         cnt_vel_reloj.pack(side=LEFT,expand=1,fill=X)
         

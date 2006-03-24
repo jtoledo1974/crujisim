@@ -81,7 +81,6 @@ def get_sectores(fir):
             archivo = fir_file
     config=ConfigParser()
     lista=[]
-    print fir,archivo
     config.readfp(open(archivo,'r'))
     for sector in config.sections():
         if sector[0:6]=='sector':
