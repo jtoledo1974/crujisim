@@ -1321,6 +1321,9 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<Escape>",close_win)
             
         def change_speed(self,e):
+            # TODO we should look for server reply to confirm value setting
+            # in the same way we do for cfl and rate
+            
             if self.vt.label_format == 'pp':
                 win = Frame(self.c)
                 lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-2)

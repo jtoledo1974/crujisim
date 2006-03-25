@@ -258,7 +258,6 @@ class UCS(RaDisplay):
         vt.type = f.tipo
         vt.radio_cs = f.radio_callsign
         vt.rfl = f.rfl
-        vt.cfl=f.cfl
         vt.pfl=f.pfl
         if f.atc_pos!=None and f.atc_pos==self.pos_number:
             vt.assumed = True
