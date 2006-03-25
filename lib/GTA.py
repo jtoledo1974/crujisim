@@ -102,14 +102,16 @@ class GTA:
             self.t0=self.fact_t*time()-self.start_time
         
         # Send formated time to clients
-        for protocol in self.protocol_factory.protocols:
+        # TODO This is BAD (tm). We should pass actual time and the client
+        # should be able to decide how the want it formatted
+        for client in self.pseudopilots+self.controllers:
             t = float(self.tlocal(self.t0))
             time_string = '%02d:%02d:%02d' % get_h_m_s(t)
-            if time_string != protocol.time_string:
+            if time_string != client.time_string:
                 m={'message':'time',
                    'data':t}
-                protocol.sendMessage(m)
-                protocol.time_string=time_string        
+                client.protocol.sendMessage(m)
+                client.time_string=time_string        
     
         if self.tlocal(self.t0)-self.last_update<refresco:
             # No further work needed
@@ -366,7 +368,8 @@ class GTA:
             
         # If any an action has been taken on a flight, update this flight
         # on all of the pseudopilot positions
-        self.send_flight(f, self.pseudopilots)      
+        try: self.send_flight(f, self.pseudopilots)
+        except: logging.debug("Error while sending flight", exc_info=True)
 
     def send_flight(self, f, clients):
         """Update a specific flight on the given clients"""
@@ -403,6 +406,7 @@ class Client:
         self.type = None  # ATC or PSEUDOPILOT
         self.sector = None  # Which sector is the client connected to
         self.protocol = None  # The protocol throught which we are talking to this client
+        self.time_string = ''  # The last transmitted time string
 
     def exit(self):
         del(self.protocol)
@@ -418,7 +422,6 @@ class GTA_Protocol(NetstringReceiver):
     
     def __init__(self):
         self._deferred = None
-        self.time_string = ''
     
     def connectionMade(self):
         self.sendMessage({"message":"hello"})
