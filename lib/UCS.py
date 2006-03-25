@@ -95,12 +95,6 @@ class UCS(RaDisplay):
             self.wind = m['wind']
             self.stop_separating = True
 
-            self.print_tabular.list.delete(0,self.print_tabular.list.size())
-            for cs in m['print_list']:
-                self.print_tabular.insert(END,cs)
-            self.print_tabular.adjust()
-            self.dep_tabular.update(m['dep_list'])
-
             self.update()
 
 
