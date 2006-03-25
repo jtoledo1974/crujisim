@@ -686,19 +686,21 @@ class Airplane:
     def set_rate_descend(self,rate):
         self.es_std=False
         if self.cfl>self.alt:
-            self.rate = rate/100.*60.
-            if self.rate <= self.rate_climb_max*f_vert(self):
-                return True
+            rate = rate/100.*60.
+            if rate <= self.rate_climb_max*f_vert(self):
+                self.rate = rate
+                return (True, None)
             else:
-                self.rate = self.rate_climb_max*f_vert(self)
-                return False
+                #self.rate = self.rate_climb_max*f_vert(self)
+                return (False, self.rate_climb_max*f_vert(self)*100./60)
         else:
-            self.rate = -abs(rate/100.*60.)
-            if abs(self.rate) <= self.rate_desc_max:
-                return True
+            rate = -abs(rate/100.*60.)
+            if abs(rate) <= self.rate_desc_max:
+                self.rate = rate
+                return (True, None)
             else:
-                self.rate = -self.rate_desc_max
-                return False
+                #self.rate = -self.rate_desc_max
+                return (False, -self.rate_desc_max*100./60)
                 
     def set_app_fix(self):
         self.fijo_app = 'N/A'

@@ -311,14 +311,16 @@ class GTA:
                                     exc_info = True)
         elif m['message']=="set_cfl":
             logging.debug("Set CFL "+str(m))
-            try: f.set_cfl(m["cfl"])
+            try: p.sendReply(f.set_cfl(m["cfl"]))
             except: logging.warning("Error while setting CFL",
                                     exc_info = True)
         elif m['message']=="set_rate":
             logging.debug("Set rate "+str(m))
             try:
-                if m["rate"]=="std": f.set_std_rate()
-                else: f.set_rate_descend(int(m["rate"]))
+                if m["rate"]=="std":
+                    f.set_std_rate()
+                    p.sendReply(True)
+                else: p.sendReply(f.set_rate_descend(int(m["rate"])))
             except: logging.warning("Error while setting rate",
                                     exc_info = True)
         elif m['message']=="set_hdg":
@@ -422,6 +424,7 @@ class GTA_Protocol(NetstringReceiver):
     
     def __init__(self):
         self._deferred = None
+        self.command_no = None  # The current command number. Used in replys
     
     def connectionMade(self):
         self.sendMessage({"message":"hello"})
@@ -430,6 +433,10 @@ class GTA_Protocol(NetstringReceiver):
         line = pickle.dumps(m, bin=True)
         zline = zlib.compress(line)
         self.sendString(zline)
+        
+    def sendReply(self, m):
+        m2 = {"message": "reply", "command_no": self.command_no, "data": m}
+        self.sendMessage(m2)
                 
     def connectionLost(self,reason):
         if self._deferred!=None:
@@ -451,7 +458,8 @@ class GTA_Protocol(NetstringReceiver):
             print "Unable to unpickle"
             return
         
-        self.factory.gta.process_message(m, self)
+        self.command_no = m["command_no"]
+        self.factory.gta.process_message(m["data"], self)
 
     
 class GTA_Protocol_Factory(Factory):

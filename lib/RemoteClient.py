@@ -40,22 +40,39 @@ ATC = "ATC"
 class GTA_Client_Protocol(NetstringReceiver):
     
     def __init__(self):
-        self.data = ''
+        self.command_no = 0
+        self.defer_list={}
                     
     def stringReceived(self, line):
         line=zlib.decompress(line)
         try:
             m=pickle.loads(line)
         except:
-            print "Unable to unpickle"
+            logging.critical("Unable to unpickle")
             return
-
+        
+        # If the received message was a reply to a previous
+        # command, fire the callback for it.
+        if m['message']=='reply':
+            self.defer_list[m['command_no']].callback(m['data'])
+            return
+        
         self.client.process_message(m)
         
     def sendMessage(self, object):
+        object = {"command_no": self.command_no, "data": object}
         line = pickle.dumps(object, bin=True)
         zline = zlib.compress(line)
         self.sendString(zline)
+        d = defer.Deferred()
+        self.defer_list[self.command_no] = d
+        d.setTimeout(5, self.replyTimeout, self.command_no)
+        self.command_no += 1
+        return d
+    
+    def replyTimeout(self, d, command_no):
+        """Deletes the reference to the command deferred if no reply was received"""
+        del self.defer_list[command_no]
                 
     def connectionLost(self,reason):
         logging.info("Server connection lost")

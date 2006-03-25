@@ -1206,16 +1206,19 @@ class VisTrack(object): # ensure a new style class
             def set_FLs(cfl,pfl):
                 self.vt.pfl=int(pfl)
                 self.vt._message_handler(self.vt,'pfl','update',pfl,e)
-                flag = self.vt._message_handler(self.vt,'cfl','update',cfl,e)
-                if flag or self.vt.mode=='atc':
-                    self.vt.cfl=int(cfl)
-                    self.reformat()
-                    close_win()
-                else:
-                    ent_CFL.delete(0,END)
-                    ent_CFL.insert(0, str(abs(int(self.vt.cfl))))
-                    ent_CFL['bg'] = 'red'
-                    ent_CFL.focus_set()
+                d = self.vt._message_handler(self.vt,'cfl','update',cfl,e)
+                def result(r):
+                    if r:
+                        self.vt.cfl=int(cfl)
+                        self.reformat()
+                        close_win()
+                    else:
+                        ent_CFL.delete(0,END)
+                        ent_CFL.insert(0, str(abs(int(self.vt.cfl))))
+                        ent_CFL['bg'] = 'red'
+                        ent_CFL.focus_set()
+                if self.vt.mode == 'atc': result(True)
+                else: d.addCallback(result)
             def aceptar(e=None):
                 cfl = ent_CFL.get()
                 pfl = ent_PFL.get()
@@ -1256,16 +1259,18 @@ class VisTrack(object): # ensure a new style class
                 self.c.delete(ident)
             def set_rate(e=None):
                 rate = ent_rate.get()
-                flag = self.vt._message_handler(self.vt,'rate','update',rate,e)
-                if flag:
-                    self.vt.rate=int(rate)
-                    close_win()
-                else:
-                    ent_rate.delete(0,END)
-                    ent_rate.insert(0, str(abs(int(self.vt.rate))))
-                    ent_rate['bg'] = 'red'
-                    ent_rate.select_range(0, END)
-                    ent_rate.focus_set()
+                d = self.vt._message_handler(self.vt,'rate','update',rate,e)
+                def result((r, max_rate)):
+                    if r:
+                        self.vt.rate=int(rate)
+                        close_win()
+                    else:
+                        ent_rate.delete(0,END)
+                        ent_rate.insert(0, str(abs(int(max_rate))))
+                        ent_rate['bg'] = 'red'
+                        ent_rate.select_range(0, END)
+                        ent_rate.focus_set()
+                d.addCallback(result)
             def set_std():
                 self.vt._message_handler(self.vt,'rate','update','std',e)
                 close_win()

@@ -228,6 +228,10 @@ class PpDisplay(RaDisplay):
             self.update_track(f)
             
     def update_track(self, f):
+        # TODO
+        # Whatever substitute for Pickle we choose on the network layer
+        # we should not rely on having access to the objects code
+        # We should only count on simple attributes, not methods
         vt = self._flights_tracks[f]
         vt.alt=f.alt
         vt.cs=f.name
@@ -267,19 +271,11 @@ class PpDisplay(RaDisplay):
                 self.sendMessage({"message":"set_pfl", "cs": f.name, "pfl":int(value)})
         if item=='cfl':
             if action=='update':
-                self.sendMessage({"message":"set_cfl", "cs": f.name, "cfl":int(value)})
-                #flag=self.set_cfl(int(value))
-                #if flag: self.redraw(canvas)
-                #return flag
-                return True  # Suppose the update was valid
+                d = self.sendMessage({"message":"set_cfl", "cs": f.name, "cfl":int(value)})
+                return d
         if item=='rate':
             if action=='update':
-                #if value=='std':
-                #    self.set_std_rate()
-                #else:
-                #    return self.set_rate_descend(int(value))
-                self.sendMessage({"message":"set_rate", "cs": f.name, "rate":value})
-                return True  # Suppose the update was valid
+                return self.sendMessage({"message":"set_rate", "cs": f.name, "rate":value})
         if item=='hdg':
             if action=='update':
                 (hdg,opt)=value
