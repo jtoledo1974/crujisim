@@ -1217,7 +1217,7 @@ class VisTrack(object): # ensure a new style class
                         ent_CFL.insert(0, str(abs(int(cfl_max))))
                         ent_CFL['bg'] = 'red'
                         ent_CFL.focus_set()
-                if self.vt.mode == 'atc': result(True)
+                if self.vt.mode == 'atc': result((True, None))
                 else: d.addCallback(result)
             def aceptar(e=None):
                 cfl = ent_CFL.get()
