@@ -266,7 +266,7 @@ class UCS(RaDisplay):
         vt.rfl = f.rfl
         vt.cfl=f.cfl
         vt.pfl=f.pfl
-        if f.pp_pos!=None and f.pp_pos==self.pos_number:
+        if f.atc_pos!=None and f.atc_pos==self.pos_number:
             vt.assumed = True
         else:
             vt.assumed = False
