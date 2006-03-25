@@ -418,6 +418,10 @@ class Airplane:
         self.reports = []  # List of things an aircraft should report.
                            # [{'time':1.65,'text':'Request climb FL230'},
                            #  ,{'time':2.34,'text':'Overflown DGO'}]
+                           
+        self.pp_pos = None  # Pseudopilot position "piloting" this aircraft
+        # TODO atc_pos should be an attribute of a TPV flight, not of the aircraft
+        self.atc_pos = None  # UCS controlling this flight
             
     def __getstate__(self):
         """This function is called by the pickler. We remove the attributes

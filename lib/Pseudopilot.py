@@ -79,19 +79,42 @@ class PpDisplay(RaDisplay):
         self.dep_tabular = DepTabular(self, self.c)
         # self.dep_tabular.hide()
         
+        self.redraw()
         self.separate_labels()
         
     def process_message(self, m):
+        
+        def update_flight(new):
+            try: old = [old for old in self.flights if new.name==old.name][0]
+            except:
+                logging.warning("Unable to update %s. No local flight so named"%(new.name))
+                return
+            for name, value in new.__dict__.items():
+                setattr(old, name, value)
+            return old
+        
         if m['message']=='time':
             t = m['data']
             self.update_clock(t)
+
         if m['message']=='update':
+            flights = m['flights']
+            for f in flights: update_flight(f)
+            self.wind = m['wind']
+            self.stop_separating = True
+
             self.print_tabular.list.delete(0,self.print_tabular.list.size())
             for cs in m['print_list']:
                 self.print_tabular.insert(END,cs)
             self.print_tabular.adjust()
             self.dep_tabular.update(m['dep_list'])
-        RaDisplay.process_message(self,m)
+
+            self.update()
+
+
+        if m['message']=='update_flight':
+            f = update_flight(m['flight'])  # Returns the updated flight
+            self.update_track(f)
 
     def delete_routes(self,e=None):
         for track in self.tracks:
@@ -201,32 +224,38 @@ class PpDisplay(RaDisplay):
         self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(t))
             
     def update_tracks(self):
-        for f,vt in self._flights_tracks.items():
-            vt.alt=f.alt
-            vt.cs=f.name
-            vt.wake=f.estela
-            vt.echo=f.campo_eco
-            vt.gs=f.ground_spd
-            vt.mach=f.get_mach()
-            vt.hdg=f.hdg
-            vt.track=f.track
-            vt.rate=f.get_rate_descend()
-            vt.ias=f.get_ias()
-            vt.ias_max=f.get_ias_max()
-            vt.visible=f.se_pinta
-            vt.orig = f.origen
-            vt.dest = f.destino
-            vt.type = f.tipo
-            vt.radio_cs = f.radio_callsign
-            vt.rfl = f.rfl
-            if self.mode=='pp':
-                vt.cfl=f.cfl
-                vt.pfl=f.pfl
-                
+        for f in self.flights:
+            self.update_track(f)
             
-            [x0,y0]=self.do_scale(f.pos)
-            vt.coords(x0,y0,f.t)
-            self.c.lift(str(vt)+'track')
+    def update_track(self, f):
+        vt = self._flights_tracks[f]
+        vt.alt=f.alt
+        vt.cs=f.name
+        vt.wake=f.estela
+        vt.echo=f.campo_eco
+        vt.gs=f.ground_spd
+        vt.mach=f.get_mach()
+        vt.hdg=f.hdg
+        vt.track=f.track
+        vt.rate=f.get_rate_descend()
+        vt.ias=f.get_ias()
+        vt.ias_max=f.get_ias_max()
+        vt.visible=f.se_pinta
+        vt.orig = f.origen
+        vt.dest = f.destino
+        vt.type = f.tipo
+        vt.radio_cs = f.radio_callsign
+        vt.rfl = f.rfl
+        vt.cfl=f.cfl
+        vt.pfl=f.pfl
+        if f.pp_pos!=None and f.pp_pos==self.pos_number:
+            vt.assumed = True
+        else:
+            vt.assumed = False
+        
+        [x0,y0]=self.do_scale(f.pos)
+        vt.coords(x0,y0,f.t)
+        self.c.lift(str(vt)+'track')
             
     def vt_handler(self,vt,item,action,value,e=None):
         RaDisplay.vt_handler(self,vt,item,action,value,e)

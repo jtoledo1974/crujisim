@@ -38,6 +38,7 @@ import ConfMgr
 import avion
 conf = ConfMgr.CrujiConfig()
 from MathUtil import get_h_m_s
+from RemoteClient import PSEUDOPILOT, ATC
 
 class GTA:
     def __init__(self, fir, sector, flights, start_time, wind):
@@ -60,6 +61,9 @@ class GTA:
         self.departure_list = {}
         
         self.protocol_factory=GTA_Protocol_Factory(self, fir.file, sector, flights)
+        
+        self.pseudopilots = []  # List of connected pseudopilot clients
+        self.controllers = []  # List of connected controller clients
         
     def start(self, port=-1):
         if port==-1: port=conf.server_port
@@ -111,7 +115,9 @@ class GTA:
             # No further work needed
             return
 
-        #logging.debug("T0 = "+str(self.tlocal(self.t0)))
+        # Advance flights
+        for f in self.flights:
+            f.next(self.last_update/60./60.)
         
         # Determine which flights belong to the
         # printed flight strip tabular
@@ -168,27 +174,51 @@ class GTA:
                                   'print_list':print_list,
                                   'dep_list':dep_list})
         self.last_update=self.tlocal(self.t0)
-        for f in self.flights:
-            f.next(self.last_update/60./60.)
-            
-    def new_client(self, protocol):
-        m={'message':'init',
-           'data':{
-            'fir_file':self.protocol_factory.fir_file,
-            'sector':self.protocol_factory.sector,
-            'flights':self.protocol_factory.flights}
-        }
-        protocol.sendMessage(m)
-        # If this is the first connection the server receives
-        # make it the master connection (the server will close
-        # after this connection is lost)
-        if not hasattr(self.protocol_factory, "master_protocol"):
-            self.protocol_factory.master_protocol = protocol
-        self.protocol_factory.protocols.append(protocol)
-        logging.info("Incoming connection "+str(id(protocol)))
     
-    def process_message(self, m):
-        """Process a command message, possibly received through a network link"""
+    def process_message(self, m, p):
+        """Process a command message received through a network link
+        m is the message received, p is the protocol that received the message"""
+
+        if m['message']=='hello':
+            # This is the first message the client sends after our 'hello'
+            # He tells us what type of client he is
+            client = Client(self)
+            if m['client_type']==ATC:
+                client.type = ATC
+                try: number = max([c.number for c in self.controllers])+1
+                except: number = 0
+                client.number = number
+                client.protocol = p
+                self.controllers.append(client)
+                logging.info("Controller Client Number %d (%s:%d) connected"%(number,p.transport.client[0], p.transport.client[1]))
+            else:
+                client.type = PSEUDOPILOT
+                try: number = max([c.number for c in self.pseudopilots])+1
+                except: number = 0
+                client.number = number
+                client.protocol = p
+                self.pseudopilots.append(client)
+                logging.info("Pseudopilot Client Number %d (%s:%d) connected"%(number,p.transport.client[0], p.transport.client[1]))
+                
+            p.client = client
+            
+            # Send the client initialization data
+            m={'message':'init',
+                'fir_file':self.fir.file,
+                'sector':self.sector,
+                'flights':self.flights,
+                'pos_number': number}
+            p.sendMessage(m)
+            
+            # If this is the first connection the server receives
+            # make it the master connection (the server will close
+            # after this connection is lost)
+            # TODO we should probably have a master_client and
+            # and not a master protocol ? (JTC)
+            if not hasattr(self.protocol_factory, "master_protocol"):
+                self.protocol_factory.master_protocol = p
+            self.protocol_factory.protocols.append(p)
+            return
         
         if m.has_key("cs"):
             f = [f for f in self.flights if f.name == m["cs"]]
@@ -196,6 +226,7 @@ class GTA:
             except:
                 logging.warning ("No flight with callsign "+m["cs"]+" found.")
                 del f
+                return
                 
         if m['message']=='play':
             logging.info("PLAY")
@@ -322,8 +353,27 @@ class GTA:
                         del self.departure_list[airp][m['cs']]
             except: logging.warning("Error while departing acft",
                                     exc_info = True)
+        elif m['message']=="assume":
+            logging.debug("Assume "+str(m))
+            if p.client.type==ATC:
+                if m['assumed']: f.atc_pos = p.client.number
+                else: f.atc_post = None
+            else:
+                if m['assumed']: f.pp_pos = p.client.number
+                else: f.pp_pos = None
         else:
             loging.critical("Unknown message type in message "+str(m))
+            
+        # If any an action has been taken on a flight, update this flight
+        # on all of the pseudopilot positions
+        self.send_flight(f, self.pseudopilots)      
+
+    def send_flight(self, f, clients):
+        """Update a specific flight on the given clients"""
+        for c in clients:
+            m = {"message": "update_flight",
+                 "flight": f}
+            c.protocol.sendMessage(m)
             
     def exit(self):
         # Close connection with all connected clients
@@ -340,7 +390,27 @@ class GTA:
 
     def __del__(self):
         logging.debug("GTA.__del__")
-    
+
+class Client:
+    """Holds data about each of the connected clients"""
+    # TODO there is some overlap between information of the protocols
+    # and information on these objects. It should probably be rethought and
+    # most likely put everything here
+
+    def __init__(self, gta):
+        self.gta = gta
+        self.number = None  # Identifies the client position number (used to track who controls or pilots a specific flight)
+        self.type = None  # ATC or PSEUDOPILOT
+        self.sector = None  # Which sector is the client connected to
+        self.protocol = None  # The protocol throught which we are talking to this client
+
+    def exit(self):
+        del(self.protocol)
+        if self.type == ATC:
+            self.gta.controllers.remove(self)
+        else:
+            self.gta.pseudopilots.remove(self)
+
 class GTA_Protocol(NetstringReceiver):
     
     # TODO Pickle is not secure across a network
@@ -351,7 +421,7 @@ class GTA_Protocol(NetstringReceiver):
         self.time_string = ''
     
     def connectionMade(self):
-        self.factory.gta.new_client(self)
+        self.sendMessage({"message":"hello"})
         
     def sendMessage(self,m):
         line = pickle.dumps(m, bin=True)
@@ -363,7 +433,9 @@ class GTA_Protocol(NetstringReceiver):
             self._deferred.cancel()
         logging.info("Client connection lost")
         try: self.factory.protocols.remove(self)
-        except: logging.debug ("Protocol "+str(id(self))+" already removed") 
+        except: logging.debug ("Protocol "+str(id(self))+" already removed")
+        try: self.client.exit()
+        except: logging.debug("Client already removed")
         if self.factory.master_protocol==self:
             logging.debug("The master connection has been lost. Cleaning up")
             reactor.callWhenRunning(self.factory.gta.exit)
@@ -376,7 +448,7 @@ class GTA_Protocol(NetstringReceiver):
             print "Unable to unpickle"
             return
         
-        self.factory.gta.process_message(m)
+        self.factory.gta.process_message(m, self)
 
     
 class GTA_Protocol_Factory(Factory):

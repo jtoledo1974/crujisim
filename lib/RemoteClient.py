@@ -89,16 +89,21 @@ class RemoteClient:
         self.d.errback(False)
         
     def process_message(self, m):
+        if m['message']=='hello':
+            self.protocol.sendMessage({'message':'hello', 'client_type':self.type})
+            return
         if m['message']=='init':
-            fir_file=m['data']['fir_file']
-            sector=m['data']['sector']
-            self.flights = m['data']['flights']
+            fir_file=m['fir_file']
+            sector=m['sector']
+            self.flights = m['flights']
             fir=FIR(fir_file)
             if self.type==PSEUDOPILOT:
                 d=self.display=PpDisplay(self.flights,'testing','./img/crujisim.ico',fir,sector,mode='pp')
             elif self.type==ATC:
                 d=self.display=UCS(self.flights,'testing','./img/crujisim.ico',fir,sector,mode='atc')
             d.sendMessage = self.protocol.sendMessage
+            try: d.pos_number = m['pos_number']
+            except: logging.warning("Unable to set pos_number")
             self.display.top_level.protocol("WM_DELETE_WINDOW",lambda :reactor.callLater(0,self.exit))
             return
         

@@ -1700,20 +1700,18 @@ class RaDisplay(object):
         self.lads = []  # List of LADs
         self.cancel_lad_serial = -1  # To be used to cancel lad creation after middle clicking some virtual track label item
         self.defining_lad = False
+
+        self.pos_number = None  # Radar position number (identifies this radar display)
         
         self.label_font_size = 9
         self.label_font = tkFont.Font(family="Helvetica",size=self.label_font_size)
         self.label_moved = False  # Whether a label has recently been manually moved
         
-        #self.c.bind('<Button-1>', self.b1_cb)
-        #self.c.bind('<Button-2>', self.b2_cb)
-        #self.c.bind('<Button-3>', self.b3_cb)
         ra_bind(self, self.c, '<Button-1>', self.b1_cb)
         ra_bind(self, self.c, '<Button-2>', self.b2_cb)
         ra_bind(self, self.c, '<Button-3>', self.b3_cb)
         
         self.get_scale() # Calculate initial x0, y0 and scale
-        self.redraw()
 
     def draw_polyline(self,object):
         #draw a series of lines from point to point defined in object[2:]. object[2:] contains
@@ -1778,21 +1776,7 @@ class RaDisplay(object):
     def change_speed_vector(self,minutes,e=None):
         for track in self.tracks:
             track.speed_vector_length=minutes
-        
-    def process_message(self, m):
-        """Deal with messages received from the server
-        The parent class (Pseudopilot or UCS) will have already dealt
-        with whatever information was relevant to it, and here
-        we deal with the generic stuff"""
-        if m['message']=='update':
-            flights = m['flights']
-            for (old,new) in zip(self.flights,flights):
-                for name,value in new.__dict__.items():
-                    old.__dict__[name]=value
-            self.wind = m['wind']
-            self.stop_separating = True
-            self.update()
-            
+                    
     def vt_handler(self,vt,item,action,value,e=None):
         """Handle events raised by visual tracks
         Visual tracks have their own GUI code to present the user
@@ -1802,9 +1786,12 @@ class RaDisplay(object):
             self.cancel_lad_serial=e.serial
         pass
         if item=='cs':
-            if action=='<Motion>':
+            if action=='<Button-1>':
+                m={"message":"assume", "cs": vt.cs, "assumed": vt.assumed}
+                self.sendMessage(m)
+            elif action=='<Motion>':
                 self.label_moved = True
-            if action=='<ButtonRelease-2>':
+            elif action=='<ButtonRelease-2>':
                 try: self.selected_track.selected = not self.selected_track.selected
                 except: logging.debug("Unselecting previous selected track failed")
                 if self.selected_track == vt:
