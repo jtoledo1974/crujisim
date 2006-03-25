@@ -368,8 +368,8 @@ class GTA:
             
         # If any an action has been taken on a flight, update this flight
         # on all of the pseudopilot positions
-        try: self.send_flight(f, self.pseudopilots)
-        except: logging.debug("Error while sending flight", exc_info=True)
+        if m.has_key("cs"):
+            self.send_flight(f, self.pseudopilots)
 
     def send_flight(self, f, clients):
         """Update a specific flight on the given clients"""
