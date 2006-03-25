@@ -624,7 +624,7 @@ class Airplane:
         self.vfp = False
         self.to_do = 'hdg'
         self.to_do_aux = [hdg,opt]
-        logging.debug(self.to_do,self.to_do_aux)
+        logging.debug(str((self.to_do,self.to_do_aux)))
         
     def set_route(self,route):
         self.cancel_app_auth()
