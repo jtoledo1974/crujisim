@@ -608,10 +608,9 @@ class Airplane:
     def set_cfl(self, alt):
         if alt <= self.fl_max:
             self.cfl = alt
-            return True
+            return (True, None)
         else:
-            self.cfl = self.fl_max
-            return False
+            return (False, self.fl_max)
             
     def set_pfl(self, alt):
         self.pfl = alt

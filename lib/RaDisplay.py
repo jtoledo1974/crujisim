@@ -1207,14 +1207,14 @@ class VisTrack(object): # ensure a new style class
                 self.vt.pfl=int(pfl)
                 self.vt._message_handler(self.vt,'pfl','update',pfl,e)
                 d = self.vt._message_handler(self.vt,'cfl','update',cfl,e)
-                def result(r):
+                def result((r, cfl_max)):
                     if r:
                         self.vt.cfl=int(cfl)
                         self.reformat()
                         close_win()
                     else:
                         ent_CFL.delete(0,END)
-                        ent_CFL.insert(0, str(abs(int(self.vt.cfl))))
+                        ent_CFL.insert(0, str(abs(int(cfl_max))))
                         ent_CFL['bg'] = 'red'
                         ent_CFL.focus_set()
                 if self.vt.mode == 'atc': result(True)
