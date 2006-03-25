@@ -83,15 +83,18 @@ try:
 except:
     logging.exception("Error loading program modules")
     sys.exit(1)
-                  
-encoding = locale.getpreferredencoding()
+
+if sys.platform=="win32":                  
+    encoding = locale.getpreferredencoding()
+else:
+    encoding = "cp1252"
 utf8conv = lambda x : unicode(x, encoding).encode('utf8')
 
 # CONSTANTS
 EX_DIR = "pasadas"
 GLADE_FILE = "glade/crujisim.glade" 
 JOKES = "jokes.txt"
-AIRCRAFT_FILE = "modelos_avo.txt"
+AIRCRAFT_FILE = "Modelos_avo.txt"
 
 class Crujisim:
     
