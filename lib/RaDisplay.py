@@ -568,6 +568,7 @@ class VisTrack(object): # ensure a new style class
         self.hdg=200
         self.track=200  # Magnetic track
         self.alt=150
+        self.draw_cfl=False  # Whether or not to draw the current cfl
         self.cfl=200
         self.pfl=350
         self.rate=2000  # Vertical rate of climb or descent
@@ -903,6 +904,7 @@ class VisTrack(object): # ensure a new style class
             self._item_refresh_list.append(name)
             # When alt reaches cfl, cfl must be cleared
             if name=='alt': self._item_refresh_list.append('cfl')
+            if name=='cfl': self.draw_cfl = True
         elif name in ['wx','wy']:
             (x,y) = self.do_scale((self.wx,self.wy))
             object.__setattr__(self,'x',x)
@@ -1053,11 +1055,11 @@ class VisTrack(object): # ensure a new style class
                 lf.configure(size=vt.l_font_size)
                 self._old_font_size=vt.l_font_size
                 
-                # Refresh items text and color
+            # Refresh items text and color
             for i_name in vt.allitems:
                 self.refresh(i_name)
                 
-                # Label geometry
+            # Label geometry
             lw = mlw = 20  # Label Width initially Minimum label width
             lh = 4  # Initial label height
             line_height = lf.metrics('ascent')
@@ -1078,7 +1080,7 @@ class VisTrack(object): # ensure a new style class
                 # TODO This is NOT CORRECT
                 vt.label_height -= line_height
                 
-                # Update label items position
+            # Update label items position
             for i in self.items:
                 if self[i].i!=None:
                     vt._c.coords(self[i].i,self[i].x,self[i].y)
@@ -1109,11 +1111,16 @@ class VisTrack(object): # ensure a new style class
                 else: self.rate.t = '  '  # Two spaces, as wide as the arrow,
                                           # so that a reformat is not necessary
             elif i=='cfl':
-                if vt.cfl-vt.alt>2.:
-                    self.cfl.t='%03d'%(int(vt.cfl+0.5))  # Vertical direction
-                elif vt.cfl-vt.alt<-2.:
-                    self.cfl.t='%03d'%(int(vt.cfl+0.5))
-                else: self.cfl.t = ''
+                if vt.draw_cfl:
+                    if vt.cfl-vt.alt>2.:
+                        self.cfl.t='%03d'%(int(vt.cfl+0.5))  # Vertical direction
+                    elif vt.cfl-vt.alt<-2.:
+                        self.cfl.t='%03d'%(int(vt.cfl+0.5))
+                    else:
+                        vt.draw_cfl = False
+                        self.cfl.t = ''
+                else:
+                    self.cfl.t = ''
             elif i=='echo':
                 self.echo.t = vt.echo
             elif i=='pac':
