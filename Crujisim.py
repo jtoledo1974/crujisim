@@ -84,10 +84,9 @@ except:
     logging.exception("Error loading program modules")
     sys.exit(1)
 
-if sys.platform=="win32":                  
-    encoding = locale.getpreferredencoding()
-else:
-    encoding = "cp1252"
+# TODO this works as it is, but it's probably not the best way to do it.
+if sys.platform == "win32": encoding = locale.getpreferredencoding()
+else: encoding = "cp1252"
 utf8conv = lambda x : unicode(x, encoding).encode('utf8')
 
 # CONSTANTS
@@ -985,7 +984,7 @@ class FlightEditor:
         for c in text:
             if c.isalnum() or c=="_" or c==" " or c==",": continue
             valid = False
-            err = ""
+            err = "Caracter no válido en la ruta"
             break
         if self.orig.props.text==text.split(" ")[0] and text!="" and self.orig.props.text!="":
             valid = False
@@ -1135,12 +1134,12 @@ class FlightEditor:
         checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
             ("type","^[A-Z0-9-]{2,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
             ("orig","^[A-Z]{4}$"),("dest","^[A-Z]{4}$"),
-            ("route","^([A-Z_]{2,6} {0,1})+$"),
+            ("route","^([A-Z0-9_]{2,6} {0,1})+$"),
             ("rfl","^\d{2,3}$"),("cfl","^\d{2,3}$")]
         if self.departure:
             checklist += [("eobt","^\d{4}$")]
         else:
-            checklist += [("fix","^[A-Z_]{2,6}$"),("eto","^\d{4}$"),
+            checklist += [("fix","^[A-Z0-9_]{2,6}$"),("eto","^\d{4}$"),
                 ("firstlevel","^\d{2,3}$")]
             fix = self.fix.props.text
             route = self.route.props.text
