@@ -193,8 +193,7 @@ class FIR:
                                 points_sid.append([q[1],q[0],'00:00'])
                                 punto_esta=True
                         if not punto_esta:
-                            incidencias.append('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
-                            logging.debug ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
+                            logging.warning ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
                     sid[last_point] = (nombre_sid,points_sid)
                 # Procedimientos STAR
                 star = {}
@@ -210,8 +209,7 @@ class FIR:
                                 points_star.append([q[1],q[0],'00:00'])
                                 punto_esta=True
                         if not punto_esta:
-                            incidencias.append('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_star)
-                            logging.debug ('Punto ',nombre_punto,' no encontrado en procedimiento ', nombre_star)
+                            logging.warning ('Punto ',nombre_punto,' no encontrado en procedimiento ', nombre_star)
                             #        points_star.pop(-1)
                     star[last_point] = (nombre_star,points_star)
                 self.procedimientos[pista] = (sid,star)
@@ -239,8 +237,7 @@ class FIR:
                                     points_app.append([q[1],q[0],'',float(altitud)])
                                     punto_esta=True
                             if not punto_esta:
-                                incidencias.append('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
-                                logging.debug ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
+                                logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
                     llz_data = []
                     nombre_ayuda = lista[i+1]
                     rdl_ayuda = float(lista[i+2])
@@ -252,8 +249,7 @@ class FIR:
                             llz_data = [q[1],(rdl_ayuda + 180.)%360.,dist_ayuda,pdte_ayuda,alt_pista]
                             break
                     if llz_data == []:
-                        incidencias.append('Localizador no encontrado en procedimiento app_'+pista+' APP')
-                        logging.debug ('Localizador no encontrado en procedimiento app_'+pista+' APP')
+                        logging.warning ('Localizador no encontrado en procedimiento app_'+pista+' APP')
                         # Ahora vamos a por los puntos de la frustrada        
                     points_map = []
                     lista = lista [i+7:]
@@ -267,8 +263,7 @@ class FIR:
                                 points_map.append([q[1],q[0],'',float(altitud)])
                                 punto_esta=True
                         if not punto_esta:
-                            incidencias.append('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
-                            logging.debug ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
+                            logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
                             # Guardamos los procedimientos
                     self.proc_app[fijo.upper()]=(points_app,llz_data,points_map)
         logging.debug ('Lista de procedimientos de aproximación'+str(self.proc_app))
@@ -311,15 +306,13 @@ class FIR:
                         self.boundaries[sector].append(q[1])
                         auxi=False
                 if auxi:
-                    incidencias.append(('En el límite de sector no encontrado el self.points '+a))
-                    logging.debug ('En límite de sector no encontrado el self.points '+a)
+                    logging.warning ('En límite de sector no encontrado el self.points '+a)
              
              #Build TWO LOCAL MAPS: One with sectors limits, and the other with the transparency
                     # Separación mínima del sector
             if self._firdef.has_option(section,'min_sep'):
                 self.min_sep[sector]=float(self._firdef.get(section,'min_sep'))
             else:
-                incidencias.append(('No encontrada separación en sector '+sector+'. Se asumen 8 NM de separación mínima.'))
                 logging.debug ('No encontrada separación en sector '+sector+'. Se asumen 8 NM de separación mínima.')
                 self.min_sep[sector] = 8.0
                 
@@ -331,11 +324,9 @@ class FIR:
                 elif aux2 == 'MANUAL':
                     self.auto_departures[sector] = False
                 else:
-                    incidencias.append(('Valor para despegues manual/automático para sector '+sector+' debe ser "AUTO" o "MANUAL". Se asume automático'))
                     logging.debug ('Valor para despegues manual/automático para sector '+sector+' debe ser "AUTO" o "MANUAL". Se asume automático')                    
                     self.auto_departures[sector] = True
             else:
-                incidencias.append(('Valor para despegues manual/automático para sector '+sector+' no encontrado. Se asume automático'))
                 logging.debug ('Valor para despegues manual/automático para sector '+sector+' no encontrado. Se asume automático')
                 auto_departures[sector] = True
                 
@@ -349,9 +340,7 @@ class FIR:
                         self.fijos_impresion[sector].append(q[0])
                         auxi=False
                 if auxi:
-                    incidencias.append(('No encontrado fijo de impresión '+a))
-                    logging.debug ('No encontrado el fijo de impresión '+a)
-            logging.debug
+                    logging.warning ('No encontrado el fijo de impresión '+a)
             # Fijos de impresión secundarios
             if self._firdef.has_option(section,'fijos_de_impresion_secundarios'):
                 aux2=self._firdef.get(section,'fijos_de_impresion_secundarios').split(',')
@@ -362,8 +351,7 @@ class FIR:
                             self.fijos_impresion_secundarios[sector].append(q[0])
                             auxi=False
                     if auxi:
-                        incidencias.append(('No encontrado fijo secundario de impresión '+a))
-                        logging.debug ('No encontrado el fijo secundario de impresión '+a)
+                        logging.warning ('No encontrado el fijo secundario de impresión '+a)
             else:
                 logging.debug ('No hay fijos de impresión secundarios (no hay problema)')
                 
