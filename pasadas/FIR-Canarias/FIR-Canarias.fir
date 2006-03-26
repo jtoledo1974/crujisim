@@ -95,7 +95,7 @@ _SEC14:329.76039668,-428.417139938
 _SEC71:329.76039668,-428.417139938
 
 
-[rutas]
+[aerovias]
 50: ORTIS,TFN
 51: BIMBO,GDV
 52: KONBA,GOMER
@@ -117,8 +117,10 @@ _SEC71:329.76039668,-428.417139938
 71: LAY,DKH
 72: GDV,TFN
 
+[rutas]
+
 [aeropuertos]
-1:GCLP,GCHI,GCLA
+1:GCLP,GCHI,GCLA,GCRR,GCFV,GCTS,GCXO,GCGM
 
 [mapas_locales]
 mapas=costa,inferior,superior,tma
