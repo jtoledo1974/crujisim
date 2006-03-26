@@ -519,6 +519,49 @@ class RaTabular(RaFrame):
         if mh>max_height and max_height!=0: mh=max_height
         self.list.configure(height=mh, width=mw)
         
+
+class RaBrightness(RaFrame):
+    """Brightness control frame"""
+    def __init__(self, master, callback, **kw):
+        def_opt={'position':(512,575)}
+        def_opt.update(kw)
+        self.callback = callback
+        # The frame constructor method will call _build
+        RaFrame.__init__(self, master=master, **def_opt)
+        
+    def _build(self, master=None, windowed=False, **kw):
+        RaFrame._build(self, master=master, windowed=windowed, closebuttonhides=True**kw)
+        gvar = DoubleVar()  # General
+        tvar = DoubleVar()  # Tracks
+        mvar = DoubleVar()  # Maps
+        lvar = DoubleVar()  # LADs
+        self.scale_colors={'background':self.bg,
+                            'highlightbackground':self.bg,
+                            'highlightcolor':'Black',
+                            'foreground':self.fg,
+                            'troughcolor':self.bg}
+                            #'selectbackground':self.bd,
+                            #'selectforeground':self.fg}
+        def changed(*args):
+            #print gvar.get(), tvar.get(), mvar.get(), lvar.get()
+            self.callback({"GLOBAL":gvar.get(), "TRACK":tvar.get(),
+                      "MAP": mvar.get(), "LADS":lvar.get()})
+            
+        for t,v in (("G",gvar), ("P",tvar),
+                    ("M",mvar), ("L",lvar)):
+            f = Frame(self.contents, background=self.bg)
+            l = Label(f,text=t,background=self.bg,foreground=self.bd)
+            v.set(1)
+            v.trace("w", changed)
+            w = Scale(f, variable = v)
+            l.pack(side=TOP)
+            w.pack(side=BOTTOM)
+            f.pack(side=LEFT)
+            w.configure(**self.scale_colors)
+            w.configure(showvalue=0, sliderlength=20, from_=0, to=2, resolution=0.1, variable = v)
+
+        
+
 class VisTrack(object): # ensure a new style class
     """Visual representation of a radar track on either a pseudopilot display
     or a controller display"""
@@ -1727,6 +1770,7 @@ class RaDisplay(object):
         ra_bind(self, self.c, '<Button-3>', self.b3_cb)
         
         self.get_scale() # Calculate initial x0, y0 and scale
+        rb = RaBrightness(c, self.set_element_intensity)
 
     def draw_polyline(self,object):
         #draw a series of lines from point to point defined in object[2:]. object[2:] contains
@@ -2189,6 +2233,24 @@ class RaDisplay(object):
         y_scale=(self.height-self.toolbar_height)/(ymax-ymin)
         self.scale=min(x_scale,y_scale)*0.9
     
+    def set_element_intensity(self, v):
+        """Changes the brightness of radar elements"""
+        if v.has_key("GLOBAL") and v["GLOBAL"]!=self.intensity["GLOBAL"]:
+            #DO STUFF
+            pass
+        if v.has_key("MAP") and v["MAP"]!=self.intensity["MAP"]:
+            #DO STUFF
+            pass
+        if v.has_key("TRACKS") and v["TRACKS"]!=self.intensity["TRACKS"]:
+            #DO STUFF
+            pass
+        if v.has_key("LADS") and v["LADS"]!=self.intensity["LADS"]:
+            #DO STUFF
+            pass
+        
+        # Copy the values from the given dictionary into the stored intensity
+        self.intensity.update(v)
+        
     def redraw_maps(self):
         
         c = self.c  # Canvas
