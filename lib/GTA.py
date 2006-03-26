@@ -32,7 +32,8 @@ try:
   from twisted.protocols.basic import NetstringReceiver
 except:
   logging.exception ("Error while importing the Twisted Framefork modules")
-import pickle
+import cPickle
+pickle = cPickle
 import zlib
 import ConfMgr
 import avion
@@ -430,7 +431,7 @@ class GTA_Protocol(NetstringReceiver):
         self.sendMessage({"message":"hello"})
         
     def sendMessage(self,m):
-        line = pickle.dumps(m, bin=True)
+        line = pickle.dumps(m)
         zline = zlib.compress(line)
         self.sendString(zline)
         

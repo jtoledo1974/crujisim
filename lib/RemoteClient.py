@@ -28,7 +28,8 @@ from Pseudopilot import PpDisplay
 from UCS import UCS
 from FIR import *
 import UI
-import pickle
+import cPickle
+pickle = cPickle
 import logging
 import zlib
 from ConfMgr import *
@@ -61,7 +62,7 @@ class GTA_Client_Protocol(NetstringReceiver):
         
     def sendMessage(self, object):
         object = {"command_no": self.command_no, "data": object}
-        line = pickle.dumps(object, bin=True)
+        line = pickle.dumps(object)
         zline = zlib.compress(line)
         self.sendString(zline)
         d = defer.Deferred()
