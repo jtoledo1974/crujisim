@@ -224,6 +224,7 @@ class RaFrame:
             
     def close(self,e=None):
         """Close the RaFrame and completely delete it"""
+        logging.debug("Raframe.close")
         if (self._kw.has_key('closebuttonhides')
             and self._kw['closebuttonhides']):
             self.hide()
@@ -527,10 +528,10 @@ class RaBrightness(RaFrame):
         def_opt.update(kw)
         self.callback = callback
         # The frame constructor method will call _build
-        RaFrame.__init__(self, master=master, **def_opt)
+        RaFrame.__init__(self, master=master, closebuttonhides=True, **def_opt)
         
     def _build(self, master=None, windowed=False, **kw):
-        RaFrame._build(self, master=master, windowed=windowed, closebuttonhides=True**kw)
+        RaFrame._build(self, master=master, windowed=windowed,  **kw)
         gvar = DoubleVar()  # General
         tvar = DoubleVar()  # Tracks
         mvar = DoubleVar()  # Maps
@@ -1770,7 +1771,10 @@ class RaDisplay(object):
         ra_bind(self, self.c, '<Button-3>', self.b3_cb)
         
         self.get_scale() # Calculate initial x0, y0 and scale
-        rb = RaBrightness(c, self.set_element_intensity)
+        
+        self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
+        self.rabrightness = RaBrightness(c, self.set_element_intensity)
+        self.rabrightness.hide()
 
     def draw_polyline(self,object):
         #draw a series of lines from point to point defined in object[2:]. object[2:] contains
