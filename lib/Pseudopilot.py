@@ -171,15 +171,15 @@ class PpDisplay(RaDisplay):
                 # Display window offering "Direct to..." and "Cancel" options.
                 track.last_lad = e.serial
                 win = Frame(canvas)
-                id_avo = Label(win,text=track.name)
-                id_avo.pack(side=TOP)                
-                id_pto = Entry (win,width=8)
+                id_avo = Label(win,text=track.name,bg='blue',fg='white')
+                id_pto = Entry (win,width=8, justify = CENTER)
                 id_pto.insert(0,point_name)
-                id_pto.pack(side=TOP)
                 but_direct = Button(win, text="Dar directo")
                 but_cancel = Button(win, text="Cancelar")
-                but_direct.pack(side=TOP)
-                but_cancel.pack(side=TOP)
+                id_avo.grid(row=0, column=0, columnspan=1,sticky=W+E)
+                id_pto.grid(row=1, column=0, columnspan=1,sticky=W+E)
+                but_direct.grid(row=2, column=0, columnspan=1,sticky=W+E)
+                but_cancel.grid(row=3, column=0, columnspan=1,sticky=W+E)
                 win_identifier = canvas.create_window(e.x, e.y, window=win)
                 def close_win(ident=win_identifier):
                     canvas.delete(ident)
