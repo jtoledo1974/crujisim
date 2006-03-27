@@ -45,36 +45,114 @@ _binds = []
 IMGDIR='./img/'
 CHANGE_WIDTH = 13
 
+def RGBtoHSV(rgb,factor=1):
+    ###returns HSV components from rgb (R,G,B)
+    r1 = float(rgb[0])/factor
+    g1 = float(rgb[1])/factor
+    b1 = float(rgb[2])/factor
+    rgb1=[r1,g1,b1]
+
+    max_c = max(rgb1)
+    min_c = min(rgb1)
+    delta = max_c - min_c
+    v = max_c
+
+    if delta == 0.0:
+        s = 0.0
+        h = 0.0
+        return [h,s,v]
+    else:
+        s = delta / max_c
+        del_R = ( ( ( max_c - r1) / 6.0 ) + ( delta / 2.0 ) ) / delta
+        del_G = ( ( ( max_c - g1) / 6.0 ) + ( delta / 2.0 ) ) / delta
+        del_B = ( ( ( max_c - b1) / 6.0 ) + ( delta / 2.0 ) ) / delta
+    if r1 == max_c:
+        h = del_B - del_G
+    elif g1 == max_c:
+        h = (1.0/3.0)+del_R - del_B
+    elif b1 == max_c:
+        h = (2.0/3.0)+del_G - del_R
+        
+    if h<0.0: h+=1.0
+    if h>1.0: h-=1.0
+    
+    return [h,s,v]
+
+def HSVtoRGB(hsv,factor = 1):
+    ###returns RGB components scaled by factor, from hsv
+    [h,s,v]=hsv
+    if s==0:
+        var_r = v
+        var_g = v
+        var_b = v
+
+    else:
+        var_h = h*6.0
+        if var_h == 6.0: var_h = 0
+        var_i = floor(var_h)
+        var_1 = v * ( 1 - s)
+        var_2 = v * ( 1 - s * ( var_h - var_i ) )
+        var_3 = v * ( 1 - s * ( 1 - ( var_h - var_i ) ) )
+        
+        if var_i == 0.0:
+            var_r = v
+            var_g = var_3
+            var_b = var_1
+        elif var_i == 1.0:
+            var_r = var_2
+            var_g = v
+            var_b = var_1
+        elif var_i == 2.0:
+            var_r = var_1
+            var_g = v
+            var_b = var_3
+        elif var_i == 3.0:
+            var_r = var_1
+            var_g = var_2
+            var_b = v
+        elif var_i == 4.0:
+            var_r = var_3
+            var_g = var_1
+            var_b = v
+        else:
+            var_r = v
+            var_g = var_1
+            var_b = var_2
+        
+    var_r = var_r * factor
+    var_g = var_g * factor
+    var_b = var_b * factor
+        
+    return [var_r,var_g,var_b]
+    
+    
+
 def rgb_to_string(rgb):
     """Returns a string representing de RGB color passed in rgb"""
     return "#%04x%04x%04x" % rgb
-    #string_red="%04x" % rgb[0]
-    #string_green="%04x" % rgb[1]
-    #string_blue="%04x" % rgb[2]
-    #return '#'+string_red+string_green+string_blue
 
+    
 def change_intensity(color,factor):
     """Returns a color object with the intensisty changed and string representation"""
 
-    red = (float(color[1][0]) * factor)
-    green = (float(color[1][1]) * factor)
-    blue = (float(color[1][2]) * factor)
+    red = (float(color[1][0]))
+    green = (float(color[1][1]))
+    blue = (float(color[1][2]))
     
-    biggest = 0.0
-    for components in (red,green,blue):
-        if biggest<float(components): biggest = float(components)
-        
-    c_factor = 1.0        
-    if biggest > 65535.0: c_factor = 65535.0/biggest
+    rgb1=[red,green,blue]
+    hsv = RGBtoHSV(rgb1,65535.0)
+    v = hsv[2]*factor
+    if v > 1.0: v = 1.0
+    hsv[2] = v
+    rgb2=HSVtoRGB(hsv,65535.0)
+    
+    r1=int(rgb2[0])
+    g1=int(rgb2[1])
+    b1=int(rgb2[2])
 
-    red = int(red*c_factor)
-    green = int(green*c_factor)
-    blue = int(blue*c_factor)
-    
-    new_color=[rgb_to_string((red,green,blue)),[red,green,blue]]
+    new_color=[rgb_to_string((r1,g1,b1)),(r1,g1,b1)]
     return new_color
-    
-    
+
 
 def ra_bind(object, widget, sequence, callback):
     """Creates a TK binding and stores information for later deletion"""
