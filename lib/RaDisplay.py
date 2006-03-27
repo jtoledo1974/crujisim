@@ -3012,6 +3012,7 @@ class RaDisplay(object):
         def set_LAD_intensity():
             for lad in self.lads:
                 lad.set_intensity(self.intensity["GLOBAL"]*self.intensity["LADS"])
+            self.update_lads()
         
         def set_MAP_intensity():
             self.redraw_maps()
@@ -3044,7 +3045,7 @@ class RaDisplay(object):
         if v.has_key("LADS") and v["LADS"]!=self.intensity["LADS"]:
             self.intensity.update(v)
             set_LAD_intensity()
-            self.update_lads()
+
             
         
         
