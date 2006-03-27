@@ -708,7 +708,7 @@ class RaClock(RaFrame):
         SPECIFIC OPTIONS
         time -- a text string to display
         """
-        def_opt={'position':(5,-5), 'anchor':NW, 'closebutton':False, 'undockbutton':False}
+        def_opt={'position':(5,5), 'anchor':NW, 'closebutton':False, 'undockbutton':False}
         def_opt.update(kw)
         # The frame constructor method will call _build
         RaFrame.__init__(self, master, **def_opt)
