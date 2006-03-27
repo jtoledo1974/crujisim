@@ -883,7 +883,7 @@ class RaBrightness(RaFrame):
                     ("M",mvar), ("L",lvar)):
             f = Frame(self.contents, background=self.bg)
             l = Label(f,text=t,background=self.bg,foreground=self.bd)
-            v.set(1)
+            v.set(0)
             v.trace("w", changed)
             w = Scale(f, variable = v)
             l.pack(side=TOP)
