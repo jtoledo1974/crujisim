@@ -958,6 +958,8 @@ class VisTrack(object): # ensure a new style class
             self._pitem = self._c.create_polygon(x-size,y,x,y-size,x+size,y,x,y+size,x-size,y,
                                               outline=self.color.displayed(),fill='',
                                               tags=(s+'move',s+'color',s+'track',s+'plot'))
+            
+            
         else:
             self._pitem = self._c.create_polygon(x-size,y-size,x-size,y+size,x+size,y+size,
                                               x+size,y-size,x-size,y-size,
