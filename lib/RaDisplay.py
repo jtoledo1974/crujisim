@@ -131,6 +131,11 @@ def rgb_to_string(rgb):
     """Returns a string representing de RGB color passed in rgb"""
     return "#%04x%04x%04x" % rgb
 
+C_ORANGE_RGB = (63993,47545,13621)
+C_ORANGE_STR = rgb_to_string(C_ORANGE_RGB)
+C_MAGENTA_RGB = (222*257,7*257,190*257)
+C_MAGENTA_STR = rgb_to_string(C_MAGENTA_RGB)
+
     
 def change_intensity(color,factor):
     """Returns a color object with the intensisty changed and string representation"""
@@ -152,6 +157,7 @@ def change_intensity(color,factor):
 
     new_color=[rgb_to_string((r1,g1,b1)),(r1,g1,b1)]
     return new_color
+
 
 
 def ra_bind(object, widget, sequence, callback):
@@ -211,7 +217,7 @@ class RaFrame:
         self._master=master
         self._kw=kw  # We need to save it for rebuilding in toggle_windowed
         self._closebutton=self._label=None
-        self.bd,self.bg,self.fg='#006c35','#003d1e','#bde20B'
+        self.bd,self.bg,self.fg='gray65','Black','White'
         self._bindings=[]
         self._x,self._y=(0,0)
         
@@ -224,21 +230,38 @@ class RaFrame:
         """Build the GUI elements, either as a canvas element, or as a toplevel"""
         if not windowed:
             # Build a frame as a Canvas element
-            self.container=Frame(master,background=self.bd)
-            self.contents=Frame(self.container,background=self.bg,borderwidth=5)
-            self.contents.pack(padx=5,pady=5,side=BOTTOM,fill=BOTH,expand=1)
+            self.container =Frame(master,background=self.bd,borderwidth = 2)
+            #if kw.has_key('width') and kw['width']>=0:
+            #    self.container['width']=kw['width']
+            #    self.container.grid_propagate(0)
+            #self.container.pack()
+            self.top_bar = Frame(self.container,background = C_MAGENTA_STR,borderwidth = 1,relief = RAISED,height=10)
+            self.top_bar.pack(fill=X,padx=1,pady=1)
+            self.windowtitle = Frame(self.container,background=self.bd,borderwidth = 2,relief = GROOVE)
+            self.windowtitle.pack(fill=X,padx=1,pady=1)
+            self.contents = Frame(self.container,background = self.bg)
+            self.contents.pack(padx=1,pady=1,fill=BOTH,expand=1)
+
+            
+            
+
             if kw.has_key('label') and kw['label']<>'':
-                self._label=Label(self.container,text=kw['label'],background=self.bd,foreground='Black')
-                self._label.pack(side=LEFT,padx=5)
+                self._label=Label(self.windowtitle,text=kw['label'],bg = self.bd,foreground=self.fg,font=("Arial","10","bold"))
+                self._label.pack(side=LEFT,ipadx = 5)
+
+
             if not kw.has_key('closebutton') or kw['closebutton']:
-                self._closebutton=Label(self.container,text='X',background=self.bd,foreground='Black')
-                self._closebutton.pack(side=RIGHT)
+                self._closebutton=Label(self.top_bar,text='X',background=self.bd,foreground=self.fg,width=2,font=("Arial","5","bold"))
+                self._closebutton.pack(side=RIGHT,padx=2,pady=2)
+#                self._closebutton.place(anchor=E)
                 if (self._kw.has_key('closebuttonhides')
                     and self._kw['closebuttonhides']):
                     i=self._closebutton.bind('<Button-1>',self.hide)
                 else:
                     i=self._closebutton.bind('<Button-1>',self.close)                    
                 self._bindings.append((self._closebutton,i,"<Button-1>"),)
+            else:
+                self.top_bar.grid_propagate(0)
             # TODO
             # This is causing problems because it's really not well implemented
             # Better not to have to avoid the crashes it creates until it's
@@ -250,33 +273,38 @@ class RaFrame:
             #    self._bindings.append((self._undockbutton,i,'<Button-1>'),)
                 
                 # Frame dragging
+            #self.top_bar.grid(row=1,column=0,padx=2,pady=2,sticky=N+E+S)
+            #self.windowtitle.grid(row=2,column=0,padx=2,pady=2,sticky=N+S+W)
+            #self.contents.grid(row=3,column = 0,padx=2,pady=2,sticky=N+E+S+W)
+
+            
             def drag_frame(e=None):
                 """Move the frame as many pixels as the mouse has moved"""
                 self._master.move(self._master_ident,e.x_root-self._x,e.y_root-self._y)
                 self._x=e.x_root
                 self._y=e.y_root
             def drag_select(e=None):
-                if self._label<>None:
-                    i=self._label.bind('<Motion>',drag_frame)
-                    self._bindings.append((self._label,i,'<Motion>'),)
-                i=self.container.bind('<Motion>',drag_frame)
-                self._bindings.append((self.container,i,'<Motion>'),)
+                #if self._label<>None:
+                #    i=self._label.bind('<Motion>',drag_frame)
+                #    self._bindings.append((self._label,i,'<Motion>'),)
+                i=self.top_bar.bind('<Motion>',drag_frame)
+                self._bindings.append((self.top_bar,i,'<Motion>'),)
                 self._x=e.x_root
                 self._y=e.y_root
-                self.container.lift()
+                self.top_bar.lift()
             def drag_unselect(e=None):
-                if self._label<>None:
-                    self._label.unbind('<Motion>')
-                self.container.unbind('<Motion>')
-            if self._label<>None:
-                i=self._label.bind('<Button-2>',drag_select)
-                j=self._label.bind('<ButtonRelease-2>',drag_unselect)
-                self._bindings.append((self._label,i,'<Button-2>'),)
-                self._bindings.append((self._label,j,'<ButtonRelease-2>'),)
-            i=self.container.bind('<Button-2>',drag_select)
-            j=self.container.bind('<ButtonRelease-2>',drag_unselect)
-            self._bindings.append((self.container,i,'<Button-2>'),)
-            self._bindings.append((self.container,j,'<ButtonRelease-2>'),)
+                #if self._label<>None:
+                #    self._label.unbind('<Motion>')
+                self.top_bar.unbind('<Motion>')
+            #if self._label<>None:
+            #    i=self._label.bind('<Button-2>',drag_select)
+            #    j=self._label.bind('<ButtonRelease-2>',drag_unselect)
+            #    self._bindings.append((self._label,i,'<Button-2>'),)
+            #    self._bindings.append((self._label,j,'<ButtonRelease-2>'),)
+            i=self.top_bar.bind('<Button-2>',drag_select)
+            j=self.top_bar.bind('<ButtonRelease-2>',drag_unselect)
+            self._bindings.append((self.top_bar,i,'<Button-2>'),)
+            self._bindings.append((self.top_bar,j,'<ButtonRelease-2>'),)
             
             self.windowed=False
         else:
@@ -289,7 +317,7 @@ class RaFrame:
             t.protocol('WM_DELETE_WINDOW', self.toggle_windowed)
             
             self.contents=Frame(t,bg=self.bg)
-            self.contents.pack(padx=5,pady=5)
+            self.contents.grid(padx=1,pady=1)
             self.container=t
             self.windowed=True
             
@@ -415,7 +443,7 @@ class RaDialog(RaFrame):
                             'disabledforeground':''}
         self._button_colors={'background':self.bd,
                             'highlightbackground':self.bg,
-                            'highlightcolor':'Black',
+                            'highlightcolor':self.bd,
                             'foreground':self.fg,
                             'activebackground':self.bg,
                             'activeforeground':self.fg,
@@ -432,23 +460,27 @@ class RaDialog(RaFrame):
         f0.pack(side=TOP, pady=1, fill=BOTH)        
         f1 = Frame(self.contents, **self._frame_colors) # Dialog contents
         f1.pack(side=TOP, pady=1, fill=BOTH)
-        f2a = Frame(self.contents, **self._frame_colors) # aux frame
-        f2a.pack(side=BOTTOM, fill=BOTH)
-        f2 = Frame(f2a, **self._frame_colors) # Default dialog buttons
-        f2.pack(side=RIGHT, fill=BOTH)
+        #f2a = Frame(self.contents, **self._frame_colors) # aux frame
+        #f2a.pack(side=BOTTOM, fill=BOTH)
+
+        #f2 = Frame(f2a, **self._frame_colors) # Default dialog buttons
+        #f2.pack(side=RIGHT, fill=BOTH)
+        self.botom_bar = Frame(self.container,background=self.bd,borderwidth = 1,relief = FLAT)
+        self.botom_bar.pack(fill=BOTH,side=BOTTOM)
+        f2 = self.botom_bar 
         
         if kw.has_key('text'):
             l=Label(f0,text=kw['text'], **self._label_colors)
             l.pack(side=LEFT)        
-        but_accept = Button(f2, text="Aceptar", default='active', **self._button_colors)
-        but_accept.pack(side=LEFT)
+        but_accept = Button(f2, text="ACEPTAR",font = ("Arial","6","bold"),width=9,height=1,default='active', **self._button_colors)
+
         but_accept['command'] = self.accept
         if kw.has_key('ok_callback'):
-            Label(f2,text=' ', **self._label_colors).pack(side=LEFT)
-            but_cancel = Button(f2, text="Cancelar", **self._button_colors)
-            but_cancel.pack(side=LEFT)
+            #Label(f2,text=' ', **self._label_colors).pack(side=LEFT)
+            but_cancel = Button(f2, text="CANCELAR",font = ("Arial","6","bold"),width=9,height=1, **self._button_colors)
+            but_cancel.pack(side=RIGHT)
             but_cancel['command'] = self.close
-            
+        but_accept.pack(side=RIGHT,ipady=1)    
             # Dialog entries
         if kw.has_key('entries'):
             self.entries={}
@@ -575,9 +607,9 @@ class RaClock(RaFrame):
         RaFrame._build(self, master=master, windowed=windowed, **def_opt)
         self._time=Label(self.contents,
                     font=('Helvetica','20','bold'),
-                    foreground='orange',
+                    foreground=C_ORANGE_STR,
                     background='black')
-        self._time.grid()
+        self._time.grid(padx=5,pady=2)
         
     def configure(self,**options):
         RaFrame.configure(self,**options)
@@ -592,24 +624,27 @@ class RaTabular(RaFrame):
         self._items=[]  # We need to make a copy of the items to rebuild
                         # the list
         # The frame constructor method will call _build
+        self.elements = IntVar()
         RaFrame.__init__(self, master=master, **def_opt)
         
     def _build(self, master=None, windowed=False, **kw):
         import Tix
         RaFrame._build(self, master=master, windowed=windowed, **kw)
-        self._slist=Tix.ScrolledListBox(self.contents)
+        self.n_elementos=Label(self.windowtitle,bg = self.bd,foreground=self.fg,font=("Arial","10","bold"),textvariable=self.elements,relief=GROOVE,borderwidth = 2)
+        self.n_elementos.pack(side=RIGHT,pady=3,padx=5,ipadx=5)
+        self._slist=Tix.ScrolledListBox(self.contents,relief = FLAT,borderwidth= 0,highlightthickness =0)
         self._list_colors={'background':self.bg,
                             'highlightbackground':self.bg,
-                            'highlightcolor':'Black',
+                            'highlightcolor':self.bg,
                             'foreground':self.fg,
-                            'selectbackground':self.bd,
-                            'selectforeground':self.fg}
+                            'selectbackground':self.bg,
+                            'selectforeground':'green'}
         self.list=self._slist.listbox
         self.list.configure(**self._list_colors)
-        self.list.configure(height=6, width=30)
+        #self.list.configure(height=6, width=30)
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
-        self._slist.grid()
+        self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
         
     def insert(self, index, *elements):
         """Insert a list item (use text='text to show')"""
@@ -618,6 +653,8 @@ class RaTabular(RaFrame):
         if index==END:
             index=len(self._items)
         self._items.insert(index, elements)
+        self.elements.set(self.list.size())
+
         
     def adjust(self,min_height=0, min_width=0, max_height=0, max_width=10):
         """Reduce the size of the list to the minimum that fits
@@ -1775,9 +1812,10 @@ class LAD(object):
         self.text_id4 = None
         
 
-        
+
         self.intensity = radisplay.intensity['LADS']*  radisplay.intensity['GLOBAL']     
-        self.lad_color = ['orange',c.winfo_rgb('orange')]
+        self.lad_color = [C_ORANGE_STR,C_ORANGE_RGB]
+        print c.winfo_rgb (C_ORANGE_STR)
         self.super_lad_color = ['red',c.winfo_rgb('red')]
         self.super_lad_c_color = change_intensity(self.super_lad_color,self.intensity)
         self.lad_c_color = change_intensity(self.lad_color,self.intensity)
