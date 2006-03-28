@@ -235,13 +235,15 @@ class RaFrame:
             self.top_bar = Frame(self.container,background = C_MAGENTA_STR,borderwidth = 1,relief = RAISED,height=10)
             self.top_bar.pack(fill=X,padx=1,pady=1)
             self.windowtitle = Frame(self.container,background=self.bd,borderwidth = 2,relief = GROOVE)
-            self.windowtitle.pack(fill=X,padx=1,pady=1)
+            self.windowtitle.pack(fill=X)
             self.contents = Frame(self.container,background = self.bg)
-            self.contents.pack(padx=1,pady=1,fill=BOTH,expand=1)
             #if kw.has_key('width') and kw['width']>=0:
             #    self.container['width']=kw['width']
             #    self.container.grid_propagate(0)
             #self.container.pack()
+            
+            self.contents.pack(padx=1,pady=1,fill=BOTH,expand=1)
+
 
             
             
