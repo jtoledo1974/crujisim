@@ -72,8 +72,8 @@ class PpDisplay(RaDisplay):
         self.clock=RaClock(self.c)
         self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
         
-        self.print_tabular = RaTabular(self.c, position=(800,10), anchor=NW,
-                                       label="Fichas",closebuttonhides=True)
+        self.print_tabular = RaTabular(self.c, position=(10,10), anchor=NW,
+                                       label="FICHAS",closebuttonhides=True)
         self.print_tabular.adjust()
         # self.print_tabular.hide()
         self.dep_tabular = DepTabular(self, self.c)
@@ -1147,7 +1147,7 @@ class DepTabular(RaTabular):
     # of the departing aircraft
     def __init__(self, radisplay, canvas=None, flights=None):
         """Create a tabular showing aircraft reports and requests"""
-        RaTabular.__init__(self, canvas, label='Salidas',
+        RaTabular.__init__(self, canvas, label='DESPEGUES',
                            position=(10,300), closebuttonhides=True,
                            anchor = NW)
         self.canvas = canvas

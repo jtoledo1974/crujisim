@@ -237,25 +237,20 @@ class RaFrame:
             self.windowtitle = Frame(self.container,background=self.bd,borderwidth = 2,relief = GROOVE)
             self.windowtitle.pack(fill=X)
             self.contents = Frame(self.container,background = self.bg)
-            #if kw.has_key('width') and kw['width']>=0:
-            #    self.container['width']=kw['width']
-            #    self.container.grid_propagate(0)
-            #self.container.pack()
-            
-            self.contents.pack(padx=1,pady=1,fill=BOTH,expand=1)
+            self.contents.pack(fill=BOTH,expand=1)
 
 
             
             
 
             if kw.has_key('label') and kw['label']<>'':
-                self._label=Label(self.windowtitle,text=kw['label'],bg = self.bd,foreground=self.fg,font=("Arial","10","bold"))
+                self._label=Label(self.windowtitle,text=kw['label'],bg = self.bd,foreground=self.fg,font=("Arial","8","bold"))
                 self._label.pack(side=LEFT,ipadx = 5)
 
 
             if not kw.has_key('closebutton') or kw['closebutton']:
                 self._closebutton=Label(self.top_bar,text='X',background=self.bd,foreground=self.fg,width=2,font=("Arial","5","bold"))
-                self._closebutton.pack(side=RIGHT,padx=2,pady=2)
+                self._closebutton.pack(side=RIGHT,padx=1,pady=1)
 #                self._closebutton.place(anchor=E)
                 if (self._kw.has_key('closebuttonhides')
                     and self._kw['closebuttonhides']):
@@ -633,8 +628,8 @@ class RaTabular(RaFrame):
     def _build(self, master=None, windowed=False, **kw):
         import Tix
         RaFrame._build(self, master=master, windowed=windowed, **kw)
-        self.n_elementos=Label(self.windowtitle,bg = self.bd,foreground=self.fg,font=("Arial","10","bold"),textvariable=self.elements,relief=GROOVE,borderwidth = 2)
-        self.n_elementos.pack(side=RIGHT,pady=3,padx=5,ipadx=5)
+        self.n_elementos=Label(self.windowtitle,bg = self.bd,foreground=self.fg,font=("Arial","6","bold"),textvariable=self.elements,relief=GROOVE,borderwidth = 2)
+        self.n_elementos.pack(side=RIGHT,padx=1,ipadx=2)
         self._slist=Tix.ScrolledListBox(self.contents,relief = FLAT,borderwidth= 0,highlightthickness =0)
         self._list_colors={'background':self.bg,
                             'highlightbackground':self.bg,
