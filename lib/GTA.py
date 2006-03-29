@@ -340,7 +340,7 @@ class GTA:
             logging.debug("Set MACH "+str(m))
             try:
                 if m["mach"]=="std": f.set_std_mach()
-                else: f.set_mach(float(m["mach"])/100.0, force=m["force_speed"])
+                else: p.sendReply(f.set_mach(float(m["mach"]), force=m["force_speed"]))
             except: logging.warning("Error while setting MACH",
                                     exc_info = True)
         elif m['message']=="route_direct":

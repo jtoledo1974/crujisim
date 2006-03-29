@@ -285,13 +285,13 @@ class PpDisplay(RaDisplay):
                 (spd,force_speed)=value
                 d = self.sendMessage({"message":"set_ias", "cs": f.name,
                                   "ias":spd, "force_speed":force_speed})
-                return d  # Suppose the update was valid
+                return d
         if item=='mach':
             if action=='update':
                 (spd,force_speed)=value
-                self.sendMessage({"message":"set_mach", "cs": f.name,
+                d = self.sendMessage({"message":"set_mach", "cs": f.name,
                                   "mach":spd, "force_speed":force_speed})
-                return True  # Suppose the update was valid
+                return d
         if item=='echo':
             if action=='<Button-3>':
                 self.show_hide_way_point(f)

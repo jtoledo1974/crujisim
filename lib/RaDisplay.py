@@ -1660,14 +1660,16 @@ class VisTrack(object): # ensure a new style class
                         force_speed = True
                     else:
                         force_speed = False
-                    flag = self.vt._message_handler(self.vt,'mach','update',(spd,force_speed),e)
-                    if flag:
-                        close_win()
-                    else:
-                        ent_spd.delete(0,END)
-                        ent_spd.insert(0, str(abs(int(self.vt.ias_max))))
-                        ent_spd['bg'] = 'red'
-                        ent_spd.focus_set()
+                    d = self.vt._message_handler(self.vt,'mach','update',(int(spd)/100.,force_speed),e)
+                    def result((r, mach_max)):
+                        if r:
+                            close_win()
+                        else:
+                            ent_spd.delete(0,END)
+                            ent_spd.insert(0, str(abs(int(mach_max*100))))
+                            ent_spd['bg'] = 'red'
+                            ent_spd.focus_set()
+                    d.addCallback(result)
 
             def set_std():
                 if self.vt.label_format == 'pp':

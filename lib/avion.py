@@ -588,9 +588,11 @@ class Airplane:
             return (False, ias_max)
         
     def set_mach(self,mach,force=False):
-        ias = cas_from_tas(tas_from_mach(mach,self.alt*100),self.alt*100)
-        self.set_spd(ias,force)
-        
+        lvl = self.alt * 100
+        ias = cas_from_tas(tas_from_mach(mach,lvl),lvl)
+        (r, ias_max) = self.set_spd(ias,force)
+        if r: return (True, None)
+        else: return (False, mach_from_tas(tas_from_cas(ias_max, lvl), lvl))
             
     def set_std_spd(self):
         self.es_spd_std = True
