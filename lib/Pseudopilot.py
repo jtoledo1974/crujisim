@@ -361,7 +361,10 @@ class ventana_auxiliar:
         self.vd = IntVar()
         self.vd.set(master.draw_deltas)
         self.var_ver_localmap = {}
-        
+        self.var_ver_desp_tab = IntVar()
+        self.var_ver_desp_tab.set(1)
+        self.var_ver_fichas_tab = IntVar()
+        self.var_ver_fichas_tab.set(1)
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
             self.var_ver_localmap[map_name].set(0)
@@ -1068,16 +1071,19 @@ class ventana_auxiliar:
         self.but_ver_tabs.pack(side=LEFT,expand=1,fill=X)
         def tabs_buttons():
             self.close_windows()
-            ventana_tabs = Frame(w,bg='gray')
+            ventana_tabs = Frame(w)
             #self.but_reports = Button(ventana_tabs, text='Notificaciones',
             #                     command = acftnotices.show, state=DISABLED)
             #self.but_reports.grid(column=0,row=0,sticky=E+W)
-            self.but_departures = Button(ventana_tabs, text='Salidas',
-                                 command = master.dep_tabular.show)
-            self.but_departures.grid(column=0,row=1,sticky=E+W)
-            self.but_printlist = Button(ventana_tabs, text='Fichas',
-                                 command = master.print_tabular.show)
-            self.but_printlist.grid(column=0,row=2,sticky=E+W)
+            
+            self.var_ver_desp_tab.set(master.dep_tabular.showed)
+            self.var_ver_fichas_tab.set(master.print_tabular.showed)
+            self.but_departures = Checkbutton(ventana_tabs, text='Despegues',variable=self.var_ver_desp_tab,
+                                 command = master.dep_tabular.conmuta)
+            self.but_departures.grid(column=0,row=1,sticky=W)
+            self.but_printlist = Checkbutton(ventana_tabs, text='Fichas',variable=self.var_ver_fichas_tab,
+                                 command = master.print_tabular.conmuta)
+            self.but_printlist.grid(column=0,row=2,sticky=W)
             i=w.create_window(ventana.winfo_x()+self.but_ver_tabs.winfo_x(),alto-ventana.winfo_height(),window=ventana_tabs,anchor='sw')
             self.opened_windows.append(i)
         self.but_ver_tabs['command'] = tabs_buttons
@@ -1153,7 +1159,6 @@ class DepTabular(RaTabular):
         self.canvas = canvas
         self.master = radisplay
         self.list.configure(font="Courier 8", selectmode=SINGLE)
-        self.adjust()
         ra_bind(radisplay, self.list, "<Button-1>", self.clicked)
         self.deps=[]
 
@@ -1166,11 +1171,11 @@ class DepTabular(RaTabular):
             self.deps.append(dep)
             eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
             t = dep['ad']+' '+dep['cs'].ljust(7)+' '+eobt[0:5]+' '+dep['sid']
-            self.list.insert(i, t)
+            self.insert(i, t)
             if dep['state']==avion.READY:
-                self.list.itemconfig(i, background="green", foreground="black")
+                self.list.itemconfig(i, background="black", foreground="yellow")
             i+=1
-        self.adjust()
+        self.adjust(0,22,0,22)
         if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
             self.show()
                 

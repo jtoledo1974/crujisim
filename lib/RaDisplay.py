@@ -220,11 +220,14 @@ class RaFrame:
         self.bd,self.bg,self.fg='gray65','Black','White'
         self._bindings=[]
         self._x,self._y=(0,0)
+        self.showed = True
+
         
         # Build the frame
         self._build(master, windowed=False, **kw)
         # Place it
         self._place()
+        
         
     def _build(self, master=None, windowed=False, **kw):
         """Build the GUI elements, either as a canvas element, or as a toplevel"""
@@ -281,6 +284,9 @@ class RaFrame:
                 self._master.move(self._master_ident,e.x_root-self._x,e.y_root-self._y)
                 self._x=e.x_root
                 self._y=e.y_root
+                #if self._x < 0: self._x = 0
+                #if self._y < 0: self._y = 0
+                
             def drag_select(e=None):
                 #if self._label<>None:
                 #    i=self._label.bind('<Motion>',drag_frame)
@@ -294,11 +300,14 @@ class RaFrame:
                 #if self._label<>None:
                 #    self._label.unbind('<Motion>')
                 self.top_bar.unbind('<Motion>')
+                if self._x < 10: self._x = 10
+                if self._y < 10: self._y = 10
             #if self._label<>None:
             #    i=self._label.bind('<Button-2>',drag_select)
             #    j=self._label.bind('<ButtonRelease-2>',drag_unselect)
             #    self._bindings.append((self._label,i,'<Button-2>'),)
             #    self._bindings.append((self._label,j,'<ButtonRelease-2>'),)
+            
             i=self.top_bar.bind('<Button-2>',drag_select)
             j=self.top_bar.bind('<ButtonRelease-2>',drag_unselect)
             self._bindings.append((self.top_bar,i,'<Button-2>'),)
@@ -356,6 +365,9 @@ class RaFrame:
         else:
             self._master_ident = self._master.create_window((self._x, self._y),
                 window=self.container)
+        self.showed=True
+            
+        
             
     def close(self,e=None):
         """Close the RaFrame and completely delete it"""
@@ -382,12 +394,18 @@ class RaFrame:
             self.container.withdraw()
         else:
             self._master.delete(self._master_ident)
-            
+        self.showed = False   
     def toggle_windowed(self,e=None):
         self.close()
         self.windowed=not self.windowed
         self._build(master=self._master, windowed=self.windowed, **self._kw)
         self._place()
+        
+    def conmuta(self, e=None):
+        if self.showed: self.hide()
+        else: self.show()
+
+        
         
     def __del__(self):
         # Print a message to make sure we are freing the memory
@@ -617,12 +635,13 @@ class RaClock(RaFrame):
 class RaTabular(RaFrame):
     """Generic frame containing tabular info"""
     def __init__(self, master, **kw):
-        def_opt={'position':(500,222)}
+        def_opt={'position':(500,222),}
         def_opt.update(kw)
         self._items=[]  # We need to make a copy of the items to rebuild
                         # the list
         # The frame constructor method will call _build
         self.elements = IntVar()
+
         RaFrame.__init__(self, master=master, **def_opt)
         
     def _build(self, master=None, windowed=False, **kw):
@@ -637,12 +656,16 @@ class RaTabular(RaFrame):
                             'foreground':self.fg,
                             'selectbackground':self.bg,
                             'selectforeground':'green'}
+        #The widget listbox is "encapsulated" by ScrolledListBox
         self.list=self._slist.listbox
         self.list.configure(**self._list_colors)
+        self.list.configure(relief = FLAT,)
         #self.list.configure(height=6, width=30)
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
         self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
+        self.adjust()
+
         
     def insert(self, index, *elements):
         """Insert a list item (use text='text to show')"""
@@ -658,12 +681,14 @@ class RaTabular(RaFrame):
         """Reduce the size of the list to the minimum that fits
         or whatever is given as parameters
         max_height = 0 means unlimited"""
+        self.elements.set(self.list.size())
         items = self.list.get(0,END)
-        mw = min((min([len(i) for i in items]+[0]),min_width))
-        mh = min((self.list.size(), min_height))
+        mw = max((min([len(i) for i in items]+[0]),min_width))
+        mh = max((self.list.size(), min_height))
         if mw>max_width and max_width!=0: mw = max_width
         if mh>max_height and max_height!=0: mh=max_height
         self.list.configure(height=mh, width=mw)
+
         
 
 
@@ -2089,6 +2114,7 @@ class RaDisplay(object):
         self.draw_point_names = True
         self.draw_tmas = True
         self.draw_deltas = False
+
         
         self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
         self.local_maps_shown = []
@@ -2883,7 +2909,7 @@ class RaDisplay(object):
     def toggle_tmas(self):
         self.draw_tmas = not self.draw_tmas
         self.redraw_maps()
-
+        
     def toggle_deltas(self):
         self.draw_deltas = not self.draw_deltas
         self.redraw_maps()
