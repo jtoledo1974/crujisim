@@ -186,7 +186,6 @@ class PpDisplay(RaDisplay):
                 def direct_to():
                     pto=id_pto.get()
                     self.sendMessage({"message":"route_direct", "cs":track.name, "fix":pto})
-                    track.route_direct(pto)  # Only to give an immediate appearance
                     canvas.delete(track.name+'wp')
                     self.waypoints.remove(track)
                     close_win()
@@ -260,7 +259,7 @@ class PpDisplay(RaDisplay):
         [x0,y0]=self.do_scale(f.pos)
         vt.coords(x0,y0,f.t)
         self.c.lift(str(vt)+'track')
-            
+        
     def vt_handler(self,vt,item,action,value,e=None):
         RaDisplay.vt_handler(self,vt,item,action,value,e)
         f=self._tracks_flights[vt]
