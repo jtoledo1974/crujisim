@@ -278,14 +278,16 @@ class RaFrame:
         
     def show(self, e=None):
         """Show the RaFrame (to be used after having been hidden)"""
-        self.container.update_idletasks()
+
+        
         if self.windowed:
-            self.container.deiconify
+            self.container.deiconify 
         else:
-            self.check_limits ()
             self._master_ident = self._master.create_window((self._x, self._y),
                 window=self.container)
-             
+        
+        self._place()
+        self.check_limits()
         self.showed=True
             
         
@@ -310,6 +312,8 @@ class RaFrame:
             
     def hide(self, e=None):
         """Hide the RaFrame, but don't destroy the contents"""
+        self._x=self.container.winfo_x()
+        self._y=self.container.winfo_y()
         logging.debug("RaFrame.hide")
         if self.windowed:
             self.container.withdraw()
