@@ -633,13 +633,16 @@ class SmartColor(object):
     
     def set(self, c):
         self.basecolor = c
+        self.set_intensity(self.intensity)
                             
     def set_intensity(self, factor):
         """Returns a color object with the intensisty changed and string representation"""
+        self.intensity = factor
         color = self.basecolor
         
-        if color == '': return color  # If it's transparent, remain transparent
-        if factor == 1: return color  # If no correction, return color
+        if color == '' or factor==1:
+            self.color = self.basecolor
+            return  # If no correction or transparent, simply set the base color
     
         (red, green, blue) = self.winfo_rgb(color)
         
