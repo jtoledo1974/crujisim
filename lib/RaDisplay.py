@@ -217,10 +217,11 @@ class RaFrame:
         self._master=master
         self._kw=kw  # We need to save it for rebuilding in toggle_windowed
         self._closebutton=self._label=None
-        self.bd,self.bg,self.fg='gray65','Black','White'
+        self.bd,self.bg,self.fg='gray50','Black','White'
         self._bindings=[]
         self._x,self._y=(0,0)
         self.showed = True
+        self._x_offset,self._y_offset=(0,0)
 
         
         # Build the frame
@@ -235,9 +236,9 @@ class RaFrame:
             # Build a frame as a Canvas element
             self.container =Frame(master,background=self.bd,borderwidth = 1)
 
-            self.top_bar = Frame(self.container,background = C_MAGENTA_STR,borderwidth = 1,relief = RAISED,height=10)
-            self.top_bar.pack(fill=X,padx=1,pady=1)
-            self.windowtitle = Frame(self.container,background=self.bd,borderwidth = 2,relief = GROOVE)
+            self.top_bar = Frame(self.container,background = C_MAGENTA_STR,borderwidth = 1,relief = FLAT,height=10)
+            self.top_bar.pack(fill=X,padx=0,pady=0)
+            self.windowtitle = Frame(self.container,background=self.bd,borderwidth = 0,relief = FLAT)
             self.windowtitle.pack(fill=X)
             self.contents = Frame(self.container,background = self.bg)
             self.contents.pack(fill=BOTH,expand=1)
@@ -248,12 +249,12 @@ class RaFrame:
 
             if kw.has_key('label') and kw['label']<>'':
                 self._label=Label(self.windowtitle,text=kw['label'],bg = self.bd,foreground=self.fg,font=("Arial","8","bold"))
-                self._label.pack(side=LEFT,ipadx = 5)
+                self._label.pack(side=LEFT,ipadx = 2)
 
 
             if not kw.has_key('closebutton') or kw['closebutton']:
-                self._closebutton=Label(self.top_bar,text='X',background=self.bd,foreground=self.fg,width=2,font=("Arial","5","bold"))
-                self._closebutton.pack(side=RIGHT,padx=1,pady=1)
+                self._closebutton=Label(self.top_bar,text='X',background='gray80',foreground=self.fg,width=2,font=("Arial","5","bold"))
+                self._closebutton.pack(side=RIGHT,padx=0,pady=0)
 #                self._closebutton.place(anchor=E)
                 if (self._kw.has_key('closebuttonhides')
                     and self._kw['closebuttonhides']):
@@ -284,8 +285,6 @@ class RaFrame:
                 self._master.move(self._master_ident,e.x_root-self._x,e.y_root-self._y)
                 self._x=e.x_root
                 self._y=e.y_root
-                #if self._x < 0: self._x = 0
-                #if self._y < 0: self._y = 0
                 
             def drag_select(e=None):
                 #if self._label<>None:
@@ -300,18 +299,23 @@ class RaFrame:
                 #if self._label<>None:
                 #    self._label.unbind('<Motion>')
                 self.top_bar.unbind('<Motion>')
-                if self._x < 10: self._x = 10
-                if self._y < 10: self._y = 10
+                if self.check_limits():self._place()
+
+                
+
+                #if self._x < 10: self._x = 10
+                #if self._y < 10: self._y = 10
             #if self._label<>None:
             #    i=self._label.bind('<Button-2>',drag_select)
             #    j=self._label.bind('<ButtonRelease-2>',drag_unselect)
             #    self._bindings.append((self._label,i,'<Button-2>'),)
             #    self._bindings.append((self._label,j,'<ButtonRelease-2>'),)
             
-            i=self.top_bar.bind('<Button-2>',drag_select)
-            j=self.top_bar.bind('<ButtonRelease-2>',drag_unselect)
-            self._bindings.append((self.top_bar,i,'<Button-2>'),)
-            self._bindings.append((self.top_bar,j,'<ButtonRelease-2>'),)
+            i=self.top_bar.bind('<Button-1>',drag_select)
+            j=self.top_bar.bind('<ButtonRelease-1>',drag_unselect)
+            self._bindings.append((self.top_bar,i,'<Button-1>'),)
+            self._bindings.append((self.top_bar,j,'<ButtonRelease-1>'),)
+            
             
             self.windowed=False
         else:
@@ -328,8 +332,27 @@ class RaFrame:
             self.container=t
             self.windowed=True
             
+    def check_limits(self):
+        update_needed = False
+        x_max = self._master.winfo_width()
+        y_max = self._master.winfo_height()
+        if self._x < 0:
+            self._x = 0
+            update_needed = True
+        if self._x > (x_max-20):
+            self._x = x_max-5
+            update_needed = True
+        if self._y < 50:
+            update_needed = True
+            self._y = 10
+        if self._y > y_max-20:
+            self._y = y_max - 10
+            update_needed = True
+        return update_needed
+            
     def _place(self):
         # If we are not given any position info, just use 0,0
+
         if not self._kw.has_key('position'): pos=(0,0)
         else: pos=self._kw['position']
         if not self._kw.has_key('anchor'): anchor=CENTER
@@ -340,9 +363,14 @@ class RaFrame:
         if self._x==0 and self._y==0:
             (self._x, self._y) = pos
             
+
+        
+            
         # Currently the master must be a canvas if not windowed
         if not self.windowed:
+            self.check_limits
             self._master_ident = self._master.create_window((self._x, self._y), window=self.container, anchor=anchor)
+
             
     def configure(self,**ckw):
         if ckw.has_key('position'):
@@ -648,7 +676,7 @@ class RaTabular(RaFrame):
         import Tix
         RaFrame._build(self, master=master, windowed=windowed, **kw)
         self.n_elementos=Label(self.windowtitle,bg = self.bd,foreground=self.fg,font=("Arial","6","bold"),textvariable=self.elements,relief=GROOVE,borderwidth = 2)
-        self.n_elementos.pack(side=RIGHT,padx=1,ipadx=2)
+        self.n_elementos.pack(side=RIGHT,padx=0,ipadx=4)
         self._slist=Tix.ScrolledListBox(self.contents,relief = FLAT,borderwidth= 0,highlightthickness =0)
         self._list_colors={'background':self.bg,
                             'highlightbackground':self.bg,
@@ -769,20 +797,25 @@ class RaBrightness(RaFrame):
         self.callback = callback
         # The frame constructor method will call _build
         RaFrame.__init__(self, master=master, closebuttonhides=True, **def_opt)
+       
         
     def _build(self, master=None, windowed=False, **kw):
 
         RaFrame._build(self, master=master, windowed=windowed,  **kw)
+        #self.contents["bg"] = self.bd
+        #self.contents.pack(fill=BOTH,expand=1)
+       
+
 
         gvar = DoubleVar()  # General
         tvar = DoubleVar()  # Tracks
         mvar = DoubleVar()  # Maps
         lvar = DoubleVar()  # LADs
-        self.scale_colors={'background':self.bg,
-                            'highlightbackground':self.bg,
-                            'highlightcolor':'Black',
+        self.scale_colors={'background':self.bd,
+                            'highlightbackground':self.bd,
+                            'highlightcolor':self.bd,
                             'foreground':self.fg,
-                            'troughcolor':self.bg}
+                            'troughcolor':self.bd}
                             #'selectbackground':self.bd,
                             #'selectforeground':self.fg}
         def changed(*args):
@@ -794,13 +827,13 @@ class RaBrightness(RaFrame):
             
         for t,v in (("G",gvar), ("P",tvar),
                     ("M",mvar), ("L",lvar)):
-            f = Frame(self.contents, background=self.bg)
-            l = Label(f,text=t,background=self.bg,foreground=self.bd)
+            f = Frame(self.contents, background=self.bd)
+            l = Label(f,text=t,background=self.bd,fg=self.fg)
             v.set(0)
             v.trace("w", changed)
             w = Scale(f, variable = v)
             l.pack(side=TOP)
-            w.pack(side=BOTTOM)
+            w.pack(side=BOTTOM,fill=BOTH)
             f.pack(side=LEFT)
             w.configure(**self.scale_colors)
             w.configure(showvalue=1, sliderlength=20, from_=50, to=-25, resolution=1, variable = v)
