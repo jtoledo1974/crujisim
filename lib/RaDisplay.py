@@ -45,120 +45,6 @@ _binds = []
 IMGDIR='./img/'
 CHANGE_WIDTH = 13
 
-def RGBtoHSV(rgb,factor=1):
-    ###returns HSV components from rgb (R,G,B)
-    r1 = float(rgb[0])/factor
-    g1 = float(rgb[1])/factor
-    b1 = float(rgb[2])/factor
-    rgb1=[r1,g1,b1]
-
-    max_c = max(rgb1)
-    min_c = min(rgb1)
-    delta = max_c - min_c
-    v = max_c
-
-    if delta == 0.0:
-        s = 0.0
-        h = 0.0
-        return [h,s,v]
-    else:
-        s = delta / max_c
-        del_R = ( ( ( max_c - r1) / 6.0 ) + ( delta / 2.0 ) ) / delta
-        del_G = ( ( ( max_c - g1) / 6.0 ) + ( delta / 2.0 ) ) / delta
-        del_B = ( ( ( max_c - b1) / 6.0 ) + ( delta / 2.0 ) ) / delta
-    if r1 == max_c:
-        h = del_B - del_G
-    elif g1 == max_c:
-        h = (1.0/3.0)+del_R - del_B
-    elif b1 == max_c:
-        h = (2.0/3.0)+del_G - del_R
-        
-    if h<0.0: h+=1.0
-    if h>1.0: h-=1.0
-    
-    return [h,s,v]
-
-def HSVtoRGB(hsv,factor = 1):
-    ###returns RGB components scaled by factor, from hsv
-    [h,s,v]=hsv
-    if s==0:
-        var_r = v
-        var_g = v
-        var_b = v
-
-    else:
-        var_h = h*6.0
-        if var_h == 6.0: var_h = 0
-        var_i = floor(var_h)
-        var_1 = v * ( 1 - s)
-        var_2 = v * ( 1 - s * ( var_h - var_i ) )
-        var_3 = v * ( 1 - s * ( 1 - ( var_h - var_i ) ) )
-        
-        if var_i == 0.0:
-            var_r = v
-            var_g = var_3
-            var_b = var_1
-        elif var_i == 1.0:
-            var_r = var_2
-            var_g = v
-            var_b = var_1
-        elif var_i == 2.0:
-            var_r = var_1
-            var_g = v
-            var_b = var_3
-        elif var_i == 3.0:
-            var_r = var_1
-            var_g = var_2
-            var_b = v
-        elif var_i == 4.0:
-            var_r = var_3
-            var_g = var_1
-            var_b = v
-        else:
-            var_r = v
-            var_g = var_1
-            var_b = var_2
-        
-    var_r = var_r * factor
-    var_g = var_g * factor
-    var_b = var_b * factor
-        
-    return [var_r,var_g,var_b]
-    
-    
-
-def rgb_to_string(rgb):
-    """Returns a string representing de RGB color passed in rgb"""
-    return "#%04x%04x%04x" % rgb
-
-C_ORANGE_RGB = (63993,47545,13621)
-C_ORANGE_STR = rgb_to_string(C_ORANGE_RGB)
-C_MAGENTA_RGB = (222*257,7*257,190*257)
-C_MAGENTA_STR = rgb_to_string(C_MAGENTA_RGB)
-
-    
-def change_intensity(color,factor):
-    """Returns a color object with the intensisty changed and string representation"""
-
-    red = (float(color[1][0]))
-    green = (float(color[1][1]))
-    blue = (float(color[1][2]))
-    
-    rgb1=[red,green,blue]
-    hsv = RGBtoHSV(rgb1,65535.0)
-    v = hsv[2]*factor
-    if v > 1.0: v = 1.0
-    hsv[2] = v
-    rgb2=HSVtoRGB(hsv,65535.0)
-    
-    r1=int(rgb2[0])
-    g1=int(rgb2[1])
-    b1=int(rgb2[2])
-
-    new_color=[rgb_to_string((r1,g1,b1)),(r1,g1,b1)]
-    return new_color
-
-
 
 def ra_bind(object, widget, sequence, callback):
     """Creates a TK binding and stores information for later deletion"""
@@ -236,7 +122,7 @@ class RaFrame:
             # Build a frame as a Canvas element
             self.container =Frame(master,background=self.bd,borderwidth = 1)
 
-            self.top_bar = Frame(self.container,background = C_MAGENTA_STR,borderwidth = 1,relief = FLAT,height=10)
+            self.top_bar = Frame(self.container,background = 'magenta' ,borderwidth = 1,relief = FLAT,height=10)
             self.top_bar.pack(fill=X,padx=0,pady=0)
             self.windowtitle = Frame(self.container,background=self.bd,borderwidth = 0,relief = FLAT)
             self.windowtitle.pack(fill=X)
@@ -651,7 +537,7 @@ class RaClock(RaFrame):
         RaFrame._build(self, master=master, windowed=windowed, **def_opt)
         self._time=Label(self.contents,
                     font=('Helvetica','20','bold'),
-                    foreground=C_ORANGE_STR,
+                    foreground='orange',
                     background='black')
         self._time.grid(padx=5,pady=2)
         
@@ -721,73 +607,128 @@ class RaTabular(RaFrame):
 
 
 class SmartColor(object):
-    """Smart Color that autoconfigures depending on the VisTrackstatus and Intensity
-    correction factor
+    """Given a color string and a brightness factor calculates the output color"""
     
-    Needs a canvas for working.
-    Arguments:
-                colorlist=(Assumed color, unflatted color, Not assumed color)
-                Status = (Assumed,Flat)"""
+    winfo_rgb = None  # This function will be set when Tkinter is initialized
     
-    def __init__(self,canvas,assumed_color='white',unflat_color='white',not_assumed_color='white',assumed=True,flat=True,Intensity=1.0):
-        object.__setattr__(self,'can',canvas)
-        object.__setattr__(self,'color',['white',self.can.winfo_rgb('white')])                          # displayed master color
-        object.__setattr__(self,'assumed_color',[assumed_color,self.can.winfo_rgb(assumed_color)])      #assumed color
-        object.__setattr__(self,'unflat_color',[unflat_color,self.can.winfo_rgb(unflat_color)])         #unflatted color
-        object.__setattr__(self,'not_assumed_color',[not_assumed_color,self.can.winfo_rgb(not_assumed_color)])     #not assumed color
-        
-        object.__setattr__(self,'intensity', Intensity) #Item color intensity
-        object.__setattr__(self,'corrected_color',change_intensity(self.color,self.intensity))          #intensity corrected displayed color
-        object.__setattr__(self,'assumed',assumed)
-        object.__setattr__(self,'flat',flat)
-        
-        self.assumed = self.assumed     #used to trigger __setattr__
-        self.flat=self.flat        
-    def __setattr__(self,name,value):
-        try: oldvalue = self.__dict__[name]
-        except: oldvalue = None
-        
-        object.__setattr__(self,name,value) # This actually sets the attributes
-        
-        #if name in ('color','assumed_color','unflat_color','not_assumed'):
-        #    #keeeps both fields coherent, color name and color components in the event that just one
-        #    #component is changed
-        #    if oldvalue[0]==value[0]:
-        #        value[0]=rgb_to_string(value[1])
-        #    elif oldvalue[1]==value[1]:
-        #        value[1]=self.can.winfo_rgb(value[0])
-        #    object.__setattr__(self,name,value)
+    def __init__(self,color='white',intensity=1.0):
+        object.__setattr__(self,'color', color)  # displayed  color
+        object.__setattr__(self,'basecolor', color)  # master color
+        self.intensity = intensity  #Item color intensity
             
-        if name == 'color':
-            self.corrected_color = change_intensity(value,self.intensity)   
-        if name =='intensity':
-            self.corrected_color = change_intensity(self.color,value)  
-        if name == 'assumed':
-            if not(self.flat):
-                self.color = self.unflat_color       #Set the unflat color
-            else:
-                if value:
-                    self.color = self.assumed_color   #Set the assumed color
-                else:
-                    self.color = self.not_assumed_color   #Set the unassumed color
-        if name == 'flat':
-            if value:
-                if self.assumed:
-                    self.color = self.assumed_color   #Set the assumed color
-                else:
-                    self.color = self.unflat_color   #Set the unassumed color
-                    
-    def displayed(self,option='name'):
-        if option == 'name':
-            return self.corrected_color[0]      #returns color name
-        else:
-            return self.corrected_color[1]      #returns rgb components
-
-    def copy(self):
-        n = SmartColor(self.can)
-        n.__dict__=self.__dict__.copy()
-        return n
+    def get(self):
+        return self.color
     
+    def set(self, c):
+        self.color = c  # Throught the __setattr__ function actually it's the
+                        # basecolor that is set and the color is calculated 
+                            
+    def set_intensity(self, factor):
+        """Returns a color object with the intensisty changed and string representation"""
+        color = self.basecolor
+        
+        if color == '': return color  # If it's transparent, remain transparent
+        if factor == 1: return color  # If no correction, return color
+    
+        (red, green, blue) = self.winfo_rgb(color)
+        
+        rgb1=[red,green,blue]
+        hsv = self.RGBtoHSV(rgb1,65535.0)
+        v = hsv[2]*factor
+        if v > 1.0: v = 1.0
+        hsv[2] = v
+        rgb2=self.HSVtoRGB(hsv,65535.0)
+        
+        r1=int(rgb2[0])
+        g1=int(rgb2[1])
+        b1=int(rgb2[2])
+    
+        self.color = self.rgb_to_string((r1,g1,b1))
+
+    def RGBtoHSV(self, rgb,factor=1):
+        """Returns HSV components from rgb (R,G,B)"""
+        r1 = float(rgb[0])/factor
+        g1 = float(rgb[1])/factor
+        b1 = float(rgb[2])/factor
+        rgb1=[r1,g1,b1]
+    
+        max_c = max(rgb1)
+        min_c = min(rgb1)
+        delta = max_c - min_c
+        v = max_c
+    
+        if delta == 0.0:
+            s = 0.0
+            h = 0.0
+            return [h,s,v]
+        else:
+            s = delta / max_c
+            del_R = ( ( ( max_c - r1) / 6.0 ) + ( delta / 2.0 ) ) / delta
+            del_G = ( ( ( max_c - g1) / 6.0 ) + ( delta / 2.0 ) ) / delta
+            del_B = ( ( ( max_c - b1) / 6.0 ) + ( delta / 2.0 ) ) / delta
+        if r1 == max_c:
+            h = del_B - del_G
+        elif g1 == max_c:
+            h = (1.0/3.0)+del_R - del_B
+        elif b1 == max_c:
+            h = (2.0/3.0)+del_G - del_R
+            
+        if h<0.0: h+=1.0
+        if h>1.0: h-=1.0
+        
+        return [h,s,v]
+    
+    def HSVtoRGB(self, hsv,factor = 1):
+        """Returns RGB components scaled by factor, from hsv"""
+        [h,s,v]=hsv
+        if s==0:
+            var_r = v
+            var_g = v
+            var_b = v
+    
+        else:
+            var_h = h*6.0
+            if var_h == 6.0: var_h = 0
+            var_i = floor(var_h)
+            var_1 = v * ( 1 - s)
+            var_2 = v * ( 1 - s * ( var_h - var_i ) )
+            var_3 = v * ( 1 - s * ( 1 - ( var_h - var_i ) ) )
+            
+            if var_i == 0.0:
+                var_r = v
+                var_g = var_3
+                var_b = var_1
+            elif var_i == 1.0:
+                var_r = var_2
+                var_g = v
+                var_b = var_1
+            elif var_i == 2.0:
+                var_r = var_1
+                var_g = v
+                var_b = var_3
+            elif var_i == 3.0:
+                var_r = var_1
+                var_g = var_2
+                var_b = v
+            elif var_i == 4.0:
+                var_r = var_3
+                var_g = var_1
+                var_b = v
+            else:
+                var_r = v
+                var_g = var_1
+                var_b = var_2
+            
+        var_r = var_r * factor
+        var_g = var_g * factor
+        var_b = var_b * factor
+            
+        return [var_r,var_g,var_b]
+        
+    def rgb_to_string(self, rgb):
+        """Returns a string representing de RGB color passed in rgb"""
+        return "#%04x%04x%04x" % rgb
+   
 
 class RaBrightness(RaFrame):
     """Brightness control frame"""
@@ -819,7 +760,6 @@ class RaBrightness(RaFrame):
                             #'selectbackground':self.bd,
                             #'selectforeground':self.fg}
         def changed(*args):
-            #print gvar.get(), tvar.get(), mvar.get(), lvar.get()
             A=(1.0-0.35)/25
             B=1.0
             self.callback({"GLOBAL":A*gvar.get()+B, "TRACKS":A*tvar.get()+B,
@@ -870,7 +810,6 @@ class VisTrack(object): # ensure a new style class
         object.__setattr__(self,'label_format', 'pp')
         object.__setattr__(self,'selected', False)
         object.__setattr__(self,'assumed',False)
-        object.__setattr__(self,'flat',True)
         object.__setattr__(self,'plot_only',False)
         object.__setattr__(self,'pac',False)
         object.__setattr__(self,'vac',False)
@@ -900,13 +839,9 @@ class VisTrack(object): # ensure a new style class
         self.type='B737'
         self.radio_cs='IBERIA'
         self.rfl=330       
-        self.color = SmartColor(canvas,'green','gray','gray',self.assumed,self.flat)
-        self.selected_border_color = SmartColor(canvas,'yellow','yellow','yellow',self.assumed,self.flat)
+        self.color = SmartColor('gray')
+        self.selected_border_color = SmartColor('yellow')
         
- 
-#        self.assumedcolor='green'
-#        self.nonassumedcolor='gray'
-#        self.color=self.nonassumedcolor
         self._last_t = 0  # Last time the radar was updated
         
         # Plot attributes
@@ -948,11 +883,7 @@ class VisTrack(object): # ensure a new style class
         self.speed_vector=(0,0)  # Final position of the speed vector in screen coords
         object.__setattr__(self,'speed_vector_length',0.)  # Length in minutes
         self._svid=None
-        
-        self._assumed_sensitive_objects =(self._l,self.color)
-        self._flat_sensitive_objects = (self._l,self._l)
-        self._intensity_sensitive_objects = (self._l,self.color,self.selected_border_color)
-        
+            
         self.redraw()
         
     def configure(self,**kw):
@@ -1049,14 +980,14 @@ class VisTrack(object): # ensure a new style class
         if self.assumed:
             size=size+1 # Assumed plots are a litle bigger to appear the same size
             self._pitem = self._c.create_polygon(x-size,y,x,y-size,x+size,y,x,y+size,x-size,y,
-                                              outline=self.color.displayed(),fill='',
+                                              outline=self.color.get(),fill='',
                                               tags=(s+'move',s+'color',s+'track',s+'plot'))
             
             
         else:
             self._pitem = self._c.create_polygon(x-size,y-size,x-size,y+size,x+size,y+size,
                                               x+size,y-size,x-size,y-size,
-                                              outline=self.color.displayed(),fill='',
+                                              outline=self.color.get(),fill='',
                                               tags=(s+'move',s+'color',s+'track',s+'plot'))
             
         def plot_b1(e=None):
@@ -1076,7 +1007,7 @@ class VisTrack(object): # ensure a new style class
         self.delete_h()
         for (rx,ry) in self._h:
             (h0,h1) = self.do_scale([rx,ry])
-            self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.displayed(),
+            self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
                                      tags=(str(self)+'hist',str(self)+'color',
                                            str(self)+'track'))
             
@@ -1094,7 +1025,7 @@ class VisTrack(object): # ensure a new style class
         screen_sv = self.do_scale(speed_vector)
         (sx,sy) = screen_sv
         
-        self._svid=self._c.create_line(self.x, self.y, sx, sy, fill=self.color.displayed(),
+        self._svid=self._c.create_line(self.x, self.y, sx, sy, fill=self.color.get(),
                            tags=(st+'speedvector',st+'move',st+'color',st+'track'))
     def delete_l(self):
         c=self._c
@@ -1113,7 +1044,7 @@ class VisTrack(object): # ensure a new style class
         """Draw the leader and label of the track using current options"""
         # Helper variables
         c=self._c
-        cl=self.color.displayed()
+        cl=self.color.get()
         s=str(self)
         lf = self._l_font
         
@@ -1123,8 +1054,6 @@ class VisTrack(object): # ensure a new style class
         if not self.visible: return
         
         # Label text
-        if self.wake == 'H':
-            self._l.wake.color.color ==['yellow',c.winfo_rgb('yellow')]
         self._l.redraw()
         new_label_x = self.x + self.label_radius * sin(radians(self.label_heading))
         new_label_y = self.y + self.label_radius * cos(radians(self.label_heading))
@@ -1136,10 +1065,10 @@ class VisTrack(object): # ensure a new style class
         
         # Selection box
         if self.selected:
-            c.create_rectangle(lx, ly, lx + lw, ly + lh, outline=self.selected_border_color.displayed(),
+            c.create_rectangle(lx, ly, lx + lw, ly + lh, outline=self.selected_border_color.get(),
                                tags=(s+'move',s+'label',s+'track', s+'selection_box'))
         # Leader line
-        id=c.create_line(self.x, self.y, self._ldr_x, self._ldr_y, fill=self.color.displayed(),
+        id=c.create_line(self.x, self.y, self._ldr_x, self._ldr_y, fill=self.color.get(),
                       tags=(s+'move',s+'color',s+'track',s+'leader'))
         self._lineid=id   
         ra_tag_bind(c,self._lineid,"<Button-1>",self.rotate_label)
@@ -1244,9 +1173,8 @@ class VisTrack(object): # ensure a new style class
             object.__setattr__(self,'x',x)
             object.__setattr__(self,'y',y)            
         elif name=='assumed' and self.visible:
-#            self.color.assumed = value
-            for o in self._assumed_sensitive_objects:
-                o.assumed = value
+            if value: self.color.set('green')
+            else:  self.color.set('grey')
             self.redraw()
         elif name=='mode':
             if value=='pp': self.label_format='pp'
@@ -1264,15 +1192,9 @@ class VisTrack(object): # ensure a new style class
         elif name in ['plot_only','visible']:
             self.redraw()
         elif name=='intensity':
-            for o in self._intensity_sensitive_objects:
-                o.intensity = value
-            self.redraw_h()
-            self.redraw_p()
-            self.redraw_l()
-        elif name=='flat':
-            for o in self._flat_sensitive_objects:
-                o.flat = value
-            self.redraw_l()
+            for sc in self.color, self._l.vac.color, self._l.pac.color, self._l.wake.color:
+                sc.set_intensity(value)
+            self.redraw()
             
     def destroy(self):
         self._l.destroy()
@@ -1305,36 +1227,13 @@ class VisTrack(object): # ensure a new style class
             """Contains the attributes of a label item"""
             def __init__(self, master_track):
                 self.vt = vt = master_track
-                self.color = master_track.color.copy()
-                object.__setattr__(self,'t',"")                                     # Item text
-                object.__setattr__(self,'w',0)                                       # Width in pixels
-                object.__setattr__(self,'x',0)  # Hor screen coord
-                object.__setattr__(self,'y',0) # Ver screen coord
-                object.__setattr__(self,'i',None)  # Canvas item id
+                self.color = master_track.color
+                self.t = ""  # Item text
+                self.w = 0  # Width in pixels
+                self.x = 0  # Hor screen coord
+                self.y = 0 # Ver screen coord
+                self.i = None  # Canvas item id
                 
-                object.__setattr__(self,'assumed',vt.assumed)
-                object.__setattr__(self,'flat',vt.flat)
-                object.__setattr__(self,'intensity',vt.intensity)
-                
-                self.assumed = vt.assumed
-                self.flat = vt.flat
-                
-            def __setattr__(self,name,value):
-                """Capture attribute setting so as to trigger functionality"""
-                # Save the old value
-                try: oldvalue = self.__dict__[name]
-                except: oldvalue = None
-                
-                object.__setattr__(self,name,value) # This actually sets the attributes
-                
-
-                if name == 'assumed':
-                    self.color.assumed = value
-                if name == 'flat':
-                    self.color.flat = value
-                if name == 'intensity':
-                    self.color.intensity = value
-
         def __init__(self, master_track): 
             self.vt = vt = master_track
             self.c = self.vt._c  # Canvas
@@ -1346,59 +1245,23 @@ class VisTrack(object): # ensure a new style class
             self.mach = self.LabelItem(vt)
             self.echo = self.LabelItem(vt)
             self.wake = self.LabelItem(vt)
+            self.wake.color = SmartColor('')
             self.hdg = self.LabelItem(vt)
             self.spc = self.LabelItem(vt)
             self.spc.t = ' '
             
             self.pac = self.LabelItem(vt)     
             self.pac.t = 'PAC'
-            self.pac.color.intensity = 1.0
+            self.pac.color = SmartColor('')
             
             self.vac = self.LabelItem(vt)
             self.vac.t = 'VAC'
-            self.vac.color.intensity = 1.0
-            
-            #if self.wake.t == 'H':
-            #    self.wake.assumed=['yellow',self.c.winfo_rgb('yellow')]
-            #    self.wake.color=['yellow',self.c.winfo_rgb('yellow')]
-            
-            
-#            self.cs.color.unflat_color=[rgb_to_string((32767,65535,32767)),[32767,65535,32767]]
-                        
+            self.vac.color = SmartColor('')
             
             self._old_font_size = 0
-            
-            
+                        
             self.format = self.vt.label_format  # By default, 'pp'
             self.items = []  # They are calculated at reformat time
-            
-            self._assumed_sensitive_objects =(self.cs,self.alt,self.rate,self.cfl,self.gs,self.mach,self.echo,self.wake,self.hdg)
-            self._flat_sensitive_objects = (self.cs,self.cs)
-            self._intensity_sensitive_objects = (self.cs,self.alt,self.rate,self.cfl,self.gs,self.mach,self.echo,self.wake,self.hdg)
-            
-            self.assumed = vt.assumed
-            self.flat = vt.flat
-            self.intensity = vt.intensity
-            
-        def __setattr__(self,name,value):
-            """Capture attribute setting so as to trigger functionality"""
-            # Save the old value
-            try: oldvalue = self.__dict__[name]
-            except: oldvalue = None
-            
-            object.__setattr__(self,name,value) # This actually sets the attributes
-            
-            if oldvalue <> value:
-                if name == 'assumed':
-                    for o in self._assumed_sensitive_objects:
-                        o.assumed = value
-                if name == 'flat':
-                    for o in self._flat_sensitive_objects:
-                        o.flat = value
-                if name == 'intensity':
-                    for o in self._intensity_sensitive_objects:
-                        o.intensity = value
-                
 
             
         def delete(self):
@@ -1432,14 +1295,10 @@ class VisTrack(object): # ensure a new style class
             self.reformat()
             for i_name in self.items:
                 i=self[i_name]  # i is an instance of the LabelItem class
-                i.i = c.create_text(i.x, i.y, text=i.t, fill=i.color.displayed(), tag=s+i_name, anchor=NW, font=lf)
+                i.i = c.create_text(i.x, i.y, text=i.t, fill=i.color.get(), tag=s+i_name, anchor=NW, font=lf)
                 c.itemconfig(i.i,tags=(s+'labelitem',s+'move',s+'color',s+'track', s+'label'))
-                #if i_name!='wake':
-                #    c.itemconfig(i.i,tags=(s+'labelitem',s+'move',s+'color',s+'track', s+'label'))
-                #else:
-                #    c.itemconfig(i.i,tags=(s+'labelitem',s+'move',s+'track', s+'label'))
                     
-                     #Create bindings
+            #Create bindings
             # Common bindings
             ra_tag_bind(self.c,self.cs.i,"<Button-1>",self.cs_b1)
             ra_tag_bind(self.c,self.cs.i,"<Button-2>",self.cs_b2)
@@ -1483,12 +1342,13 @@ class VisTrack(object): # ensure a new style class
                     x_offset += self[item].w
                     self[item].y = vt.label_y + line_no * line_height
                     self.items.append(item)
-                lw = vt.label_width = max (lw, line_width)
-                lh = vt.label_height = lh + line_height
-                # We are assumming here that all label formats
-                # have a -1 line to contain pac and vac
-                # TODO This is NOT CORRECT
-                vt.label_height -= line_height
+                lw = max (lw, line_width)
+                lh = lh + line_height
+            vt.label_width = lw
+            # We are assumming here that all label formats
+            # have a -1 line to contain pac and vac
+            # TODO This is NOT CORRECT
+            vt.label_height = lh - line_height
                 
             # Update label items position
             for i in self.items:
@@ -1503,18 +1363,14 @@ class VisTrack(object): # ensure a new style class
             # Text
             if i=='cs': 
                 self.cs.t = vt.cs
-                self.cs.color.unflat_color = [rgb_to_string((32767,65535,32767)),[32767,65535,32767]]
             elif i=='mach':
                 self.mach.t = '.'+str(int(round(vt.mach*100)))
             elif i=='gs':
                 self.gs.t = str(int(round(vt.gs/10)))
             elif i=='wake':
                 self.wake.t = vt.wake
-                if vt.wake == 'H':
-                    self.wake.color.color = ['yellow',self.c.winfo_rgb('yellow')]
-                    self.wake.color.assumed_color = ['yellow',self.c.winfo_rgb('yellow')]
-                    self.wake.color.not_assumed_color = ['yellow',self.c.winfo_rgb('yellow')]
-                    self.wake.color.unflat_color = ['yellow',self.c.winfo_rgb('yellow')]
+                if vt.wake == 'H': self.wake.color.set('yellow')
+                else: self.wake.color.set(vt.color.get())
             elif i=='hdg':
                 self.hdg.t='%03d'%(int(vt.hdg))
             elif i=='alt':
@@ -1540,46 +1396,32 @@ class VisTrack(object): # ensure a new style class
             elif i=='echo':
                 self.echo.t = vt.echo
             elif i=='pac':
-                self.pac.color.assumed_color = ['red',self.c.winfo_rgb('red')]
-                self.pac.color.not_assumed_color = ['red',self.c.winfo_rgb('red')]
-                self.pac.color.unflat_color = ['red',self.c.winfo_rgb('red')]
-                self.pac.color.intensity = 1.0
+                self.pac.color.set('red')
                 if vt.pac: self.pac.t="PAC"
                 else: self.pac.t=""
 
             elif i=='vac':
-                self.vac.color.assumed_color = ['red',self.c.winfo_rgb('red')]
-                self.vac.color.not_assumed_color = ['red',self.c.winfo_rgb('red')]
-                self.vac.color.unflat_color = ['red',self.c.winfo_rgb('red')]
-                self.vac.color.intensity = 1.0
+                self.vac.color.set('red')
                 if vt.vac: self.vac.t="VAC"
                 else: self.vac.t=""
                 
             item=self[i]
-            # Color
-            #if i not in ['wake','pac','vac']:
-            #    item.color=vt.color
-            #if i=='wake':
-            #    if vt.assumed and vt.wake=='H':
-            #        self.wake.color.color.assumed[1]='yellow'
-            #    #else:
-            #    #    self.wake.color=vt.wake.color.displayed()
             if i=='pac':
                 if vt.pac:
-                    if (time()-floor(time())>0.5): self.pac.color.color[0]='red'
-                    else: self.pac.color.color[0]=''
+                    if (time()-floor(time())>0.5): self.pac.color.set('red')
+                    else: self.pac.color.set('')
                     self.vt._c.after(500,lambda: self.refresh(i))
-                else: self.pac.color.color[0]=''
+                else: self.pac.color.set('')
             if i=='vac':
                 if vt.vac:
-                    if (time()-floor(time())>0.5): self.vac.color.color[0]='red'
-                    else: self.vac.color.color[0]=''
+                    if (time()-floor(time())>0.5): self.vac.color.set('red')
+                    else: self.vac.color.set('')
                     self.vt._c.after(500,lambda: self.refresh(i))
-                else: self.vac.color.color[0]=''
+                else: self.vac.color.set('')
                 
                 # Refresh the item
             if item.i!=None:
-                vt._c.itemconfig(item.i,text=item.t,fill=item.color.displayed())
+                vt._c.itemconfig(item.i,text=item.t,fill=item.color.get())
                 
         def cs_moved(self,e):
             self.vt.reposition_label(e.x, e.y)
@@ -1844,6 +1686,10 @@ class LAD(object):
     A graphical line showing distance, bearing, and if aircraft are involved,
     minimum crossing time, and minimum crossing distance"""
     
+    # Color is a class attribute
+    lad_color = SmartColor('orange')
+    super_lad_color = SmartColor('red')
+    
     def __init__(self,radisplay,e):
     
         rd=self.radisplay=radisplay
@@ -1851,9 +1697,6 @@ class LAD(object):
         
         # No se estaba definiendo un LAD. Comenzar a definir uno
         self.orig = self.get_acft_or_point(e.x,e.y)
-        #self._motion_id = canvas.bind('<Motion>', self.update_lad_being_defined)
-        #self._button2_id = canvas.bind('<Button-2>', self.cancel_def_lad)
-        #self._button3_id = canvas.bind('<Button-3>', self.end_def_lad)
         ra_unbind(rd, c, '<Motion>')
         ra_unbind(rd, c, '<Button-2>')
         ra_unbind(rd, c, '<Button-3>')
@@ -1867,15 +1710,6 @@ class LAD(object):
         self.text_id3 = None
         self.text_id4 = None
         
-
-
-        self.intensity = radisplay.intensity['LADS']*  radisplay.intensity['GLOBAL']     
-        self.lad_color = [C_ORANGE_STR,C_ORANGE_RGB]
-        print c.winfo_rgb (C_ORANGE_STR)
-        self.super_lad_color = ['red',c.winfo_rgb('red')]
-        self.super_lad_c_color = change_intensity(self.super_lad_color,self.intensity)
-        self.lad_c_color = change_intensity(self.lad_color,self.intensity)
-        
     def __del__(self):
         logging.debug("LAD.__del__")
         
@@ -1887,12 +1721,6 @@ class LAD(object):
             self.visible = True
             self.track = 0.01
             self.gs=0.01
-            
-    def set_intensity(self,intensity):
-        self.intensity = intensity
-        self.super_lad_c_color = change_intensity(self.super_lad_color,self.intensity)
-        self.lad_c_color = change_intensity(self.lad_color,self.intensity)
-        
             
     def get_acft_or_point(self,x,y):
         # Returns the closest acft to (x,y) or otherwise a point
@@ -1913,11 +1741,6 @@ class LAD(object):
         rd = self.radisplay
         c = rd.c
         c.delete('lad_defined')
-        #canvas.unbind('<Motion>',self._motion_id)
-        #canvas.unbind('<Button-2>',self._button2_id)
-        #canvas.unbind('<Button-3>',self._button3_id)
-        #canvas.bind('<Button-2>',self.radisplay.b2_cb)
-        #canvas.bind('<Button-3>',self.radisplay.b3_cb)
         ra_unbind(rd, c, '<Motion>')
         ra_unbind(rd, c, '<Button-2>')
         ra_unbind(rd, c, '<Button-3>')
@@ -1939,7 +1762,7 @@ class LAD(object):
         time_min = 60.0 * dist / self.orig.gs
         lad_center_x = (x0 + e.x)/2
         lad_center_y = (y0 + e.y)/2
-        canvas.create_line(x0, y0,e.x, e.y, fill=self.lad_c_color[0], tags="lad_defined")
+        canvas.create_line(x0, y0,e.x, e.y, fill=self.lad_color.get(), tags="lad_defined")
         lad_text1 = "A: %03d" % angulo
         lad_text2 = "D: %03d" % dist
         # Check if LAD begins in a point or in a plane
@@ -1952,9 +1775,9 @@ class LAD(object):
         label_font=self.radisplay.label_font
         lad_rect_width = self.radisplay.label_font.measure(lad_text1)
         lad_line_height = label_font.metrics('ascent')
-        canvas.create_text(lad_center_x, lad_center_y - lad_lines * lad_line_height, text=lad_text1, fill=self.lad_c_color[0], tags="lad_defined")
-        canvas.create_text(lad_center_x, lad_center_y - (lad_lines-1) * lad_line_height , text=lad_text2, fill=self.lad_c_color[0], tags="lad_defined")
-        canvas.create_text(lad_center_x, lad_center_y - (lad_lines-2) * lad_line_height, text=lad_text3, fill=self.lad_c_color[0], tags="lad_defined")
+        canvas.create_text(lad_center_x, lad_center_y - lad_lines * lad_line_height, text=lad_text1, fill=self.lad_color.get(), tags="lad_defined")
+        canvas.create_text(lad_center_x, lad_center_y - (lad_lines-1) * lad_line_height , text=lad_text2, fill=self.lad_color.get(), tags="lad_defined")
+        canvas.create_text(lad_center_x, lad_center_y - (lad_lines-2) * lad_line_height, text=lad_text3, fill=self.lad_color.get(), tags="lad_defined")
         
     def end_def_lad(self,e=None):
         rd = self.radisplay
@@ -2009,10 +1832,10 @@ class LAD(object):
         (x0, y0) = do_scale((xinitA, yinitA))
         (x1, y1) = do_scale((xinitB, yinitB))
         if self.superlad == True:
-            color =  self.super_lad_c_color[0]
+            color =  self.super_lad_color.get()
 
         else:
-            color = self.lad_c_color[0]
+            color = self.lad_color.get()
         self.line_id = canvas.create_line(x0, y0, x1, y1, fill=color, tags=(s+'lad',s+'line'))
         xm = (x0+x1) / 2
         ym = (y0+y1) / 2
@@ -2026,11 +1849,11 @@ class LAD(object):
             text4 = "C: %.1f" % min_dist
             
         lad_line_height = label_font.metrics('ascent')
-        self.text_id1 = canvas.create_text(xm, ym - lad_lines * lad_line_height,     text=text1, fill=self.lad_c_color[0], tags=(s+'lad',s+'text'))
-        self.text_id2 = canvas.create_text(xm, ym - (lad_lines-1) * lad_line_height, text=text2, fill=self.lad_c_color[0], tags=(s+'lad',s+'text'))
+        self.text_id1 = canvas.create_text(xm, ym - lad_lines * lad_line_height,     text=text1, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
+        self.text_id2 = canvas.create_text(xm, ym - (lad_lines-1) * lad_line_height, text=text2, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
         if lad_lines == 4:
-            self.text_id3 = canvas.create_text(xm, ym - (lad_lines-2) * lad_line_height, text=text3, fill=self.lad_c_color[0], tags=(s+'lad',s+'text'))
-            self.text_id4 = canvas.create_text(xm, ym - (lad_lines-3) * lad_line_height, text=text4, fill=self.lad_c_color[0], tags=(s+'lad',s+'text'))
+            self.text_id3 = canvas.create_text(xm, ym - (lad_lines-2) * lad_line_height, text=text3, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
+            self.text_id4 = canvas.create_text(xm, ym - (lad_lines-3) * lad_line_height, text=text4, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
             
         ra_tag_bind(canvas,self.text_id1,'<Button-1>',self.toggle_superlad)
         ra_tag_bind(canvas,self.text_id2,'<Button-1>',self.toggle_superlad)
@@ -2048,10 +1871,10 @@ class LAD(object):
             (posAx, posAy, posBx, posBy) = self.compute_cross_points(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
             (crossAx, crossAy) = do_scale((posAx, posAy))
             (crossBx, crossBy) = do_scale((posBx, posBy))
-            canvas.create_line(x0, y0, crossAx, crossAy, fill=self.super_lad_c_color[0], tags=(s+'lad',s+'crosspoint'))
-            canvas.create_rectangle(crossAx-size, crossAy-size, crossAx +size, crossAy +size, fill=self.super_lad_c_color[0], tags=(s+'lad',s+'crosspoint'))
-            canvas.create_line(x1, y1, crossBx, crossBy, fill=self.super_lad_c_color[0], tags=(s+'lad',s+'crosspoint'))
-            canvas.create_rectangle(crossBx - size, crossBy -size, crossBx + size, crossBy + size, fill=self.super_lad_c_color[0], tags=(s+'lad',s+'crosspoint'))
+            canvas.create_line(x0, y0, crossAx, crossAy, fill=self.super_lad_color.get(), tags=(s+'lad',s+'crosspoint'))
+            canvas.create_rectangle(crossAx-size, crossAy-size, crossAx +size, crossAy +size, fill=self.super_lad_color.get(), tags=(s+'lad',s+'crosspoint'))
+            canvas.create_line(x1, y1, crossBx, crossBy, fill=self.super_lad_color.get(), tags=(s+'lad',s+'crosspoint'))
+            canvas.create_rectangle(crossBx - size, crossBy -size, crossBx + size, crossBy + size, fill=self.super_lad_color.get(), tags=(s+'lad',s+'crosspoint'))
             
         canvas.addtag_withtag('lad',s+'lad')
         canvas.lift('lad')
@@ -2105,7 +1928,6 @@ class RaDisplay(object):
         fir -- fir object
         sector -- name of the sector to work with
         """
-
         
         self.fir=fir
         self.sector=sector
@@ -2116,6 +1938,10 @@ class RaDisplay(object):
             tl.wm_iconbitmap(icon_path)
             tl.wm_state('zoomed')
         tl.wm_title(title)
+        
+        SmartColor.winfo_rgb = tl.winfo_rgb  # SmartColors needs a valid winfo_rgb function
+                                            # which is only available once Tkinter
+                                            # in initialized
         
         screen_width = tl.winfo_screenwidth()
         screen_height = tl.winfo_screenheight()
@@ -2153,7 +1979,13 @@ class RaDisplay(object):
         self.local_maps_shown = []
         
         self.maps_colors = {}
-
+        self.maps_colors['sector']=SmartColor('gray9')
+        self.maps_colors['lim_sector']=SmartColor('blue')
+        self.maps_colors['tma']=SmartColor('gray30')
+        self.maps_colors['routes']=SmartColor('gray25')
+        self.maps_colors['fix']=SmartColor('gray25')
+        self.maps_colors['fix_names']=SmartColor('gray40')
+        self.maps_colors['deltas']=SmartColor('gray40')
         
         self.auto_separation = True  # Separate labels automatically
         
@@ -2178,24 +2010,14 @@ class RaDisplay(object):
         self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
         self.rabrightness = RaBrightness(c, self.set_element_intensity)
         self.rabrightness.hide()
-        self.initiate_maps_colors()
-       
-        
-        
-    def set_corrected_color(self,color='white',factor1=1.0,factor2=1.0):
-        """Internal function that returns a string repersenting the corrected color"""
-        dummy = [color,self.c.winfo_rgb(color)]
-        dummy = change_intensity(dummy,factor1*factor2)
-        return dummy[0]
-
 
     def draw_polyline(self,object):
-        #draw a series of lines from point to point defined in object[2:]. object[2:] contains
-        #points' names and points_definition contains de names and coordinates.
+        """draw a series of lines from point to point defined in object[2:]. object[2:] contains
+        points' names and points_definition contains de names and coordinates."""
         color = object[1]
         if object[1]=='':
             color = 'white'
-        color=self.set_corrected_color(color,self.intensity["MAP"],self.intensity["GLOBAL"])
+        color=SmartColor(color, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
         if len(object) > 3:
             point_name = str(object[2])
             (px0, py0) = self.do_scale(self.fir.get_point_coordinates(point_name))
@@ -2239,7 +2061,7 @@ class RaDisplay(object):
         else:
             color = 'white'
             
-        color=self.set_corrected_color(color,self.intensity["MAP"],self.intensity["GLOBAL"])   
+        color=SmartColor(color, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()   
         for sid_star_index_word in self.fir.procedimientos[sid_star_rwy][sid_star_index]:              #cycle through al SID's or STAR's of one RWY
             sid_star=self.fir.procedimientos[sid_star_rwy][sid_star_index][sid_star_index_word]
             if (sid_star_name == '') or (sid_star_name == sid_star[0]):
@@ -2652,26 +2474,6 @@ class RaDisplay(object):
         y_scale=(self.height-self.toolbar_height)/(ymax-ymin)
         self.scale=min(x_scale,y_scale)*0.9
         
-    def initiate_maps_colors(self):
-        c = self.c
-        self.maps_colors['sector']=SmartColor(c,'gray9','gray9','gray9',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-        self.maps_colors['lim_sector']=SmartColor(c,'blue','blue','blue',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-        self.maps_colors['tma']=SmartColor(c,'gray30','gray30','gray30',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-        self.maps_colors['routes']=SmartColor(c,'gray25','gray25','gray25',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-        self.maps_colors['fix']=SmartColor(c,'gray25','gray25','gray25',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-        self.maps_colors['fix_names']=SmartColor(c,'gray40','gray40','gray40',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-        self.maps_colors['deltas']=SmartColor(c,'gray40','gray40','gray40',True,True,self.intensity["MAP"]*self.intensity["GLOBAL"])
-
-    #def correct_maps_colors(self):
-    #    c = self.c
-    #    for colors in self.maps_colors:
-    #        self.corrected_color[colors.key] = change_intensisty(colors,self.intensity['MAP'])
-
-
-        
-    
-
-        
     def redraw_maps(self):
         
         c = self.c  # Canvas
@@ -2679,9 +2481,7 @@ class RaDisplay(object):
         sector = self.sector
         do_scale = self.do_scale
         
-        self.c.delete('radisplay')
-        self.initiate_maps_colors()
-        
+        self.c.delete('radisplay')        
         
         def _draw_sector():
             # Dibujar SECTOR
@@ -2690,7 +2490,7 @@ class RaDisplay(object):
                 for a in self.fir.boundaries[self.sector]:
                     aux=aux+do_scale(a)
                     
-                color = self.maps_colors['sector'].displayed()
+                color = self.maps_colors['sector'].get()
                 c.create_polygon(aux,fill=color,outline=color,tag=('sector','radisplay'))
                 
         def _draw_lim_sector():
@@ -2700,7 +2500,7 @@ class RaDisplay(object):
                 for a in self.fir.boundaries[self.sector]:
                     aux=aux+do_scale(a)
                 #c.create_polygon(aux,fill='',outline='blue',tag=('sector','radisplay'))
-                color = self.maps_colors['lim_sector'].displayed()
+                color = self.maps_colors['lim_sector'].get()
                 c.create_line(aux,fill=color,tag=('boundary','radisplay'))
                 
         def _draw_tma():
@@ -2711,7 +2511,7 @@ class RaDisplay(object):
                     for i in range(0,len(a[0]),2):
                         aux=aux+do_scale((a[0][i],a[0][i+1]))
                     #c.create_line(aux,fill='gray60',tag=('tmas','radisplay'))
-                    color = self.maps_colors['tma'].displayed()
+                    color = self.maps_colors['tma'].get()
                     c.create_line(aux,fill=color,tag=('tmas','radisplay'))
                     
                     
@@ -2722,11 +2522,11 @@ class RaDisplay(object):
                     aux=()
                     for i in range(0,len(a[0]),2):
                         aux=aux+do_scale((a[0][i],a[0][i+1]))
-                    color = self.maps_colors['routes'].displayed()
+                    color = self.maps_colors['routes'].get()
                     c.create_line(aux,fill=color,tag=('routes','radisplay'))
         def _draw_fix():
             # Dibujar fijos
-            color = self.maps_colors['fix'].displayed()
+            color = self.maps_colors['fix'].get()
             if self.draw_point:
                 for a in fir.points:
                     if a[0][0]<>'_':
@@ -2747,14 +2547,14 @@ class RaDisplay(object):
                             c.create_polygon(coord_pol,outline=color,fill='',tag=('points','radisplay'),width=1)
         def _draw_fix_names():
             # Dibujar el nombre de los puntos
-            color = self.maps_colors['fix_names'].displayed()
+            color = self.maps_colors['fix_names'].get()
             if self.draw_point_names:
                 for a in fir.points:
                     if a[0][0]<>'_':
                         c.create_text(do_scale(a[1]),text=a[0],fill=color,tag=('pointnames','radisplay'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
         # Dibujar zonas delta
         def _draw_deltas():
-            color = self.maps_colors['deltas'].displayed()
+            color = self.maps_colors['deltas'].get()
             if self.draw_deltas:
                 for a in fir.deltas:
                     aux=()
@@ -2778,7 +2578,7 @@ class RaDisplay(object):
                             col = 'white'
                         (px0, py0) = do_scale((cx0,cy0))
                         (px1, py1) = do_scale((cx1,cy1))
-                        col=self.set_corrected_color(col,self.intensity["MAP"],self.intensity["GLOBAL"])
+                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
                     elif ob[0] == 'arco':
                         cx0 = float(ob[1])
@@ -2793,7 +2593,7 @@ class RaDisplay(object):
                             col = 'white'
                         (px0, py0) = do_scale((cx0,cy0))
                         (px1, py1) = do_scale((cx1,cy1))
-                        col=self.set_corrected_color(col,self.intensity["MAP"],self.intensity["GLOBAL"])
+                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_arc(px0, py0, px1, py1, start=start_value, extent=extent_value, outline=col, style='arc', tag='local_maps')
                     elif ob[0] == 'ovalo':
                         cx0 = float(ob[1])
@@ -2806,7 +2606,7 @@ class RaDisplay(object):
                             col = 'white'
                         (px0, py0) = do_scale((cx0,cy0))
                         (px1, py1) = do_scale((cx1,cy1))
-                        col=self.set_corrected_color(col,self.intensity["MAP"],self.intensity["GLOBAL"])
+                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_oval(px0, py0, px1, py1, fill=col, tag='local_maps')
                     elif ob[0] == 'rectangulo':
                         cx0 = float(ob[1])
@@ -2819,7 +2619,7 @@ class RaDisplay(object):
                             col = 'white'
                         (px0, py0) = do_scale((cx0,cy0))
                         (px1, py1) = do_scale((cx1,cy1))
-                        col=self.set_corrected_color(col,self.intensity["MAP"],self.intensity["GLOBAL"])
+                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_rectangle(px0, py0, px1, py1, fill=col, tag='local_maps')
                     elif ob[0] == 'texto':
                         x = float(ob[1])
@@ -2830,7 +2630,7 @@ class RaDisplay(object):
                         else:
                             col = 'white'
                         (px, py) = do_scale((x,y))
-                        col=self.set_corrected_color(col,self.intensity["MAP"],self.intensity["GLOBAL"])
+                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_text(px, py, text=txt, fill=col,tag='local_maps',anchor=SW,font='-*-Times-Bold-*--*-10-*-')
                     elif ob[0] == 'draw_star' or ob[0] == 'draw_sid':
                         self.draw_SID_STAR(ob)
@@ -2852,11 +2652,6 @@ class RaDisplay(object):
         """Delete and redraw all elements of the radar display"""
 
         self.redraw_maps()
-        
-        # TODO add strip printing
-        #c.delete('fichas')
-        ## Poner las fichas que se imprimen
-        #draw_print_list()
         
         # Refresh tracks
         for a in self.tracks:
@@ -2960,44 +2755,33 @@ class RaDisplay(object):
     def set_element_intensity(self, v):
         """Changes the brightness of radar elements"""        
         def set_LAD_intensity():
-            for lad in self.lads:
-                lad.set_intensity(self.intensity["GLOBAL"]*self.intensity["LADS"])
+            LAD.lad_color.set_intensity(self.intensity["GLOBAL"]*self.intensity["LADS"])
+            LAD.super_lad_color.set_intensity(self.intensity["GLOBAL"]*self.intensity["LADS"])
             self.update_lads()
         
         def set_MAP_intensity():
+            for sc in self.maps_colors.values():
+                sc.set_intensity(self.intensity["GLOBAL"]*self.intensity["MAP"])
             self.redraw_maps()
         
         def set_TRACKS_intensity():
             for tracks in self.tracks:
                 tracks.intensity=self.intensity["GLOBAL"]*self.intensity["TRACKS"]
             
-
-
-        
         # Copy the values from the given dictionary into the stored intensity
+        previous = self.intensity.copy()
+        self.intensity.update(v)
 
-        
-        if v.has_key("GLOBAL") and v["GLOBAL"]!=self.intensity["GLOBAL"]:
-            self.intensity.update(v)
+        if v.has_key("GLOBAL") and v["GLOBAL"]!=previous["GLOBAL"]:
             set_LAD_intensity()
             set_MAP_intensity()
             set_TRACKS_intensity()
-
-        if v.has_key("MAP") and v["MAP"]!=self.intensity["MAP"]:
-            self.intensity.update(v)
+        if v.has_key("MAP") and v["MAP"]!=previous["MAP"]:
             set_MAP_intensity()
-
-
-        if v.has_key("TRACKS") and v["TRACKS"]!=self.intensity["TRACKS"]:
-            self.intensity.update(v)
+        if v.has_key("TRACKS") and v["TRACKS"]!=previous["TRACKS"]:
             set_TRACKS_intensity()
-
-        if v.has_key("LADS") and v["LADS"]!=self.intensity["LADS"]:
-            self.intensity.update(v)
+        if v.has_key("LADS") and v["LADS"]!=previous["LADS"]:
             set_LAD_intensity()
-
-            
-        
         
     def __del__(self):
         logging.debug("RaDisplay.__del__")
