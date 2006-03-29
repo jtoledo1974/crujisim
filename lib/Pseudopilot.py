@@ -283,20 +283,12 @@ class PpDisplay(RaDisplay):
         if item=='ias':
             if action=='update':
                 (spd,force_speed)=value
-        #        if spd=='std':
-        #            self.set_std_spd()
-        #        else:
-        #            return self.set_spd(spd, force=force_speed)
-                self.sendMessage({"message":"set_ias", "cs": f.name,
+                d = self.sendMessage({"message":"set_ias", "cs": f.name,
                                   "ias":spd, "force_speed":force_speed})
-                return True  # Suppose the update was valid
+                return d  # Suppose the update was valid
         if item=='mach':
             if action=='update':
                 (spd,force_speed)=value
-        #        if spd=='std':
-        #            self.set_std_spd()
-        #        else:
-        #            return self.set_spd(spd, force=force_speed)
                 self.sendMessage({"message":"set_mach", "cs": f.name,
                                   "mach":spd, "force_speed":force_speed})
                 return True  # Suppose the update was valid

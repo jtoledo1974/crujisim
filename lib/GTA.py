@@ -333,7 +333,7 @@ class GTA:
             logging.debug("Set IAS "+str(m))
             try:
                 if m["ias"]=="std": f.set_std_spd()
-                else: f.set_spd(int(m["ias"]), force=m["force_speed"])
+                else: p.sendReply(f.set_spd(int(m["ias"]), force=m["force_speed"]))
             except: logging.warning("Error while setting IAS",
                                     exc_info = True)
         elif m['message']=="set_mach":

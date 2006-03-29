@@ -583,10 +583,9 @@ class Airplane:
         tas_max=self.spd_max
         if (ias < ias_max) or (force == True):
             self.ias_obj = float(ias)
-            return True
+            return (True, None)
         else:
-            self.ias_obj = ias_max
-            return False
+            return (False, ias_max)
         
     def set_mach(self,mach,force=False):
         ias = cas_from_tas(tas_from_mach(mach,self.alt*100),self.alt*100)
