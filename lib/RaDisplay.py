@@ -131,11 +131,14 @@ class RaFrame:
             self.contents.pack(fill=BOTH,expand=1)
             
               
-                
+            def bring_foreground(e=None):
+                self.container.tkraise()    
 
             if kw.has_key('label') and kw['label']<>'':
                 self._label=Label(self.windowtitle,text=kw['label'],bg = self.bd,foreground=self.fg,font=("Arial","8","bold"))
                 self._label.pack(side=LEFT,ipadx = 2)
+                i=self._label.bind('<Button-1>',bring_foreground,add="+")
+                self._bindings.append((self._label,i,"<Button-1>"),)
 
 
             if not kw.has_key('closebutton') or kw['closebutton']:
@@ -159,18 +162,20 @@ class RaFrame:
             #    self._undockbutton.pack(side=RIGHT)
             #    i=self._undockbutton.bind('<Button-1>',self.toggle_windowed)
             #    self._bindings.append((self._undockbutton,i,'<Button-1>'),)
+            
+
                 
                 # Frame dragging
             #self.top_bar.grid(row=1,column=0,padx=2,pady=2,sticky=N+E+S)
             #self.windowtitle.grid(row=2,column=0,padx=2,pady=2,sticky=N+S+W)
             #self.contents.grid(row=3,column = 0,padx=2,pady=2,sticky=N+E+S+W)
-
             
             def drag_frame(e=None):
                 """Move the frame as many pixels as the mouse has moved"""
                 self._master.move(self._master_ident,e.x_root-self._x,e.y_root-self._y)
                 self._x=e.x_root
                 self._y=e.y_root
+                
 
 
             def drag_select(e=None):
@@ -195,8 +200,12 @@ class RaFrame:
             #    self._bindings.append((self._label,i,'<Button-2>'),)
             #    self._bindings.append((self._label,j,'<ButtonRelease-2>'),)
             
-            i=self.top_bar.bind('<Button-1>',drag_select)
+            g=self.windowtitle.bind('<Button-1>',bring_foreground,add="+")
+            h=self.top_bar.bind('<Button-1>',bring_foreground,add="+")
+            i=self.top_bar.bind('<Button-1>',drag_select,add="+")
             j=self.top_bar.bind('<ButtonRelease-1>',drag_unselect)
+            self._bindings.append((self.windowtitle,g,'<Button-1>'),)
+            self._bindings.append((self.top_bar,h,'<Button-1>'),)
             self._bindings.append((self.top_bar,i,'<Button-1>'),)
             self._bindings.append((self.top_bar,j,'<ButtonRelease-1>'),)
             self.windowed=False
@@ -586,6 +595,10 @@ class RaTabular(RaFrame):
         self.list.configure(**self._list_colors)
         self.list.configure(relief = FLAT,)
         #self.list.configure(height=6, width=30)
+        self._scroll_bar_configuration={'activebackground':self.bd,
+                                        'borderwidth':0,
+                                        'width':5,
+                                        'activerelief':FLAT}
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
         self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
