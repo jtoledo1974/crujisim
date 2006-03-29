@@ -107,8 +107,8 @@ class RaFrame:
         self._bindings=[]
         self._x,self._y=(0,0)
         self.showed = True
-        self.update_external_variable = u_e_v = False
-        self._x_offset,self._y_offset=(0,0)
+
+
 
         
         # Build the frame
@@ -171,7 +171,8 @@ class RaFrame:
                 self._master.move(self._master_ident,e.x_root-self._x,e.y_root-self._y)
                 self._x=e.x_root
                 self._y=e.y_root
-                
+
+
             def drag_select(e=None):
                 #if self._label<>None:
                 #    i=self._label.bind('<Motion>',drag_frame)
@@ -185,12 +186,9 @@ class RaFrame:
                 #if self._label<>None:
                 #    self._label.unbind('<Motion>')
                 self.top_bar.unbind('<Motion>')
-                if self.check_limits():self._place()
+                self.check_limits()
 
-                
-
-                #if self._x < 10: self._x = 10
-                #if self._y < 10: self._y = 10
+            
             #if self._label<>None:
             #    i=self._label.bind('<Button-2>',drag_select)
             #    j=self._label.bind('<ButtonRelease-2>',drag_unselect)
@@ -201,8 +199,6 @@ class RaFrame:
             j=self.top_bar.bind('<ButtonRelease-1>',drag_unselect)
             self._bindings.append((self.top_bar,i,'<Button-1>'),)
             self._bindings.append((self.top_bar,j,'<ButtonRelease-1>'),)
-            
-            
             self.windowed=False
         else:
             # Build a frame as a transient toplevel
@@ -219,42 +215,50 @@ class RaFrame:
             self.windowed=True
             
     def check_limits(self):
-        update_needed = False
         x_max = self._master.winfo_width()
         y_max = self._master.winfo_height()
-        if self._x < 0:
-            self._x = 0
-            update_needed = True
-        if self._x > (x_max-20):
-            self._x = x_max-5
-            update_needed = True
-        if self._y < 50:
-            update_needed = True
-            self._y = 10
-        if self._y > y_max-20:
-            self._y = y_max - 10
-            update_needed = True
-        return update_needed
+
+        #Make two iterations to garantee complete window recovery
+        for i in (0,1):
+            
+            if self.container.winfo_x() < 0:
+                self._x = 1
+                self._y = self.container.winfo_y()
+                self._place()
+                self.container.update_idletasks ()
+            if self.container.winfo_x() > (x_max-self.container.winfo_width()):
+                self._x = x_max-self.container.winfo_width()
+                self._y = self.container.winfo_y()
+                self._place()
+                self.container.update_idletasks ()
+            if self.container.winfo_y() < 0:
+                self._x= self.container.winfo_x()
+                self._y = 1
+                self._place()
+                self.container.update_idletasks ()
+            if self.container.winfo_y() > y_max-self.container.winfo_height():
+                self._x = self.container.winfo_x()
+                self._y = y_max - self.container.winfo_height()
+                self._place()
+                self.container.update_idletasks ()
+            
+
             
     def _place(self):
         # If we are not given any position info, just use 0,0
 
         if not self._kw.has_key('position'): pos=(0,0)
         else: pos=self._kw['position']
-        if not self._kw.has_key('anchor'): anchor=CENTER
+        if not self._kw.has_key('anchor'): anchor=NW
         else: anchor=self._kw['anchor']
 
         # We reset x and y only if this is the first time we are placing the
         # frame. If the user moved it himself, then use the last known position.
         if self._x==0 and self._y==0:
             (self._x, self._y) = pos
-            
-
-        
-            
+  
         # Currently the master must be a canvas if not windowed
         if not self.windowed:
-            self.check_limits
             self._master_ident = self._master.create_window((self._x, self._y), window=self.container, anchor=anchor)
 
             
@@ -274,11 +278,14 @@ class RaFrame:
         
     def show(self, e=None):
         """Show the RaFrame (to be used after having been hidden)"""
+        self.container.update_idletasks()
         if self.windowed:
             self.container.deiconify
         else:
+            self.check_limits ()
             self._master_ident = self._master.create_window((self._x, self._y),
                 window=self.container)
+             
         self.showed=True
             
         

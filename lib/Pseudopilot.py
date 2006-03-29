@@ -75,9 +75,10 @@ class PpDisplay(RaDisplay):
         
         self.print_tabular = RaTabular(self.c, position=(10,10), anchor=NW,
                                        label="FICHAS",closebuttonhides=True)
-        self.print_tabular.adjust()
+        self.print_tabular.adjust(0,10,0,10)
         # self.print_tabular.hide()
         self.dep_tabular = DepTabular(self, self.c)
+        self.dep_tabular.adjust(0,22,0,22)
         # self.dep_tabular.hide()
         
         self.redraw()
@@ -106,8 +107,7 @@ class PpDisplay(RaDisplay):
 
             self.print_tabular.list.delete(0,self.print_tabular.list.size())
             for cs in m['print_list']:
-                self.print_tabular.insert(END,cs)
-            self.print_tabular.adjust()
+                self.print_tabular.insert(END,cs)  
             self.dep_tabular.update(m['dep_list'])
             self.update()
 
@@ -1172,9 +1172,11 @@ class DepTabular(RaTabular):
 #        self.adjust(0,22,0,22)
         if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
             pass
-        if self.showed:
-            self.adjust()
-            self.show()
+        #if self.showed:
+        #    print 'DepTabular.update: self._x, self_y' + str((self._x,self._y))
+        #    self.container.update_idletasks()
+        #    self.adjust()
+        #    self.show()
                 
     def clicked(self, e=None):
         lb = self.list
