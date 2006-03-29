@@ -626,13 +626,13 @@ class SmartColor(object):
         object.__setattr__(self,'color', color)  # displayed  color
         object.__setattr__(self,'basecolor', color)  # master color
         self.intensity = intensity  #Item color intensity
+        self.set_intensity(intensity)
             
     def get(self):
         return self.color
     
     def set(self, c):
-        self.color = c  # Throught the __setattr__ function actually it's the
-                        # basecolor that is set and the color is calculated 
+        self.basecolor = c
                             
     def set_intensity(self, factor):
         """Returns a color object with the intensisty changed and string representation"""
