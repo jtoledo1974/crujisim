@@ -69,15 +69,10 @@ def set_global_vars(_punto, _wind, _aeropuertos, _esperas_publicadas,_rwys,_rwyI
     
     
 def v(self):
-  #Devuelve TAS
+    """Returns the target TAS to acquire"""
+    #Devuelve TAS
     if not self.es_spd_std: # Velocidad mínima manteniedo IAS
-        ias_max=cas_from_tas(self.spd_max,self.alt*100)
-        tas_max=tas_from_cas(ias_max,self.alt)
-        self.ias = cas_from_tas(self.spd, self.alt*100)
-        if abs(self.ias_obj-self.ias)>1.:
-            self.ias = self.ias_obj
-        # return self.ias * (1.0+0.002 *self.alt)
-        return tas_from_cas(self.ias, self.alt*100)
+        return tas_from_cas(self.ias_obj, self.alt*100)
     if hasattr(self, "perf"):
         if self.alt<self.cfl: tas = self.perf.get_climb_perf(self.alt)[0] 
         elif self.alt>self.cfl: tas = self.perf.get_descent_perf(self.alt)[0]
@@ -469,6 +464,7 @@ class Airplane:
                 self.spd=aux_v
             else:
                 self.spd = self.spd + inc_v_max * sgn(aux_v - self.spd)
+            self.ias = cas_from_tas(self.spd, self.alt*100)
             (vx,vy) = pr((1.0,self.track))
             (wx,wy) = pr(wind)
             wind_perp = wx*vy - wy*vx
@@ -579,15 +575,13 @@ class Airplane:
         
     def set_spd(self,ias,force=False):
         self.es_spd_std = False
-        vel=tas_from_cas(ias, self.alt*100)
-        #if float(ias)<1.:
-        #    # TODO Substitue with a proper mach calculation
-        #    vel = tas_from_mach(float(ias),self.alt*100)
-        #    ias = cas_from_tas(vel,self.alt*100)
-        
-        ias_max=cas_from_tas(self.spd_max,self.alt*100)
+
+        # TODO This is a very poor approximation to the max ias
+        # we are just taking the maximum cruise TAS and trying to guess
+        # the maximum IAS from there.
+        ias_max=min(cas_from_tas(self.spd_max,self.alt*100), self.spd_tma*1.1)
         tas_max=self.spd_max
-        if (vel < tas_max) or (force == True):
+        if (ias < ias_max) or (force == True):
             self.ias_obj = float(ias)
             return True
         else:
@@ -677,7 +671,7 @@ class Airplane:
         return self.track
         
     def get_ias(self):
-        return self.spd/(1.0+0.002*self.alt)
+        return self.ias
         
     def set_ias(self, ias):
         self.ias = ias
