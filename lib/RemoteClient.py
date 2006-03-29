@@ -86,6 +86,7 @@ class GTA_Client_Protocol(NetstringReceiver):
 
 class RemoteClient:
     
+    
     def connect(self, ip, port, type, connectionLost=None):
         d=self.d=defer.Deferred()
         logging.info("Connecting "+ip+", port "+str(port))
@@ -116,11 +117,13 @@ class RemoteClient:
             self.flights = m['flights']
             fir=FIR(fir_file)
             if self.type==PSEUDOPILOT:
-                d=self.display=PpDisplay(self.flights,'testing','./img/crujisim.ico',fir,sector,mode='pp')
+                window_name = 'Testing. PSEUDO. '+ str(sector)+"."
+                d=self.display=PpDisplay(self.flights,window_name,'./img/crujisim.ico',fir,sector,mode='pp')
             elif self.type==ATC:
-                d=self.display=UCS(self.flights,'testing','./img/crujisim.ico',fir,sector,mode='atc')
+                window_name = 'Testing. ATC. '+ str(sector)+"."
+                d=self.display=UCS(self.flights,window_name,'./img/crujisim.ico',fir,sector,mode='atc')
             d.sendMessage = self.protocol.sendMessage
-            try: d.pos_number = m['pos_number']
+            try:d.pos_number = m['pos_number']
             except: logging.warning("Unable to set pos_number")
             self.display.top_level.protocol("WM_DELETE_WINDOW",lambda :reactor.callLater(0,self.exit))
             return

@@ -107,6 +107,7 @@ class RaFrame:
         self._bindings=[]
         self._x,self._y=(0,0)
         self.showed = True
+        self.update_external_variable = u_e_v = False
         self._x_offset,self._y_offset=(0,0)
 
         
@@ -128,10 +129,9 @@ class RaFrame:
             self.windowtitle.pack(fill=X)
             self.contents = Frame(self.container,background = self.bg)
             self.contents.pack(fill=BOTH,expand=1)
-
-
             
-            
+              
+                
 
             if kw.has_key('label') and kw['label']<>'':
                 self._label=Label(self.windowtitle,text=kw['label'],bg = self.bd,foreground=self.fg,font=("Arial","8","bold"))

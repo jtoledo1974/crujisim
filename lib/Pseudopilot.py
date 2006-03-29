@@ -37,6 +37,7 @@ class PpDisplay(RaDisplay):
         fir -- fir object
         sector -- name of the sector to work with
         """
+
         self.toolbar_height = 60  # Pseudopilot display toolbar height
         self._flights_tracks = {}
         self._tracks_flights = {}
@@ -108,7 +109,6 @@ class PpDisplay(RaDisplay):
                 self.print_tabular.insert(END,cs)
             self.print_tabular.adjust()
             self.dep_tabular.update(m['dep_list'])
-
             self.update()
 
 
@@ -365,6 +365,7 @@ class ventana_auxiliar:
         self.var_ver_desp_tab.set(1)
         self.var_ver_fichas_tab = IntVar()
         self.var_ver_fichas_tab.set(1)
+
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
             self.var_ver_localmap[map_name].set(0)
@@ -1175,8 +1176,12 @@ class DepTabular(RaTabular):
             if dep['state']==avion.READY:
                 self.list.itemconfig(i, background="black", foreground="yellow")
             i+=1
-        self.adjust(0,22,0,22)
+        
+#        self.adjust(0,22,0,22)
         if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
+            pass
+        if self.showed:
+            self.adjust()
             self.show()
                 
     def clicked(self, e=None):
