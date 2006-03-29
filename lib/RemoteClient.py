@@ -116,11 +116,11 @@ class RemoteClient:
             sector=m['sector']
             self.flights = m['flights']
             fir=FIR(fir_file)
+            exc_file = m['exercise_file']
+            window_name = exc_file+" ("+ str(sector)+")"
             if self.type==PSEUDOPILOT:
-                window_name = 'Testing. PSEUDO. '+ str(sector)+"."
                 d=self.display=PpDisplay(self.flights,window_name,'./img/crujisim.ico',fir,sector,mode='pp')
             elif self.type==ATC:
-                window_name = 'Testing. ATC. '+ str(sector)+"."
                 d=self.display=UCS(self.flights,window_name,'./img/crujisim.ico',fir,sector,mode='atc')
             d.sendMessage = self.protocol.sendMessage
             try:d.pos_number = m['pos_number']

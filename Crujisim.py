@@ -462,7 +462,8 @@ class Crujisim:
             if sector==sector_name:
                 sector_elegido=(sector,section)
                 break            
-        ejercicio_elegido = model.get(iter,3,0)
+        ejercicio_elegido = model.get(iter,3,0)  # (comment, exercise_file)
+        exc_file = model.get_value(iter, self.ex_ls_cols["file"])
         if "tpv" in sys.modules:
             sys.modules.pop('tpv')
 
@@ -483,7 +484,7 @@ class Crujisim:
             self.MainWindow.present()
             pass
             
-        gta = GTA(fir,sector,ejercicio,h_inicio, wind)
+        gta = GTA(fir,sector,ejercicio,h_inicio, wind, exc_file)
         gta.start().addCallback(exit)
         
         self.MainWindow.hide()

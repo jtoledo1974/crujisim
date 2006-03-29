@@ -42,7 +42,7 @@ from MathUtil import get_h_m_s
 from RemoteClient import PSEUDOPILOT, ATC
 
 class GTA:
-    def __init__(self, fir, sector, flights, start_time, wind):
+    def __init__(self, fir, sector, flights, start_time, wind, exc_file = ""):
         # TODO
         # This will be cleaner once we have rewritten avion.py and tpv.py
         # The GTA should do its own flight loading, rather than having
@@ -51,6 +51,7 @@ class GTA:
         self.sector = sector
         self.flights = flights
         self.wind = wind
+        self.exercise_file = exc_file
         
         avion.fir = fir  # Rather than passing globals
         
@@ -210,7 +211,8 @@ class GTA:
                 'fir_file':self.fir.file,
                 'sector':self.sector,
                 'flights':self.flights,
-                'pos_number': number}
+                'pos_number': number,
+                'exercise_file': self.exercise_file}
             p.sendMessage(m)
             
             # If this is the first connection the server receives
