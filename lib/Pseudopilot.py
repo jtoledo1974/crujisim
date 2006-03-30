@@ -251,10 +251,10 @@ class PpDisplay(RaDisplay):
         vt.rfl = f.rfl
         vt.cfl=f.cfl
         vt.pfl=f.pfl
-        if f.pp_pos!=None and f.pp_pos==self.pos_number:
-            vt.assumed = True
-        else:
-            vt.assumed = False
+        if f.pp_pos!=None and f.pp_pos==self.pos_number: vt.assumed = True
+        else: vt.assumed = False
+        if f.pp_pos != None: vt.flashing = False
+        else: vt.flashing = True
         
         [x0,y0]=self.do_scale(f.pos)
         vt.coords(x0,y0,f.t)

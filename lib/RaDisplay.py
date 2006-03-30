@@ -1281,10 +1281,11 @@ class VisTrack(object): # ensure a new style class
                 if self.timer_state: self.color.set(self.ASSUMED_COLOR)
                 else: self.color.set(self.NONASSUMED_COLOR)
                 if self.flashing: self.add_timer_callback(flash_timer)
-                else: self.color.set(self._oldcolor)
+                else:
+                    if self.assumed: self.color.set(self.ASSUMED_COLOR)
+                    else: self.color.set(self.NONASSUMED_COLOR)
                 self.redraw()
             if value:
-                self._oldcolor = self.color.get()
                 self.add_timer_callback(flash_timer)
             else: self.plot_only = False
         elif name=='intensity':

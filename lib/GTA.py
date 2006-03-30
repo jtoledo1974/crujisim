@@ -364,10 +364,14 @@ class GTA:
             logging.debug("Assume "+str(m))
             if p.client.type==ATC:
                 if m['assumed']: f.atc_pos = p.client.number
-                else: f.atc_post = None
+                else:
+                    if p.client.number == f.atc_pos: f.atc_pos = -1
+                    else: f.atc_pos = None
             else:
                 if m['assumed']: f.pp_pos = p.client.number
-                else: f.pp_pos = None
+                else:
+                    if p.client.number == f.pp_pos: f.pp_pos = -1
+                    else: f.pp_pos = None
         else:
             loging.critical("Unknown message type in message "+str(m))
             

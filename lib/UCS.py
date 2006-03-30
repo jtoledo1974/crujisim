@@ -259,10 +259,10 @@ class UCS(RaDisplay):
         vt.radio_cs = f.radio_callsign
         vt.rfl = f.rfl
         vt.pfl=f.pfl
-        if f.atc_pos!=None and f.atc_pos==self.pos_number:
-            vt.assumed = True
-        else:
-            vt.assumed = False
+        if f.atc_pos!=None and f.atc_pos==self.pos_number: vt.assumed = True
+        else: vt.assumed = False
+        if f.atc_pos != None: vt.flashing = False
+        else: vt.flashing = True
         
         [x0,y0]=self.do_scale(f.pos)
         vt.coords(x0,y0,f.t)
