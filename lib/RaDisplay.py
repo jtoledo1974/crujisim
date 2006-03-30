@@ -840,6 +840,10 @@ class VisTrack(object): # ensure a new style class
     allitems = [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']
     timer_id = None  # Whenever there are timer based callbacks pending, this is set
     timer_callbacks = []  # List of timer based callbacks and args
+    ON, OFF = True, False  
+    timer_state = ON  # Toggles when there are timers set between ON and OFF
+    ASSUMED_COLOR = 'green'
+    NONASSUMED_COLOR = 'gray'
     
     def __init__(self, canvas, message_handler, do_scale, undo_scale):
         """Construct a radar track inside the parent display.
@@ -929,6 +933,7 @@ class VisTrack(object): # ensure a new style class
         self._ldr_x = self.label_x
         self._ldr_y = self.label_y + 10
         self._lineid = None
+        object.__setattr__(self,'flashing',False)
         self.auto_separation=True
         self.last_rotation = 0  # Keeps the serial number of the last rotation event
                                 # so that auto rotation will try to move the last manually
@@ -1214,7 +1219,13 @@ class VisTrack(object): # ensure a new style class
             # callbacks if required
             VisTrack.timer_callbacks = []
             VisTrack.timer_id = None
+            VisTrack.timer_state = not VisTrack.timer_state
             
+            if self.timer_state == VisTrack.OFF:
+                # Force execution of the timer to make sure
+                # VisTrack.timer_state will end up in state ON 
+                self.add_timer_callback(lambda: True)
+                
             # Call callbacks            
             for f, kw in tc:
                 f(*kw)
@@ -1247,8 +1258,8 @@ class VisTrack(object): # ensure a new style class
             object.__setattr__(self,'x',x)
             object.__setattr__(self,'y',y)            
         elif name=='assumed' and self.visible:
-            if value: self.color.set('green')
-            else:  self.color.set('grey')
+            if value: self.color.set(self.ASSUMED_COLOR)
+            else:  self.color.set(self.NONASSUMED_COLOR)
             self.redraw()
         elif name=='mode':
             if value=='pp': self.label_format='pp'
@@ -1265,6 +1276,17 @@ class VisTrack(object): # ensure a new style class
                 self.plot_only=False
         elif name in ['plot_only','visible']:
             self.redraw()
+        elif name=='flashing':
+            def flash_timer():
+                if self.timer_state: self.color.set(self.ASSUMED_COLOR)
+                else: self.color.set(self.NONASSUMED_COLOR)
+                if self.flashing: self.add_timer_callback(flash_timer)
+                else: self.color.set(self._oldcolor)
+                self.redraw()
+            if value:
+                self._oldcolor = self.color.get()
+                self.add_timer_callback(flash_timer)
+            else: self.plot_only = False
         elif name=='intensity':
             for sc in self.color, self._l.vac.color, self._l.pac.color, self._l.wake.color:
                 sc.set_intensity(value)
@@ -1483,13 +1505,13 @@ class VisTrack(object): # ensure a new style class
             item=self[i]
             if i=='pac':
                 if vt.pac:
-                    if (time()-floor(time())>0.5): self.pac.color.set('red')
+                    if self.vt.timer_state: self.pac.color.set('red')
                     else: self.pac.color.set('')
                     self.vt.add_timer_callback(self.refresh, i)
                 else: self.pac.color.set('')
             if i=='vac':
                 if vt.vac:
-                    if (time()-floor(time())>0.5): self.vac.color.set('red')
+                    if self.vt.timer_state: self.vac.color.set('red')
                     else: self.vac.color.set('')
                     self.vt.add_timer_callback(self.refresh, i)
                 else: self.vac.color.set('')
