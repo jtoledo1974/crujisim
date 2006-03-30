@@ -1400,6 +1400,7 @@ class VisTrack(object): # ensure a new style class
             # Common bindings
             ra_tag_bind(self.c,self.cs.i,"<Button-1>",self.cs_b1)
             ra_tag_bind(self.c,self.cs.i,"<Button-2>",self.cs_b2)
+            ra_tag_bind(self.c,self.cs.i,"<Button-3>",self.cs_b3)
             ra_tag_bind(self.c,self.echo.i,"<Button-3>",self.echo_b3)
             ra_tag_bind(self.c,self.alt.i,"<Button-1>",self.change_altitude)
             # PP bindings
@@ -1537,6 +1538,13 @@ class VisTrack(object): # ensure a new style class
         def cs_b1(self,e):
             self.vt.assumed=not self.vt.assumed
             self.vt._message_handler(self.vt,'cs','<Button-1>',None,e)
+        def cs_b3(self,e):
+            self.vt._message_handler(self.vt,'cs','<Button-3>',None,e)
+            def ok():
+                self.vt.assumed = False
+                self.vt._message_handler(self.vt,'transfer',None,None,e)
+            RaDialog(self.c, label="Transferir", ok_callback=ok,
+                     position=(self.vt.x, self.vt.y))
         def gs_b2(self,e):
             self.vt.label_format='pp-mach'
             self.vt._message_handler(self.vt,'gs','<Button-2>',None,e)
@@ -2207,7 +2215,11 @@ class RaDisplay(object):
                     self.label_moved = False
         if item=='leader':
             if action=='<Button-1>' or action=='<Button-3>':
-                reactor.callInThread(self.separate_labels, vt)            
+                reactor.callInThread(self.separate_labels, vt)
+        if item=='transfer':
+            m={"message":"transfer", "cs": vt.cs}
+            self.sendMessage(m)
+
     
     def b1_cb(self,e=None):
         pass

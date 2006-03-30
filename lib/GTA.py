@@ -372,9 +372,12 @@ class GTA:
                 else:
                     if p.client.number == f.pp_pos: f.pp_pos = -1
                     else: f.pp_pos = None
+        elif m['message']=="transfer":
+            logging.debug("Transfer "+str(m))
+            if p.client.type==ATC: f.atc_pos = None
+            else: f.pp_pos = None
         else:
             loging.critical("Unknown message type in message "+str(m))
-            
         # If any an action has been taken on a flight, update this flight
         # on all of the pseudopilot positions
         if m.has_key("cs"):
