@@ -556,7 +556,7 @@ class RaClock(RaFrame):
             def_opt=kw
         RaFrame._build(self, master=master, windowed=windowed, **def_opt)
         self._time=Label(self.contents,
-                    font=('Helvetica','20','bold'),
+                    font=('Courier','20','bold'),
                     foreground='orange',
                     background='black')
         self._time.grid(padx=5,pady=2)
@@ -568,6 +568,9 @@ class RaClock(RaFrame):
             
 class RaTabular(RaFrame):
     """Generic frame containing tabular info"""
+        
+
+
     def __init__(self, master, **kw):
         def_opt={'position':(500,222),}
         def_opt.update(kw)
@@ -575,6 +578,7 @@ class RaTabular(RaFrame):
                         # the list
         # The frame constructor method will call _build
         self.elements = IntVar()
+        self.visible_rows = 0
 
         RaFrame.__init__(self, master=master, **def_opt)
         
@@ -599,12 +603,30 @@ class RaTabular(RaFrame):
                                         'borderwidth':0,
                                         'width':5,
                                         'activerelief':FLAT}
+        self._slist.hsb.configure(**self._scroll_bar_configuration)
+        self._slist.vsb.configure(**self._scroll_bar_configuration)
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
         self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
         self.adjust()
+        self.visible_rows=self.list['height']
+        
+        j=self.n_elementos.bind('<Button-1>',self.set_visible_rows,add="+")
+        self._bindings.append((self.n_elementos,j,'<Button-1>'),)
+        
 
         
+    def set_visible_rows(self,e=None):
+        """Show a dialog to allow the user to set the number of visible rows"""
+        def set_rows(e=None,entries=None):
+            pass
+        #self.entry_rows=Entry(self.windowtitle,bg=self.bd,
+        x1=self.container.winfo_x()+self.container.winfo_width()/2
+        y1=self.container.winfo_y()+self.container.winfo_height()/2
+        entries=[]
+        #entries.append({'label':'','width':5,'def_value':self.visible_rows})
+        #RaDialog(self.canvas,position=(x1,y1),label='FILAS',ok_callback=set_rows,entries=entries)
+
     def insert(self, index, *elements):
         """Insert a list item (use text='text to show')"""
         self.list.insert(index, *elements)
@@ -612,6 +634,11 @@ class RaTabular(RaFrame):
         if index==END:
             index=len(self._items)
         self._items.insert(index, elements)
+        self.elements.set(self.list.size())
+        
+    def delete(self,index):
+        """Delete a list item"""
+        self.list.delete(index)
         self.elements.set(self.list.size())
 
         

@@ -78,7 +78,7 @@ class PpDisplay(RaDisplay):
         self.print_tabular.adjust(0,10,0,10)
         # self.print_tabular.hide()
         self.dep_tabular = DepTabular(self, self.c)
-        self.dep_tabular.adjust(0,22,0,22)
+        self.dep_tabular.adjust(0,25,0,30)
         # self.dep_tabular.hide()
         
         self.redraw()
@@ -1168,7 +1168,7 @@ class DepTabular(RaTabular):
                 self.list.itemconfig(i, background="black", foreground="yellow")
             i+=1
         
-#        self.adjust(0,22,0,22)
+
         if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
             pass
         #if self.showed:
@@ -1186,6 +1186,8 @@ class DepTabular(RaTabular):
             return  # Not really clicked within the item
         dep=self.deps[index]
         if dep['state']==avion.READY:
+            x1=self.container.winfo_x()+self.container.winfo_width()/2
+            y1=self.container.winfo_y()+self.container.winfo_height()/2
             self.depart_dialog(dep, index)
 
     def depart_dialog(self, dep, index):
@@ -1211,11 +1213,15 @@ class DepTabular(RaTabular):
             self.master.sendMessage({"message":"depart",
                                 "cs":dep['cs'],"sid":sid, "cfl":cfl})
             del self.deps[index]
-            self.list.delete(index)
+            self.delete(index)      #No uses the method privided by the class RaTabular
+                                    #So, the elements are updated properly
+
             
         # Build the GUI Dialog
         entries=[]
         entries.append({'label':'SID:','width':5,'def_value':dep['sid']})
         entries.append({'label':'CFL:','width':3,'def_value':int(dep['cfl'])})
+        x1=self.container.winfo_x()+self.container.winfo_width()/2
+        y1=self.container.winfo_y()+self.container.winfo_height()/2
         RaDialog(self.canvas,label=dep['cs']+': Despegar',
-                    ok_callback=depart,entries=entries)    
+                    ok_callback=depart,entries=entries,position=(x1,y1))   
