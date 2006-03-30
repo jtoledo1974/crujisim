@@ -1021,8 +1021,18 @@ class VisTrack(object): # ensure a new style class
         self._c.lift(str(self)+'sv')
         self._c.lift(str(self)+'leader')
         self._c.lift(str(self)+'label')
-        self._c.lift(str(self)+'plot')        
-            
+        self._c.lift(str(self)+'plot')
+    
+    def refresh(self):
+        """Reconfigure VisTrack items with current options
+        
+        Redrawing is expensive, particularly the label text
+        because of everything related to fonts.
+        Refreshing updates things like color"""
+        # TODO Currently we are only refreshing label items
+        for i_name in self.allitems:
+            self._l.refresh(i_name)
+
     def delete_p(self):
         """Delete the visual plot and unbind bindings"""
         if self._pitem:  # Delete old plot
@@ -1284,7 +1294,7 @@ class VisTrack(object): # ensure a new style class
                 else:
                     if self.assumed: self.color.set(self.ASSUMED_COLOR)
                     else: self.color.set(self.NONASSUMED_COLOR)
-                self.redraw()
+                self.refresh()
             if value:
                 self.add_timer_callback(flash_timer)
             else: self.plot_only = False
