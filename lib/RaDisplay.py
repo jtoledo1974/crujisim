@@ -109,8 +109,6 @@ class RaFrame:
         self.showed = True
 
 
-
-        
         # Build the frame
         self._build(master, windowed=False, **kw)
         # Place it
@@ -294,13 +292,11 @@ class RaFrame:
         else:
             self._master_ident = self._master.create_window((self._x, self._y),
                 window=self.container)
-        
         self._place()
         self.check_limits()
         self.showed=True
             
         
-            
     def close(self,e=None):
         """Close the RaFrame and completely delete it"""
         logging.debug("Raframe.close")
@@ -338,6 +334,12 @@ class RaFrame:
     def conmuta(self, e=None):
         if self.showed: self.hide()
         else: self.show()
+        
+    def info_w_h(self,e=None):
+        """Returns width and heigth of the container in pixels"""
+        x1 = self.container.winfo_width()
+        y1 = self.container.winfo_height()
+        return (x1,y1)
 
         
         
@@ -557,8 +559,8 @@ class RaClock(RaFrame):
         RaFrame._build(self, master=master, windowed=windowed, **def_opt)
         self._time=Label(self.contents,
                     font=('Courier','20','bold'),
-                    foreground='orange',
-                    background='black')
+                    foreground="#%04x%04x%04x" % (63736,46774,7453),    #Very yellowed orange color
+                    background='black')                                 
         self._time.grid(padx=5,pady=2)
         
     def configure(self,**options):
@@ -578,8 +580,8 @@ class RaTabular(RaFrame):
                         # the list
         # The frame constructor method will call _build
         self.elements = IntVar()
-        self.visible_rows = 0
-
+        self.visible_rows = 8
+        self.entry=None
         RaFrame.__init__(self, master=master, **def_opt)
         
     def _build(self, master=None, windowed=False, **kw):
@@ -608,7 +610,7 @@ class RaTabular(RaFrame):
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
         self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
-        self.adjust()
+        self.adjust(max_height=self.visible_rows)
         self.visible_rows=self.list['height']
         
         j=self.n_elementos.bind('<Button-1>',self.set_visible_rows,add="+")
@@ -617,13 +619,92 @@ class RaTabular(RaFrame):
 
         
     def set_visible_rows(self,e=None):
+        frame_colors={'background':self.bd,
+                            'highlightbackground':self.bd,
+                            'highlightcolor':self.bd}
+        label_colors={'background':self.bd,
+                            'highlightbackground':self.bd,
+                            'highlightcolor':self.bd,
+                            'foreground':self.fg,
+                            'activebackground':self.bd,
+                            'activeforeground':self.bd,
+                            'disabledforeground':''}
+        button_colors={'background':self.bd,
+                            'highlightbackground':self.bd,
+                            'highlightcolor':self.bd,
+                            'foreground':self.fg,
+                            'activebackground':self.bd,
+                            'activeforeground':self.fg,
+                            'disabledforeground':''}
+        entry_colors={'background':self.bd,
+                            'highlightbackground':self.bd,
+                            'highlightcolor':self.bd,
+                            'foreground':self.fg,
+                            'selectbackground':self.bd,
+                            'selectforeground':self.fg}
         """Show a dialog to allow the user to set the number of visible rows"""
+
         def set_rows(e=None,entries=None):
-            pass
+            self.visible_rows=self.entry.value
+            self.adjust(max_height=self.visible_rows)
+            print 'set_rows: '+ str(self.entry.value)
+            
+        
+        if self.entry==None:
+            self.entry=ComboBox(self.windowtitle,editable=True)
+            self.entry.configure(bg = self.bd,
+                                 relief=GROOVE,borderwidth = 0,
+                                 height=5,
+                                 width=5,
+                                 command=set_rows)
+            self.e_entry=self.entry.subwidget_list['entry']
+            self.e_entry.configure(bg = self.bd,
+                                   foreground=self.fg,
+                                   font=("Arial","7","bold"),
+                                   relief=FLAT,width=2,
+                                   bd=0)
+            self.e_list=self.entry.subwidget_list['slistbox']
+            self.e_list.configure(bg = self.bd,
+                                   relief=FLAT,width=2)
+            scroll_bar_configuration={'activebackground':self.bd,
+                                'borderwidth':0,
+                                'width':6,
+                                'activerelief':FLAT,
+                                'bg':self.bd}
+            self.e_list.vsb.configure(**self._scroll_bar_configuration)
+            self.e_arrow=self.entry.subwidget_list['arrow']
+            self.e_arrow.configure(bg=self.bd,bd=0,fg=self.fg,height=10)
+            self.e_frame=self.entry.children['frame']
+            self.e_frame.configure(bg=self.bd,bd=0)
+            self.e_shell=self.entry.children['shell']
+            self.e_shell.configure(bg=self.bd,bd=0)
+            self.entry.value=self.visible_rows
+            print str((self.entry.value,self.visible_rows))
+            
+            for i in range(1,21):
+                self.entry.add_history(str(i))
+
+            
+            self.entry.entry.master['bg']=self.bd
+            self.entry.label.configure(**label_colors)
+            self.entry.entry.configure(**entry_colors)
+            self.entry.slistbox.configure(**frame_colors)
+            self.entry.arrow.configure(**button_colors)
+            self.entry.label.configure(font=(("Arial","7",)))
+            self.entry.label.configure(text="N.LIN")
+            
+            self.entry.pack(side=RIGHT)
+
+        else:
+            set_rows()
+            self.entry.destroy()
+            self.entry=None
+            
+        
         #self.entry_rows=Entry(self.windowtitle,bg=self.bd,
-        x1=self.container.winfo_x()+self.container.winfo_width()/2
-        y1=self.container.winfo_y()+self.container.winfo_height()/2
-        entries=[]
+        #x1=self.container.winfo_x()+self.container.winfo_width()/2
+        #y1=self.container.winfo_y()+self.container.winfo_height()/2
+        #entries=[]
         #entries.append({'label':'','width':5,'def_value':self.visible_rows})
         #RaDialog(self.canvas,position=(x1,y1),label='FILAS',ok_callback=set_rows,entries=entries)
 
@@ -648,8 +729,8 @@ class RaTabular(RaFrame):
         max_height = 0 means unlimited"""
         self.elements.set(self.list.size())
         items = self.list.get(0,END)
-        mw = max((min([len(i) for i in items]+[0]),min_width))
-        mh = max((self.list.size(), min_height))
+        mw = min((min([len(i) for i in items]+[0]),min_width))
+        mh = min((self.list.size(), min_height))
         if mw>max_width and max_width!=0: mw = max_width
         if mh>max_height and max_height!=0: mh=max_height
         self.list.configure(height=mh, width=mw)
@@ -787,11 +868,11 @@ class SmartColor(object):
 class RaBrightness(RaFrame):
     """Brightness control frame"""
     def __init__(self, master, callback, **kw):
-        def_opt={'position':(512,575)}
-        def_opt.update(kw)
+        #def_opt={'position':(512,575)}
+        #def_opt.update(kw)
         self.callback = callback
         # The frame constructor method will call _build
-        RaFrame.__init__(self, master=master, closebuttonhides=True, **def_opt)
+        RaFrame.__init__(self, master=master, closebuttonhides=True, **kw)
        
         
     def _build(self, master=None, windowed=False, **kw):
@@ -1807,7 +1888,7 @@ class LAD(object):
     minimum crossing time, and minimum crossing distance"""
     
     # Color is a class attribute
-    lad_color = SmartColor('orange')
+    lad_color = SmartColor("#%04x%04x%04x" % (250*257,158*257,20*257))  #Lighter orange than the 'orange'
     super_lad_color = SmartColor('red')
     
     def __init__(self,radisplay,e):
@@ -2128,8 +2209,9 @@ class RaDisplay(object):
         self.get_scale() # Calculate initial x0, y0 and scale
         
         self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
-        self.rabrightness = RaBrightness(c, self.set_element_intensity)
+        self.rabrightness = RaBrightness(c, self.set_element_intensity,position=(self.width*0.4,self.height*0.8))
         self.rabrightness.hide()
+
 
     def draw_polyline(self,object):
         """draw a series of lines from point to point defined in object[2:]. object[2:] contains

@@ -70,15 +70,16 @@ class PpDisplay(RaDisplay):
         self.toolbar.redraw()
         
         self.t=0
-        self.clock=RaClock(self.c)
+        self.clock=RaClock(self.c,position=(0.01*self.width,0.01*self.height))
         self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
+
         
-        self.print_tabular = RaTabular(self.c, position=(10,10), anchor=NW,
+        self.print_tabular = RaTabular(self.c, position=(0.305*self.width,0.01*self.height), anchor=NW,
                                        label="FICHAS",closebuttonhides=True)
         self.print_tabular.adjust(0,10,0,10)
         # self.print_tabular.hide()
-        self.dep_tabular = DepTabular(self, self.c)
-        self.dep_tabular.adjust(0,25,0,30)
+        self.dep_tabular = DepTabular(self, self.c,position=(0.14*self.width,0.01*self.height))
+        self.dep_tabular.adjust(0,25,0,35)
         # self.dep_tabular.hide()
         
         self.redraw()
@@ -1016,7 +1017,7 @@ class ventana_auxiliar:
         self.but_auto_separation = Checkbutton(ventana, text = 'SEP', variable = self.auto_sep, command=lambda: master.toggle_auto_separation())
         self.but_auto_separation.pack(side=LEFT,expand=1,fill=X)
 
-        self.but_bri = Button(ventana, text = 'BRI', command = master.rabrightness.show)
+        self.but_bri = Button(ventana, text = 'BRI', command = master.rabrightness.conmuta)
         self.but_bri.pack(side=LEFT,expand=1,fill=X)
 
         self.but_ver_maps = Button(ventana, text = 'MAPAS')
@@ -1143,11 +1144,10 @@ class DepTabular(RaTabular):
     # On second thought the DepTabular should feed from the master's flights
     # list, as the master should have all the information about the state
     # of the departing aircraft
-    def __init__(self, radisplay, canvas=None, flights=None):
+    def __init__(self, radisplay, canvas=None, flights=None,**kw):
         """Create a tabular showing aircraft reports and requests"""
-        RaTabular.__init__(self, canvas, label='DESPEGUES',
-                           position=(10,300), closebuttonhides=True,
-                           anchor = NW)
+        RaTabular.__init__(self, canvas, label='DESPEGUES', closebuttonhides=True,
+                           anchor = NW,**kw)
         self.canvas = canvas
         self.master = radisplay
         self.list.configure(font="Courier 8", selectmode=SINGLE)
