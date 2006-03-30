@@ -838,7 +838,8 @@ class VisTrack(object): # ensure a new style class
     or a controller display"""
     
     allitems = [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']
-    
+    timer_id = None  # Whenever there are timer based callbacks pending, this is set
+    timer_callbacks = []  # List of timer based callbacks and args
     
     def __init__(self, canvas, message_handler, do_scale, undo_scale):
         """Construct a radar track inside the parent display.
@@ -1202,6 +1203,25 @@ class VisTrack(object): # ensure a new style class
         
         (self._ldr_x, self._ldr_y)=(newx,newy)
         
+    def add_timer_callback(self, f, *kw):
+        """Callbacks passed as arguments will be called within the next 500ms"""
+        VisTrack.timer_callbacks.append((f, kw))
+        
+        def timer():
+            """Calls each of the callbacks that have been set for this event"""
+            tc = self.timer_callbacks
+            # Reset the timer so that the callbacks may set up new timer
+            # callbacks if required
+            VisTrack.timer_callbacks = []
+            VisTrack.timer_id = None
+            
+            # Call callbacks            
+            for f, kw in tc:
+                f(*kw)
+        
+        if not VisTrack.timer_id:
+            VisTrack.timer_id = self._c.after(500,timer)
+        
     def __setattr__(self,name,value):
         """Capture attribute setting so as to trigger functionality"""
         # Save the old value
@@ -1251,6 +1271,7 @@ class VisTrack(object): # ensure a new style class
             self.redraw()
             
     def destroy(self):
+        if VisTrack.timer_id: self._c.after_cancel(VisTrack.timer_id)
         self._l.destroy()
         del(self._message_handler)
         del(self.do_scale)
@@ -1464,13 +1485,13 @@ class VisTrack(object): # ensure a new style class
                 if vt.pac:
                     if (time()-floor(time())>0.5): self.pac.color.set('red')
                     else: self.pac.color.set('')
-                    self.vt._c.after(500,lambda: self.refresh(i))
+                    self.vt.add_timer_callback(self.refresh, i)
                 else: self.pac.color.set('')
             if i=='vac':
                 if vt.vac:
                     if (time()-floor(time())>0.5): self.vac.color.set('red')
                     else: self.vac.color.set('')
-                    self.vt._c.after(500,lambda: self.refresh(i))
+                    self.vt.add_timer_callback(self.refresh, i)
                 else: self.vac.color.set('')
                 
                 # Refresh the item
