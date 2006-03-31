@@ -1110,6 +1110,8 @@ class VisTrack(object): # ensure a new style class
         Redrawing is expensive, particularly the label text
         because of everything related to fonts.
         Refreshing updates things like color"""
+        if not self.visible:
+            return
         # TODO Currently we are only refreshing label items
         for i_name in self.allitems:
             self._l.refresh(i_name)
