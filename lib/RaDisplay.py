@@ -580,8 +580,11 @@ class RaTabular(RaFrame):
                         # the list
         # The frame constructor method will call _build
         self.elements = IntVar()
-        self.visible_rows = 8
         self.entry=None
+        self.min_width = 0
+        self.max_width = 0
+        self.min_height = 0
+        self.max_height = 0
         RaFrame.__init__(self, master=master, **def_opt)
         
     def _build(self, master=None, windowed=False, **kw):
@@ -603,32 +606,36 @@ class RaTabular(RaFrame):
         #self.list.configure(height=6, width=30)
         self._scroll_bar_configuration={'activebackground':self.bd,
                                         'borderwidth':0,
-                                        'width':5,
-                                        'activerelief':FLAT}
+                                        'width':10,
+                                        'activerelief':FLAT,
+                                        'troughcolor':self.bd,
+                                        'elementborderwidth':0,
+                                        'background':self.bg}
         self._slist.hsb.configure(**self._scroll_bar_configuration)
         self._slist.vsb.configure(**self._scroll_bar_configuration)
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
         self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
-        self.adjust(max_height=self.visible_rows)
-        self.visible_rows=self.list['height']
-        
         j=self.n_elementos.bind('<Button-1>',self.set_visible_rows,add="+")
         self._bindings.append((self.n_elementos,j,'<Button-1>'),)
+        self.adjust()
         
 
         
     def set_visible_rows(self,e=None):
+        """Show a dialog to allow the user to set the number of visible rows"""
+        n_rows=StringVar()
         frame_colors={'background':self.bd,
                             'highlightbackground':self.bd,
                             'highlightcolor':self.bd}
         label_colors={'background':self.bd,
                             'highlightbackground':self.bd,
                             'highlightcolor':self.bd,
-                            'foreground':self.fg,
+                            'foreground':'yellow',
                             'activebackground':self.bd,
                             'activeforeground':self.bd,
-                            'disabledforeground':''}
+                            'disabledforeground':'',
+                            'anchor':SE}
         button_colors={'background':self.bd,
                             'highlightbackground':self.bd,
                             'highlightcolor':self.bd,
@@ -639,15 +646,20 @@ class RaTabular(RaFrame):
         entry_colors={'background':self.bd,
                             'highlightbackground':self.bd,
                             'highlightcolor':self.bd,
-                            'foreground':self.fg,
+                            'foreground':'yellow',
                             'selectbackground':self.bd,
-                            'selectforeground':self.fg}
-        """Show a dialog to allow the user to set the number of visible rows"""
+                            'selectforeground':'yellow'}
+
 
         def set_rows(e=None,entries=None):
-            self.visible_rows=self.entry.value
-            self.adjust(max_height=self.visible_rows)
-            print 'set_rows: '+ str(self.entry.value)
+            try:
+                self.max_height=int(n_rows.get())
+                self.adjust(max_height=self.max_height)
+            except:
+                pass
+            #self.visible_rows=int(n_rows.get())
+            
+
             
         
         if self.entry==None:
@@ -655,33 +667,35 @@ class RaTabular(RaFrame):
             self.entry.configure(bg = self.bd,
                                  relief=GROOVE,borderwidth = 0,
                                  height=5,
-                                 width=5,
+                                 width=6,
                                  command=set_rows)
-            self.e_entry=self.entry.subwidget_list['entry']
-            self.e_entry.configure(bg = self.bd,
+            e_entry=self.entry.subwidget_list['entry']
+            e_entry.configure(bg = self.bd,
                                    foreground=self.fg,
                                    font=("Arial","7","bold"),
                                    relief=FLAT,width=2,
-                                   bd=0)
-            self.e_list=self.entry.subwidget_list['slistbox']
-            self.e_list.configure(bg = self.bd,
-                                   relief=FLAT,width=2)
+                                   bd=0,
+                                   textvariable=n_rows,
+                                   justify = RIGHT)
+            e_list=self.entry.subwidget_list['slistbox']
+            e_list.configure(bg = self.bd,
+                                   relief=FLAT,width=3)
             scroll_bar_configuration={'activebackground':self.bd,
                                 'borderwidth':0,
                                 'width':6,
                                 'activerelief':FLAT,
                                 'bg':self.bd}
-            self.e_list.vsb.configure(**self._scroll_bar_configuration)
-            self.e_arrow=self.entry.subwidget_list['arrow']
-            self.e_arrow.configure(bg=self.bd,bd=0,fg=self.fg,height=10)
-            self.e_frame=self.entry.children['frame']
-            self.e_frame.configure(bg=self.bd,bd=0)
-            self.e_shell=self.entry.children['shell']
-            self.e_shell.configure(bg=self.bd,bd=0)
-            self.entry.value=self.visible_rows
-            print str((self.entry.value,self.visible_rows))
+            e_list.vsb.configure(**self._scroll_bar_configuration)
+            e_arrow=self.entry.subwidget_list['arrow']
+            e_arrow.configure(bg=self.bd,bd=0,fg=self.fg,height=10)
+            e_frame=self.entry.children['frame']
+            e_frame.configure(bg=self.bd,bd=0)
+            e_shell=self.entry.children['shell']
+            e_shell.configure(bg=self.bd,bd=0)
+            n_rows.set(str(self.max_height))
+
             
-            for i in range(1,21):
+            for i in range(0,21):
                 self.entry.add_history(str(i))
 
             
@@ -691,12 +705,10 @@ class RaTabular(RaFrame):
             self.entry.slistbox.configure(**frame_colors)
             self.entry.arrow.configure(**button_colors)
             self.entry.label.configure(font=(("Arial","7",)))
-            self.entry.label.configure(text="N.LIN")
-            
+            self.entry.label.configure(text="MAX:")
             self.entry.pack(side=RIGHT)
 
         else:
-            set_rows()
             self.entry.destroy()
             self.entry=None
             
@@ -723,17 +735,30 @@ class RaTabular(RaFrame):
         self.elements.set(self.list.size())
 
         
-    def adjust(self,min_height=0, min_width=0, max_height=0, max_width=10):
+    def adjust(self,min_height=-1, min_width=-1, max_height=-1, max_width=-1):
         """Reduce the size of the list to the minimum that fits
         or whatever is given as parameters
         max_height = 0 means unlimited"""
+        if min_height == -1:min_height = self.min_height
+        else: self.min_height = min_height
+        if min_width == -1:min_width=self.min_width
+        else: self.min_width = min_width
+        if max_height == -1:max_height=self.max_height
+        else: self.max_height = max_height
+        if max_width == -1: max_width = self.max_width
+        else: self.max_width = max_width
+
+            
         self.elements.set(self.list.size())
         items = self.list.get(0,END)
-        mw = min((min([len(i) for i in items]+[0]),min_width))
-        mh = min((self.list.size(), min_height))
-        if mw>max_width and max_width!=0: mw = max_width
-        if mh>max_height and max_height!=0: mh=max_height
+        
+        mw = max((min([len(i) for i in items]+[0]),self.min_width))
+        mh = max((self.list.size(), self.min_height))
+        if mw>self.max_width and self.max_width != 0: mw = self.max_width
+        if mh>self.max_height and self.max_height != 0: mh= self.max_height
         self.list.configure(height=mh, width=mw)
+
+        
 
         
 

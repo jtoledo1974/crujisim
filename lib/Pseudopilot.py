@@ -70,16 +70,20 @@ class PpDisplay(RaDisplay):
         self.toolbar.redraw()
         
         self.t=0
-        self.clock=RaClock(self.c,position=(0.01*self.width,0.01*self.height))
+        x1=0
+        y1=0
+        delta=30
+        self.clock=RaClock(self.c,position=[x1,y1])
         self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
-
-        
-        self.print_tabular = RaTabular(self.c, position=(0.305*self.width,0.01*self.height), anchor=NW,
-                                       label="FICHAS",closebuttonhides=True)
+        x1=x1+delta
+        y1=y1+delta
+        self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
         self.print_tabular.adjust(0,10,0,10)
+        x1=x1+delta
+        y1=y1+delta
         # self.print_tabular.hide()
-        self.dep_tabular = DepTabular(self, self.c,position=(0.14*self.width,0.01*self.height))
-        self.dep_tabular.adjust(0,25,0,35)
+        self.dep_tabular = DepTabular(self, self.c,position=[x1,y1])
+        self.dep_tabular.adjust(0,30,0,30)
         # self.dep_tabular.hide()
         
         self.redraw()
