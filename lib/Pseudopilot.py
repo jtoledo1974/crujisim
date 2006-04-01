@@ -331,7 +331,6 @@ class PpDisplay(RaDisplay):
         self.clock.close()
         # Avoid memory leaks due to circular references preventing
         # the garbage collector from discarding this object
-        del (self.clock)
         del(self.toolbar.master)
         del(self.dep_tabular.master)
         RaDisplay.exit(self)

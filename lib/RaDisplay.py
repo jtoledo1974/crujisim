@@ -950,7 +950,7 @@ class RaBrightness(RaFrame):
             f.pack(side=LEFT)
             w.configure(**self.scale_colors)
             w.configure(showvalue=1, sliderlength=20, from_=50, to=-25, resolution=1, variable = v)
-
+        del(self.callback)
     
 class VisTrack(object): # ensure a new style class
     """Visual representation of a radar track on either a pseudopilot display
