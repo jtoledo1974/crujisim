@@ -592,6 +592,8 @@ class RaTabular(RaFrame):
         RaFrame._build(self, master=master, windowed=windowed, **kw)
         self.n_elementos=Label(self.windowtitle,bg = self.bd,foreground=self.fg,font=("Arial","6","bold"),textvariable=self.elements,relief=GROOVE,borderwidth = 2)
         self.n_elementos.pack(side=RIGHT,padx=0,ipadx=4)
+        self.legend=Label(self.contents,font="Courier 8",bg=self.bg,fg=self.fg,height = 0)
+        self.legend.pack(padx=7,side=TOP,anchor=NW)
         self._slist=Tix.ScrolledListBox(self.contents,relief = FLAT,borderwidth= 0,highlightthickness =0)
         self._list_colors={'background':self.bg,
                             'highlightbackground':self.bg,
@@ -615,6 +617,7 @@ class RaTabular(RaFrame):
         self._slist.vsb.configure(**self._scroll_bar_configuration)
         for i, elements in enumerate(self._items):
             self.list.insert(i, *elements)
+
         self._slist.pack(fill=BOTH,expand=1,padx=5,pady=5)
         j=self.n_elementos.bind('<Button-1>',self.set_visible_rows,add="+")
         self._bindings.append((self.n_elementos,j,'<Button-1>'),)
@@ -751,11 +754,21 @@ class RaTabular(RaFrame):
             
         self.elements.set(self.list.size())
         items = self.list.get(0,END)
+        max_item_size = max([len(i) for i in items]+[0])
+        if self.min_width == 0: mw = max_item_size
+        else: mw = max(self.min_width,max_item_size)
+        if self.min_height == 0: mh = self.list.size()
+        else: mh = max(self.min_height,len(i))
         
-        mw = max((min([len(i) for i in items]+[0]),self.min_width))
-        mh = max((self.list.size(), self.min_height))
-        if mw>self.max_width and self.max_width != 0: mw = self.max_width
-        if mh>self.max_height and self.max_height != 0: mh= self.max_height
+        #mw = max((min([len(i) for i in items]+[0]),self.min_width))
+        #mh = max((self.list.size(), self.min_height))
+        if self.max_width != 0:
+            if mw > self.max_width: mw = self.max_width
+            
+        if self.max_height != 0:
+            if mh > self.max_height: mh = self.max_height 
+        #if mw>self.max_width and self.max_width != 0: mw = self.max_width
+        #if mh>self.max_height and self.max_height != 0: mh= self.max_height
         self.list.configure(height=mh, width=mw)
 
         

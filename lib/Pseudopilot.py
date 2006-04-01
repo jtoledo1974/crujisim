@@ -78,12 +78,13 @@ class PpDisplay(RaDisplay):
         x1=x1+delta
         y1=y1+delta
         self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
+        self.print_tabular.legend['text']='INDICATIV'
         self.print_tabular.adjust(0,10,0,10)
         x1=x1+delta
         y1=y1+delta
         # self.print_tabular.hide()
         self.dep_tabular = DepTabular(self, self.c,position=[x1,y1])
-        self.dep_tabular.adjust(0,30,0,30)
+        self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
         self.redraw()
@@ -1155,8 +1156,10 @@ class DepTabular(RaTabular):
         self.canvas = canvas
         self.master = radisplay
         self.list.configure(font="Courier 8", selectmode=SINGLE)
+        self.legend['text']='INDICATIV'+' '+'ORIG'+' '+'HDEP '+' '+'TIPO '+' '+'SID'
         ra_bind(radisplay, self.list, "<Button-1>", self.clicked)
         self.deps=[]
+ 
 
     def update(self, dep_list):
         """Update the tabular using the given departure list"""
@@ -1166,10 +1169,10 @@ class DepTabular(RaTabular):
         for dep in dep_list:
             self.deps.append(dep)
             eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
-            t = dep['ad']+' '+dep['cs'].ljust(7)+' '+eobt[0:5]+' '+dep['sid']
+            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
             self.insert(i, t)
             if dep['state']==avion.READY:
-                self.list.itemconfig(i, background="black", foreground="yellow")
+                self.list.itemconfig(i, background="green", foreground="black")
             i+=1
         
 
@@ -1180,6 +1183,7 @@ class DepTabular(RaTabular):
         #    self.container.update_idletasks()
         #    self.adjust()
         #    self.show()
+        if self.showed: self.adjust()
                 
     def clicked(self, e=None):
         lb = self.list
