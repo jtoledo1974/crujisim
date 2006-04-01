@@ -422,10 +422,15 @@ class Client:
 
     def exit(self):
         del(self.protocol)
+        del(self.gta)
         if self.type == ATC:
             self.gta.controllers.remove(self)
         else:
             self.gta.pseudopilots.remove(self)
+
+    def __del__(self):
+        logging.debug("Client.__del__")
+
 
 class GTA_Protocol(NetstringReceiver):
     
@@ -456,6 +461,7 @@ class GTA_Protocol(NetstringReceiver):
         except: logging.debug ("Protocol "+str(id(self))+" already removed")
         try: self.client.exit()
         except: logging.debug("Client already removed")
+        del(self.client)
         if self.factory.master_protocol==self:
             logging.debug("The master connection has been lost. Cleaning up")
             reactor.callWhenRunning(self.factory.gta.exit)
@@ -471,6 +477,10 @@ class GTA_Protocol(NetstringReceiver):
         self.command_no = m["command_no"]
         self.factory.gta.process_message(m["data"], self)
 
+    # TODO Protocols don't seem to be garbage collected
+    def __del__(self):
+        logging.debug("GTA_Protocol.__del__")
+
     
 class GTA_Protocol_Factory(Factory):
 
@@ -482,3 +492,7 @@ class GTA_Protocol_Factory(Factory):
         self.fir_file = fir_file
         self.sector = sector
         self.flights = flights
+        
+    # TODO The Protocol Factory doesn't seem to be garbage collected
+    def __del__(self):
+        logging.debug("GTA_Protocol_Factory.__del__")
