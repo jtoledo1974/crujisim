@@ -1962,6 +1962,24 @@ class LAD(object):
             self.visible = True
             self.track = 0.01
             self.gs=0.01
+
+    def get_anchor(self,angulo=0.0):
+        if (angulo >= 0.0 and angulo < 90.0) or (angulo == 360.0): return {'anchor':NW}
+        if angulo >= 90.0 and angulo < 180.0: return {'anchor':NE}
+        if angulo >= 180.0 and angulo < 270.0: return {'anchor':NW}
+        if angulo >= 270.0 and angulo < 360.0: return {'anchor':NE}
+        
+    def get_lad_label_position(self,angulo,lad_center_x,lad_center_y,distance):
+        if angulo == 360.0: angulo = 0.0
+        if (angulo >= 0.0 and angulo < 90.0) or (angulo >= 180.0 and angulo < 270.0):
+            x1 = lad_center_x+distance/sqrt(2.0)
+            y1 = lad_center_y+distance/sqrt(2.0)
+        
+        if (angulo >= 90.0 and angulo < 180.0) or (angulo >= 270.0 and angulo < 360.0):
+            x1 = lad_center_x-distance/sqrt(2.0)
+            y1 = lad_center_y+distance/sqrt(2.0)
+            
+        return (x1,y1)
             
     def get_acft_or_point(self,x,y):
         # Returns the closest acft to (x,y) or otherwise a point
@@ -2016,10 +2034,13 @@ class LAD(object):
         label_font=self.radisplay.label_font
         lad_rect_width = self.radisplay.label_font.measure(lad_text1)
         lad_line_height = label_font.metrics('ascent')
-        canvas.create_text(lad_center_x, lad_center_y - lad_lines * lad_line_height, text=lad_text1, fill=self.lad_color.get(), tags="lad_defined")
-        canvas.create_text(lad_center_x, lad_center_y - (lad_lines-1) * lad_line_height , text=lad_text2, fill=self.lad_color.get(), tags="lad_defined")
-        canvas.create_text(lad_center_x, lad_center_y - (lad_lines-2) * lad_line_height, text=lad_text3, fill=self.lad_color.get(), tags="lad_defined")
-        
+        anchor_= self.get_anchor(angulo)
+        lad_text = lad_text1+"\n"+lad_text2
+        if lad_text3 <> "":lad_text += "\n"+lad_text3
+        (lad_x,lad_y)=self.get_lad_label_position(angulo,lad_center_x,lad_center_y,5)
+        canvas.create_text(lad_x, lad_y, text=lad_text, fill=self.lad_color.get(), tags="lad_defined",justify=LEFT,**anchor_)
+    
+
     def end_def_lad(self,e=None):
         rd = self.radisplay
         c = rd.c
@@ -2041,9 +2062,9 @@ class LAD(object):
         
         if self.text_id1!=None:
             ra_cleartagbinds(self.text_id1)
-        if self.text_id2!=None: ra_cleartagbinds(self.text_id2)
-        if self.text_id3!=None: ra_cleartagbinds(self.text_id3)
-        if self.text_id4!=None: ra_cleartagbinds(self.text_id4)
+        #if self.text_id2!=None: ra_cleartagbinds(self.text_id2)
+        #if self.text_id3!=None: ra_cleartagbinds(self.text_id3)
+        #if self.text_id4!=None: ra_cleartagbinds(self.text_id4)
         canvas.delete(s+'lad')
         self.radisplay.lads.remove(self)
         if e!=None:
@@ -2069,7 +2090,8 @@ class LAD(object):
         lad_lines = 2 # 2 lines of text if planes won't cross; 4 if they will cross
         text1 = "A: %03d" % current_azimuth
         current_distance = sqrt(lad_xdif*lad_xdif + lad_ydif*lad_ydif)
-        text2 = "D: %.1f" % current_distance
+        text2 = "D: %05.1f" % current_distance
+        text_lad = text1+"\n"+text2
         (x0, y0) = do_scale((xinitA, yinitA))
         (x1, y1) = do_scale((xinitB, yinitB))
         if self.superlad == True:
@@ -2086,25 +2108,30 @@ class LAD(object):
                 # Flights will cross
             min_dist = self.compute_mindist(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
             lad_lines = 4 # 4 lines of text in LAD square
-            text3 = "T: %d" % min_dist_time
-            text4 = "C: %.1f" % min_dist
+
+            text3 = "T: %03d" % min_dist_time
+            text4 = "C: %05.1f" % min_dist
+            text_lad += "\n"+text3+"\n"+text4
             
         lad_line_height = label_font.metrics('ascent')
-        self.text_id1 = canvas.create_text(xm, ym - lad_lines * lad_line_height,     text=text1, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
-        self.text_id2 = canvas.create_text(xm, ym - (lad_lines-1) * lad_line_height, text=text2, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
-        if lad_lines == 4:
-            self.text_id3 = canvas.create_text(xm, ym - (lad_lines-2) * lad_line_height, text=text3, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
-            self.text_id4 = canvas.create_text(xm, ym - (lad_lines-3) * lad_line_height, text=text4, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
+        lad_label_anchor=self.get_anchor(current_azimuth)
+        (x_lad,y_lad) = self.get_lad_label_position(current_azimuth,xm,ym,10)
+        self.text_id1 = canvas.create_text(x_lad,y_lad,text=text_lad, fill=self.lad_color.get(), tags=(s+'lad',s+'text'),justify=LEFT,**lad_label_anchor)
+        #self.text_id1 = canvas.create_text(xm, ym - lad_lines * lad_line_height,     text=text1, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
+        #self.text_id2 = canvas.create_text(xm, ym - (lad_lines-1) * lad_line_height, text=text2, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
+        #if lad_lines == 4:
+        #    self.text_id3 = canvas.create_text(xm, ym - (lad_lines-2) * lad_line_height, text=text3, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
+        #    self.text_id4 = canvas.create_text(xm, ym - (lad_lines-3) * lad_line_height, text=text4, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
             
         ra_tag_bind(canvas,self.text_id1,'<Button-1>',self.toggle_superlad)
-        ra_tag_bind(canvas,self.text_id2,'<Button-1>',self.toggle_superlad)
+        #ra_tag_bind(canvas,self.text_id2,'<Button-1>',self.toggle_superlad)
         ra_tag_bind(canvas,self.text_id1,'<Button-2>',self.delete)
-        ra_tag_bind(canvas,self.text_id2,'<Button-2>',self.delete)
-        if lad_lines == 4:
-            ra_tag_bind(canvas,self.text_id3,'<Button-1>',self.toggle_superlad)
-            ra_tag_bind(canvas,self.text_id4,'<Button-1>',self.toggle_superlad)
-            ra_tag_bind(canvas,self.text_id3,'<Button-2>',self.delete)
-            ra_tag_bind(canvas,self.text_id4,'<Button-2>',self.delete)
+        #ra_tag_bind(canvas,self.text_id2,'<Button-2>',self.delete)
+        #if lad_lines == 4:
+        #    ra_tag_bind(canvas,self.text_id3,'<Button-1>',self.toggle_superlad)
+        #    ra_tag_bind(canvas,self.text_id4,'<Button-1>',self.toggle_superlad)
+        #    ra_tag_bind(canvas,self.text_id3,'<Button-2>',self.delete)
+        #    ra_tag_bind(canvas,self.text_id4,'<Button-2>',self.delete)
             
         if (self.superlad) and (min_dist_time != None) and (min_dist_time > 0.0):
             # Flights will cross
