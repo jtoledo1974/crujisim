@@ -918,9 +918,7 @@ class RaBrightness(RaFrame):
         RaFrame._build(self, master=master, windowed=windowed,  **kw)
         #self.contents["bg"] = self.bd
         #self.contents.pack(fill=BOTH,expand=1)
-       
-
-
+ 
         gvar = DoubleVar()  # General
         tvar = DoubleVar()  # Tracks
         mvar = DoubleVar()  # Maps
@@ -932,10 +930,11 @@ class RaBrightness(RaFrame):
                             'troughcolor':self.bd}
                             #'selectbackground':self.bd,
                             #'selectforeground':self.fg}
+        cb = self.callback            
         def changed(*args):
             A=(1.0-0.35)/25
             B=1.0
-            self.callback({"GLOBAL":A*gvar.get()+B, "TRACKS":A*tvar.get()+B,
+            cb({"GLOBAL":A*gvar.get()+B, "TRACKS":A*tvar.get()+B,
                       "MAP": A*mvar.get()+B, "LADS":A*lvar.get()+B})
             
         for t,v in (("G",gvar), ("P",tvar),
