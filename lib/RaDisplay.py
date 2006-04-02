@@ -1359,7 +1359,6 @@ class VisTrack(object): # ensure a new style class
             # Call callbacks            
             for f, kw in tc:
                 f(*kw)
-                except: logging.critical("Error executing timer callback", exc_info=True)
         
         if not VisTrack.timer_id:
             VisTrack.timer_id = self._c.after(500,timer)
