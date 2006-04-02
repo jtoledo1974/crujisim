@@ -112,7 +112,8 @@ class GTA:
             if time_string != client.time_string:
                 m={'message':'time',
                    'data':t}
-                client.protocol.sendMessage(m)
+                try: client.protocol.sendMessage(m)
+                except: logging.critical("Unable to send time message to client "+str(client.number))
                 client.time_string=time_string        
     
         if self.tlocal(self.t0)-self.last_update<refresco:
@@ -421,12 +422,12 @@ class Client:
         self.time_string = ''  # The last transmitted time string
 
     def exit(self):
-        del(self.protocol)
-        del(self.gta)
         if self.type == ATC:
             self.gta.controllers.remove(self)
         else:
             self.gta.pseudopilots.remove(self)
+        del(self.protocol)
+        del(self.gta)
 
     def __del__(self):
         logging.debug("Client.__del__")
@@ -460,7 +461,7 @@ class GTA_Protocol(NetstringReceiver):
         try: self.factory.protocols.remove(self)
         except: logging.debug ("Protocol "+str(id(self))+" already removed")
         try: self.client.exit()
-        except: logging.debug("Client already removed")
+        except: logging.debug("Client already removed", exc_info=True)
         del(self.client)
         if self.factory.master_protocol==self:
             logging.debug("The master connection has been lost. Cleaning up")
