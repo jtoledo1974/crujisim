@@ -1359,6 +1359,7 @@ class VisTrack(object): # ensure a new style class
             # Call callbacks            
             for f, kw in tc:
                 f(*kw)
+                except: logging.critical("Error executing timer callback", exc_info=True)
         
         if not VisTrack.timer_id:
             VisTrack.timer_id = self._c.after(500,timer)
@@ -1425,10 +1426,15 @@ class VisTrack(object): # ensure a new style class
             
     def destroy(self):
         if VisTrack.timer_id: self._c.after_cancel(VisTrack.timer_id)
+        VisTrack.timer_callbacks = []
+        self.delete()
         self._l.destroy()
         del(self._message_handler)
         del(self.do_scale)
         del(self.undo_scale)
+            
+    def __del__(self):
+        logging.debug("VisTrack.__del__")
             
     class Label(object):
         """Contains the information regarding label formatting"""        
@@ -1461,6 +1467,9 @@ class VisTrack(object): # ensure a new style class
                 self.x = 0  # Hor screen coord
                 self.y = 0 # Ver screen coord
                 self.i = None  # Canvas item id
+                
+            def __del__(self):
+                logging.debug("LabelItem.__del__")
                 
         def __init__(self, master_track): 
             self.vt = vt = master_track
@@ -1505,6 +1514,11 @@ class VisTrack(object): # ensure a new style class
             
         def destroy(self):
             self.delete()
+            for i in self.vt.allitems:
+                item = getattr(self, i)
+                delattr(item, 'vt')
+                delattr(item, 'color')
+                delattr(self, i)
             del(self.vt)
             
         def redraw(self):
@@ -1920,6 +1934,9 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<KP_Enter>",set_speed)
             self.c.bind_all("<Escape>",close_win)
             
+        def __del__(self):
+            logging.debug("Label.__del__")
+
 class LAD(object):
     """Línea azimut distance = azimut distance line
     
@@ -2256,6 +2273,7 @@ class RaDisplay(object):
         
         self.auto_separation = True  # Separate labels automatically
         
+        VisTrack.timer_id = None  # Reset the VisTrack class
         self.tracks = []  # List of tracks (VisualTrack instances)
         self.selected_track = None
         self.lads = []  # List of LADs
@@ -3018,6 +3036,7 @@ class RaDisplay(object):
         ra_clearbinds(self)
         for t in self.tracks:
             t.destroy()
+        del self.tracks
         self.top_level.destroy()
         # Avoid memory leaks due to circular references preventing
         # the garbage collector from discarding this object

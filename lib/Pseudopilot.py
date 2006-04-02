@@ -334,6 +334,8 @@ class PpDisplay(RaDisplay):
         del(self.toolbar.master)
         del(self.dep_tabular.master)
         RaDisplay.exit(self)
+        del self._flights_tracks
+        del self._tracks_flights
         
     def __del__(self):
         logging.debug("PpDisplay.__del__")
