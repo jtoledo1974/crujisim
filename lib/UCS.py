@@ -563,7 +563,7 @@ class ventana_auxiliar:
         self.but_auto_separation = Checkbutton(ventana, text = 'SEP', variable = self.auto_sep, command=lambda: master.toggle_auto_separation())
         self.but_auto_separation.pack(side=LEFT,expand=1,fill=X)
 
-        self.but_bri = Button(ventana, text = 'BRI', command = master.rabrightness.show)
+        self.but_bri = Button(ventana, text = 'BRI', command = master.rabrightness.conmuta)
         self.but_bri.pack(side=LEFT,expand=1,fill=X)
 
         self.but_ver_maps = Button(ventana, text = 'MAPAS')

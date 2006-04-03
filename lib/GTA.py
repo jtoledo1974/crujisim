@@ -271,6 +271,9 @@ class GTA:
             logging.debug("Rerouting "+str(m))
             try: f.set_route(m["route"])
             except: logging.warning("Error while changing fpr", exc_info = True)
+            logging.debug("Changing destination "+str(m))
+            try: f.set_destination(m["destino"])
+            except: logging.warning("Error while changing destination in change_fpr", exc_info = True)
 
         elif m['message']=='hdg_after_fix':
             logging.debug("Heading after fix "+str(m))

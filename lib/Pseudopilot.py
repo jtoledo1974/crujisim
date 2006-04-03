@@ -375,6 +375,10 @@ class ventana_auxiliar:
         self.clock_speed_var = DoubleVar()
         self.clock_speed_var.set(1.0)        
         self.toolbar_id = None
+        
+        self.new_route_RaD=None
+        self.acft_data_RaD=None
+        
     
     def close_windows(self):
         for w in self.opened_windows[:]:
@@ -594,14 +598,16 @@ class ventana_auxiliar:
             RaDialog(w,label=sel.get_callsign()+': Poner en espera',ok_callback=set_holding,entries=entries)    
             
         def nueva_ruta():
+
             """Ask the user to set a new route and destination airdrome for the currently selected aircraft"""
             self.close_windows()
             if (get_selected('Nueva ruta')==None): return
             sel = master._tracks_flights[master.selected_track]
 
             def change_fpr(e=None,entries=None):
-                ent_route,ent_destino=entries['Ruta:'],entries['Destino:']
+                ent_route,ent_destino=entries['Ruta:'],entries['Destino:']              
                 pts=ent_route.get().split(' ')
+
                 logging.debug ('Input route points: '+str(pts))
                 aux=[]
                 fallo=False
@@ -621,13 +627,23 @@ class ventana_auxiliar:
 
                 master.sendMessage({"message":"change_fpr",
                                     "cs":sel.name,
-                                    "route":aux})
+                                    "route":aux,
+                                    "destino":sel.destino})
             # Build the GUI Dialog
             entries=[]
-            entries.append({'label':'Ruta:','width':50})
+            ruta =""
+            for route_points in sel.route:
+                ruta = ruta + " "+route_points[1]
+                ruta = ruta.lstrip(' ')
+                ruta = ruta.rstrip(' ')
+            
+            entries.append({'label':'Ruta:','width':50,'def_value':ruta})
             entries.append({'label':'Destino:','width':5,'def_value':sel.destino})
+            #x1 = self.but_ruta.winfo_x()
+            #y1 = self.but_ruta.winfo_y()-self.but_ruta.winfo_height()
             RaDialog(w,label=sel.get_callsign()+': Nueva ruta',
-                                  ok_callback=change_fpr,entries=entries)    
+                                  ok_callback=change_fpr,entries=entries)
+
             
         def cambiar_viento():
             """Show a dialog to allow the user to change the wind in real time"""

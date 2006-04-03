@@ -119,6 +119,9 @@ class RaFrame:
         """Build the GUI elements, either as a canvas element, or as a toplevel"""
         if not windowed:
             # Build a frame as a Canvas element
+            #if kw.has_key('anchor') and kw['anchor']<>'':
+            #    kw2 ={anchor:NW}
+            #    kw2['anchor'] = kw['anchor']
             self.container =Frame(master,background=self.bd,borderwidth = 1)
 
             self.top_bar = Frame(self.container,background = 'magenta' ,borderwidth = 1,relief = FLAT,height=10)
@@ -285,8 +288,6 @@ class RaFrame:
         
     def show(self, e=None):
         """Show the RaFrame (to be used after having been hidden)"""
-
-        
         if self.windowed:
             self.container.deiconify 
         else:
@@ -405,7 +406,9 @@ class RaDialog(RaFrame):
                             'highlightcolor':'Black',
                             'foreground':self.fg,
                             'selectbackground':self.bd,
-                            'selectforeground':self.fg}
+                            'selectforeground':self.fg,
+                            'insertbackground':self.fg,
+                            'insertwidth':4}
         
         # Dialog elements
         f0 = Frame(self.contents, **self._frame_colors) # Text
@@ -2226,8 +2229,10 @@ class RaDisplay(object):
                                             # which is only available once Tkinter
                                             # in initialized
         
-        screen_width = tl.winfo_screenwidth()
-        screen_height = tl.winfo_screenheight()
+        self.screen_width = tl.winfo_screenwidth()
+        self.screen_height = tl.winfo_screenheight()
+        screen_width = self.screen_width
+        screen_height = self.screen_height
         tl.wm_geometry("%dx%d+%d+%d" % (screen_width, screen_height, 0, 0))
         
         self.c = c = Canvas(tl,bg='black')
@@ -2357,6 +2362,7 @@ class RaDisplay(object):
         self.width = e.width
         self.height = e.height
         self.c.update_idletasks()
+
         
     def change_speed_vector(self,minutes,e=None):
         for track in self.tracks:
