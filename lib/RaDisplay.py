@@ -384,13 +384,13 @@ class RaDialog(RaFrame):
         RaFrame._build(self, master=master, windowed=windowed, **kw)
         
         # Dialog colors
-        self._frame_colors={'background':self.bg,
+        self._frame_colors={'background':self.bd,
                             'highlightbackground':self.bg,
                             'highlightcolor':'Black'}
-        self._label_colors={'background':self.bg,
+        self._label_colors={'background':self.bd,
                             'highlightbackground':self.bd,
                             'highlightcolor':'Black',
-                            'foreground':self.fg,
+                            'foreground':self.bg,
                             'activebackground':self.bd,
                             'activeforeground':self.fg,
                             'disabledforeground':''}
@@ -401,16 +401,20 @@ class RaDialog(RaFrame):
                             'activebackground':self.bg,
                             'activeforeground':self.fg,
                             'disabledforeground':''}
-        self._entry_colors={'background':self.bg,
+        self._entry_colors={'background':self.fg,
                             'highlightbackground':self.bg,
                             'highlightcolor':'Black',
-                            'foreground':self.fg,
-                            'selectbackground':self.bd,
+                            'foreground':self.bg,
+                            'selectbackground':self.bg,
                             'selectforeground':self.fg,
-                            'insertbackground':self.fg,
-                            'insertwidth':4}
+                            'insertbackground':self.bd,
+                            'insertwidth':5,
+                            'relief':FLAT,
+                            'borderwidth':0,
+                            'insertborderwidth':0}
         
         # Dialog elements
+        self.contents.configure(**self._frame_colors)
         f0 = Frame(self.contents, **self._frame_colors) # Text
         f0.pack(side=TOP, pady=1, fill=BOTH)        
         f1 = Frame(self.contents, **self._frame_colors) # Dialog contents
