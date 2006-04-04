@@ -24,6 +24,60 @@ from RaDisplay import *
 import avion
 
 SNDDIR='./snd/'
+class ATC_DepTabular(RaTabular):
+    """A tabular window showing departure aircraft"""
+    # TODO
+    # On second thought the DepTabular should feed from the master's flights
+    # list, as the master should have all the information about the state
+    # of the departing aircraft
+    def __init__(self, radisplay, canvas=None, flights=None,**kw):
+        """Create a tabular showing aircraft reports and requests"""
+        RaTabular.__init__(self, canvas, label='PREACTIVOS', closebuttonhides=True,
+                           anchor = NW,**kw)
+        self.canvas = canvas
+        self.master = radisplay
+        self.list.configure(font="Courier 8", selectmode=SINGLE)
+        self.legend['text']='INDICATIV'+' '+'ORIG'+' '+'DEST'+' '+'HDEP '+' '+'TIPO '+' '+'SID'
+        ra_bind(radisplay, self.list, "<Button-1>", self.clicked)
+        self.deps=[]
+ 
+
+    def update(self, dep_list):
+        """Update the tabular using the given departure list"""
+        self.list.delete(0,self.list.size())
+        self.deps=[]
+        i=0
+        for dep in dep_list:
+            self.deps.append(dep)
+            eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
+            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+dep['dest'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
+            self.insert(i, t)
+            #if dep['state']==avion.READY:
+            #    self.list.itemconfig(i, background="green", foreground="black")
+            #i+=1
+        
+
+        #if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
+        #    pass
+        #if self.showed:
+        #    print 'DepTabular.update: self._x, self_y' + str((self._x,self._y))
+        #    self.container.update_idletasks()
+        #    self.adjust()
+        #    self.show()
+        if self.showed: self.adjust()
+                
+    def clicked(self, e=None):
+        lb = self.list
+        if lb.nearest(e.y)<0:  # No items
+            return
+        index = lb.nearest(e.y)
+        if e.y<lb.bbox(index)[1] or e.y>(lb.bbox(index)[3]+lb.bbox(index)[1]):
+            return  # Not really clicked within the item
+        dep=self.deps[index]
+        #if dep['state']==avion.READY:
+        #    x1=self.container.winfo_x()+self.container.winfo_width()/2
+        #    y1=self.container.winfo_y()+self.container.winfo_height()/2
+        #    self.depart_dialog(dep, index)
 
 class UCS(RaDisplay):
     """Air Traffic Controllers' radar display and user interface"""
@@ -68,9 +122,21 @@ class UCS(RaDisplay):
         self.toolbar.redraw()
         
         self.t=0
-        self.clock=RaClock(self.c)
+        x1=0
+        y1=0
+        delta=30
+
+        self.clock=RaClock(self.c,position=[x1,y1])
         self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
-        
+        x1=x1+delta
+        y1=y1+delta
+        #self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
+        #self.print_tabular.legend['text']='INDICATIV'
+        #self.print_tabular.adjust(0,10,0,10)
+        x1=x1+delta
+        y1=y1+delta
+        self.dep_tabular = ATC_DepTabular(self, self.c,position=[x1,y1])
+        self.dep_tabular.adjust(0,32,0,0)
         self.redraw()
         self.separate_labels()
         
@@ -94,7 +160,7 @@ class UCS(RaDisplay):
             for f in flights: update_flight(f)
             self.wind = m['wind']
             self.stop_separating = True
-
+            self.dep_tabular.update(m['dep_list'])
             self.update()
 
 
@@ -342,6 +408,10 @@ class ventana_auxiliar:
         self.vd = IntVar()
         self.vd.set(master.draw_deltas)
         self.var_ver_localmap = {}
+        self.var_ver_desp_tab = IntVar()
+        self.var_ver_desp_tab.set(1)
+        self.var_ver_fichas_tab = IntVar()
+        self.var_ver_fichas_tab.set(1)
         
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
@@ -605,8 +675,29 @@ class ventana_auxiliar:
             self.opened_windows.append(i)
         self.but_ver_maps['command'] = mapas_buttons
 
-        self.but_ver_tabs = Button(ventana, text = 'TABs',state=DISABLED)
+        self.but_ver_tabs = Button(ventana, text = 'TABs')
         self.but_ver_tabs.pack(side=LEFT,expand=1,fill=X)
+
+        def tabs_buttons():
+            self.close_windows()
+            ventana_tabs = Frame(w)
+            #self.but_reports = Button(ventana_tabs, text='Notificaciones',
+            #                     command = acftnotices.show, state=DISABLED)
+            #self.but_reports.grid(column=0,row=0,sticky=E+W)
+            
+            self.var_ver_desp_tab.set(master.dep_tabular.showed)
+            #self.var_ver_fichas_tab.set(master.print_tabular.showed)
+            self.but_departures = Checkbutton(ventana_tabs, text='Preactivos',variable=self.var_ver_desp_tab,
+                                 command = master.dep_tabular.conmuta)
+            self.but_departures.grid(column=0,row=1,sticky=W)
+            #self.but_printlist = Checkbutton(ventana_tabs, text='Fichas',variable=self.var_ver_fichas_tab,
+            #                     command = master.print_tabular.conmuta,state = DISBLED)
+            #self.but_printlist.grid(column=0,row=2,sticky=W)
+            i=w.create_window(ventana.winfo_x()+self.but_ver_tabs.winfo_x(),alto-ventana.winfo_height(),window=ventana_tabs,anchor='sw')
+            self.opened_windows.append(i)
+        self.but_ver_tabs['command'] = tabs_buttons        
+        
+        
         def cambia_vect_vel(e=None):
             master.change_speed_vector(self.speed_vector_var.get()/60.)
         cnt_vect_vel = Control(ventana, label="Vel:", min=0, max=5, integer=1, command=cambia_vect_vel, variable=self.speed_vector_var)

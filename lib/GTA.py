@@ -156,7 +156,7 @@ class GTA:
                             logging.warning('No hay SID '+f.get_callsign())
                         f.sid = sid_auto
                         self.departure_list[f.origen][f.get_callsign()] = \
-                         [f.t_etd, sid_auto, avion.PREACTIVE, f.cfl,f.tipo]
+                         [f.t_etd, sid_auto, avion.PREACTIVE, f.cfl,f.tipo,f.destino]
                     pass
                 else:
                     print_list.append(f.name)
@@ -165,7 +165,7 @@ class GTA:
         dl = self.departure_list
         dep_list = [{"ad": ad, "cs": cs, "eobt": dl[ad][cs][0],
                      "sid": dl[ad][cs][1].upper(), "state": dl[ad][cs][2],
-                     "cfl": dl[ad][cs][3],"type": dl[ad][cs][4]}
+                     "cfl": dl[ad][cs][3],"type": dl[ad][cs][4],"dest":dl[ad][cs][5]}
                         for ad in dl.keys()
                           for cs in dl[ad].keys() ]
         # Sort departures by their EOBT
