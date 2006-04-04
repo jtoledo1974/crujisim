@@ -54,7 +54,7 @@ class ATC_DepTabular(RaTabular):
             self.insert(i, t)
             #if dep['state']==avion.READY:
             #    self.list.itemconfig(i, background="green", foreground="black")
-            #i+=1
+            i+=1
         
 
         #if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
