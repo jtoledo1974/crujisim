@@ -605,8 +605,10 @@ class ventana_auxiliar:
             sel = master._tracks_flights[master.selected_track]
 
             def change_fpr(e=None,entries=None):
-                ent_route,ent_destino=entries['Ruta:'],entries['Destino:']              
-                pts=ent_route.get().split(' ')
+                ent_route,ent_destino=entries['Ruta:'],entries['Destino:']
+                pts = ent_route.get()
+                #remove trailing and tailing spaces
+                pts=pts.split()
 
                 logging.debug ('Input route points: '+str(pts))
                 aux=[]
@@ -634,8 +636,7 @@ class ventana_auxiliar:
             ruta =""
             for route_points in sel.route:
                 ruta = ruta + " "+route_points[1]
-                ruta = ruta.lstrip(' ')
-                ruta = ruta.rstrip(' ')
+                ruta = ruta.strip(' ')
             
             entries.append({'label':'Ruta:','width':50,'def_value':ruta})
             entries.append({'label':'Destino:','width':5,'def_value':sel.destino})

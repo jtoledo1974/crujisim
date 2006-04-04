@@ -1693,7 +1693,7 @@ class VisTrack(object): # ensure a new style class
             def ok():
                 self.vt.assumed = False
                 self.vt._message_handler(self.vt,'transfer',None,None,e)
-            RaDialog(self.c, label="Transferir", ok_callback=ok,
+            RaDialog(self.c, label=self.cs.t+": Transferir", ok_callback=ok,
                      position=(self.vt.x, self.vt.y))
         def gs_b2(self,e):
             self.vt.label_format='pp-mach'
