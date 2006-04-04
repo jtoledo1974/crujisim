@@ -1167,14 +1167,15 @@ class DepTabular(RaTabular):
     # On second thought the DepTabular should feed from the master's flights
     # list, as the master should have all the information about the state
     # of the departing aircraft
-    def __init__(self, radisplay, canvas=None, flights=None,**kw):
+    def __init__(self, radisplay, canvas=None, flights=None,mode='pp',**kw):
         """Create a tabular showing aircraft reports and requests"""
-        RaTabular.__init__(self, canvas, label='DESPEGUES', closebuttonhides=True,
+        RaTabular.__init__(self, canvas, label='PREACTIVOS', closebuttonhides=True,
                            anchor = NW,**kw)
         self.canvas = canvas
         self.master = radisplay
+        self.mode = mode
         self.list.configure(font="Courier 8", selectmode=SINGLE)
-        self.legend['text']='INDICATIV'+' '+'ORIG'+' '+'HDEP '+' '+'TIPO '+' '+'SID'
+        self.legend['text']='INDICATIV'+' '+'ORIG'+' '+'DEST'+' '+'HDEP '+' '+'TIPO '+' '+'SID'
         ra_bind(radisplay, self.list, "<Button-1>", self.clicked)
         self.deps=[]
  
@@ -1187,10 +1188,11 @@ class DepTabular(RaTabular):
         for dep in dep_list:
             self.deps.append(dep)
             eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
-            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
+            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+dep['dest'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
             self.insert(i, t)
-            if dep['state']==avion.READY:
-                self.list.itemconfig(i, background="green", foreground="black")
+            if self.mode == 'pp':
+                if dep['state']==avion.READY:
+                    self.list.itemconfig(i, background="green", foreground="black")
             i+=1
         
 
@@ -1212,9 +1214,10 @@ class DepTabular(RaTabular):
             return  # Not really clicked within the item
         dep=self.deps[index]
         if dep['state']==avion.READY:
-            x1=self.container.winfo_x()+self.container.winfo_width()/2
-            y1=self.container.winfo_y()+self.container.winfo_height()/2
-            self.depart_dialog(dep, index)
+            if self.mode == 'pp':
+                x1=self.container.winfo_x()+self.container.winfo_width()/2
+                y1=self.container.winfo_y()+self.container.winfo_height()/2
+                self.depart_dialog(dep, index)
 
     def depart_dialog(self, dep, index):
         """Show a dialog to allow the user to depart an aircraft"""
