@@ -5,18 +5,15 @@ GUÍA PARA NUEVOS COLABORADORES
 1. Herramientas de Desarrollo
 
 El programa está desarrollado en Python, de modo que funciona tanto en
-Windows como Linux. Para poder trabajar en windows es necesario bajarse el
-intérprete desde http://www.python.org/download/ . 
-Nos bajaremos el archivo .Python 2.4.2 Windows installer., por ejemplo.
-Lo podemos ejecutar directamente, o bien guardarlo y después ejecutar.
-Además hay que instalar
-también una biblioteca adicional, la Python Imaging Library, disponible en
-http://www.pythonware.com/products/pil/ (debe bajarse la versión de la
-biblioteca que se ajuste a la versión de Python instalada).
-Nos bajamos el .Python Imaging Library 1.1.5 for Python 2.4 (Windows only).
-que justamente coincide con la versión del Pitón que nos acabamos de descargar 
-en el paso anterior.
+Windows como Linux. Las bibliotecas necesarias para poder desarrollar el
+programa son las mismas que se utilizan para ejecutarlo. Consultar la guía
+de instalación.
 
+A la hora de descargar el GTK runtime es preferible descargar la versión de
+desarrollo
+( http://gladewin32.sourceforge.net/modules/wfdownloads/visit.php?lid=99 ),
+ya que incluye Glade, la herramienta de edición gráfica de interfaces de
+usuario.
 
 2. Sistema de revisión de código
 
@@ -29,60 +26,51 @@ una versión que sí funcionaba.
 El sistema de control de versiones es SVN. En windows es posible acceder a
 él directamente desde el explorador utilizando un pequeño programa
 disponible en http://tortoisesvn.tigris.org/ .
-Entramos en la seccion .Downloads. y nos bajamos el
-.Official version for Win2k/XP or higher.
+Entramos en la seccion .Downloads. y nos bajamos el .Official version for Win2k/XP or higher.
 De la página que nos muestre, seleccionamos el "Download TortoiseSVN-1.2.4.4479-svn-1.2.3.msi".
-Nos vuelve a salir una nueva página (para los entendidos se llaman MIRRORS).
-Seleccionamos uno cualquiera. Si no se descarga nada, nos aparece el siguiente 
-mensaje:
+(O la última versión disponible) Nos vuelve a salir una nueva página (para
+los entendidos se llaman MIRRORS). Seleccionamos uno cualquiera. Si no se
+descarga nada, nos aparece el siguiente mensaje:
  .Your download should begin shortly. If it does not, try 
   http://optusnet.dl.sourceforge.net/sourceforge/tortoisesvn/TortoiseSVN-1.2.4
   .4479-svn-1.2.3.msi or choose a different mirror.
 Pues eso, o hacemos clic sobre el enlace propuesto, o volvemos a seleccionar un Nuevo mirror.
 Nos sale otra vez la opción de ejecutar o guardar (recomendamos ejecutar)
 
-
 En Linux hay también
 interfaces gráficos: el esvn está bastante bien, y el tksvn está un poco
 verde pero tiene buena pinta. Hay también un módulo para el editor emacs,
 que se llama psvn.
 
-El repositorio se almacena en
-http://lazaro.cable.nu:88/svn/crujisim/trunk , y es accesible en modo sólo
-lectura usando el usuario y contraseña crujisim/crujisim
+Para obtener la dirección del repositorio y un usuario y contraseña,
+consultar directamente al crujimaster.
 
-El funcionamiento básico es tan simple que se puede explicar en un solo
-párrafo. Hacer un checkout para obtener una copia de trabajo de la última
-versión disponible.
-Para hacer un checkout, tenemos que hacer clic con el botón derecho, y en la
-ventana que aparece seleccionar: .SVN Checkout..
-Se abre una ventana, y en el primer campo ponemos 
-la url http://lazaro.cable.nu:88/svn/crujisim/ sin comillas, por supuesto.
-En el segundo campo seleccionamos la carpeta donde queremos guardar todos los archivos, 
-incluido el de ejecutar el crujisim.
-Le damos a .OK. y se empieza a descargar por primera vez el programa al completo en la 
-carpeta deseada. 
+Hacer un checkout para obtener una copia de trabajo de la última
+versión disponible. Para hacer un checkout, tenemos que hacer clic con el
+botón derecho, y en la ventana que aparece seleccionar: SVN Checkout.
+Se abre una ventana, y en el primer campo ponemos la url del repositorio. En
+el segundo campo seleccionamos la carpeta donde queremos guardar todos los
+archivos, incluido el de ejecutar el crujisim. Le damos a OK y se empieza a
+descargar por primera vez el programa al completo en la carpeta deseada. 
 
-Hacer updates regularmente para actualizar la copia de
-trabajo con los cambios que hayan introducido el resto de compañeros.
-Para hacer Update, pues parecido al Checkout. Te vas a la carpeta esa nueva que acabamos
-de crear y donde hemos metido todos los archivos esos descargados con la operación anterior.
-Hacemos clic con el boton derecho, y nos sale una ventanita, y elegimos .SVN Update.. 
-
-El sistema se descargará automáticamente las últimas modificaciones realizadas por los compis 
-en el programa, así como las últimas pasadas introducidas.
-Hacer un commit cada vez que nosotros hagamos un cambio sobre un archivo
-para que los compañeros puedan verlo cuando ellos hagan un commit. No
-importa si dos personas han hecho cambios sobre un mismo archivo. El sistema
-integra ambos cambios. (Si casualmente las dos personas han tocado en la
-misma parte de un archivo, el subversion informará al segundo de que no
-puede integrar automáticamente los cambios, para que lo haga él mismo
-a mano.)
+Hacer updates regularmente para actualizar la copia de trabajo con los
+cambios que hayan introducido el resto de compañeros. Para hacer Update,
+pues parecido al Checkout. Te vas a la carpeta esa nueva que acabamos de
+crear y donde hemos metido todos los archivos esos descargados con la
+operación anterior. Hacemos clic con el boton derecho, y nos sale una
+ventanita, y elegimos SVN UPDATE. El sistema se descargará automáticamente
+las últimas modificaciones realizadas por los compis en el programa, así
+como las últimas pasadas introducidas. Hacer un commit cada vez que nosotros
+hagamos un cambio sobre un archivo para que los compañeros puedan verlo
+cuando ellos hagan un commit. No importa si dos personas han hecho cambios
+sobre un mismo archivo. El sistema integra ambos cambios. (Si casualmente
+las dos personas han tocado en la misma parte de un archivo, el subversion
+informará al segundo de que no puede integrar automáticamente los cambios,
+para que lo haga él mismo a mano.)
 
 Existe un librito en línea que explica con más detalle el funcionamiento del
 sistema. Está disponible en español en 
 http://svnbook.red-bean.com/es/1.1/index.html
-
 
 --
 $Id$
