@@ -2,20 +2,33 @@ Actualizado a $Date$
 
 TODO's CRUJISIM
 ===============
+
+CAMBIOS DE ARQUITECTURA
+- Reescribir avion.py y tpv.py. Es necesario modularizar el tratamiento de
+rutas. Una ruta debe ser un objeto inteligente que admita añadir y eliminar
+tramos, así como mantener información de estimadas, requerimientos de pasos
+por nivel, etc.
+- La impresión de fichas y elementos asociados del plan de vuelo deben ser
+tratados desde unos nuevos módulos TLPV y TDVM, a los que deben conectarse
+las posiciones de controlador, en lugar de hacerlo directamente al GTA como
+lo hacen ahora. De ese modo también podremos empezar a simular el
+transpodedor y la correlación o no de las trazas.
+
 ERRORES
-- Corrección de algunos parámetros de aviones lentos en aproximación radar
-- Al soltar un despegue, el avión aparece en ascenso para otro nivel de vuelo distinto
-- Con la modificación introducida en r543 el binding del reloj para hacer que cambie la visibilidad de la ventana auxiliar sólo funciona cuando aparece el reloj por primera vez, pero cuando se pasa a una ventana ya no funciona.
-- El comando de autorizar a aproximación pregunta al usuario el destino y el fijo de aproximación, pero no utiliza esa información
-- Cuando pulsamos en el botón Notificaciones del menú Tabs aparece la ventana de Notificaciones, pero al volver a pulsar sobre el mismo botón no desaparece dicha ventana, como sí sucede, por ejemplo, con la ventana de Datos o de Ruta.
+- El comando de autorizar a aproximación pregunta al usuario el destino y el
+fijo de aproximación, pero no utiliza esa información 
+- Es necesario recuperar la funcionalidad del tabular de notificaciones y
+las tormentas, que se perdió al desarrollar la nueva presentación radar.
 
 MEJORAS
-- No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
+- No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la
+hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
+- El nuevo metepasadas aún no admite introducir datos de requerimientos.
 
 TODO's METEPASADAS
 =====================================
 ERRORES
-- Cambiar la forma de insertar los [REQ]. Ahora aparece en la ventana de introducir los datos de cada avión, cambiarlo a la ventana de Datos Generales.
-- Corregir error al guardar las pasadas modificadas. Hace falta adecuarlo al nuevo árbol de directorios
+- Al cambiar los datos generales de una pasada no se modifica el nombre del
+archivo de ejercicio.
 
 $Id$
