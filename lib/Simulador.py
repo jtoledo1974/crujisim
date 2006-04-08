@@ -24,8 +24,10 @@
 #############################
 # W A R N I N G ! ! !
 #
-# Do not edit this code. This code is considered old and deprecated
-# Functionality here is or will be implemented in GTA.py and Pseudopilot.py
+# Do not edit this code. This code is actually not in use anymore.
+# Functionality here is now implemented in GTA.py and Pseudopilot.py
+# and this file is left here only for reference for tidbits of functionality
+# not yet ported to the new architecture (namely, storms)
 #
 #############################
 
