@@ -159,7 +159,7 @@ class Crujisim:
         els = self.els = gtk.ListStore(str,str,str,str,
                                         int,int,int,int,
                                         str,str,str,int,
-                                        str,str,int,
+                                        str,str,str,
                                         int)
         # This is the mapping between actually displayed cols and the model cols
         self.ex_tv_cols = (("FIR","fir"),("Sector","sector"),
@@ -249,7 +249,7 @@ class Crujisim:
             if attr=="file":
                 row.append(e.file)
             elif attr=="exercise_id":
-                row.append(id(e))
+                row.append(str(id(e)))
             elif type(getattr(e,attr)) is str:
                 row.append(utf8conv(getattr(e,attr)))
             elif type(getattr(e,attr)) is int:
@@ -381,7 +381,7 @@ class Crujisim:
             UI.alert("No hay ninguna pasada seleccionada",parent=self.MainWindow)
             return
         
-        e = [e for e in self.exercises if id(e)==exercise_id][0]
+        e = [e for e in self.exercises if str(id(e))==exercise_id][0]
         
         ee=ExEditor(e,parent=self.MainWindow, firs=self.firs, types=self.types)
         r = ee.run()
