@@ -87,6 +87,10 @@ class PpDisplay(RaDisplay):
         self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
+	self.center_x = self.width/2
+	self.center_y = self.height/2
+	self.get_scale()
+	self.reposition()
         self.redraw()
         self.separate_labels()
         
