@@ -1418,7 +1418,7 @@ class VisTrack(object): # ensure a new style class
         elif name=='flashing':
             def flash_timer():
                 if self.timer_state: self._l.cs.color.set(self.ASSUMED_COLOR)
-                else: self._l.cs.color.set('')
+                else: self._l.cs.color.set('black')
                 if self.flashing: self.add_timer_callback(flash_timer)
                 else:
                     self._l.cs.color.set(self.color.get_basecolor())
