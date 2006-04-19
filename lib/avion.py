@@ -417,6 +417,8 @@ class Airplane:
         self.pp_pos = None  # Pseudopilot position "piloting" this aircraft
         # TODO atc_pos should be an attribute of a TPV flight, not of the aircraft
         self.atc_pos = None  # UCS controlling this flight
+        self.trans_pp_pos = False   #Set to TRUE when ACFT is being transferred by a PP position
+        self.trans_atc_pos = False  #Set tu TRUE when ACFT is being transferred by a ATC position
             
     def __getstate__(self):
         """This function is called by the pickler. We remove the attributes
