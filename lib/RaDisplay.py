@@ -794,13 +794,14 @@ class SmartColor(object):
         self.intensity = intensity  #Item color intensity
         self.set_intensity(intensity)
             
-    def get(self):
-        return self.color
+    def get(self): return self.color
     
     def set(self, c):
         self.basecolor = c
         self.set_intensity(self.intensity)
-                            
+        
+    def get_basecolor(self): return self.basecolor
+                 
     def set_intensity(self, factor):
         """Returns a color object with the intensisty changed and string representation"""
         self.intensity = factor
@@ -1397,6 +1398,7 @@ class VisTrack(object): # ensure a new style class
         elif name=='assumed' and self.visible:
             if value: self.color.set(self.ASSUMED_COLOR)
             else:  self.color.set(self.NONASSUMED_COLOR)
+            self._l.cs.color.set(self.color.get_basecolor())
             self.redraw()
         elif name=='mode':
             if value=='pp': self.label_format='pp'
@@ -1415,19 +1417,19 @@ class VisTrack(object): # ensure a new style class
             self.redraw()
         elif name=='flashing':
             def flash_timer():
-                if self.timer_state: self.color.set(self.ASSUMED_COLOR)
-                else: self.color.set(self.NONASSUMED_COLOR)
+                if self.timer_state: self._l.cs.color.set(self.ASSUMED_COLOR)
+                else: self._l.cs.color.set('')
                 if self.flashing: self.add_timer_callback(flash_timer)
                 else:
-                    if self.assumed: self.color.set(self.ASSUMED_COLOR)
-                    else: self.color.set(self.NONASSUMED_COLOR)
-                self.refresh()
+                    self._l.cs.color.set(self.color.get_basecolor())
+                self._l.refresh('cs')
             if value:
                 self.add_timer_callback(flash_timer)
             else: self.plot_only = False
         elif name=='intensity':
-            for sc in self.color, self._l.vac.color, self._l.pac.color, self._l.wake.color:
-                sc.set_intensity(value)
+            l = self._l
+            for el in self, l.cs, l.vac, l.pac, l.wake:
+                el.color.set_intensity(value)
             self.redraw()
             
     def destroy(self):
@@ -1481,6 +1483,7 @@ class VisTrack(object): # ensure a new style class
             self.vt = vt = master_track
             self.c = self.vt._c  # Canvas
             self.cs = self.LabelItem(vt)
+            self.cs.color = SmartColor(vt.color.get_basecolor())
             self.alt = self.LabelItem(vt)
             self.rate = self.LabelItem(vt)
             self.cfl = self.LabelItem(vt)
