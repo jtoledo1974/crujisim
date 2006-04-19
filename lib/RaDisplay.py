@@ -1689,15 +1689,18 @@ class VisTrack(object): # ensure a new style class
             ra_tag_bind(self.c, self.cs.i, "<ButtonRelease-2>", self.cs_released)            
             self.vt._message_handler(self.vt,'cs','<Button-2>',None,e)
         def cs_b1(self,e):
-            self.vt.assumed=not self.vt.assumed
+            if self.vt.assumed and self.vt.flashing: self.vt.flashing = False
+            else: self.vt.assumed = not self.vt.assumed
             self.vt._message_handler(self.vt,'cs','<Button-1>',None,e)
         def cs_b3(self,e):
             self.vt._message_handler(self.vt,'cs','<Button-3>',None,e)
             def ok():
                 self.vt.assumed = False
                 self.vt._message_handler(self.vt,'transfer',None,None,e)
-            RaDialog(self.c, label=self.cs.t+": Transferir", ok_callback=ok,
-                     position=(self.vt.x, self.vt.y))
+                
+            #Only assumed traffic is allowed to be transferred
+            if self.vt.assumed == True: RaDialog(self.c, label=self.cs.t+": Transferir", ok_callback=ok,
+                                        position=(self.vt.x, self.vt.y))
         def gs_b2(self,e):
             self.vt.label_format='pp-mach'
             self.vt._message_handler(self.vt,'gs','<Button-2>',None,e)

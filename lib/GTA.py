@@ -376,7 +376,7 @@ class GTA:
             else:
                 if m['assumed']:
                   f.pp_pos = p.client.number
-                  f.trans_atc_pos = False       #If the ACFT is being transferred set to False
+                  f.trans_pp_pos = False       #If the ACFT is being transferred set to False
                 else:
                     if p.client.number == f.pp_pos: f.pp_pos = -1
                     else: f.pp_pos = None

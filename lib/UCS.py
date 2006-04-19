@@ -332,10 +332,7 @@ class UCS(RaDisplay):
         vt.flashing = f.trans_atc_pos
         if (f.atc_pos == None) or (f.atc_pos != self.pos_number): vt.assumed = False
         if f.atc_pos == self.pos_number: vt.assumed = True
-        #if f.atc_pos!=None and f.atc_pos==self.pos_number: vt.assumed = True
-        #else: vt.assumed = False
-        #if f.atc_pos != None: vt.flashing = False
-        #else: vt.flashing = True
+
         
         [x0,y0]=self.do_scale(f.pos)
         vt.coords(x0,y0,f.t)
