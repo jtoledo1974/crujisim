@@ -345,7 +345,7 @@ _BJ:353.664,-396.183
 [elevaciones]
 1:0020,0020,0024,0020,0020,0033,0022,0035,0020,0024
 
-;The northest point of the TMA is _TMA2, the sourthest point is _TMA9 and the closest to TLD is _TMA11
+;The northest point of the TMA is _TMA2, the southest point is _TMA9 and the closest to TLD is _TMA11
 [tmas]
 tma_madrid:_TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_TMA9,_TMA10,_TMA11,_TMA12,_TMA1
 
