@@ -24,6 +24,8 @@ MEJORAS
 - No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la
 hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
 - El nuevo metepasadas aún no admite introducir datos de requerimientos.
+- Deben desaparecer los LADs unidos a aviones que han aterrizado
+- Añadir una opción para poder inhabilitar el PAC y/o el VAC
 
 TODO's METEPASADAS
 =====================================
