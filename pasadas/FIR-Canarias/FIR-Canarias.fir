@@ -228,10 +228,10 @@ _SEC151:93.2278324632,-915.215818436
 [elevaciones]
 1:0000,0000,0000,0000,0000,0000,0000,0000
 
-[aeropuertos_con_procedimientos] ; En primer lugar la pista preferente
-GCLA = GCLA01,GCLA19
-GCRR = GCRR03,GCRR21
-GCFV = GCFV01,GCFV19
+;[aeropuertos_con_procedimientos] ; En primer lugar la pista preferente
+;GCLA = GCLA01,GCLA19
+;GCRR = GCRR03,GCRR21
+;GCFV = GCFV01,GCFV19
 ;GCLP = GCLP03,GCLP21
 ;GCXO = GCXO30,GCXO12
 ;GCTS = GCTS08,GCTS26
