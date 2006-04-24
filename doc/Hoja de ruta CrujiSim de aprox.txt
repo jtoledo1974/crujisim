@@ -5,32 +5,33 @@ TODO's CRUJISIM
 
 CAMBIOS DE ARQUITECTURA
 - Reescribir avion.py y tpv.py. Es necesario modularizar el tratamiento de
-rutas. Una ruta debe ser un objeto inteligente que admita añadir y eliminar
-tramos, así como mantener información de estimadas, requerimientos de pasos
+rutas. Una ruta debe ser un objeto inteligente que admita aï¿½dir y eliminar
+tramos, asï¿½como mantener informaciï¿½ de estimadas, requerimientos de pasos
 por nivel, etc.
-- La impresión de fichas y elementos asociados del plan de vuelo deben ser
-tratados desde unos nuevos módulos TLPV y TDVM, a los que deben conectarse
+- La impresiï¿½ de fichas y elementos asociados del plan de vuelo deben ser
+tratados desde unos nuevos mï¿½ulos TLPV y TDVM, a los que deben conectarse
 las posiciones de controlador, en lugar de hacerlo directamente al GTA como
-lo hacen ahora. De ese modo también podremos empezar a simular el
-transpodedor y la correlación o no de las trazas.
+lo hacen ahora. De ese modo tambiï¿½ podremos empezar a simular el
+transpodedor y la correlaciï¿½ o no de las trazas.
 
 ERRORES
-- El comando de autorizar a aproximación pregunta al usuario el destino y el
-fijo de aproximación, pero no utiliza esa información 
+- El comando de autorizar a aproximaciï¿½ pregunta al usuario el destino y el
+fijo de aproximaciï¿½, pero no utiliza esa informaciï¿½ 
 - Es necesario recuperar la funcionalidad del tabular de notificaciones y
-las tormentas, que se perdió al desarrollar la nueva presentación radar.
+las tormentas, que se perdiï¿½al desarrollar la nueva presentaciï¿½ radar.
 
 MEJORAS
-- No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la
-hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
-- El nuevo metepasadas aún no admite introducir datos de requerimientos.
+- No estamos teniendo en cuenta si los aviones estï¿½ equipados RVSM, ni a la
+hora de presentar las fichas, ni para decidir cuï¿½do se estï¿½produciendo un crujido.
+- El nuevo metepasadas an no admite introducir datos de requerimientos.
 - Deben desaparecer los LADs unidos a aviones que han aterrizado
-- Añadir una opción para poder inhabilitar el PAC y/o el VAC
+- Aï¿½dir una opciï¿½ para poder inhabilitar el PAC y/o el VAC
 
 TODO's METEPASADAS
 =====================================
 ERRORES
 - Al cambiar los datos generales de una pasada no se modifica el nombre del
 archivo de ejercicio.
+- Si creas una pasada que ya estÃ¡ creada al grabarla no te avisa de que va a sobreescribir otra.
 
 $Id$
