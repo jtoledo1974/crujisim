@@ -2041,7 +2041,7 @@ class LAD(object):
         lad_ysize = dest[1] - self.orig.wy
         angulo = 90.0 - degrees( atan2( lad_ysize, lad_xsize ) )
         if angulo < 0.0: angulo += 360.0
-        dist = sqrt(sqrt( lad_xsize * lad_xsize + lad_ysize * lad_ysize))
+        dist = sqrt( lad_xsize * lad_xsize + lad_ysize * lad_ysize)
         time_min = 60.0 * dist / self.orig.gs
         lad_center_x = (x0 + e.x)/2
         lad_center_y = (y0 + e.y)/2
