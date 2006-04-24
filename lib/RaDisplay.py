@@ -2041,7 +2041,7 @@ class LAD(object):
         lad_ysize = dest[1] - self.orig.wy
         angulo = 90.0 - degrees( atan2( lad_ysize, lad_xsize ) )
         if angulo < 0.0: angulo += 360.0
-        dist = sqrt( lad_xsize * lad_xsize + lad_ysize * lad_ysize)
+        dist = sqrt(sqrt( lad_xsize * lad_xsize + lad_ysize * lad_ysize))
         time_min = 60.0 * dist / self.orig.gs
         lad_center_x = (x0 + e.x)/2
         lad_center_y = (y0 + e.y)/2
@@ -2113,7 +2113,7 @@ class LAD(object):
         if current_azimuth < 0.0: current_azimuth += 360.0
         lad_lines = 2 # 2 lines of text if planes won't cross; 4 if they will cross
         text1 = "A: %03d" % current_azimuth
-        current_distance = sqrt(lad_xdif*lad_xdif + lad_ydif*lad_ydif)
+        current_distance = self.round_down(sqrt(lad_xdif*lad_xdif + lad_ydif*lad_ydif))
         text2 = "D: %05.1f" % current_distance
         text_lad = text1+"\n"+text2
         (x0, y0) = do_scale((xinitA, yinitA))
@@ -2205,7 +2205,12 @@ class LAD(object):
         
     def compute_mindist(self,xA, yA, headingA, speedA, xB, yB, headingB, speedB):
         (posAx, posAy, posBx, posBy) = self.compute_cross_points(xA, yA, headingA, speedA, xB, yB, headingB, speedB)
-        return sqrt((posAx-posBx)*(posAx-posBx) + (posAy-posBy)*(posAy-posBy))
+        return self.round_down(sqrt((posAx-posBx)*(posAx-posBx) + (posAy-posBy)*(posAy-posBy)))
+    
+    def round_down(self,a):
+        b = int(10.0*a)
+        return b / 10.0
+
         
 class RaDisplay(object):
     """Generic radar display in which tracks and lads are shown
