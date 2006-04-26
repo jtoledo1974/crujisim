@@ -30,6 +30,7 @@ from MathUtil import *
 from time import time
 from math import floor
 from twisted.internet import reactor
+import re
 
 # Globals
 
@@ -2086,9 +2087,6 @@ class LAD(object):
         
         if self.text_id1!=None:
             ra_cleartagbinds(self.text_id1)
-        #if self.text_id2!=None: ra_cleartagbinds(self.text_id2)
-        #if self.text_id3!=None: ra_cleartagbinds(self.text_id3)
-        #if self.text_id4!=None: ra_cleartagbinds(self.text_id4)
         canvas.delete(s+'lad')
         self.radisplay.lads.remove(self)
         if e!=None:
@@ -2129,7 +2127,7 @@ class LAD(object):
         min_dist_time = self.compute_mindisttime(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
         # Limit min_dist_time<500 to avoid overflow problems when min_dist_time is too high
         if (min_dist_time != None) and (min_dist_time > 0.0)and (min_dist_time<500.0):
-                # Flights will cross
+            # Flights will cross
             min_dist = self.compute_mindist(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
             lad_lines = 4 # 4 lines of text in LAD square
 
@@ -2141,21 +2139,9 @@ class LAD(object):
         lad_label_anchor=self.get_anchor(current_azimuth)
         (x_lad,y_lad) = self.get_lad_label_position(current_azimuth,xm,ym,10)
         self.text_id1 = canvas.create_text(x_lad,y_lad,text=text_lad, fill=self.lad_color.get(), tags=(s+'lad',s+'text'),justify=LEFT,**lad_label_anchor)
-        #self.text_id1 = canvas.create_text(xm, ym - lad_lines * lad_line_height,     text=text1, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
-        #self.text_id2 = canvas.create_text(xm, ym - (lad_lines-1) * lad_line_height, text=text2, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
-        #if lad_lines == 4:
-        #    self.text_id3 = canvas.create_text(xm, ym - (lad_lines-2) * lad_line_height, text=text3, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
-        #    self.text_id4 = canvas.create_text(xm, ym - (lad_lines-3) * lad_line_height, text=text4, fill=self.lad_color.get(), tags=(s+'lad',s+'text'))
             
         ra_tag_bind(canvas,self.text_id1,'<Button-1>',self.toggle_superlad)
-        #ra_tag_bind(canvas,self.text_id2,'<Button-1>',self.toggle_superlad)
         ra_tag_bind(canvas,self.text_id1,'<Button-2>',self.delete)
-        #ra_tag_bind(canvas,self.text_id2,'<Button-2>',self.delete)
-        #if lad_lines == 4:
-        #    ra_tag_bind(canvas,self.text_id3,'<Button-1>',self.toggle_superlad)
-        #    ra_tag_bind(canvas,self.text_id4,'<Button-1>',self.toggle_superlad)
-        #    ra_tag_bind(canvas,self.text_id3,'<Button-2>',self.delete)
-        #    ra_tag_bind(canvas,self.text_id4,'<Button-2>',self.delete)
             
         if (self.superlad) and (min_dist_time != None) and (min_dist_time > 0.0):
             # Flights will cross
@@ -2888,6 +2874,16 @@ class RaDisplay(object):
                         (px1, py1) = do_scale((cx1,cy1))
                         col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
+                    
+                    if ob[0] == 'polilinea':
+                        coords = []
+                        for p in ob[1:-1]:
+                            v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", p.upper()).groups()
+                            coords += do_scale((float(v[0]), float(v[3])))
+                        color = ob[-1]
+                        kw = {'fill': color, 'tag': 'local_maps'}
+                        c.create_line(*coords, **kw)
+                            
                     elif ob[0] == 'arco':
                         cx0 = float(ob[1])
                         cy0 = float(ob[2])
