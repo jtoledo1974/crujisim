@@ -1,4 +1,4 @@
-# App Radar fase b�ica
+# App Radar fase basica
 [datos]
 nombre: AppRadarBasico
 
