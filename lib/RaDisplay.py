@@ -30,7 +30,6 @@ from MathUtil import *
 from time import time
 from math import floor
 from twisted.internet import reactor
-import re
 
 # Globals
 
@@ -2872,16 +2871,6 @@ class RaDisplay(object):
                         (px1, py1) = do_scale((cx1,cy1))
                         col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
                         c.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
-                    
-                    if ob[0] == 'polilinea':
-                        coords = []
-                        for p in ob[1:-1]:
-                            v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", p.upper()).groups()
-                            coords += do_scale((float(v[0]), float(v[3])))
-                        color = ob[-1]
-                        kw = {'fill': color, 'tag': 'local_maps'}
-                        c.create_line(*coords, **kw)
-                            
                     elif ob[0] == 'arco':
                         cx0 = float(ob[1])
                         cy0 = float(ob[2])
