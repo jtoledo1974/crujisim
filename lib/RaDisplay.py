@@ -2305,13 +2305,11 @@ class RaDisplay(object):
         if object[1]=='':
             color = 'white'
         color=SmartColor(color, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-        if len(object) > 3:
-            point_name = str(object[2])
-            (px0, py0) = self.do_scale(self.fir.get_point_coordinates(point_name))
-            for point in object[3:]:
-                (px1, py1) = self.do_scale(self.fir.get_point_coordinates(point))
-                self.c.create_line(px0, py0, px1, py1, fill=color, tag='local_maps')
-                (px0, py0) = (px1,py1)
+        coords = []
+        for p in object[2:]:
+            coords += self.do_scale(self.fir.get_point_coordinates(p))
+        kw = {'fill': color, 'tag': 'local_maps'}
+        self.c.create_line(*coords, **kw)
                 
     def draw_SID_STAR(self,object):
         

@@ -22,6 +22,7 @@
 
 import logging
 import os
+import re
 from stat import *
 from MathUtil import *
 
@@ -103,7 +104,7 @@ class FIR:
                             self.points.append([relative_point_name,(x,y)])
                             scan_again = True
 
-            # FIR Routes
+        # FIR Routes
         lista=self._firdef.items('rutas')
         for (num,aux) in lista:
             linea=aux.split(',')
@@ -124,7 +125,7 @@ class FIR:
                     if p==q[0]:
                         aux2=aux2+q[1]
             self.airways.append([aux2])
-            # FIR TMAs
+        # FIR TMAs
         if self._firdef.has_section('tmas'):
             lista=self._firdef.items('tmas')
             for (num,aux) in lista:
@@ -135,7 +136,7 @@ class FIR:
                         if p==q[0]:
                             aux2=aux2+q[1]
                 self.tmas.append([aux2])
-                # Local maps
+        # Local maps
         if self._firdef.has_section('mapas_locales'):
             local_map_string = self._firdef.get('mapas_locales', 'mapas')
             local_map_sections = local_map_string.split(',')
@@ -152,7 +153,7 @@ class FIR:
                         if item[0].lower() != 'nombre':
                             map_objects.append(item[1].split(','))
                     self.local_maps[map_name] = map_objects
-                    # FIR aerodromes
+        # FIR aerodromes
         if self._firdef.has_section('aeropuertos'):
             lista=self._firdef.items('aeropuertos')
             for (num,aux) in lista:
@@ -373,11 +374,13 @@ class FIR:
             logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")
             
     def get_point_coordinates(self,point_name):
-        try:
+        if point_name in [p[0] for p in self.points]:
             return [p[1] for p in self.points if p[0]==point_name][0]
-        except:
-            pass
-            login.error('No existe el punto'+point_name)
+        elif re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()):
+            v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()).groups()
+            return (float(v[0]), float(v[3]))
+        else:
+            logging.error('No existe el punto'+point_name)
             
 def load_firs(path):
     import ConfigParser
