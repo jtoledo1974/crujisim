@@ -28,8 +28,9 @@ import sys
 from FIR import *
 from MathUtil import *
 from time import time
+from datetime import datetime, timedelta
 from math import floor
-from twisted.internet import reactor
+from twisted.internet import reactor, threads
 
 # Globals
 
@@ -1019,22 +1020,23 @@ class VisTrack(object): # ensure a new style class
         self.cfl=200
         self.pfl=350
         self.rate=2000  # Vertical rate of climb or descent
-        self.orig='LEMD'
-        self.dest='LEBB'
+        self.adep='LEMD'
+        self.ades='LEBB'
         self.type='B737'
         self.radio_cs='IBERIA'
         self.rfl=330       
         self.color = SmartColor('gray')
         self.selected_border_color = SmartColor('yellow')
         
-        self._last_t = 0  # Last time the radar was updated
+        self._last_t = datetime.today() - timedelta(days=1)  # Last time the radar was updated
         
         # Plot attributes
         self.plotsize=3
         self._pitem = None
         
         # Plot history
-        self._h = []  # List of previous positions in real coord (not screen)
+        self._h = []  # List of previous positions in real coord (not screen),
+                      # and the associated canvas rectangle
         
         # Label
         self._l = self.Label(self)
@@ -1084,16 +1086,19 @@ class VisTrack(object): # ensure a new style class
         if not self.visible:
             return
             
-        s=str(self)
+        st=str(self)
         dx,dy=x-self.x,y-self.y  # Calculate delta
         # Store the position in history if there has been a radar
         # update since the last one (more than five seconds ago)
         # TODO: The last radar update should be stored in a future radar
         # display class, rather than here.
-        if t!=None and t>self._last_t+5/60./60.:
-            while (len(self._h)>=6): self._h.pop()
+        if t!=None and t>self._last_t+timedelta(seconds=5):
+            while (len(self._h)>=6):
+                (pos, rect_id) = self._h.pop()
+                self._c.delete(rect_id)
             rx,ry=self.undo_scale((x,y))
-            self._h.insert(0,(rx,ry))
+            rect_id = self.draw_h_plot((x,y))
+            self._h.insert(0,[(rx,ry), rect_id])
             self._last_t=t
             
         self.x,self.y=x,y  # New position
@@ -1103,20 +1108,20 @@ class VisTrack(object): # ensure a new style class
             self._l.refresh(i)
         self._item_refresh_list=[]
         # Move moveable elements        
-        self._c.move(s+'move',dx,dy)
+        self._c.move(st+'move',dx,dy)
         # Update position variables:
         self.label_x += dx
         self.label_y += dy
         self._ldr_x += dx
         self._ldr_y += dy
-        # Recreate history points (a simple move wouldn't take scale into account)
-        self.redraw_h()
+        # Reposition history points
+        for (rpos, rect_id) in self._h:
+            (x, y) = self.do_scale(rpos)
+            self._c.coords(rect_id, x, y, x+1, y+1) 
         # Same with speed vector
-        self.redraw_sv()
-        
-        # Raise all elements
-        self._c.lift(s+'track')
-        self._c.lift(s+'plot')
+        speed_vector = s((self.wx,self.wy),pr((self.speed_vector_length * self.gs,self.track)))
+        (sx, sy) = self.do_scale(speed_vector)
+        self._c.coords('speedvector'+str(self), self.x, self.y, sx, sy)
         
     def delete(self):
         """Delete the visual track and unbind all bindings"""
@@ -1143,11 +1148,6 @@ class VisTrack(object): # ensure a new style class
             self.redraw_l()
             
         self._c.addtag_withtag('track',str(self)+'track')
-        self._c.lift(str(self)+'hist')
-        self._c.lift(str(self)+'sv')
-        self._c.lift(str(self)+'leader')
-        self._c.lift(str(self)+'label')
-        self._c.lift(str(self)+'plot')
     
     def refresh(self):
         """Reconfigure VisTrack items with current options
@@ -1203,17 +1203,23 @@ class VisTrack(object): # ensure a new style class
     def redraw_h(self):
         """Draw the history with the current options"""
         self.delete_h()
-        for (rx,ry) in self._h:
-            (h0,h1) = self.do_scale([rx,ry])
-            self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
+        for i in range(len(self._h)):
+            (rx,ry), rect_id = self._h[i]
+            (h0,h1) = self.do_scale((rx,ry))
+            rect_id = self.draw_h_plot((h0,h1))
+            self._h[i][1] = rect_id
+
+    def draw_h_plot(self,(h0,h1)):
+            return self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
                                      tags=(str(self)+'hist',str(self)+'color',
                                            str(self)+'track'))
+        
             
     def delete_sv(self):
         """Delete the track's speed vector"""
         # Speed vector
         s=str(self)
-        if self._svid!=None: self._c.delete(self._svid)
+        self._c.delete('speedvector'+s)
     def redraw_sv(self):
         """Redraw this track's speed vector"""
         self.delete_sv()
@@ -1222,9 +1228,8 @@ class VisTrack(object): # ensure a new style class
         speed_vector = s((self.wx,self.wy),pr((self.speed_vector_length * self.gs,self.track)))
         screen_sv = self.do_scale(speed_vector)
         (sx,sy) = screen_sv
-        
-        self._svid=self._c.create_line(self.x, self.y, sx, sy, fill=self.color.get(),
-                           tags=(st+'speedvector',st+'move',st+'color',st+'track'))
+        self._c.create_line(self.x, self.y, sx, sy, fill=self.color.get(),
+                           tags=('speedvector'+st,st+'move',st+'color',st+'track'))
     def delete_l(self):
         c=self._c
         s=str(self)
@@ -1382,7 +1387,7 @@ class VisTrack(object): # ensure a new style class
         # The TkFont class has a broken eq method, so we can't compare it
         if name=='_l_font' or value==oldvalue or name=='_lineid':
             return
-        elif name in ['x','y']:
+        elif name in ('x','y'):
             (wx,wy) = self.undo_scale((self.x,self.y))
             object.__setattr__(self,'wx',wx)
             object.__setattr__(self,'wy',wy)
@@ -1391,7 +1396,7 @@ class VisTrack(object): # ensure a new style class
             # When alt reaches cfl, cfl must be cleared
             if name=='alt': self._item_refresh_list.append('cfl')
             if name=='cfl': self.draw_cfl = True
-        elif name in ['wx','wy']:
+        elif name in ('wx','wy'):
             (x,y) = self.do_scale((self.wx,self.wy))
             object.__setattr__(self,'x',x)
             object.__setattr__(self,'y',y)            
@@ -1408,12 +1413,12 @@ class VisTrack(object): # ensure a new style class
         elif name=='l_font_size':
             if self.auto_separation: self.label_radius=value*3
             self.redraw_l()
-        elif name in ['selected', 'label_format','pac','vac'] \
+        elif name in ('selected', 'label_format','pac','vac') \
            and self.visible:
             self.redraw_l()
-            if name in ['pac','vac'] and value==True and self.plot_only:
+            if name in ('pac','vac') and value==True and self.plot_only:
                 self.plot_only=False
-        elif name in ['plot_only','visible']:
+        elif name in ('plot_only','visible'):
             self.redraw()
         elif name=='flashing':
             def flash_timer():
@@ -1442,7 +1447,7 @@ class VisTrack(object): # ensure a new style class
         del(self.undo_scale)
             
     def __del__(self):
-        logging.debug("VisTrack.__del__")
+        logging.debug("VisTrack.__del__ %s"%self.cs)
             
     class Label(object):
         """Contains the information regarding label formatting"""        
@@ -1476,8 +1481,8 @@ class VisTrack(object): # ensure a new style class
                 self.y = 0 # Ver screen coord
                 self.i = None  # Canvas item id
                 
-            def __del__(self):
-                logging.debug("LabelItem.__del__")
+            #def __del__(self):
+            #    logging.debug("LabelItem.__del__")
                 
         def __init__(self, master_track): 
             self.vt = vt = master_track
@@ -1618,7 +1623,7 @@ class VisTrack(object): # ensure a new style class
             elif i=='mach':
                 self.mach.t = '.'+str(int(round(vt.mach*100)))
             elif i=='gs':
-                self.gs.t = str(int(round(vt.gs/10)))
+                self.gs.t = "%02d"%round(vt.gs/10)
             elif i=='wake':
                 self.wake.t = vt.wake
                 if vt.wake == 'H': self.wake.color.set('yellow')
@@ -1791,7 +1796,11 @@ class VisTrack(object): # ensure a new style class
                 self.c.delete(ident)
             def set_rate(e=None):
                 rate = ent_rate.get()
-                d = self.vt._message_handler(self.vt,'rate','update',rate,e)
+                if ent_rate['bg'] == 'red':
+                    force = True
+                else:
+                    force = False
+                d = self.vt._message_handler(self.vt,'rate','update',(rate, force),e)
                 def result((r, max_rate)):
                     if r:
                         self.vt.rate=int(rate)
@@ -1804,7 +1813,7 @@ class VisTrack(object): # ensure a new style class
                         ent_rate.focus_set()
                 d.addCallback(result)
             def set_std():
-                self.vt._message_handler(self.vt,'rate','update','std',e)
+                self.vt._message_handler(self.vt,'rate','update',('std', None),e)
                 close_win()
             but_Acp['command'] = set_rate
             but_Can['command'] = close_win
@@ -1942,8 +1951,8 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<KP_Enter>",set_speed)
             self.c.bind_all("<Escape>",close_win)
             
-        def __del__(self):
-            logging.debug("Label.__del__")
+        #def __del__(self):
+        #    logging.debug("Label.__del__")
 
 class LAD(object):
     """Línea azimut distance = azimut distance line
@@ -1961,7 +1970,7 @@ class LAD(object):
         c=radisplay.c
         
         # No se estaba definiendo un LAD. Comenzar a definir uno
-        self.orig = self.get_acft_or_point(e.x,e.y)
+        self.adep = self.get_acft_or_point(e.x,e.y)
         ra_unbind(rd, c, '<Motion>')
         ra_unbind(rd, c, '<Button-2>')
         ra_unbind(rd, c, '<Button-3>')
@@ -2035,21 +2044,21 @@ class LAD(object):
     def update_lad_being_defined(self,e=None):
         canvas=self.radisplay.c        
         canvas.delete('lad_defined')
-        (x0, y0) = self.orig.x,self.orig.y
-        dest = self.radisplay.undo_scale((e.x, e.y))
-        lad_xsize = dest[0] - self.orig.wx
-        lad_ysize = dest[1] - self.orig.wy
+        (x0, y0) = self.adep.x,self.adep.y
+        ades = self.radisplay.undo_scale((e.x, e.y))
+        lad_xsize = ades[0] - self.adep.wx
+        lad_ysize = ades[1] - self.adep.wy
         angulo = 90.0 - degrees( atan2( lad_ysize, lad_xsize ) )
         if angulo < 0.0: angulo += 360.0
         dist = self.round_down(sqrt( lad_xsize * lad_xsize + lad_ysize * lad_ysize))
-        time_min = 60.0 * dist / self.orig.gs
+        time_min = 60.0 * dist / self.adep.gs
         lad_center_x = (x0 + e.x)/2
         lad_center_y = (y0 + e.y)/2
         canvas.create_line(x0, y0,e.x, e.y, fill=self.lad_color.get(), tags="lad_defined")
         lad_text1 = "A: %03d" % angulo
         lad_text2 = "D: %03d" % dist
         # Check if LAD begins in a point or in a plane
-        if self.orig.gs < 10.:
+        if self.adep.gs < 10.:
             lad_text3 = ""
             lad_lines = 2  # LAD will show 2 lines with information (Azimuth, Distance)
         else:
@@ -2072,7 +2081,7 @@ class LAD(object):
         ra_unbind(rd, c, '<Motion>')
         ra_unbind(rd, c, '<Button-2>')
         ra_unbind(rd, c, '<Button-3>')
-        self.dest=self.get_acft_or_point(e.x,e.y)
+        self.ades=self.get_acft_or_point(e.x,e.y)
         self.radisplay.lads.append(self)
         ra_bind(rd, c, '<Button-2>', rd.b2_cb)
         ra_bind(rd, c, '<Button-3>', rd.b3_cb)
@@ -2102,8 +2111,8 @@ class LAD(object):
         # Create a new LAD
         self.radisplay.lads.append(self)
         
-        (xinitA, yinitA) = (self.orig.wx,self.orig.wy)
-        (xinitB, yinitB) = (self.dest.wx,self.dest.wy)
+        (xinitA, yinitA) = (self.adep.wx,self.adep.wy)
+        (xinitB, yinitB) = (self.ades.wx,self.ades.wy)
         lad_xdif = xinitB - xinitA
         lad_ydif = yinitB - yinitA
         current_azimuth = 90.0 - degrees( atan2 (lad_ydif, lad_xdif) )
@@ -2123,11 +2132,11 @@ class LAD(object):
         self.line_id = canvas.create_line(x0, y0, x1, y1, fill=color, tags=(s+'lad',s+'line'))
         xm = (x0+x1) / 2
         ym = (y0+y1) / 2
-        min_dist_time = self.compute_mindisttime(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
+        min_dist_time = self.compute_mindisttime(xinitA, yinitA, self.adep.track, self.adep.gs, xinitB, yinitB, self.ades.track, self.ades.gs)
         # Limit min_dist_time<500 to avoid overflow problems when min_dist_time is too high
         if (min_dist_time != None) and (min_dist_time > 0.0)and (min_dist_time<500.0):
             # Flights will cross
-            min_dist = self.compute_mindist(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
+            min_dist = self.compute_mindist(xinitA, yinitA, self.adep.track, self.adep.gs, xinitB, yinitB, self.ades.track, self.ades.gs)
             lad_lines = 4 # 4 lines of text in LAD square
 
             text3 = "T: %03d" % min_dist_time
@@ -2145,7 +2154,7 @@ class LAD(object):
         if (self.superlad) and (min_dist_time != None) and (min_dist_time > 0.0):
             # Flights will cross
             size=2
-            (posAx, posAy, posBx, posBy) = self.compute_cross_points(xinitA, yinitA, self.orig.track, self.orig.gs, xinitB, yinitB, self.dest.track, self.dest.gs)
+            (posAx, posAy, posBx, posBy) = self.compute_cross_points(xinitA, yinitA, self.adep.track, self.adep.gs, xinitB, yinitB, self.ades.track, self.ades.gs)
             (crossAx, crossAy) = do_scale((posAx, posAy))
             (crossBx, crossBy) = do_scale((posBx, posBy))
             canvas.create_line(x0, y0, crossAx, crossAy, fill=self.super_lad_color.get(), tags=(s+'lad',s+'crosspoint'))
@@ -2237,6 +2246,8 @@ class RaDisplay(object):
 
         # Used to prevent the label separation code to be run nested
         self.separating_labels = False
+        # Same thing with the STCA code
+        self.stca_running = False
         
         # Screen parameters
         self.width=tl.winfo_width()
@@ -2419,7 +2430,7 @@ class RaDisplay(object):
     def update(self):
         # Tracks are updated by the superclass when it gives them the new coords
         self.update_lads()
-        self.update_stca()
+        reactor.callInThread(self.update_stca)
         reactor.callInThread(self.separate_labels)
     
     def toggle_auto_separation(self):
@@ -2428,6 +2439,8 @@ class RaDisplay(object):
             reactor.callInThread(self.separate_labels)
         
     def separate_labels(self, single_track=None):
+        # TODO This algorithm is currently O(n**2). It needs to be rewritten
+        # There are many good ideas in http://en.wikipedia.org/wiki/Collision_detection
         tracks = self.tracks
         width,height = self.width,self.height
         canvas = self.c
@@ -2521,7 +2534,7 @@ class RaDisplay(object):
             conflict_list.sort(lambda x,y: -cmp(x.last_rotation,y.last_rotation))
             #if len(conflict_list)>1:
             #    logging.debug("Conflict among "+str([t.cs for t in conflict_list]))
-            while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels:
+            while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono)<4.:
                 #canvas.update()
                 if self.stop_separating:
                     logging.debug("Cancelling label separation after "+str(time()-crono2)+" seconds")
@@ -2663,10 +2676,10 @@ class RaDisplay(object):
         
         def move_labels(move_list):
             # Update the labels
-            for t in move_list:
-                (x,y)=best_pos[t]
-                t.label_coords(x,y)
-                
+            if not self.stop_separating:
+                for t in move_list:
+                    (x,y)=best_pos[t]
+                    t.label_coords(x,y)                
             self.separating_labels = False
         
         # We make sure that the label moving is done from the main thread and event loop    
@@ -2676,13 +2689,20 @@ class RaDisplay(object):
         """Process short term collision alert"""
         # Calculate each track's position in 30 and 60 seconds
         
-        redraw_list = []
+        if self.stca_running:
+            logging.warning("update_stca has been called when it was already running.\nWe are falling begind on the processing, and alerts may not be accurate")
+            return
+        
+        self.stca_running = True
+        t_alerts = {}  # Alert status for each track
+        NONE = 0
+        PAC  = 2
+        VAC  = 4
         
         for track in self.tracks:
             if not track.visible: continue
-            if track.vac or track.pac: redraw_list.append(track)
             track.future_pos = []
-            track.vac = track.pac = False
+            t_alerts[track] = NONE
             delta = 1./60./6  # delta = 10s
             for t in [delta, delta*2, delta*3, delta*4, delta*5, delta*6]:  
                 gtx = sin(radians(track.track))  # Ground track projection on x
@@ -2711,34 +2731,32 @@ class RaDisplay(object):
                 ix,iy,jx,jy = ti.wx,ti.wy,tj.wx,tj.wy
                 dist=sqrt((ix-jx)**2+(iy-jy)**2)        
                 if dist<min_sep and abs(ti.alt-tj.alt)<minvert:
-                    ti.vac = True
-                    tj.vac = True
-                    ti.pac = False
-                    tj.pac = False
-                    redraw_list.append(ti)
-                    redraw_list.append(tj)
+                    t_alerts[ti] |= VAC
+                    t_alerts[tj] |= VAC
                     continue
                 
                 # STCA
                 for ((ix,iy,ialt),(jx,jy,jalt)) in zip(ti.future_pos,tj.future_pos):
                     dist=sqrt((ix-jx)**2+(iy-jy)**2)
                     if dist<min_sep and abs(ialt-jalt)<minvert:
-                        ti.pac = True
-                        tj.pac = True
-                        redraw_list.append(ti)
-                        redraw_list.append(tj)
+                        t_alerts[ti] |= PAC
+                        t_alerts[tj] |= PAC
                         continue
-
-        # We need to force redrawing of track labels that have or had a PAC or VAC
-        # First we eliminate duplicates
-        d = {}
-        for track in redraw_list:
-            d[track]=1
-        redraw_list = d.keys()
-        # Update the labels
-        for track in redraw_list:
-            track._l.reformat()
-
+        # Once we have reached the result, we can't really update the labels from
+        # here, because Tkinter is not thread safe
+        
+        def set_track_alerts():
+            # Update the labels
+            for t, v in t_alerts.items():
+                if v & PAC: t.pac = True
+                else: t.pac = False
+                if v & VAC: t.vac = True
+                else: t.vac = False
+            self.stca_running = False
+        
+        # We make sure that the label updating is done from the main thread and event loop    
+        reactor.callFromThread(set_track_alerts)
+        
     def update_lads(self):
         # A lad might be deleted, so we need to iterate over a copy of the list
         for lad in self.lads[:]:
@@ -2941,7 +2959,6 @@ class RaDisplay(object):
          
     def redraw(self):
         """Delete and redraw all elements of the radar display"""
-
         self.redraw_maps()
         
         # Refresh tracks
@@ -2949,50 +2966,18 @@ class RaDisplay(object):
             a.redraw()
 
         self.update_lads()
-                
-        return
-        # Comprobar si hay PAC o VAC
-        # First we reset state
-        for acft in ejercicio:
-            acft.vt.pac=acft.vt.vac=False
-        for i in range(len(ejercicio)):
-            for j in range(i+1,len(ejercicio)):
-                if pac(ejercicio[i],ejercicio[j]):
-                    ejercicio[i].vt.pac=True
-                    ejercicio[j].vt.pac=True
-                    
-        c.delete('vac')
-        poner_palote=False
-        palote(poner_palote,c)
-        for i in range(len(ejercicio)):
-            for j in range(i+1,len(ejercicio)):
-                line=()
-                if vac(ejercicio[i],ejercicio[j]):
-                    poner_palote=True
-                    ejercicio[i].vt.vac=True
-                    ejercicio[i].vt.pac=False
-                    line=do_scale(ejercicio[i].get_coords())
-                    ejercicio[j].vt.vac=True
-                    ejercicio[j].vt.pac=False
-                    line=line+do_scale(ejercicio[j].get_coords())
-                    c.create_line(line,fill='red',tag='vac')
-                    
-        palote(poner_palote,c)
-        #t=float(tlocal(t0))
-        #ho=int(t/60/60)
-        #m=int(t/60)-ho*60
-        #s=int(t)-60*60*ho-60*m
         
     def reposition(self):
+        self.stop_separating = True  # If the label separation code is running
+                                     # we want to make sure that it will not try to
+                                     # move the labels because results would be
+                                     # incorrect
         self.redraw_maps()
         for vt in self.tracks:
             (x,y)=self.do_scale((vt.wx,vt.wy))
             vt.coords(x,y,None)
         self.update_lads()
-        self.stop_separating = True  # If the repositioning code
-                    # when refreshing the display while running
-                    # the label separation algorithm, we want it
-                    # to stop or there will be artifacts
+        self.c.lift('track')
         
     def do_scale(self,a):
         """Convert world coordinates into screen coordinates"""

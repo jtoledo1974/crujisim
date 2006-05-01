@@ -25,21 +25,60 @@
 import re
 import logging
 from math import *
+import ConfigParser
 
 equiv = {}
 
-def load_equiv(filename):
+# Constants
+AIRCRAFT_FILE = "Modelos_avo.txt"  # It's loaded in the global config parser acft_cp
+BADA_FILE = "bada.txt"
+
+def load_equiv():
     global equiv
-    import ConfigParser
-    cp = ConfigParser.ConfigParser()
-    cp.readfp(open(filename, "r"))
+    cp = acft_cp
     for e, tl in cp.items('equivalences'):
         for t in tl.split(","):
             if t!="": equiv[t.upper()]=e.upper()
 
+# TODO We are currently loading data from two diferent files, and
+# use an equivalence list only for BADA
+# The equivalence list should be use for both, and the format of
+# AIRCRAFT_FILE should be cleaned up
+
 class Performance:
-    def __init__(self, type, bada_file="../bada.txt"):
-        global equiv
+    """Performance data for a specific aircraft type
+    
+    Data is loaded both from the AIRCRAFT_FILE file and
+    the BADA file."""
+    # Crujisim.py loads basic performance data for all known
+    # aircraft to be used on the exercise editor
+    def __init__(self, type, aircraft_file = AIRCRAFT_FILE,
+                 use_bada=True, bada_file=BADA_FILE):
+
+        # Look for the type in the AIRCRAFT_FILE
+        cp = acft_cp  # acft_cp is global
+        type = type.lower()
+        try: data=cp.get("performances", type)
+        except:
+            raise(type.upper()+" not found in "+AIRCRAFT_FILE)
+            return
+
+        self.type = type.upper()
+        data = data.split(',')
+        self.wtc = data[0][0].upper()  # Only the first letter
+        self.max_fl = int(data[1])
+        # TODO We should really store this with its natural units, that is, fpm
+        self.max_roc = float(data[2])/100*60  # levels per hour
+        self.std_roc = float(data[3])/100*60
+        self.max_rod = float(data[4])/100*60
+        self.std_rod = float(data[5])/100*60
+        self.cruise_tas = int(data[6])  # Knots
+        self.max_tas = int(data[7])
+        self.tma_tas = int(data[8])
+        self.app_tas = int(data[9])   
+        self.bada = False  # Initially consider BADA info is not available
+        
+        if not use_bada: return
         
         try: f = open(bada_file,"r")
         except: raise("Unable to open bada file while loading perfomance data")
@@ -66,28 +105,32 @@ class Performance:
         self.descent_ff_table={}
 
         # Check whether the type exists in the database
+        type = type.upper()
         while (True):
             h=f.readline()
             d=f.readline()
             if (h=="" or d==""):
-                raise("Aircraft type "+str(type)+"not found in the database")
+                logging.warning("Aircraft type %s not found in BADA. Please add to equiv list."%type)
                 return
             master = re.match(".*Type: ([^_ ]+)", h).group(1)
+            # equiv is global
             if type == master or (equiv.has_key(type) and equiv[type]==master):
                 self.type = type
                 break;
 
         l=re.match(".*climb - (.*) cruise", d).group(1)  # 250/300 0.79 low - 104400
+        v = re.match("(.*)/(.*) (.*) low[ -]+(.*)",l).groups()
         (self.climb_cas_low, self.climb_cas_high, self.climb_mach, self.mass_low) = \
-         re.match("(.*)/(.*) (.*) low[ -]+(.*)",l).groups()
-        
+         (int(v[0]), int(v[1]), float(v[2]), int(v[3]))
         l=re.match(".*cruise - (.*) descent", d).group(1)  # 250/310 0.79 nominal - 140000 Max Alt. [ft]: 41000
+        v = re.match("(.*)/(.*) (.*) nominal[ -]+(.*) Max Alt. .*: (.*)",l).groups()
         (self.cruise_cas_low, self.cruise_cas_high, self.cruise_mach, self.mass_nominal, self.altitude_max) = \
-         re.match("(.*)/(.*) (.*) nominal[ -]+(.*) Max Alt. .*: (.*)",l).groups()
+         (int(v[0]), int(v[1]), float(v[2]), int(v[3]), int(v[4]))
         
         l=re.match(".*descent - (.*?) =", d).group(1)  # 250/300 0.79 high - 104400
+        v = re.match("(.*)/(.*) (.*) high[ -]+(.*)",l).groups()
         (self.descent_cas_low, self.descent_cas_high, self.descent_mach, self.mass_high) = \
-         re.match("(.*)/(.*) (.*) high[ -]+(.*)",l).groups()
+         (int(v[0]), int(v[1]), float(v[2]), int(v[3]))
         
         t=re.match(".* nom =* (.*) =*.*", d).group(1)  # Data table
         cont = True
@@ -124,22 +167,36 @@ class Performance:
             t=t[len(l)+1:]
         
         f.close()
+        self.max_fl = self.altitude_max / 100.
+        self.bada = True  # Mark the fact that BADA info is available
 
     def get_cruise_perf(self, level):
+        #return (self.interpolate(self.cruise_tas_table, level),
+        #        self.interpolate(self.cruise_ff_low_table, level),
+        #        self.interpolate(self.cruise_ff_nominal_table, level),
+        #        self.interpolate(self.cruise_ff_high_table, level))
         return (self.interpolate(self.cruise_tas_table, level),
-                self.interpolate(self.cruise_ff_low_table, level),
-                self.interpolate(self.cruise_ff_nominal_table, level),
-                self.interpolate(self.cruise_ff_high_table, level))
+                0,
+                0,
+                0)
     def get_climb_perf(self, level):
+        #return (self.interpolate(self.climb_tas_table, level),
+        #        self.interpolate(self.climb_roc_low_table, level),
+        #        self.interpolate(self.climb_roc_nominal_table, level),
+        #        self.interpolate(self.climb_roc_high_table, level),
+        #        self.interpolate(self.climb_ff_table, level))
         return (self.interpolate(self.climb_tas_table, level),
-                self.interpolate(self.climb_roc_low_table, level),
+                0,
                 self.interpolate(self.climb_roc_nominal_table, level),
-                self.interpolate(self.climb_roc_high_table, level),
-                self.interpolate(self.climb_ff_table, level))
+                0,
+                0)
     def get_descent_perf(self, level):
+        #return (self.interpolate(self.descent_tas_table, level),
+        #        self.interpolate(self.descent_rod_table, level),
+        #        self.interpolate(self.descent_ff_table, level))
         return (self.interpolate(self.descent_tas_table, level),
                 self.interpolate(self.descent_rod_table, level),
-                self.interpolate(self.descent_ff_table, level))
+                0)
 
     def interpolate(self, dict, level):
         if level < min(dict.keys()): return dict[min(dict.keys())]
@@ -151,7 +208,19 @@ class Performance:
         low, high = dict[m_level], dict[M_level]
         return low*(1-ratio)+high*ratio
 
-def load_bada(filename="../bada.txt"):
+def load_types():
+    """Loads basic performance information from AIRCRAFT_FILE"""
+    types = {}
+    cp = acft_cp  # acft_cp is global
+    for typename in cp.options('performances'):
+        try:
+            type = Performance(typename,use_bada=False)
+            types[typename.upper()]=type
+        except:
+            logging.warning("Unable to parse aircraft type "+typename, exc_info=True)
+    return types
+
+def load_bada(filename=BADA_FILE):
     """ Given an ascii file containig aircraft performance summary data, return a dictionary
     with the results.
     
@@ -274,8 +343,12 @@ class Atmosphere:
         mach = tas / sqrt(1.4 * 287.04 * T)
         return mach
 
-try: load_equiv("Modelos_avo.txt")
-except: load_equiv("../Modelos_avo.txt")
+# Basic loading
+acft_cp = ConfigParser.ConfigParser()
+try: acft_cp.readfp(open(AIRCRAFT_FILE, "r"))
+except: acft_cp.readfp(open("../"+AIRCRAFT_FILE, "r"))
+load_equiv()
+
         
 if __name__=='__main__':
     a = Atmosphere()

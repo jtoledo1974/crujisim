@@ -49,7 +49,7 @@ from stat import *
 try:
     from twisted.internet import gtk2reactor # for gtk-2.0
     gtk2reactor.install()
-    from twisted.internet import reactor, tksupport
+    from twisted.internet import reactor, tksupport, threads
     # The label separation code is run within it's own thread
     from twisted.python import threadable
     threadable.init()
@@ -71,10 +71,9 @@ except:
 # Import program modules
 try:
     import Tix
-    import banner
     from Exercise import *
     from FIR import *
-    import avion  # To load aircraft types
+    import BADA  # To load aircraft types
     import UI
     import ConfMgr  
     conf = ConfMgr.CrujiConfig()
@@ -93,7 +92,6 @@ utf8conv = lambda x : unicode(x, encoding).encode('utf8')
 EX_DIR = "pasadas"
 GLADE_FILE = "glade/crujisim.glade" 
 JOKES = "jokes.txt"
-AIRCRAFT_FILE = "Modelos_avo.txt"
 
 class Crujisim:
     
@@ -215,7 +213,7 @@ class Crujisim:
         UI.set_active_text(self.phasecombo,conf.phase_option)
         
         # Load aircraft type information
-        self.types = avion.load_types(AIRCRAFT_FILE)
+        self.types = BADA.load_types()
 
         # Everything's ready. Hide Splash, present Main Window
         splash.get_widget("Splash").destroy()
@@ -449,45 +447,24 @@ class Crujisim:
         (model, iter) = sel.get_selected()
 
         try:
-            fir_name = model.get_value(iter,self.ex_ls_cols["fir"])
+            exc_file = model.get_value(iter, self.ex_ls_cols["file"])
         except:
             UI.alert("No hay ninguna pasada seleccionada", parent=self.MainWindow)
             return
-        for (fir,fir_file) in banner.get_fires():
-            if fir_name==fir:
-                fir_elegido=(fir, fir_file)
-                break
-        sector_name = model.get_value(iter,self.ex_ls_cols["sector"])
-        for (sector, section) in banner.get_sectores(fir_name):
-            if sector==sector_name:
-                sector_elegido=(sector,section)
-                break            
-        ejercicio_elegido = model.get(iter,3,0)  # (comment, exercise_file)
-        exc_file = model.get_value(iter, self.ex_ls_cols["file"])
-        if "tpv" in sys.modules:
-            sys.modules.pop('tpv')
-
-        import tpv
-        su = [fir_elegido , sector_elegido , ejercicio_elegido , 1]
-        tpv.set_seleccion_usuario(su)
-
-        #if "Simulador" in sys.modules:
-        #    sys.modules.pop('Simulador')
-        #import Simulador
-        
-        # TODO The following should be done using a deferred
-        [punto,ejercicio,rutas,limites,deltas,tmas,local_maps,h_inicio,wind,aeropuertos,esperas_publicadas,rwys,procedimientos,proc_app,rwyInUse,auto_departures,min_sep] = tpv.tpv()
-        fir = FIR(su[0][1])
-        sector = su[1][0]
 
         def exit(var):
             self.MainWindow.present()
             pass
-            
-        gta = GTA(fir,sector,ejercicio,h_inicio, wind, exc_file)
-        gta.start().addCallback(exit)
+        
+        logging.debug("Creating GTA object")    
+        gta = GTA(exc_file)
+        logging.debug("Starting GTA thread")
+        #reactor.callInThread(lambda : gta.start().addCallback(exit))
+        #gta.start().addCallback(exit)
+        threads.deferToThread(gta.start).addCallback(exit)
         
         self.MainWindow.hide()
+        logging.debug("Creating RemoteClient object")
         RemoteClient().connect("localhost",conf.server_port, PSEUDOPILOT)
 
 class ExEditor:
@@ -595,7 +572,7 @@ class ExEditor:
         self.fls.clear() 
         for i,f in self.ex.flights.items():
             # Column 0 of the model is the key in the flights dictionary
-            self.fls.append((i,f.callsign,f.orig,f.dest,f.route.replace(","," ")))
+            self.fls.append((i,f.callsign,f.adep,f.adep,f.route.replace(","," ")))
 
     def list_clicked(self,w=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS:
@@ -831,8 +808,8 @@ class FlightEditor:
         self.FlightEditor.present()
                         
         self.stripcontainer.set_focus_chain((self.callsign,self.type,self.wtc,self.tas,
-                                             self.orig, self.eobt,
-                                             self.dest, self.rfl,self.route,self.fix,self.eto,
+                                             self.adep, self.eobt,
+                                             self.adep, self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl, self.addbutton,
                                              self.savebutton))        
         self.FlightEditor.connect("response", self.on_flighteditor_response)
@@ -858,7 +835,7 @@ class FlightEditor:
 
         # Populate the dialog
         self.route.props.text = flight.route.replace(","," ")
-        for attr in ["callsign","orig","dest","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
+        for attr in ["callsign","adep","adep","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             getattr(self,attr).props.text = getattr(flight,attr)
         try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
         except: self.eto.props.text = flight.eto
@@ -942,7 +919,7 @@ class FlightEditor:
         if len(tas)==w.props.max_length: UI.focus_next(w)
         
     def on_orig_changed(self,w):
-        orig = text = w.props.text
+        adep = text = w.props.text
         w.props.text = text.upper()
         if not text.isalpha() and text!="":
             try: w.props.text=w.previous_value
@@ -952,7 +929,7 @@ class FlightEditor:
             return
         w.previous_value = text
         self.sb.pop(0)
-        if orig.upper() in self.fir.local_ads[self.sector]:
+        if adep.upper() in self.fir.local_ads[self.sector]:
             self.set_departure(True)
         else:
             self.set_departure(False)
@@ -987,7 +964,7 @@ class FlightEditor:
             valid = False
             err = "Caracter no válido en la ruta"
             break
-        if self.orig.props.text==text.split(" ")[0] and text!="" and self.orig.props.text!="":
+        if self.adep.props.text==text.split(" ")[0] and text!="" and self.adep.props.text!="":
             valid = False
             err = "El aeropuerto de origen no puede formar parte de la ruta. Use el VOR (p. ej: LEMD -> BRA)"
         if not valid:
@@ -1016,7 +993,7 @@ class FlightEditor:
         self.completion.get_model().clear()
         fix_list = [f for f in self.route.props.text.split(" ") if f!=""]
         if fix_list == []: fix_list = [""]
-        for r in self.fir.routedb.matching_routes(fix_list,self.orig.props.text,self.dest.props.text):
+        for r in self.fir.routedb.matching_routes(fix_list,self.adep.props.text,self.adep.props.text):
             self.completion.get_model().append([r.replace(","," ")])
         
     def on_fix_changed(self,w, event=None):
@@ -1087,12 +1064,12 @@ class FlightEditor:
     def fill_flight(self, f):
         """Copies data from the dialog into the given flight object"""
         f.route = self.route.props.text.strip().replace(" ",",")
-        for attr in ["callsign","orig","dest","rfl","cfl","wtc","tas","type"]:
+        for attr in ["callsign","adep","adep","rfl","cfl","wtc","tas","type"]:
             setattr(f, attr, getattr(self,attr).props.text)
         if self.departure:
             eto, fix = self.eobt.props.text, f.route.split(",")[0]
             try:
-                firstlevel = "%03d"%self.fir.ad_elevations[f.orig]
+                firstlevel = "%03d"%self.fir.ad_elevations[f.adep]
             except:
                 firstlevel = "000"
         else:
@@ -1124,7 +1101,7 @@ class FlightEditor:
         else:
             f = self.flight
             self.fill_flight(f)  # Copy the validated form data into the given flight
-            self.fir.routedb.append(f.route,f.orig,f.dest)
+            self.fir.routedb.append(f.route,f.adep,f.adep)
 
         self.completion.disconnect(self.completion.hid)
 
@@ -1134,7 +1111,7 @@ class FlightEditor:
         self.sb.pop(0)
         checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
             ("type","^[A-Z0-9-]{2,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
-            ("orig","^[A-Z]{4}$"),("dest","^[A-Z]{4}$"),
+            ("adep","^[A-Z]{4}$"),("adep","^[A-Z]{4}$"),
             ("route","^([A-Z0-9_]{2,6} {0,1})+$"),
             ("rfl","^\d{2,3}$"),("cfl","^\d{2,3}$")]
         if self.departure:

@@ -21,15 +21,17 @@
 """Classes used by the pseudopilot interface of Crujisim"""
 
 from RaDisplay import *
-from MathUtil import get_h_m_s
-import avion
+import Aircraft
+import Route
+import datetime
+import time
 
 SNDDIR='./snd/'
 
 class PpDisplay(RaDisplay):
     """Radar display with a pseudopilot interface"""
     
-    def __init__(self,flights,title,icon_path,fir,sector,mode='pp'):
+    def __init__(self,title,icon_path,fir,sector,mode='pp'):
         """Instantiate a Pseudopilot Radar Display
         
         title - window title
@@ -42,20 +44,9 @@ class PpDisplay(RaDisplay):
         self._flights_tracks = {}
         self._tracks_flights = {}
         RaDisplay.__init__(self,title,icon_path,fir,sector, self.toolbar_height)
-        self.flights = flights
+        self.flights = []
         self.mode = mode
-        
-        # Create the list of tracks from the flights
-        for f in flights:
-            vt = VisTrack(self.c,self.vt_handler,self.do_scale,self.undo_scale)
-            vt.l_font_size=self.label_font_size
-            if mode=='atc':
-                vt.mode='atc'
-                vt.cfl=f.cfl
-                vt.pfl=f.pfl
-            self.tracks.append(vt)
-            self._flights_tracks[f] = vt
-            self._tracks_flights[vt] = f
+        self.t = datetime.datetime.today()
         
         self.routes = []  # List of tracks whose routes are displayed
         self.waypoints = []  # List of tracks whose waypoints are displayed 
@@ -69,12 +60,11 @@ class PpDisplay(RaDisplay):
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
         
-        self.t=0
         x1=0
         y1=0
         delta=30
         self.clock=RaClock(self.c,position=[x1,y1])
-        self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
+        self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
         x1=x1+delta
         y1=y1+delta
         self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
@@ -87,27 +77,36 @@ class PpDisplay(RaDisplay):
         self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
-	self.center_x = self.width/2
-	self.center_y = self.height/2
-	self.get_scale()
-	self.reposition()
+        self.center_x = self.width/2
+        self.center_y = self.height/2
+        self.get_scale()
+        self.reposition()
         self.redraw()
         self.separate_labels()
         
     def process_message(self, m):
         
         def update_flight(new):
-            try: old = [old for old in self.flights if new.name==old.name][0]
-            except:
-                logging.warning("Unable to update %s. No local flight so named"%(new.name))
-                return
-            for name, value in new.__dict__.items():
-                setattr(old, name, value)
-            return old
+            # Check whether this is a new flight
+            if new.uid not in [f.uid for f in self.flights]:
+                vt = VisTrack(self.c,self.vt_handler,self.do_scale,self.undo_scale)
+                vt.l_font_size=self.label_font_size
+                self.tracks.append(vt)
+                self._flights_tracks[new] = vt
+                self._tracks_flights[vt] = new
+                self.flights.append(new)
+                return new
+                    
+            else: # Otherwise we are updating
+                old = [f for f in self.flights if f.uid==new.uid][0]
+                for name, value in new.__dict__.items():
+                    setattr(old, name, value)
+                return old
         
         if m['message']=='time':
             t = m['data']
             self.update_clock(t)
+            self.t = t
 
         if m['message']=='update':
             flights = m['flights']
@@ -115,16 +114,32 @@ class PpDisplay(RaDisplay):
             self.wind = m['wind']
             self.stop_separating = True
 
+            # Update print_tabular
             self.print_tabular.list.delete(0,self.print_tabular.list.size())
-            for cs in m['print_list']:
+            pl = [f for f in self.flights
+                    if f.fs_print_t.has_key(self.sector)
+                    and f.fs_print_t[self.sector]<self.t
+                    and f.fs_print_t[self.sector]+datetime.timedelta(minutes=10)>self.t]
+            pl.sort(lambda p, q: -cmp(p.fs_print_t[self.sector], q.fs_print_t[self.sector]))
+            for cs in [f.callsign for f in pl]:
                 self.print_tabular.insert(END,cs)  
-            self.dep_tabular.update(m['dep_list'])
+            self.dep_tabular.update()
             self.update()
 
 
         if m['message']=='update_flight':
             f = update_flight(m['flight'])  # Returns the updated flight
             self.update_track(f)
+            
+        if m['message'] == 'kill_flight':
+            try: f = [f for f in self.flights if f.uid == m['uid']][0]
+            except: return
+            self.flights.remove(f)
+            vt = self._flights_tracks[f]
+            vt.destroy()
+            del self._flights_tracks[f]
+            del self._tracks_flights[vt]
+            self.tracks.remove(vt)
 
     def delete_routes(self,e=None):
         for track in self.tracks:
@@ -136,23 +151,26 @@ class PpDisplay(RaDisplay):
     def draw_fpr(self,track):
         canvas=self.c
         line=()
-        if track.vfp:
+        if track.to_do=='fpr':
             line=line+self.do_scale(track.pos)
-        for a in track.route:
-            pto=self.do_scale(a[0])
-            if a[1][0] <> '_' or a[1] in self.fir.proc_app.keys():
-                canvas.create_text(pto,text=a[1],fill='orange',tag=track.name+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-                canvas.create_text(pto,text=a[2],fill='orange',tag=track.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
+        for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
+            try: pto=self.do_scale(a.pos())
+            except: continue
+            if a.fix[0] <> '_' or a.fix in self.fir.iaps.keys():
+                try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
+                except: eto = ''
+                canvas.create_text(pto,text=a.fix,fill='orange',tag=track.callsign+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
+                canvas.create_text(pto,text=eto,fill='orange',tag=track.callsign+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
-        if len(line)>3: canvas.create_line(line,fill='orange',tags=track.name+'fpr')
+        if len(line)>3: canvas.create_line(line,fill='orange',tags=track.callsign+'fpr')
         self.routes.append(track)
-        self.c.lift(track.name+'fpr')
+        self.c.lift(track.callsign+'fpr')
         self.c.lift('track')
 
     def show_hide_fpr(self,track):
         canvas=self.c
-        if canvas.itemcget(track.name+'fpr',"fill")=='orange':
-            canvas.delete(track.name+'fpr')
+        if canvas.itemcget(track.callsign+'fpr',"fill")=='orange':
+            canvas.delete(track.callsign+'fpr')
             self.routes.remove(track)
         else:
             self.draw_fpr(track)
@@ -161,27 +179,30 @@ class PpDisplay(RaDisplay):
         canvas=self.c
         do_scale=self.do_scale
 
-        canvas.delete(track.name+'fpr')
-        canvas.delete(track.name+'wp')
+        canvas.delete(track.callsign+'fpr')
+        canvas.delete(track.callsign+'wp')
         line=()
-        if track.vfp:
+        if track.to_do=='fpr':
             line=line+do_scale(track.pos)
-        for a in track.route:
-            pto=do_scale(a[0])
-            if a[1][0] <> '_':
-                canvas.create_text(pto,text=a[1],fill='yellow',tag=track.name+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-                canvas.create_text(pto,text=a[2],fill='yellow',tag=track.name+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
+        for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
+            try: pto=do_scale(a.pos())
+            except: continue
+            if a.fix[0] <> '_':
+                try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
+                except: eto = ''
+                canvas.create_text(pto,text=a.fix,fill='yellow',tag=track.callsign+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
+                canvas.create_text(pto,text=eto,fill='yellow',tag=track.callsign+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
-        if len(line)>3: canvas.create_line(line,fill='yellow',tags=track.name+'wp')
+        if len(line)>3: canvas.create_line(line,fill='yellow',tags=track.callsign+'wp')
         size=2
         for a in track.route:
-            (rect_x, rect_y) = do_scale(a[0])
-            point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=track.name+'wp')
-            def clicked_on_waypoint(e, point_coord=a[0],point_name=a[1]):
+            (rect_x, rect_y) = do_scale(a.pos())
+            point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=track.callsign+'wp')
+            def clicked_on_waypoint(e, point_coord=a.pos(),point_name=a.fix):
                 # Display window offering "Direct to..." and "Cancel" options.
                 track.last_lad = e.serial
                 win = Frame(canvas)
-                id_avo = Label(win,text=track.name,bg='blue',fg='white')
+                id_avo = Label(win,text=track.callsign,bg='blue',fg='white')
                 id_pto = Entry (win,width=8, justify = CENTER)
                 id_pto.insert(0,point_name)
                 but_direct = Button(win, text="Dar directo")
@@ -195,15 +216,15 @@ class PpDisplay(RaDisplay):
                     canvas.delete(ident)
                 def direct_to():
                     pto=id_pto.get()
-                    self.sendMessage({"message":"route_direct", "cs":track.name, "fix":pto})
-                    canvas.delete(track.name+'wp')
+                    self.sendMessage({"message":"route_direct", "cs":track.callsign, "fix":pto})
+                    canvas.delete(track.callsign+'wp')
                     self.waypoints.remove(track)
                     close_win()
                 but_cancel['command'] = close_win
                 but_direct['command'] = direct_to
             canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)
         self.waypoints.append(track)
-        self.c.lift(track.name+'wp')
+        self.c.lift(track.callsign+'wp')
         self.c.lift('track')
         
             
@@ -211,8 +232,8 @@ class PpDisplay(RaDisplay):
         canvas=self.c
         do_scale=self.do_scale
         
-        if canvas.itemcget(track.name+'wp',"fill")=='yellow':
-            canvas.delete(track.name+'wp')
+        if canvas.itemcget(track.callsign+'wp',"fill")=='yellow':
+            canvas.delete(track.callsign+'wp')
             self.waypoints.remove(track)
             return
         
@@ -223,18 +244,26 @@ class PpDisplay(RaDisplay):
         self.toolbar.redraw()
             
     def update(self):
-        self.update_tracks()
+        def after_tracks(x):
+            self.c.lift('track')
+            RaDisplay.update(self)
+        threads.deferToThread(self.update_tracks).addCallback(after_tracks)
         self.update_clock()
-        RaDisplay.update(self)
                             
     def update_clock(self,t=None):
         if t==None: t=self.t
         else: self.t=t
-        self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(t))
+        self.clock.configure(time='%02d:%02d:%02d' % (t.hour, t.minute, t.second))
             
     def update_tracks(self):
-        for f in self.flights:
-            self.update_track(f)
+        # If we update the tracks all at once from here, when we are dealing with
+        # many of them it will take a long time and the display will feel sluggish
+        # Instead we cycle through them inside a thread, and let the main thread
+        # update the actual tracks in bunches of 30. This improves responsiveness
+        for i in range(len(self.flights)):
+            reactor.callFromThread(self.update_track,self.flights[i])
+            if not i%25: time.sleep(0.01) # Let the display refresh for every n tracks
+        return True
             
     def update_track(self, f):
         # TODO
@@ -242,21 +271,21 @@ class PpDisplay(RaDisplay):
         # we should not rely on having access to the objects code
         # We should only count on simple attributes, not methods
         vt = self._flights_tracks[f]
-        vt.alt=f.alt
-        vt.cs=f.name
-        vt.wake=f.estela
+        vt.alt=f.lvl
+        vt.cs=f.callsign
+        vt.wake=f.wake
         vt.echo=f.campo_eco
         vt.gs=f.ground_spd
         vt.mach=f.get_mach()
         vt.hdg=f.hdg
         vt.track=f.track
         vt.rate=f.get_rate_descend()
-        vt.ias=f.get_ias()
-        vt.ias_max=f.get_ias_max()
-        vt.visible=f.se_pinta
-        vt.orig = f.origen
-        vt.dest = f.destino
-        vt.type = f.tipo
+        vt.ias=f.ias
+#        vt.ias_max=f.get_ias_max()
+        vt.visible = f.pof in (Aircraft.FLYING, Aircraft.TAKEOFF)
+        vt.adep = f.adep
+        vt.ades = f.ades
+        vt.type = f.type
         vt.radio_cs = f.radio_callsign
         vt.rfl = f.rfl
         vt.cfl=f.cfl
@@ -268,7 +297,6 @@ class PpDisplay(RaDisplay):
         
         [x0,y0]=self.do_scale(f.pos)
         vt.coords(x0,y0,f.t)
-        self.c.lift(str(vt)+'track')
         
     def vt_handler(self,vt,item,action,value,e=None):
         RaDisplay.vt_handler(self,vt,item,action,value,e)
@@ -277,28 +305,30 @@ class PpDisplay(RaDisplay):
             if action=='<Button-1>': self.show_hide_fpr(f)
         if item=='pfl':
             if action=='update':
-                self.sendMessage({"message":"set_pfl", "cs": f.name, "pfl":int(value)})
+                self.sendMessage({"message":"set_pfl", "cs": f.callsign, "pfl":int(value)})
         if item=='cfl':
             if action=='update':
-                d = self.sendMessage({"message":"set_cfl", "cs": f.name, "cfl":int(value)})
+                d = self.sendMessage({"message":"set_cfl", "cs": f.callsign, "cfl":int(value)})
                 return d
         if item=='rate':
             if action=='update':
-                return self.sendMessage({"message":"set_rate", "cs": f.name, "rate":value})
+                (rate, force) = value
+                return self.sendMessage({"message":"set_rate", "cs": f.callsign,
+                                         "rate":rate, "force":force})
         if item=='hdg':
             if action=='update':
                 (hdg,opt)=value
-                self.sendMessage({"message":"set_hdg", "cs": f.name, "hdg":int(hdg), "opt":opt})
+                self.sendMessage({"message":"set_hdg", "cs": f.callsign, "hdg":int(hdg), "opt":opt})
         if item=='ias':
             if action=='update':
                 (spd,force_speed)=value
-                d = self.sendMessage({"message":"set_ias", "cs": f.name,
+                d = self.sendMessage({"message":"set_ias", "cs": f.callsign,
                                   "ias":spd, "force_speed":force_speed})
                 return d
         if item=='mach':
             if action=='update':
                 (spd,force_speed)=value
-                d = self.sendMessage({"message":"set_mach", "cs": f.name,
+                d = self.sendMessage({"message":"set_mach", "cs": f.callsign,
                                   "mach":spd, "force_speed":force_speed})
                 return d
         if item=='echo':
@@ -513,8 +543,8 @@ class ventana_auxiliar:
                     
         def quitar_fpr():
             for a in ejercicio:
-                if w.itemcget(a.name+'fpr','fill')=='orange':
-                    w.delete(a.name+'fpr')
+                if w.itemcget(a.callsign+'fpr','fill')=='orange':
+                    w.delete(a.callsign+'fpr')
                     
         def quitar_lads():
             global all_lads, superlad
@@ -543,46 +573,17 @@ class ventana_auxiliar:
             sel = master._tracks_flights[master.selected_track]
                 
             def set_holding(e=None,entries=None):
-                error = True
+                error = False
                 ent_hold=entries['Fijo Principal:']
                 ent_side=entries['Virajes (I/D):']
                 fijo = ent_hold.get().upper()
                 lado = ent_side.get().upper()
-                auxiliar = ''
-                # Si la espera está publicada, los datos de la espera
-                for [fijo_pub,rumbo,tiempo,lado_pub] in master.fir.holds:
-                    if fijo_pub == fijo:
-                        lado = lado_pub.upper()
-                        derrota_acerc = rumbo
-                        tiempo_alej = tiempo/60.0
-                        for i in range(len(sel.route)):
-                            [a,b,c,d] = sel.route[i]
-                            if b == fijo:
-                                auxiliar = [a,b,c,d]
-                                error = False
-                                break
-                                # En caso contrario, TRK acerc = TRK de llegada y tiempo = 1 min
-                if auxiliar == '':
-                    for i in range(len(sel.route)):
-                        [a,b,c,d] = sel.route[i]
-                        if b == fijo:
-                            if i == 0: # La espera se inicia en el siguiente punto del avión
-                                auxi = sel.pos
-                            else:
-                                auxi = sel.route[i-1][0]
-                            aux1 = r(a,auxi)
-                            derrota_acerc = rp(aux1)[1]
-                            auxiliar = [a,b,c,d]
-                            error = False
-                            tiempo_alej = 1.0/60.0
-                            break
-                if error:
+                if not fijo in sel.route:
                     ent_hold['bg'] = 'red'
                     ent_hold.focus_set()
-                if lado == 'I':
-                    giro = -1.0
-                elif lado == 'D':
-                    giro = +1.0
+                    error = True
+                if lado.upper() == 'I': std_turns = False
+                elif lado.upper() == 'D' or lado.strip()=='': std_turns = True
                 else:
                     ent_side['bg'] = 'red'
                     ent_side.focus_set()
@@ -590,16 +591,14 @@ class ventana_auxiliar:
                 if error:
                     return False  # Not validated correctly
                 
-                master.sendMessage({"message":"hold", "cs":sel.name,
-                                    "fix":auxiliar,"inbound_track":derrota_acerc,
-                                    "outbound_time":tiempo_alej,
-                                    "turn_direction":giro})
+                master.sendMessage({"message":"hold", "cs":sel.callsign,
+                                    "fix":fijo, "std_turns": std_turns})
                 
             # Build the GUI Dialog
             entries=[]
-            entries.append({'label':'Fijo Principal:','width':5,'def_value':sel.route[0][1]})
-            entries.append({'label':'Virajes (I/D):','width':1,'def_value':'D'})
-            RaDialog(w,label=sel.get_callsign()+': Poner en espera',ok_callback=set_holding,entries=entries)    
+            entries.append({'label':'Fijo Principal:','width':5,'def_value':sel.route[0].fix})
+            entries.append({'label':'Virajes (I/D):','width':1,'def_value':''})
+            RaDialog(w,label=sel.callsign+': Poner en espera',ok_callback=set_holding,entries=entries)    
             
         def nueva_ruta():
 
@@ -611,42 +610,30 @@ class ventana_auxiliar:
             def change_fpr(e=None,entries=None):
                 ent_route,ent_destino=entries['Ruta:'],entries['Destino:']
                 pts = ent_route.get()
-                #remove trailing and tailing spaces
-                pts=pts.split()
-
-                logging.debug ('Input route points: '+str(pts))
-                aux=[]
-                fallo=False
-                for a in pts:
-                    hay_pto=False
-                    for b in master.fir.points:
-                        if a.upper() == b[0]:
-                            aux.append([b[1],b[0],'',0])
-                            hay_pto=True
-                    if not hay_pto:
-                        fallo=True
-                if fallo:
+                r = Route.Route()
+                r.raise_on_unknown = True
+                try: r.append(pts)
+                except:
                     ent_route['bg'] = 'red'
                     ent_route.focus_set()
                     return False  # Validation failed
-                sel.destino = ent_destino.get().upper()
+                # TODO we should validate the destination
+                sel.ades = ent_destino.get().upper()
 
-                master.sendMessage({"message":"change_fpr",
-                                    "cs":sel.name,
-                                    "route":aux,
-                                    "destino":sel.destino})
+                master.sendMessage({"message": "change_fpr",
+                                    "cs":      sel.callsign,
+                                    "route":   str(r),
+                                    "ades":    sel.ades})
             # Build the GUI Dialog
             entries=[]
-            ruta =""
+            ruta = ""
             for route_points in sel.route:
-                ruta = ruta + " "+route_points[1]
-                ruta = ruta.strip(' ')
+                ruta += " " + route_points.fix
+            ruta = ruta.strip()
             
             entries.append({'label':'Ruta:','width':50,'def_value':ruta})
-            entries.append({'label':'Destino:','width':5,'def_value':sel.destino})
-            #x1 = self.but_ruta.winfo_x()
-            #y1 = self.but_ruta.winfo_y()-self.but_ruta.winfo_height()
-            RaDialog(w,label=sel.get_callsign()+': Nueva ruta',
+            entries.append({'label':'Destino:','width':5,'def_value':sel.ades})
+            RaDialog(w,label=sel.callsign+': Nueva ruta',
                                   ok_callback=change_fpr,entries=entries)
 
             
@@ -694,18 +681,12 @@ class ventana_auxiliar:
             sel = master._tracks_flights[master.selected_track]
                 
             def set_fix_hdg(e=None,entries=None):
-                error = True
+                error = False
                 ent_fix=entries['Fijo:']
                 ent_hdg=entries['Rumbo:']
-                fijo = ent_fix.get().upper()
-                hdg = ent_hdg.get().upper()
-                for i in range(len(sel.route)):
-                    [a,b,c,d] = sel.route[i]
-                    if b == fijo:
-                        auxiliar = [a,b,c,d]
-                        error = False
-                        break
-                if error:
+                fijo = ent_fix.get().strip().upper()
+                hdg = ent_hdg.get().strip()
+                if fijo not in sel.route:
                     ent_fix['bg'] = 'red'
                     ent_fix.focus_set()
                 if not hdg.isdigit():
@@ -718,15 +699,15 @@ class ventana_auxiliar:
                     return False  # Validation failed
                 
                 master.sendMessage({"message":"hdg_after_fix",
-                                    "cs":sel.name,
-                                    "aux":auxiliar,
+                                    "cs":sel.callsign,
+                                    "fix":fijo,
                                     "hdg":hdg})
 
             # Build the GUI Dialog
             entries=[]
-            entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0][1])})
+            entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0].fix)})
             entries.append({'label':'Rumbo:','width':3})
-            RaDialog(w,label=sel.get_callsign()+': Rumbo después de fijo',
+            RaDialog(w,label=sel.callsign+': Rumbo después de fijo',
                     ok_callback=set_fix_hdg,entries=entries)    
             
         def int_rdl():
@@ -768,16 +749,16 @@ class ventana_auxiliar:
                     return False  # Validation failed
                 
                 master.sendMessage({"message":"int_rdl",
-                                    "cs":sel.name,
-                                    "aux":auxiliar,
+                                    "cs": sel.callsign,
+                                    "fix": fijo,
                                     "track":(rdl + correccion)% 360.})
                 
             # Build the GUI Dialog
             entries=[]
-            entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0][1])})
+            entries.append({'label':'Fijo:','width':5,'def_value':str(sel.route[0].fix)})
             entries.append({'label':'Radial:','width':3})
             entries.append({'label':'Desde/Hacia (D/H)','width':1,'def_value':'D'})
-            RaDialog(w,label=sel.get_callsign()+': Interceptar radial',
+            RaDialog(w,label=sel.callsign+': Interceptar radial',
                     ok_callback=set_rdl,entries=entries)    
             
         def b_execute_map():
@@ -785,13 +766,13 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Ejectuar MAP')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.destino not in master.fir.rwys.keys():
+            if sel.ades not in master.fir.rwys.keys():
                 RaDialog(w, label='Ejecutar MAP',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return                
             def exe_map(e=None):
-                master.sendMessage({"message":"execute_map", "cs":sel.name})
-            RaDialog(w,label=sel.get_callsign()+': Ejecutar MAP',
+                master.sendMessage({"message":"execute_map", "cs":sel.callsign})
+            RaDialog(w,label=sel.callsign+': Ejecutar MAP',
                      text='Ejecutar MAP', ok_callback=exe_map)
             
         def b_int_ils():
@@ -799,18 +780,18 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Interceptar ILS')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.destino not in master.fir.rwys.keys():
-                RaDialog(w, label=sel.get_callsign()+': Interceptar ILS',
+            if sel.ades not in master.fir.rwys.keys():
+                RaDialog(w, label=sel.callsign+': Interceptar ILS',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
-            elif sel.fijo_app == 'N/A':
-                RaDialog(w,label=sel.get_callsign()+': Interceptar ILS',
+            elif sel.iaf == 'N/A':
+                RaDialog(w,label=sel.callsign+': Interceptar ILS',
                          text='Vuelo sin IAF. Añada la ruta hasta el IAF y reintente')
                 return
                 
             def int_ils(e=None):
-                master.sendMessage({"message":"int_ils", "cs":sel.name})
-            RaDialog(w,label=sel.get_callsign()+': Interceptar ILS',
+                master.sendMessage({"message":"int_ils", "cs":sel.callsign})
+            RaDialog(w,label=sel.callsign+': Interceptar ILS',
                      text='Interceptar ILS', ok_callback=int_ils)
             
         def b_llz():
@@ -819,17 +800,17 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Interceptar LLZ')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.destino not in master.fir.rwys.keys():
-                RaDialog(w, label=sel.get_callsign()+': Interceptar LLZ',
+            if sel.ades not in master.fir.rwys.keys():
+                RaDialog(w, label=sel.callsign+': Interceptar LLZ',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
-            elif sel.fijo_app == 'N/A':
-                RaDialog(w,label=sel.get_callsign()+': Interceptar LLZ',
+            elif sel.iaf == 'N/A':
+                RaDialog(w,label=sel.callsign+': Interceptar LLZ',
                          text='Vuelo sin IAF. Añada la ruta hasta el IAF y reintente')
                 return
             def int_llz(e=None):
-                master.sendMessage({"message":"int_llz", "cs":sel.name})
-            RaDialog(w,label=sel.get_callsign()+': Interceptar LLZ',
+                master.sendMessage({"message":"int_llz", "cs":sel.callsign})
+            RaDialog(w,label=sel.callsign+': Interceptar LLZ',
                      text='Interceptar LLZ', ok_callback=int_llz)
             
         def ver_detalles():
@@ -839,12 +820,13 @@ class ventana_auxiliar:
             sel = self.master.selected_track
             # TODO The RaDialog should probably export the contents frame
             # and we could use it here to build the contents using a proper grid
+            print sel.adep, sel.ades, sel.type, sel.rfl, sel.radio_cs
             RaDialog(self.master.c, label=sel.cs+': Detalles',
-                     text='Origen: '+sel.orig+
-                     '\tDestino: '+sel.dest+
-                     '\nTipo:   '+sel.type.ljust(4)+
-                     '\tRFL:     '+str(int(sel.rfl))+
-                     '\nCallsign: '+sel.radio_cs)
+                     text='Origen: ' + sel.adep +
+                     '\tDestino: '   + sel.ades +
+                     '\nTipo:   '    + sel.type.ljust(4) +
+                     '\tRFL:     '   + str(int(sel.rfl)) +
+                     '\nCallsign: '  + sel.radio_cs)
             
         def b_orbitar():
             """Show a dialog to command the selected aircraft to make orbits"""    
@@ -854,15 +836,15 @@ class ventana_auxiliar:
             def set_orbit(e=None,sel=sel,entries=None):
                 side_aux = entries['Orbitar hacia:']['value']
                 if side_aux.upper() == 'IZDA':
-                    dir = avion.LEFT  # Constant defined in avion.py
+                    dir = Aircraft.LEFT  # Constant defined in Aircraft.py
                 else:
-                    dir = avion.RIGHT
-                master.sendMessage({"message":"orbit", "cs":sel.name, "direction":dir})
+                    dir = Aircraft.RIGHT
+                master.sendMessage({"message":"orbit", "cs":sel.callsign, "direction":dir})
             entries=[]
             entries.append({'label':'Orbitar hacia:',
                             'values':('IZDA','DCHA'),
                             'def_value':'IZDA'})
-            RaDialog(w,label=sel.get_callsign()+': Orbitar',
+            RaDialog(w,label=sel.callsign+': Orbitar',
                      ok_callback=set_orbit, entries=entries)      
             
         def b_rwy_change():
@@ -902,8 +884,8 @@ class ventana_auxiliar:
                     print 'Pista en uso de ',airp,' es ahora: ',num.cget('value'),'. Cambiando los procedimientos'
                     rwyInUse[airp] = num.cget('value')
                     for avo in ejercicio:
-                        complete_flight_plan(avo)
-                        if avo.origen in rwys.keys() and not avo.is_flying():
+                        avo.complete_flight_plan()
+                        if avo.adep in rwys.keys() and avo.pof == Aircraft.GROUND:
                             avo.route.pop(0)
                         avo.set_app_fix()   
                 w.delete(ident)
@@ -919,24 +901,25 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Autorizar a Aproximación')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.destino not in master.fir.rwys.keys():
-                RaDialog(w, label=sel.get_callsign()+': Autorizar a aproximación',
+            if sel.ades not in master.fir.rwys.keys():
+                RaDialog(w, label=sel.callsign+': Autorizar a aproximación',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
                 
             def auth_app(e=None,avo=sel, entries=None):
-                master.sendMessage({"message":"execute_app", "cs":sel.name,
-                                    "dest": entries['Destino:'].get().upper(),
+                master.sendMessage({"message":"execute_app", "cs":sel.callsign,
+                                    "ades": entries['Destino:'].get().upper(),
                                     "iaf": entries['IAF:'].get().upper()})
             # Build entries
+            # TODO We should be able of cleanly finding what's the current IAF
             for i in range(len(sel.route),0,-1):
-                if sel.route[i-1][1] in master.fir.proc_app.keys():
-                    fijo_app = sel.route[i-1][1]
+                if sel.route[i-1].fix in master.fir.iaps.keys():
+                    iaf = sel.route[i-1].fix
                     break
             entries=[]
-            entries.append({'label':'Destino:', 'width':4, 'def_value':sel.destino})
-            entries.append({'label':'IAF:', 'width':5, 'def_value':fijo_app})
-            RaDialog(w,label=sel.get_callsign()+': Autorizar a Aproximación',
+            entries.append({'label':'Destino:', 'width':4, 'def_value':sel.ades})
+            entries.append({'label':'IAF:', 'width':5, 'def_value':iaf})
+            RaDialog(w,label=sel.callsign+': Autorizar a Aproximación',
                      ok_callback=auth_app, entries=entries)      
 
         ventana=Frame(w,bg='gray',width=ancho)
@@ -1125,7 +1108,6 @@ class ventana_auxiliar:
         
         self.toolbar_id=w.create_window(0,alto,width=ancho,window=ventana,anchor='sw')
         ventana.update_idletasks()
-        logging.debug ('Auxiliary window width: '+str(ventana.winfo_width()))
 
 class AcftNotices(RaTabular):
     """A tabular window showing reports and requests from aircraft"""
@@ -1148,7 +1130,7 @@ class AcftNotices(RaTabular):
                 if t>report['time']:
                     h=int(t)
                     m=int(60*(t-h))
-                    report='%02d:%02d %s %s'%(h,m,acft.name,report['text'])
+                    report='%02d:%02d %s %s'%(h,m,acft.callsign,report['text'])
                     self.insert(END, report)
                     self.notify()
                     del acft.reports[i]
@@ -1184,29 +1166,26 @@ class DepTabular(RaTabular):
         self.deps=[]
  
 
-    def update(self, dep_list):
+    def update(self):
         """Update the tabular using the given departure list"""
         self.list.delete(0,self.list.size())
-        self.deps=[]
-        i=0
-        for dep in dep_list:
-            self.deps.append(dep)
-            eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
-            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+dep['dest'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
-            self.insert(i, t)
-            if self.mode == 'pp':
-                if dep['state']==avion.READY:
-                    self.list.itemconfig(i, background="green", foreground="black")
-            i+=1
-        
+        fir = self.master.fir
 
-        if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
-            pass
-        #if self.showed:
-        #    print 'DepTabular.update: self._x, self_y' + str((self._x,self._y))
-        #    self.container.update_idletasks()
-        #    self.adjust()
-        #    self.show()
+        self.deps=[f for f in self.master.flights
+                     if f.pof == Aircraft.GROUND 
+                     and (f.eobt-self.master.t) < datetime.timedelta(minutes=10)]
+        self.deps.sort(lambda p,q: cmp(p.eobt, q.eobt))
+
+        i=0
+        for f in self.deps:
+                eobt = '%02d:%02d'%(f.eobt.hour, f.eobt.minute)
+                t = f.callsign.ljust(9)+' '+f.adep.ljust(4)+' '+\
+                    f.ades.ljust(4)+' '+eobt+' '+f.type.ljust(5)
+                self.insert(i,t)
+                if self.mode == 'pp' and f.eobt < self.master.t and not f.auto_depart:
+                    self.list.itemconfig(i, background='green', foreground='black')
+                i += 1
+                        
         if self.showed: self.adjust()
                 
     def clicked(self, e=None):
@@ -1217,8 +1196,7 @@ class DepTabular(RaTabular):
         if e.y<lb.bbox(index)[1] or e.y>(lb.bbox(index)[3]+lb.bbox(index)[1]):
             return  # Not really clicked within the item
         dep=self.deps[index]
-        if dep['state']==avion.READY:
-            if self.mode == 'pp':
+        if dep.eobt < self.master.t and not dep.auto_depart and self.mode == 'pp':
                 x1=self.container.winfo_x()+self.container.winfo_width()/2
                 y1=self.container.winfo_y()+self.container.winfo_height()/2
                 self.depart_dialog(dep, index)
@@ -1244,7 +1222,7 @@ class DepTabular(RaTabular):
                 return False  # Validation failed
             
             self.master.sendMessage({"message":"depart",
-                                "cs":dep['cs'],"sid":sid, "cfl":cfl})
+                                "cs":dep.callsign, "sid": sid, "cfl": cfl})
             del self.deps[index]
             self.delete(index)      #No uses the method privided by the class RaTabular
                                     #So, the elements are updated properly
@@ -1252,9 +1230,9 @@ class DepTabular(RaTabular):
             
         # Build the GUI Dialog
         entries=[]
-        entries.append({'label':'SID:','width':5,'def_value':dep['sid']})
-        entries.append({'label':'CFL:','width':3,'def_value':int(dep['cfl'])})
+        entries.append({'label':'SID:','width':5,'def_value':''})
+        entries.append({'label':'CFL:','width':3,'def_value':int(dep.cfl)})
         x1=self.container.winfo_x()+self.container.winfo_width()/2
         y1=self.container.winfo_y()+self.container.winfo_height()/2
-        RaDialog(self.canvas,label=dep['cs']+': Despegar',
+        RaDialog(self.canvas,label=dep.callsign+': Despegar',
                     ok_callback=depart,entries=entries,position=(x1,y1))   

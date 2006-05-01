@@ -26,31 +26,43 @@ import re
 from stat import *
 from MathUtil import *
 
+# TODO the whole FIR object should be rewritten
+# The file format should probably be switched to an XML file that more closely follows
+# the internal structure of the information, and the FIR model should structure
+# its information using more ideas from the Aeronautical Information Conceptual Model
+# See http://www.eurocontrol.int/ais/aixm/aicm40/
+# We might even want to consider whether we want to implement AIXM fully,
+# although AIXM does not support ATC procedures, which we need to save
+
+# All fir elements should be turned into classes, just as the Hold is now
+
 class FIR:
-    """FIR information and processess"""    
-    
+    """FIR information and processess"""
     def __init__(self, fir_file):
         """Create a FIR instance"""
         
         self.file = fir_file
-        self.points=[]   # List of geo coordinates of points
-        self.rel_points={}#Dictionary of points relative to another. Format: [RELATIVE_POINT NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
-        self.routes=[]   # List of points defining standard routes within the FIR
-        self.airways=[] #List of airways... just for displaying on map
-        self.tmas=[]     # List of points defining TMAs
-        self.local_maps={}  # Dictionary of local maps
-        self.aerodromes=[]  # List of aerodrome codes
-        self.ad_elevations={} #List of AD elevations
-        self.holds=[]    # List of published holds [fix,hdg,time,turns]   
-        self.rwys={}     # IFR rwys of each AD
-        self.rwyInUse={} # Rwy in use at each AD
+        
+        self.pos = self.get_point_coordinates  # Method alias
+        
+        self.points     =[] # List of geo coordinates of points
+        self.rel_points ={} #Dictionary of points relative to another. Format: [RELATIVE_POINT NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
+        self.routes     =[] # List of points defining standard routes within the FIR
+        self.airways    =[] # List of airways... just for displaying on map
+        self.tmas       =[] # List of points defining TMAs
+        self.local_maps ={} # Dictionary of local maps
+        self.aerodromes =[] # List of aerodrome codes
+        self.ad_elevations = {} # List of AD elevations
+        self.holds      =[] # List of published holds (See Hold class)
+        self.rwys       ={} # IFR rwys of each AD
+        self.rwyInUse   ={} # Rwy in use at each AD
         self.procedimientos={}  # Standard procedures (SIDs and STARs)
-        self.proc_app={}
-        self.deltas=[]
-        self.sectors=[]  # List of sector names
+        self.iaps       ={} # Instrument Approach Procedures
+        self.deltas     =[]
+        self.sectors    =[] # List of sector names
         self._sector_sections={}  # Section name of each sector
-        self.boundaries={}  # List of boundary points for each sector
-        self.min_sep={}  # Minimum radar separation for each sector
+        self.boundaries ={} # List of boundary points for each sector
+        self.min_sep    ={} # Minimum radar separation for each sector
         self.auto_departures={}  # Whether there are autodepartures for each sector
         self.fijos_impresion={}
         self.fijos_impresion_secundarios={}
@@ -69,7 +81,7 @@ class FIR:
         self.name = self._firdef.get('datos','nombre')
         
         # Puntos del FIR
-        logging.debug('Points')
+        #logging.debug('Points')
         lista=self._firdef.items('puntos')
         for (nombre,coord) in lista:
             coord_lista=coord.split(',')
@@ -149,7 +161,7 @@ class FIR:
                     # dictionary (key: map name)
                     map_objects = []
                     for item in map_items:
-                        logging.debug (item[0].lower())
+                        #logging.debug (item[0].lower())
                         if item[0].lower() != 'nombre':
                             map_objects.append(item[1].split(','))
                     self.local_maps[map_name] = map_objects
@@ -159,18 +171,20 @@ class FIR:
             for (num,aux) in lista:
                 for a in aux.split(','):
                     self.aerodromes.append(a)
-                    # Published holding patterns
         if self._firdef.has_section('elevaciones'):
             elev_list=self._firdef.items('elevaciones')[0][1].split(",")
             for ad,elev in zip(self.aerodromes, elev_list):
                 self.ad_elevations[ad]=int(elev)
+        # Published holding patterns
         if self._firdef.has_section('esperas_publicadas'):
             lista=self._firdef.items('esperas_publicadas')
             for (fijo,datos) in lista:
                 (rumbo,tiempo_alej,lado) = datos.split(',')
                 rumbo,tiempo_alej,lado = float(rumbo),float(tiempo_alej),lado.upper()
-                self.holds.append([fijo.upper(),rumbo,tiempo_alej,lado])
-                # IFR Runways
+                if lado=='D': std_turns = True
+                else: std_turns = False
+                self.holds.append(Hold(fijo.upper(),rumbo,tiempo_alej,std_turns))
+        # IFR Runways
         if self._firdef.has_section('aeropuertos_con_procedimientos'):
             lista=self._firdef.items('aeropuertos_con_procedimientos')
             for (airp,total_rwys) in lista:
@@ -214,17 +228,18 @@ class FIR:
                             #        points_star.pop(-1)
                     star[last_point] = (nombre_star,points_star)
                 self.procedimientos[pista] = (sid,star)
-        logging.debug ('Lista de procedimientos'+ str(self.procedimientos))
-        logging.debug ('Pistas: '+ str(self.rwys))
-        logging.debug ('Pistas en uso:' + str(self.rwyInUse))
-        # Procedimientos de aproximación
-        for aerop in self.rwys.keys():
-            for pista in self.rwys[aerop].split(','):
+        #logging.debug ('Lista de procedimientos'+ str(self.procedimientos))
+        #logging.debug ('Pistas: '+ str(self.rwys))
+        #logging.debug ('Pistas en uso:' + str(self.rwyInUse))
+
+        # Instrument Approach Procedures
+        for ad in self.rwys.keys():
+            for pista in self.rwys[ad].split(','):
                 # Procedimientos aproximación
                 procs_app=self._firdef.items('app_'+pista)
                 for [fijo,lista] in procs_app:
                     lista = lista.split(',')
-                    logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
+                    #logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
                     points_app = []
                     for i in range(0,len(lista),2):
                         dato = lista[i]
@@ -254,7 +269,7 @@ class FIR:
                         # Ahora vamos a por los puntos de la frustrada        
                     points_map = []
                     lista = lista [i+7:]
-                    logging.debug ('Resto para MAp: '+str(lista))
+                    #logging.debug ('Resto para MAp: '+str(lista))
                     for i in range(0,len(lista),2):
                         dato = lista[i]
                         altitud=lista[i+1]
@@ -266,14 +281,14 @@ class FIR:
                         if not punto_esta:
                             logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
                             # Guardamos los procedimientos
-                    self.proc_app[fijo.upper()]=(points_app,llz_data,points_map)
-        logging.debug ('Lista de procedimientos de aproximación'+str(self.proc_app))
+                    self.iaps[fijo.upper()]=(points_app,llz_data,points_map)
+        #logging.debug ('Lista de procedimientos de aproximación'+str(self.iaps)
         
         # Deltas del FIR
         if self._firdef.has_section('deltas'):
             lista=self._firdef.items('deltas')
             for (num,aux) in lista:
-                logging.debug ('Leyendo delta '+str(num))
+                #logging.debug ('Leyendo delta '+str(num))
                 linea=aux.split(',')
                 aux2=()
                 for p in linea:
@@ -371,7 +386,7 @@ class FIR:
         try:
             self.routedb=Exercise.load_routedb(os.path.dirname(self.file))
         except:
-            logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")
+            logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")        
             
     def get_point_coordinates(self,point_name):
         if point_name in [p[0] for p in self.points]:
@@ -380,15 +395,14 @@ class FIR:
             v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()).groups()
             return (float(v[0]), float(v[3]))
         else:
-            logging.error('No existe el punto'+point_name)
+            raise('Point %s not found in %s'%(point_name, self.file))
             
+
 def load_firs(path):
     import ConfigParser
     
     firs = []
     
-    # Walk each subdirectory looking for cached information. If stale,
-    # recalculate statistics
     for d in os.listdir(path):
         d = os.path.join(path,d)
         mode = os.stat(d)[ST_MODE]
@@ -406,6 +420,62 @@ def load_firs(path):
         firs.append(fir)
             
     return firs
+
+# TODO
+# There is currently no support for lat/lon coordinates, so we are using
+# the non-standard attribute 'pos' to store the cartesian coordinates of objects,
+# rather than the aicm standard geo_lat and geo_lon
+
+class Designated_Point:
+    def __init__(self, code_id, pos):
+        self.code_id    = code_id
+        self.pos        = pos
+        
+Point = Designated_Point  # Alias for the class
+
+class AD_HP: # Aerodrome / Heliport
+    def __init__(self, code_id, txt_name = '', pos = None, val_elev = 0):
+        self.code_id    = code_id
+        self.txt_name   = txt_name
+        self.pos        = pos
+        self.val_elev   = elev
+        
+        self.iap_list   = []
+        self.rwy_list   = []
+        self.star_list  = []
+        self.sid_list   = []
+
+class Hold:
+    # TODO this does not reflect AICM. We need to support the whole
+    # procedure_leg in order to do this
+    def __init__(self, fix, inbd_track=180, outbd_time=1, std_turns=True, min_FL=000, max_FL=999):
+        self.fix        = fix         # The fix on which this hold is based
+        self.inbd_track = inbd_track  # Inbound track of the holding pattern
+        self.outbd_time = outbd_time  # For how long to fly on the outbd track
+        self.std_turns  = std_turns   # Standard turns are to the right
+        self.min_FL     = min_FL        # minimun FL at the holding pattern
+        self.max_FL     = max_FL        # maximun FL at the holding pattern
+        
+class STAR:
+    # TODO this only covers basic AICM attributes.
+    # We need to support the whole procuedure_leg object in order to
+    # to support things like SLP and vertical limitations
+    def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
+        self.txt_desig  = txt_desig
+        self.ad_hp      = ad_hp
+        self.rte        = Route.Route(rte)
+        self.rwy        = rwy
+        
+class SID:
+    # TODO this only covers basic AICM attributes.
+    # We need to support the whole procuedure_leg object in order to
+    # to support things like SLP and vertical limitations
+    def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
+        self.txt_desig  = txt_desig
+        self.ad_hp      = ad_hp
+        self.rte        = Route.Route(rte)
+        self.rwy        = rwy
+        
 
 if __name__ == "__main__":
     #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')

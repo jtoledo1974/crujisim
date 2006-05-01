@@ -403,10 +403,12 @@ VTB1A: VTB,_VTB1A1,PARLA,_2DME
 [app_LEMD33]; Procedimientos de aproximación (APP) y aproximación frustrada (MAP)
 PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000 ; Puntos anteriores hasta LLZ. Después viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorización aterrizaje y puntos MAP
 _2DME = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
+
 [sector1]
 nombre:AppRadarBasico
 min_sep = 5.0
 auto_departure = MANUAL
 limites:_TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_TMA9,_TMA10,_TMA11,_TMA12,_TMA1
+local_ads:LEMD
 fijos_de_impresion:PDT,_2DME
-fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,CJN,BAN,RBO
+fijos_de_impresion_secundarios:ACD,RBO

@@ -21,8 +21,11 @@
 """Classes used by the air traffic controller's interface of Crujisim"""
 
 from RaDisplay import *
+import Aircraft
 from Pseudopilot import DepTabular
-import avion
+import Route
+import datetime
+import time
 
 SNDDIR='./snd/'
 #class ATC_DepTabular(RaTabular):
@@ -53,15 +56,15 @@ SNDDIR='./snd/'
 #        for dep in dep_list:
 #            self.deps.append(dep)
 #            eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
-#            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+dep['dest'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
+#            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+dep['ades'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
 #            self.insert(i, t)
 #            if self.mode == 'pp':
-#                if dep['state']==avion.READY:
+#                if dep['state']==Aircraft.READY:
 #                    self.list.itemconfig(i, background="green", foreground="black")
 #            i+=1
 #        
 #
-#        #if len([dep for dep in self.deps if dep['state']==avion.READY])>0:
+#        #if len([dep for dep in self.deps if dep['state']==Aircraft.READY])>0:
 #        #    pass
 #        #if self.showed:
 #        #    print 'DepTabular.update: self._x, self_y' + str((self._x,self._y))
@@ -78,7 +81,7 @@ SNDDIR='./snd/'
 #        if e.y<lb.bbox(index)[1] or e.y>(lb.bbox(index)[3]+lb.bbox(index)[1]):
 #            return  # Not really clicked within the item
 #        dep=self.deps[index]
-#        #if dep['state']==avion.READY:
+#        #if dep['state']==Aircraft.READY:
 #        #    x1=self.container.winfo_x()+self.container.winfo_width()/2
 #        #    y1=self.container.winfo_y()+self.container.winfo_height()/2
 #        #    self.depart_dialog(dep, index)
@@ -86,7 +89,7 @@ SNDDIR='./snd/'
 class UCS(RaDisplay):
     """Air Traffic Controllers' radar display and user interface"""
     
-    def __init__(self,flights,title,icon_path,fir,sector,mode='atc'):
+    def __init__(self,title,icon_path,fir,sector,mode='atc'):
         """Instantiate a Pseudopilot Radar Display
         
         title - window title
@@ -98,20 +101,9 @@ class UCS(RaDisplay):
         self._flights_tracks = {}
         self._tracks_flights = {}
         RaDisplay.__init__(self,title,icon_path,fir,sector, self.toolbar_height)
-        self.flights = flights
+        self.flights = []
         self.mode = mode
-        
-        # Create the list of tracks from the flights
-        for f in flights:
-            vt = VisTrack(self.c,self.vt_handler,self.do_scale,self.undo_scale)
-            vt.l_font_size=self.label_font_size
-            if mode=='atc':
-                vt.mode='atc'
-                vt.cfl=f.cfl
-                vt.pfl=f.pfl
-            self.tracks.append(vt)
-            self._flights_tracks[f] = vt
-            self._tracks_flights[vt] = f
+        self.t = datetime.datetime.today()
         
         self.routes = []  # List of tracks whose routes are displayed
         self.waypoints = []  # List of tracks whose waypoints are displayed 
@@ -125,13 +117,12 @@ class UCS(RaDisplay):
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
         
-        self.t=0
         x1=0
         y1=0
         delta=30
 
         self.clock=RaClock(self.c,position=[x1,y1])
-        self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(self.t))
+        self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
         x1=x1+delta
         y1=y1+delta
         #self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
@@ -141,36 +132,62 @@ class UCS(RaDisplay):
         y1=y1+delta
         self.dep_tabular = DepTabular(self, self.c,mode = 'atc',position=[x1,y1])
         self.dep_tabular.adjust(0,32,0,0)
+        # self.dep_tabular.hide()
+        
+        self.center_x = self.width/2
+        self.center_y = self.height/2
+        self.get_scale()
+        self.reposition()
         self.redraw()
         self.separate_labels()
         
     def process_message(self, m):
         
         def update_flight(new):
-            try: old = [old for old in self.flights if new.name==old.name][0]
-            except:
-                logging.warning("Unable to update %s. No local flight so named"%(new.name))
-                return
-            for name, value in new.__dict__.items():
-                setattr(old, name, value)
-            return old
+            # Check whether this is a new flight
+            if new.uid not in [f.uid for f in self.flights]:
+                vt = VisTrack(self.c,self.vt_handler,self.do_scale,self.undo_scale)
+                vt.l_font_size=self.label_font_size
+                vt.mode='atc'
+                self.tracks.append(vt)
+                self._flights_tracks[new] = vt
+                self._tracks_flights[vt] = new
+                self.flights.append(new)
+                return new
+                    
+            else: # Otherwise we are updating
+                old = [f for f in self.flights if f.uid==new.uid][0]
+                for name, value in new.__dict__.items():
+                    setattr(old, name, value)
+                return old
         
         if m['message']=='time':
             t = m['data']
             self.update_clock(t)
+            self.t = t            
 
         if m['message']=='update':
             flights = m['flights']
             for f in flights: update_flight(f)
             self.wind = m['wind']
             self.stop_separating = True
-            self.dep_tabular.update(m['dep_list'])
+            self.dep_tabular.update()
             self.update()
 
 
         if m['message']=='update_flight':
             f = update_flight(m['flight'])  # Returns the updated flight
             self.update_track(f)
+            
+        if m['message'] == 'kill_flight':
+            try: f = [f for f in self.flights if f.uid == m['uid']][0]
+            except: return
+            self.flights.remove(f)
+            vt = self._flights_tracks[f]
+            vt.destroy()
+            del self._flights_tracks[f]
+            del self._tracks_flights[vt]
+            self.tracks.remove(vt)
 
     def delete_routes(self,e=None):
         for track in self.tracks:
@@ -182,23 +199,27 @@ class UCS(RaDisplay):
     def draw_fpr(self,track):
         canvas=self.c
         line=()
-        if track.vfp:
+        # TODO This must be changed now that UCS will not have direct info from the Aircraft
+        if track.to_do=='fpr':
             line=line+self.do_scale(track.pos)
-        for a in track.route:
-            pto=self.do_scale(a[0])
-            if a[1][0] <> '_' or a[1] in self.fir.proc_app.keys():
-                canvas.create_text(pto,text=a[1],fill='orange',tag=track.name+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-                canvas.create_text(pto,text=a[2],fill='orange',tag=track.name+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
+        for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
+            try: pto=self.do_scale(a.pos())
+            except: continue
+            if a.fix[0] <> '_' or a.fix in self.fir.iaps.keys():
+                try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
+                except: eto = ''
+                canvas.create_text(pto,text=a.fix,fill='orange',tag=track.callsign+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
+                canvas.create_text(pto,text=eto,fill='orange',tag=track.callsign+'fpr',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
-        if len(line)>3: canvas.create_line(line,fill='orange',tags=track.name+'fpr')
+        if len(line)>3: canvas.create_line(line,fill='orange',tags=track.callsign+'fpr')
         self.routes.append(track)
-        self.c.lift(track.name+'fpr')
+        self.c.lift(track.callsign+'fpr')
         self.c.lift('track')
 
     def show_hide_fpr(self,track):
         canvas=self.c
-        if canvas.itemcget(track.name+'fpr',"fill")=='orange':
-            canvas.delete(track.name+'fpr')
+        if canvas.itemcget(track.callsign+'fpr',"fill")=='orange':
+            canvas.delete(track.callsign+'fpr')
             self.routes.remove(track)
         else:
             self.draw_fpr(track)
@@ -207,27 +228,31 @@ class UCS(RaDisplay):
         canvas=self.c
         do_scale=self.do_scale
 
-        canvas.delete(track.name+'fpr')
-        canvas.delete(track.name+'wp')
+        canvas.delete(track.callsign+'fpr')
+        canvas.delete(track.callsign+'wp')
         line=()
-        if track.vfp:
+        # TODO must be changed now that UCS will not have info from the actual aircraft
+        if track.to_do=='fpr':
             line=line+do_scale(track.pos)
-        for a in track.route:
-            pto=do_scale(a[0])
-            if a[1][0] <> '_':
-                canvas.create_text(pto,text=a[1],fill='yellow',tag=track.name+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
-                canvas.create_text(pto,text=a[2],fill='yellow',tag=track.name+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
+        for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
+            try: pto=do_scale(a.pos())
+            except: continue
+            if a.fix[0] <> '_':
+                try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
+                except: eto = ''
+                canvas.create_text(pto,text=a.fix,fill='yellow',tag=track.callsign+'wp',anchor=SE,font='-*-Helvetica-*--*-10-*-')
+                canvas.create_text(pto,text=eto,fill='yellow',tag=track.callsign+'wp',anchor=NE,font='-*-Helvetica-*--*-10-*-')
             line=line+pto
-        if len(line)>3: canvas.create_line(line,fill='yellow',tags=track.name+'wp')
+        if len(line)>3: canvas.create_line(line,fill='yellow',tags=track.callsign+'wp')
         size=2
         for a in track.route:
-            (rect_x, rect_y) = do_scale(a[0])
-            point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=track.name+'wp')
-            def clicked_on_waypoint(e, point_coord=a[0],point_name=a[1]):
+            (rect_x, rect_y) = do_scale(a.pos())
+            point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=track.callsign+'wp')
+            def clicked_on_waypoint(e, point_coord=a.pos(),point_name=a.fix):
                 # Display window offering "Direct to..." and "Cancel" options.
                 track.last_lad = e.serial
                 win = Frame(canvas)
-                id_avo = Label(win,text=track.name,bg='blue',fg='white')
+                id_avo = Label(win,text=track.callsign,bg='blue',fg='white')
                 id_pto = Entry (win,width=8,justify = CENTER)
                 id_pto.insert(0,point_name)
                 but_direct = Button(win, text="Dar directo")
@@ -245,11 +270,14 @@ class UCS(RaDisplay):
                     if pto == point_name:
                         print "Selected plane should fly direct to point", point_coord
                         for i in range(len(track.route)):
-                            if point_coord==track.route[i][0]:
+                            if point_coord==track.route[i].pos():
                                 aux=track.route[i:]
-                        track.set_route(aux)
+                        # TODO all of this must be rewritten, pending
+                        # proper implementation of TLPV. Currently we are only
+                        # showing the actual aircraft's route
+                        #track.set_route(aux)
                         close_win()
-                        canvas.delete(track.name+'wp')
+                        canvas.delete(track.callsign+'wp')
                     else:
                         aux = None
                         # Si es un punto intermedio de la ruta, lo detecta
@@ -269,23 +297,26 @@ class UCS(RaDisplay):
                             id_pto.config(bg='red')
                             print 'Punto ',pto.upper(),' no encontrado'
                         else:
-                            track.set_route(aux)
+                            # TODO all of this must be rewritten, pending
+                            # proper implementation of TLPV. Currently we are only
+                            # showing the actual aircraft's route
+                            #track.set_route(aux)
                             close_win()
-                            canvas.delete(track.name+'wp')
+                            canvas.delete(track.callsign+'wp')
                             show_hide_fpr()
                 but_cancel['command'] = close_win
                 but_direct['command'] = direct_to
             canvas.tag_bind(point_ident, "<1>", clicked_on_waypoint)
         self.waypoints.append(track)
-        self.c.lift(track.name+'wp')
+        self.c.lift(track.callsign+'wp')
         self.c.lift('track')
             
     def show_hide_way_point(self,track):
         canvas=self.c
         do_scale=self.do_scale
         
-        if canvas.itemcget(track.name+'wp',"fill")=='yellow':
-            canvas.delete(track.name+'wp')
+        if canvas.itemcget(track.callsign+'wp',"fill")=='yellow':
+            canvas.delete(track.callsign+'wp')
             self.waypoints.remove(track)
             return
         
@@ -296,36 +327,43 @@ class UCS(RaDisplay):
         self.toolbar.redraw()
             
     def update(self):
-        self.update_tracks()
+        def after_tracks(x):
+            self.c.lift('track')
+            RaDisplay.update(self)
+        threads.deferToThread(self.update_tracks).addCallback(after_tracks)
         self.update_clock()
-        RaDisplay.update(self)
                             
     def update_clock(self,t=None):
         if t==None: t=self.t
         else: self.t=t
-        self.clock.configure(time='%02d:%02d:%02d' % get_h_m_s(t))
+        self.clock.configure(time='%02d:%02d:%02d' % (t.hour, t.minute, t.second))
             
     def update_tracks(self):
-        for f in self.flights:
-            self.update_track(f)
+        # If we update the tracks all at once from here, when we are dealing with
+        # many of them it will take a long time and the display will feel sluggish
+        # Instead we cycle through them inside a thread, and let the main thread
+        # update the actual tracks in bunches of 30. This improves responsiveness
+        for i in range(len(self.flights)):
+            reactor.callFromThread(self.update_track,self.flights[i])
+            if not i%25: time.sleep(0.01) # Let the display refresh for every n tracks
+        return True
             
     def update_track(self, f):
         vt = self._flights_tracks[f]
-        vt.alt=f.alt
-        vt.cs=f.name
-        vt.wake=f.estela
+        vt.alt=f.lvl
+        vt.cs=f.callsign
+        vt.wake=f.wake
         vt.echo=f.campo_eco
         vt.gs=f.ground_spd
         vt.mach=f.get_mach()
         vt.hdg=f.hdg
         vt.track=f.track
         vt.rate=f.get_rate_descend()
-        vt.ias=f.get_ias()
-        vt.ias_max=f.get_ias_max()
-        vt.visible=f.se_pinta
-        vt.orig = f.origen
-        vt.dest = f.destino
-        vt.type = f.tipo
+        vt.ias=f.ias
+        vt.visible = f.pof in (Aircraft.FLYING, Aircraft.TAKEOFF)
+        vt.adep = f.adep
+        vt.ades = f.ades
+        vt.type = f.type
         vt.radio_cs = f.radio_callsign
         vt.rfl = f.rfl
         vt.pfl=f.pfl
@@ -336,7 +374,6 @@ class UCS(RaDisplay):
         
         [x0,y0]=self.do_scale(f.pos)
         vt.coords(x0,y0,f.t)
-        self.c.lift(str(vt)+'track')
             
     def vt_handler(self,vt,item,action,value,e=None):
         RaDisplay.vt_handler(self,vt,item,action,value,e)
@@ -535,8 +572,8 @@ class ventana_auxiliar:
                                 
         def quitar_fpr():
             for a in ejercicio:
-                if w.itemcget(a.name+'fpr','fill')=='orange':
-                    w.delete(a.name+'fpr')
+                if w.itemcget(a.callsign+'fpr','fill')=='orange':
+                    w.delete(a.callsign+'fpr')
                     
         def quitar_lads():
             global all_lads, superlad
@@ -561,8 +598,8 @@ class ventana_auxiliar:
             # TODO The RaDialog should probably export the contents frame
             # and we could use it here to build the contents using a proper grid
             RaDialog(self.master.c, label=sel.cs+': Detalles',
-                     text='Origen: '+sel.orig+
-                     '\tDestino: '+sel.dest+
+                     text='Origen: '+sel.adep+
+                     '\tDestino: '+sel.ades+
                      '\nTipo:   '+sel.type.ljust(4)+
                      '\tRFL:     '+str(int(sel.rfl))+
                      '\nCallsign: '+sel.radio_cs)
@@ -711,4 +748,3 @@ class ventana_auxiliar:
         
         self.toolbar_id=w.create_window(0,alto,width=ancho,window=ventana,anchor='sw')
         ventana.update_idletasks()
-        logging.debug ('Auxiliary window width: '+str(ventana.winfo_width()))

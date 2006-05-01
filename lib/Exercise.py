@@ -90,7 +90,7 @@ def load_exercises(path, reload=False):
 
         def append_exercise(e):
             for f in e.flights.values():
-                routes.append(f.route,f.orig,f.dest)
+                routes.append(f.route,f.adep,f.ades)
             del(e.flights)
             le.append(e)
         
@@ -353,8 +353,8 @@ class Flight(object):
         if callsign and data:
             self.callsign=callsign.upper()
             self._data=data
-            self.orig=self.orig()
-            self.dest=self.dest()
+            self.adep=self.adep()
+            self.ades=self.ades()
             self.route=self.route()
             self.fix,self.eto,self.firstlevel,self.tas = self.fix_eto_firstlevel_tas()
             self.wtc=self.wtc()
@@ -363,8 +363,8 @@ class Flight(object):
             self.type=self.type()
         else:
             self.callsign=""
-            self.orig=""
-            self.dest=""
+            self.adep=""
+            self.ades=""
             self.route=""
             self.fix=""
             self.eto=""
@@ -380,12 +380,12 @@ class Flight(object):
         n.__dict__=self.__dict__.copy()
         return n
         
-    def orig(self):
+    def adep(self):
         """Return the departing aerodrome"""
         data=self._data.split(',')
         return data[2]
         
-    def dest(self):
+    def ades(self):
         """Return the destination aerodrome"""
         data=self._data.split(',')
         return data[3]
@@ -441,7 +441,7 @@ class Flight(object):
     
     def get_config_string(self):
         try:
-            s = self.type+","+self.wtc+","+self.orig+","+self.dest+","+"%03d"%(int(self.rfl))+","+"%03d"%(int(self.cfl))
+            s = self.type+","+self.wtc+","+self.adep+","+self.ades+","+"%03d"%(int(self.rfl))+","+"%03d"%(int(self.cfl))
             for f in self.route.split(","):
                 s += ","+f
                 if f==self.fix:
@@ -504,29 +504,29 @@ class RouteDB:
     def __init__(self):
         self._routes={}
         
-    def append(self,route,orig,dest):
-        """Append a route together with the orig and dest to the DB of routes"""
+    def append(self,route,adep,ades):
+        """Append a route together with the adep and ades to the DB of routes"""
         route=route.strip().replace(" ",",")
         if route not in self._routes.keys():
           # We add the route to the database, with a frequency of one, and
-          # adding the first pair of orig and dest
-            self._routes[route]=(1,[orig+dest])
+          # adding the first pair of adep and ades
+            self._routes[route]=(1,[adep+ades])
             # logging.debug("New route: "+route)
         else:
           # If the route already exists, we increment the frequency for the route
           # and if the orig_dest pair is new, add it to the list.
             (frequency,orig_dest_list)=self._routes[route]
             frequency=frequency+1
-            if (orig+dest) not in orig_dest_list:
-                orig_dest_list.append(orig+dest)
+            if (adep+ades) not in orig_dest_list:
+                orig_dest_list.append(adep+ades)
             self._routes[route]=(frequency,orig_dest_list)
             
     def size(self):
         """Return the number of known routes"""
         len(self._routes)
         
-    def matching_routes(self,fix_list,orig,dest):
-        """Given a list of points, and optional orig and dest airports, return
+    def matching_routes(self,fix_list,adep,ades):
+        """Given a list of points, and optional adep and ades airports, return
         a sorted list of possible matching routes"""
         match_routes=self._routes.copy()
         potential_discards=[]
@@ -547,39 +547,39 @@ class RouteDB:
                 continue
             
             # Remove the route if it has the origin AD as the first route point
-            if orig==route.split(",")[0]:
+            if adep==route.split(",")[0]:
                 del match_routes[route]
                 continue
 
             # Mark for discarding routes that neither begin nor end on the
-            # given orig and dest
+            # given adep and ades
             (f,orig_dest_list)=match_routes[route]
-            if orig<>'' or dest<>'':
+            if adep<>'' or ades<>'':
                 for od in orig_dest_list:
-                    if not (orig=='' or orig==od[0:4]) and not (dest=='' or dest==od[4:8]):
+                    if not (adep=='' or adep==od[0:4]) and not (ades=='' or ades==od[4:8]):
                         if route not in potential_discards:
                             potential_discards.append(route)
                         break
                             
-        # Only discard routes based on orig and dest when it doesn't remove
+        # Only discard routes based on adep and ades when it doesn't remove
         # all of our options
         if len(potential_discards)<len(match_routes):
             for d in potential_discards:
                 del match_routes[d]
                 
         # Out of the remaining routes, we need to sort them first according to whether
-        # it is appropriate for the orig-dest pair, and then frequency 
+        # it is appropriate for the adep-ades pair, and then frequency 
         sorted_routes=[]
         for (route, (frequency, orig_dest_list)) in match_routes.items():
-            if (orig+dest) in orig_dest_list:
-                # Both origin and dest matches gives the highest score
+            if (adep+ades) in orig_dest_list:
+                # Both origin and ades matches gives the highest score
                 matches_orig_dest=2
             else:
                 # No matching whatsoever gives the lowest score
                 matches_orig_dest=0
                 for od in orig_dest_list:
-                    if (orig==od[0:4]) or (dest==od[4:8]):
-                        # But if either the orig or dest matched we get partial score
+                    if (adep==od[0:4]) or (ades==od[4:8]):
+                        # But if either the adep or ades matched we get partial score
                         matches_orig_dest=1
             sorted_routes.append([matches_orig_dest,frequency,route])
         sorted_routes.sort(reverse=True)

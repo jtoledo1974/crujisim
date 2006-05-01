@@ -24,7 +24,7 @@
 This is the main simulation engine to which clients connect"""
 
 # Modules to be imported  
-from time import time
+from time import time, sleep
 import logging
 try:
   from twisted.internet.protocol import Factory
@@ -35,37 +35,107 @@ except:
 import cPickle
 pickle = cPickle
 import zlib
+import os
+import datetime
 import ConfMgr
-import avion
+import Aircraft
+import Route
 conf = ConfMgr.CrujiConfig()
-from MathUtil import get_h_m_s
 from RemoteClient import PSEUDOPILOT, ATC
+import FIR
+from Exercise import Exercise
+import TLPV
 
 class GTA:
-    def __init__(self, fir, sector, flights, start_time, wind, exc_file = ""):
-        # TODO
-        # This will be cleaner once we have rewritten avion.py and tpv.py
-        # The GTA should do its own flight loading, rather than having
-        # tpv.py do it beforehand
-        self.fir = fir
-        self.sector = sector
-        self.flights = flights
-        self.wind = wind
+    def __init__(self, exc_file = ""):
         self.exercise_file = exc_file
+
+        logging.debug("Opening exercise file "+exc_file)
+        e=Exercise(exc_file)
         
-        avion.fir = fir  # Rather than passing globals
+        # Find the FIR mentioned by the exercise file
+        fir_list = FIR.load_firs(os.path.dirname(exc_file))
+        try: fir = [fir for fir in fir_list if fir.name==e.fir][0]
+        except:
+            logging.critical("Unable to load FIR file for "+str(exc_file))
+            raise
+            return        
+        self.fir        = fir
+        Aircraft.fir    = fir  # Rather than passing globals
+        Route.fir       = fir
+        TLPV.fir        = fir
         
+        self.sector     = e.sector
+        self.wind       = [e.wind_knots, e.wind_azimuth]
+        
+        # Initializes time
+        self.cont = True  # Marks when the main loop should exit
+        t = datetime.datetime.today()
+        self.t = t.replace(t.year, t.month, t.day,
+                           int(e.start_time[0:2]), int(e.start_time[3:5]), 0, 0)
+        self.last_update = self.t - datetime.timedelta(seconds=5) # Copy the datetimeobject
+                      
         fact_t = self.fact_t = 1.0
-        t0=self.t0=fact_t*time()-start_time
-        self.last_update=self.tlocal(t0)-10.
         self.paused = False
+
+        self.tlpv = tlpv = TLPV.TLPV(exc_file)
         
-        self.departure_list = {}
-        
-        self.protocol_factory=GTA_Protocol_Factory(self, fir.file, sector, flights)
+        # Create the aircraft for each of the flights in the exercise
+        self.flights = []
+        logging.debug("Loading aircraft")
+        for ef in e.flights.values():  # Exercise flights
+            
+            # TODO Because the current exercise format cannot distiguish between
+            # overflights and departures first we create them all as overflights
+             
+            eto = datetime.datetime.today()
+            eto = eto.replace(hour=int(ef.eto[:2]), minute=int(ef.eto[2:4]), second=int(ef.eto[4:6]))
+            logging.debug("Loading %s"%ef.callsign)
+            try:
+                a = Aircraft.Aircraft(ef.callsign, ef.type, ef.adep, ef.ades,
+                                      float(ef.cfl), float(ef.rfl), ef.route,
+                                      next_wp = ef.fix, next_wp_eto = eto,
+                                      wake_hint = ef.wtc)
+            except:
+                logging.warning("Unable to load "+ef.callsign, exc_info=True)
+                continue
+            
+            a.lvl = int(ef.firstlevel)
+
+            # TODO We need to know which of the flights are true departures. We assume that 
+            # if the aircraft departs from an airfield local to the FIR,
+            # the EOBT is the estimate to the first point in the route
+            # We substitute the overflight (created using next_wp_eto) with a departure
+            # (created using an EOBT)
+            if a.adep in fir.aerodromes:
+                eobt = a.route[0].eto
+                a = Aircraft.Aircraft(a.callsign, a.type, a.adep, a.ades,
+                                       a.cfl, a.rfl, a.route, eobt = eobt,
+                                       wake_hint=a.wake_hint)
+                if not fir.auto_departures[self.sector] \
+                  or a.adep in fir.release_required_ads[self.sector]:
+                    a.auto_depart = False
+            
+            self.flights.append(a)
+            
+            # Creates new flight plans from the loaded aircraft
+            if a.eobt: pfl = a.rfl  # If it's a departure
+            else: pfl = a.cfl
+            fp = tlpv.create_fp(ef.callsign, ef.type, ef.adep, ef.ades,
+                                  float(ef.rfl), pfl, a.route, eobt = a.eobt,
+                                  next_wp = a.next_wp, next_wp_eto = a.next_wp_eto)
+            a.squawk = fp.squawk  # Set the aircraft's transponder to what the flight plan says
+            a.fs_print_t = fp.fs_print_t
+            fp.wake  = ef.wtc     # Keep the WTC in the exercise file, even if wrong
+            fp.filed_tas = int(ef.tas)
+            
+        tlpv.start()
+            
+        self.protocol_factory=GTA_Protocol_Factory(self, fir.file, self.sector, self.flights)
         
         self.pseudopilots = []  # List of connected pseudopilot clients
-        self.controllers = []  # List of connected controller clients
+        self.controllers  = []  # List of connected controller clients
+
         
     def start(self, port=-1):
         if port==-1: port=conf.server_port
@@ -73,112 +143,63 @@ class GTA:
             self.listening_port = reactor.listenTCP(port, self.protocol_factory)
             logging.info("Servidor iniciado y esperando conexiones en el puerto "+str(port))
         except:
-            logging.critical("No se ha podido iniciar el servidor. El puerto 20123 está ocupado. Verifique si ya hay un servidor corriendo y reinicie la aplicación", exc_info=True)
+            logging.critical("No se ha podido iniciar el servidor. El puerto "+str(port)+" está ocupado. Verifique si ya hay un servidor corriendo y reinicie la aplicación", exc_info=True)
 
-        self.timer()
-        
-        self.d=defer.Deferred()
-        return self.d
-    
-    def tlocal(self,t):
-        return self.fact_t*time()-t
-        
+        while self.cont:
+            self.timer()
+            sleep(0.5)  # Thus we make sure that the clock is always up to date.
+            
     def set_vel_reloj(self,k):
-        self.start_time=self.fact_t*time()-self.t0
         self.fact_t=k
-        self.t0=self.fact_t*time()-self.start_time
     
     def timer(self):
         """Advance the simulation"""
 
         # Make sure we call this function again later
-        self.timerid = reactor.callLater(1, self.timer)
         
         fir = self.fir
         sector = self.sector
         
         refresco=5.
-        # Si el reloj está parado actualizamos t0 para ajustar que no corra el tiempo
-        # y no actualizamos.
-        if self.paused:
-            self.t0=self.fact_t*time()-self.start_time
+        # Si el reloj no está pausado avanzamos el tiempo
+        try: delta = time() - self.last_timer
+        except: delta = 0
+        self.last_timer = time()
+        if not self.paused:
+            td = datetime.timedelta(seconds = delta*self.fact_t)
+            self.t += td
         
         # Send formated time to clients
-        # TODO This is BAD (tm). We should pass actual time and the client
-        # should be able to decide how the want it formatted
         for client in self.pseudopilots+self.controllers:
-            t = float(self.tlocal(self.t0))
-            time_string = '%02d:%02d:%02d' % get_h_m_s(t)
-            if time_string != client.time_string:
+            if self.t != client.t:
                 m={'message':'time',
-                   'data':t}
+                   'data': self.t}
                 try: client.protocol.sendMessage(m)
                 except: logging.critical("Unable to send time message to client "+str(client.number))
-                client.time_string=time_string        
-    
-        if self.tlocal(self.t0)-self.last_update<refresco:
+                client.t=self.t
+        
+        if (self.t-self.last_update).seconds<refresco:
             # No further work needed
             return
 
         # Advance flights
         for f in self.flights:
-            f.next(self.last_update/60./60.)
+            logging.debug("Advancing "+f.callsign)
+            f.next(self.last_update)
+            
+        # Kill flights that have been coasting for 5 minutes
+        for f in self.flights[:]:  # Since flights will be deleted, we iterate over a copy of the list
+            if f.spof == Aircraft.COASTING and f.log[-1].ato+datetime.timedelta(minutes=5)<self.t \
+                or f.spof == Aircraft.LANDED:
+                self.kill_flight(f)
         
-        # Determine which flights belong to the
-        # printed flight strip tabular
-        print_list = []
-        dep_list = []
-        for f in self.flights:
-            dl = self.departure_list
-            if f.name in [cs for ad in dl for cs in dl[ad].keys()] \
-                and self.last_update>f.t_etd*3600:
-                dl[f.origen][f.name][2]=avion.READY
-            if f.se_debe_imprimir(self.last_update/60./60.):
-                if not fir.auto_departures[sector] and f.origen in fir.rwys.keys():
-                    
-                    # TODO This is really horrible. I'm SO looking forward to
-                    # rewriting tpv.py and avion.py JTC 14/3/2006
-                    
-                    if f.origen not in self.departure_list.keys():
-                        self.departure_list[f.origen] = {}
-                    if f.get_callsign() not in self.departure_list[f.origen].keys():
-                        f.t_etd = f.t
-                        f.t +=  100.
-                        f.t_ficha -= 100.
-                        (sid,star) = fir.procedimientos[fir.rwyInUse[f.origen]]
-                        sid_auto = ''
-                        for i in range(len(f.route)):
-                            [(x,y),fijo,hora,auxeto] = f.route[i]
-                            if fijo in sid.keys():
-                                sid_auto = sid[fijo][0]
-                                break
-                        if sid_auto == '':
-                            logging.warning('No hay SID '+f.get_callsign())
-                        f.sid = sid_auto
-                        self.departure_list[f.origen][f.get_callsign()] = \
-                         [f.t_etd, sid_auto, avion.PREACTIVE, f.cfl,f.tipo,f.destino]
-                    pass
-                else:
-                    print_list.append(f.name)
-                    
-        # Create the dep_list to be passed.
-        dl = self.departure_list
-        dep_list = [{"ad": ad, "cs": cs, "eobt": dl[ad][cs][0],
-                     "sid": dl[ad][cs][1].upper(), "state": dl[ad][cs][2],
-                     "cfl": dl[ad][cs][3],"type": dl[ad][cs][4],"dest":dl[ad][cs][5]}
-                        for ad in dl.keys()
-                          for cs in dl[ad].keys() ]
-        # Sort departures by their EOBT
-        dep_list.sort(lambda p,q: cmp(p['eobt'], q['eobt']))
-                
         # Send updates to clients
         for protocol in self.protocol_factory.protocols:
             protocol.sendMessage({'message':'update',
                                   'flights':self.flights,
-                                  'wind':self.wind,
-                                  'print_list':print_list,
-                                  'dep_list':dep_list})
-        self.last_update=self.tlocal(self.t0)
+                                  'wind':self.wind})
+
+        self.last_update = self.t
     
     def process_message(self, m, p):
         """Process a command message received through a network link
@@ -209,25 +230,29 @@ class GTA:
             
             # Send the client initialization data
             m={'message':'init',
-                'fir_file':self.fir.file,
+                'fir':self.fir,
                 'sector':self.sector,
-                'flights':self.flights,
                 'pos_number': number,
                 'exercise_file': self.exercise_file}
+            p.sendMessage(m)
+            
+            # Create and send the set of flightstrips to the client
+            m={'message': 'flightstrips',
+               'fs_list': self.tlpv.get_sector_flightstrips(self.sector)}
             p.sendMessage(m)
             
             # If this is the first connection the server receives
             # make it the master connection (the server will close
             # after this connection is lost)
             # TODO we should probably have a master_client and
-            # and not a master protocol ? (JTC)
+            # and not a master protocol ?
             if not hasattr(self.protocol_factory, "master_protocol"):
                 self.protocol_factory.master_protocol = p
             self.protocol_factory.protocols.append(p)
             return
         
         if m.has_key("cs"):
-            f = [f for f in self.flights if f.name == m["cs"]]
+            f = [f for f in self.flights if f.callsign == m["cs"]]
             try: f=f[0]
             except:
                 logging.warning ("No flight with callsign "+m["cs"]+" found.")
@@ -237,13 +262,11 @@ class GTA:
         if m['message']=='play':
             logging.info("PLAY")
             if self.paused:
-                self.t0=self.fact_t*time()-self.start_time
                 self.paused = False
 
         elif m['message']=='pause':
             logging.info("PAUSE")
             if not self.paused:
-                self.start_time=self.fact_t*time()-self.t0
                 self.paused=True
                 
         elif m['message']=='clock_speed':
@@ -252,38 +275,42 @@ class GTA:
 
         elif m['message']=='wind':
             wind = m["wind"]
-            avion.wind = self.wind = wind
+            Aircraft.wind = self.wind = wind
             logging.info('Viento ahora es (int,rumbo) '+str(wind))
                 
         elif m['message']=='kill':
             logging.info("Killing "+str(m))
-            try: f.kill()
+            try: self.kill_flight(f)
             except: logging.warning("Error while killing", exc_info = True)
             
         elif m['message']=='hold':
             logging.debug("Hold "+str(m))
-            try: f.hold(fix=m["fix"], inbound_track=m["inbound_track"],
-                   outbound_time=m["outbound_time"],
-                   turn_direction=m["turn_direction"])
+            try: inbd_track = m["inbd_track"]
+            except: inbd_track = None
+            try: outbd_time = m["outbd_time"]
+            except: outbd_time = None
+            try: std_turns = m["std_turns"]
+            except: std_turns = None
+            try: f.hold(m["fix"], inbd_track, outbd_time, std_turns)
             except: logging.warning("Error while setting hold", exc_info = True)
         
         elif m['message']=='change_fpr':
             logging.debug("Rerouting "+str(m))
-            try: f.set_route(m["route"])
+            try: f.fly_route(m["route"])
             except: logging.warning("Error while changing fpr", exc_info = True)
             logging.debug("Changing destination "+str(m))
-            try: f.set_destination(m["destino"])
+            try: f.set_dest(m["ades"])
             except: logging.warning("Error while changing destination in change_fpr", exc_info = True)
 
         elif m['message']=='hdg_after_fix':
             logging.debug("Heading after fix "+str(m))
-            try: f.hdg_after_fix(aux=m["aux"], hdg=m["hdg"])
+            try: f.hdg_after_fix(aux=m["fix"], hdg=m["hdg"])
             except: logging.warning("Error while setting hdg after fix",
                                     exc_info = True)
             
         elif m['message']=='int_rdl':
             logging.debug("Intercept radial "+str(m))
-            try: f.int_rdl(aux=m["aux"], track=m["track"])
+            try: f.int_rdl(aux=m["fix"], track=m["track"])
             except: logging.warning("Error while setting radial interception",
                                     exc_info = True)
         elif m['message']=='execute_map':
@@ -308,7 +335,7 @@ class GTA:
                                     exc_info = True)
         elif m['message']=="execute_app":
             logging.debug("Execute APP "+str(m))
-            try: f.execute_app(dest=m["dest"], iaf=m["iaf"])
+            try: f.execute_app(ades=m["ades"], iaf=m["iaf"])
             except: logging.warning("Error while setting approach",
                                     exc_info = True)
         elif m['message']=="set_pfl":
@@ -327,7 +354,7 @@ class GTA:
                 if m["rate"]=="std":
                     f.set_std_rate()
                     p.sendReply(True)
-                else: p.sendReply(f.set_rate_descend(int(m["rate"])))
+                else: p.sendReply(f.set_rate_descend(int(m["rate"]), force=m["force"]))
             except: logging.warning("Error while setting rate",
                                     exc_info = True)
         elif m['message']=="set_hdg":
@@ -339,7 +366,7 @@ class GTA:
             logging.debug("Set IAS "+str(m))
             try:
                 if m["ias"]=="std": f.set_std_spd()
-                else: p.sendReply(f.set_spd(int(m["ias"]), force=m["force_speed"]))
+                else: p.sendReply(f.set_ias(int(m["ias"]), force=m["force_speed"]))
             except: logging.warning("Error while setting IAS",
                                     exc_info = True)
         elif m['message']=="set_mach":
@@ -357,11 +384,7 @@ class GTA:
                                     exc_info = True)
         elif m['message']=="depart":
             logging.debug("Depart "+str(m))
-            try:
-                f.depart(m['sid'], m['cfl'], self.last_update/3600.)
-                for airp in self.departure_list.keys():
-                    if m['cs'] in self.departure_list[airp]:
-                        del self.departure_list[airp][m['cs']]
+            try: f.depart(m['sid'], m['cfl'], self.last_update)
             except: logging.warning("Error while departing acft",
                                     exc_info = True)
         elif m['message']=="assume":
@@ -390,13 +413,18 @@ class GTA:
             loging.critical("Unknown message type in message "+str(m))
         # If any an action has been taken on a flight, update this flight
         # on all of the pseudopilot positions
-        if m.has_key("cs"):
+        if m.has_key("cs") and m['message']!='kill':
             self.send_flight(f, self.pseudopilots)
             # Same should be done for controllers' positions if the message was generated by a
             # controller's position
             if p.client.type == ATC:
               self.send_flight(f,self.controllers)
 
+    def kill_flight(self, f):
+        self.flights.remove(f)
+        for c in self.pseudopilots+self.controllers:
+            m = {"message": "kill_flight", "uid": f.uid}
+            c.protocol.sendMessage(m)
 
     def send_flight(self, f, clients):
         """Update a specific flight on the given clients"""
@@ -412,11 +440,10 @@ class GTA:
             
         try: self.listening_port.stopListening()
         except: logging.warning("Unable to stop listening to port", exc_info=True)
-        self.timerid.cancel()
+        self.cont = False
         del self.protocol_factory.gta
         
-        try: self.d.callback(True)  # Signal the parent that simulation is over
-        except: logging.debug("Failure when calling exit callback", exc_info=True)
+        self.tlpv.exit()
 
     def __del__(self):
         logging.debug("GTA.__del__")
@@ -428,12 +455,12 @@ class Client:
     # most likely put everything here
 
     def __init__(self, gta):
-        self.gta = gta
-        self.number = None  # Identifies the client position number (used to track who controls or pilots a specific flight)
-        self.type = None  # ATC or PSEUDOPILOT
-        self.sector = None  # Which sector is the client connected to
-        self.protocol = None  # The protocol throught which we are talking to this client
-        self.time_string = ''  # The last transmitted time string
+        self.gta        = gta
+        self.number     = None  # Identifies the client position number (used to track who controls or pilots a specific flight)
+        self.type       = None  # ATC or PSEUDOPILOT
+        self.sector     = None  # Which sector is the client connected to
+        self.protocol   = None  # The protocol throught which we are talking to this client
+        self.t          = None  # The last time sent
 
     def exit(self):
         if self.type == ATC:
@@ -449,20 +476,23 @@ class Client:
 
 class GTA_Protocol(NetstringReceiver):
     
-    # TODO Pickle is not secure across a network
-    # I need to find a simple secure replacement
+    # TODO Pickle is not secure across a network by default
+    # I believe it is possible to limit from which modules are classes
+    # unpickled. We should implement those limits.
     
     def __init__(self):
         self._deferred = None
         self.command_no = None  # The current command number. Used in replys
     
     def connectionMade(self):
+        logging.debug("Sending hello")
         self.sendMessage({"message":"hello"})
         
     def sendMessage(self,m):
-        line = pickle.dumps(m)
+        line = pickle.dumps(m, protocol=-1)  # Use the highest protocol version available
         zline = zlib.compress(line)
         self.sendString(zline)
+        #logging.debug("Sending %d characters"%len(zline))
         
     def sendReply(self, m):
         m2 = {"message": "reply", "command_no": self.command_no, "data": m}
@@ -471,7 +501,8 @@ class GTA_Protocol(NetstringReceiver):
     def connectionLost(self,reason):
         if self._deferred!=None:
             self._deferred.cancel()
-        logging.info("Client connection lost")
+        logging.info("Connection lost to %s client %d"%(self.client.type, self.client.number))
+        logging.debug(reason)
         try: self.factory.protocols.remove(self)
         except: logging.debug ("Protocol "+str(id(self))+" already removed")
         try: self.client.exit()
@@ -479,14 +510,14 @@ class GTA_Protocol(NetstringReceiver):
         del(self.client)
         if self.factory.master_protocol==self:
             logging.debug("The master connection has been lost. Cleaning up")
-            reactor.callWhenRunning(self.factory.gta.exit)
+            self.factory.gta.exit()
 
     def stringReceived(self, line):
         line=zlib.decompress(line)
         try:
             m=pickle.loads(line)
         except:
-            print "Unable to unpickle"
+            logging.error("Unable to unpickle client message")
             return
         
         self.command_no = m["command_no"]

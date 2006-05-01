@@ -1087,7 +1087,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 	      </child>
 
 	      <child>
-		<widget class="GtkEntry" id="orig">
+		<widget class="GtkEntry" id="adep">
 		  <property name="width_request">36</property>
 		  <property name="height_request">16</property>
 		  <property name="visible">True</property>
@@ -1130,7 +1130,7 @@ Si la aeronave no tiene RVSM aprobada o está exenta debe incluir aquí los aste
 	      </child>
 
 	      <child>
-		<widget class="GtkEntry" id="dest">
+		<widget class="GtkEntry" id="ades">
 		  <property name="width_request">36</property>
 		  <property name="height_request">16</property>
 		  <property name="visible">True</property>

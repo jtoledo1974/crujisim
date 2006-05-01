@@ -18,21 +18,28 @@
 # You should have received a copy of the GNU General Public License
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+# Sys imports
 import sys
 sys.path.append ("lib")
-from twisted.internet import reactor, tksupport, defer
-from twisted.internet.protocol import ClientCreator
-from twisted.protocols.basic import NetstringReceiver
-from Tix import *
-from Pseudopilot import PpDisplay
-from UCS import UCS
-from FIR import *
-import UI
 import cPickle
 pickle = cPickle
 import logging
 import zlib
+from Tix import *
+
+# Twisted imports
+from twisted.internet import reactor, tksupport, defer
+from twisted.internet.protocol import ClientCreator
+from twisted.protocols.basic import NetstringReceiver
+
+# Program imports
+from Pseudopilot import PpDisplay
+from UCS import UCS
+from FIR import *
+import UI
 from ConfMgr import *
+from StripSeries import StripSeries
 
 # Constants
 PSEUDOPILOT = "pseudopilot"
@@ -43,6 +50,7 @@ class GTA_Client_Protocol(NetstringReceiver):
     def __init__(self):
         self.command_no = 0
         self.defer_list={}
+        self.MAX_LENGTH = 10000000  # The Twisted NetstringReceiver drops the connection for messages longer than this.
                     
     def stringReceived(self, line):
         line=zlib.decompress(line)
@@ -62,12 +70,12 @@ class GTA_Client_Protocol(NetstringReceiver):
         
     def sendMessage(self, object):
         object = {"command_no": self.command_no, "data": object}
-        line = pickle.dumps(object)
+        line = pickle.dumps(object, protocol=-1)
         zline = zlib.compress(line)
         self.sendString(zline)
         d = defer.Deferred()
         self.defer_list[self.command_no] = d
-        d.setTimeout(5, self.replyTimeout, self.command_no)
+        reactor.callLater(5, self.replyTimeout, d, self.command_no)
         self.command_no += 1
         return d
     
@@ -76,7 +84,8 @@ class GTA_Client_Protocol(NetstringReceiver):
         del self.defer_list[command_no]
                 
     def connectionLost(self,reason):
-        logging.info("Server connection lost")
+        logging.info("Connection to server lost")
+        logging.debug(reason)
         try: self.connectionLostCB()
         except: pass
 
@@ -111,22 +120,37 @@ class RemoteClient:
         if m['message']=='hello':
             self.protocol.sendMessage({'message':'hello', 'client_type':self.type})
             return
-        if m['message']=='init':
-            fir_file=m['fir_file']
+        elif m['message']=='init':
+            logging.debug("Init message received")
+            fir=m['fir']
             sector=m['sector']
-            self.flights = m['flights']
-            fir=FIR(fir_file)
-            exc_file = m['exercise_file']
-            window_name = exc_file+" ("+ str(sector)+")"
+            exc_file = self.exc_file = m['exercise_file']
+            window_name = exc_file+" ("+ str(sector)+")"            
             if self.type==PSEUDOPILOT:
-                d=self.display=PpDisplay(self.flights,window_name,'./img/crujisim.ico',fir,sector,mode='pp')
+                logging.debug("Creating PpDisplay object")
+                d=self.display=PpDisplay(window_name,'./img/crujisim.ico',fir,sector,mode='pp')
             elif self.type==ATC:
-                d=self.display=UCS(self.flights,window_name,'./img/crujisim.ico',fir,sector,mode='atc')
+                logging.debug("Creating UCS object")
+                d=self.display=UCS(window_name,'./img/crujisim.ico',fir,sector,mode='atc')
             d.sendMessage = self.protocol.sendMessage
             try:d.pos_number = m['pos_number']
             except: logging.warning("Unable to set pos_number")
             self.display.top_level.protocol("WM_DELETE_WINDOW",lambda :reactor.callLater(0,self.exit))
             return
+        
+        elif m['message']=='flightstrips':
+            fs_list = m['fs_list']
+            ss  = StripSeries(exercise_name=self.exc_file, output_file='etiquetas.pdf')
+            ss2 = StripSeries(exercise_name=self.exc_file, output_file='minietiquetas.pdf')
+
+            for fd in fs_list:
+                ss.draw_flight_data(fd)
+                ss2.draw_flight_data(fd,0.5,0.6,num_colums=2)
+
+            if not ss.save() :
+                logging.error("Unable to save flight strips. Perhaps the file is already open?")                    
+            if not ss2.save() :
+                logging.error("Unable to save mini flight strips. Perhaps the file is already open?")
         
         self.display.process_message(m)
         
