@@ -26,6 +26,12 @@ import warnings
 warnings.filterwarnings('ignore','.*',DeprecationWarning)
 import sys
 sys.path.insert(0, 'strips.zip')
+import logging
+
+try: import strips
+except:
+    sys.path.append('..')
+    import strips
 import strips.stringformat
 from strips.colors import *
 from strips.pid import Font
@@ -36,30 +42,36 @@ STRIPS_PER_PAGE = 11
 STRIP_X_SIZE=560    #define el tamaño horizontal de la ficha
 STRIP_Y_SIZE=70     #define el tamaño vertical de la ficha
 
-class FlightData:
-    exercice_name=""
-    callsign=""
-    ciacallsign=""
-    model=""
-    wake=""
-    responder=""
-    speed=""
-    cssr=""
-    origin=""
-    eobt=""
-    destination=""
-    fl=""
-    cfl=""
-    route=""
-    rules=""
-    prev_fix=""
-    fix=""
-    next_fix=""
-    prev_fix_est=""
-    fix_est=""
-    next_fix_est=""
-    print_time=0.
-    fs_type="enroute"
+class FlightStripData:
+    def __init__(self):
+        self.exercice_name   = ""
+        self.callsign        = ""
+        self.ciacallsign     = ""
+        self.model           = ""
+        self.wake            = ""
+        self.responder       = ""
+        self.speed           = ""
+        self.cssr            = ""
+        self.origin          = ""
+        self.eobt            = ""
+        self.destination     = ""
+        self.fl              = ""
+        self.cfl             = ""
+        self.route           = ""
+        self.rules           = ""
+        self.prev_fix        = ""
+        self.fix             = ""
+        self.next_fix        = ""
+        self.prev_fix_est    = ""
+        self.fix_est         = ""
+        self.next_fix_est    = ""
+        self.print_time      = ""
+        self.fs_type         = "enroute"
+        
+    def copy(self):
+        fd = FlightStripData()
+        fd.__dict__ = self.__dict__.copy()
+        return fd
     
 class StripSeries:
 
@@ -211,6 +223,35 @@ class StripSeries:
             self.canvas.save()
             return True
         except:
-            print 'Failed printing flight strips. Unable to open '+self.filename+' for writing'
+            logging.error('Failed printing flight strips. Unable to open %s for writing'%self.filename, exc_info=True)
             return False
             
+if __name__=='__main__':
+
+    import StringIO
+    import cPickle
+    
+    sio = StringIO.StringIO()
+    ss                  = StripSeries(exercise_name = 'Test run', output_file='t.pdf')
+    cfd                 = FlightStripData()
+    cfd.callsign        = 'IBE727'
+    cfd.exercice_name   = 'Test file'
+    cfd.ciacallsign     = 'IBERIA'
+    cfd.model           = 'A346'
+    cfd.wake            = 'H'
+    cfd.speed           = '0470'
+    cfd.responder       = 'C'
+    cfd.origin          = 'LEMD'
+    cfd.destination     = 'LEBL'
+    cfd.fl              = '380'
+    cfd.cssr            = '0215'
+    cfd.route           = 'CNR PINAR SEGRE KOTEX ADUXO **'
+    cfd.rules           = 'I'
+    cfd.print_time      = '1020'
+    cfd.eobt            = '1035'
+    
+    ss.draw_flight_data(cfd)
+    ss.save()
+    sio.writelines(open('t.pdf').readlines())
+    sio.seek(0)
+    open('t2.pdf','wb').writelines(cPickle.loads(cPickle.dumps(sio)).readlines())

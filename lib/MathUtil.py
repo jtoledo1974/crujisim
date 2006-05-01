@@ -22,6 +22,10 @@
 from math import *
 import logging
 
+EXIT = 'EXIT'
+ENTRY = 'ENTRY'
+
+
 def s(a,b):
     return (a[0]+b[0],a[1]+b[1]) # Suma de vectores
     
@@ -47,19 +51,210 @@ def pr(a):  # Polares a rectangulares
     r=a[0]
     ang=a[1]
     return(r*sin(radians(ang)),r*cos(radians(ang)))
+
+def dp(a, b):
+    """Dot product of vectors a and b"""
+    return a[0]*b[0]+a[1]*b[1]
     
 def sgn(a):
     if a<>0.:
         return a/abs(a)
     else:
         return 0
+    
+def get_distance(pA,pB):
+    return ((pA[0]-pB[0])**2 + (pA[1]-pB[1])**2)**(0.5)
 
-def get_h_m_s(t):
+def point_within_polygon(point, pointsList):
+        "Return True if point is contained in polygon (defined by given list of points.)"
+
+        assert len(pointsList) >= 3, 'Not enough points to define a polygon (I require 3 or more.)'
+        assert len(point) >= 2, 'Not enough dimensions to define a point(I require 2 or more.)'
+
+        # If given values are ints, code will fail subtly. Force them to floats.
+        x,y = float(point[0]), float(point[1])
+        xp = [float(p[0]) for p in pointsList]
+        yp = [float(p[1]) for p in pointsList]
+
+        # Initialize loop
+        c=False
+        i=0
+        npol = len(pointsList)
+        j=npol-1
+
+        while i < npol:
+                if ((((yp[i]<=y) and (y<yp[j])) or
+                        ((yp[j]<=y) and(y<yp[i]))) and
+                        (x < (xp[j] - xp[i]) * (y - yp[i]) / (yp[j] - yp[i]) + xp[i])):
+                        c = not c
+                j = i
+                i += 1
+
+        return c
+
+def pfloat(a0):
+    """promotes all elements of a0 to float"""
     try:
-        ho=int(t/60/60)
-        m=int(t/60)-ho*60
-        s=int(t)-60*60*ho-60*m
+        a = [float(elements) for elements in a0]
+        return a
     except:
-        ho=m=s=0
-        logging.error("Unable to format time "+str(t))
-    return (ho,m,s)
+        return None
+        
+
+def get_line_equation(pa0,pa1):
+    """calculates the line equation m,b from two points"""
+    #promotes to float
+    #a0 = pfloat(pa0)
+    #a1 = pfloat(pa1)
+    a0, a1 = pa0, pa1
+    d = a1[0]-a0[0]
+    if d != 0.0:
+        m = (a1[1]-a0[1])/d
+        b = a0[1]-m*a0[0]
+        return [m,b]
+    else:
+        return ["Infinity",a0]
+
+def get_cross_point(pa0,pa1,pb0,pb1):
+    """calculates crossing point's coordinates given the coordinates of four points
+    if both segments are equivalent the method returns de point on segment b closest to pa0"""
+    #Promotes to float
+    #a0=pfloat(pa0)
+    #a1=pfloat(pa1)
+    #b0=pfloat(pb0)
+    #b1=pfloat(pb1)
+    a0, a1, b0, b1 = pa0, pa1, pb0, pb1
+
+    l1 = get_line_equation(a0,a1)
+    l2 = get_line_equation(b0,b1)
+    
+    if l1[0] == "Infinity" and l2[0] == "Infinity":
+        if l1[1] == l2[1]:
+            #If both lines are the same and vertical, returns de point on segment b
+            #closest to pa0
+            d00 = (a0[0]-b0[0])**2+(a0[1]-b0[1])**2
+            d01 = (a0[0]-b1[0])**2+(a0[1]-b1[1])**2
+            if d00 <= d01: return b0
+            else: return b1
+        else: return None
+
+    elif l1[0] == "Infinity":
+            x1 = a0[0]
+            y1 = l2[0]*x1+l2[1]
+            return [x1,y1]
+    elif l2[0] == "Infinity":
+            x1 = b0[0]
+            y1 = l1[0]*x1+l1[1]
+            return [x1,y1]
+    else:
+        d = l1[0]-l2[0]
+        if d!=0.0:
+            x1 = (l2[1]-l1[1])/d
+            y1 = (l2[1]*l1[0]-l1[1]*l2[0])/d
+            return [x1,y1]
+        else:
+            if l1[1] == l2[1]:
+                #If both lines are the same, returns de point on segment b
+                #closest to pa0
+                d00 = (a0[0]-b0[0])**2+(a0[1]-b0[1])**2
+                d01 = (a0[0]-b1[0])**2+(a0[1]-b1[1])**2
+                if d00 < d01: return b0
+                else: return b1
+            else: return None
+    
+def calculates_intersection(pA0,pA1,pB0,pB1,use_given_coordinates = True):
+    """calculates intersection between line defined by pA0,pA1 and line defined by pB0,pB1"""
+    ###returns a point which name is pA0's name + "#" + pA1's name + "@" + pB0's name + "#" + pB1's name
+    xP = ["A",[0.0,0,0]]
+    if use_given_coordinates:
+        #Tuples of points' names and coordinates are passed
+        try:
+            xP[0]= pA0[0]+"#"+pA1[0]+"@"+pB0[0]+"#"+pB1[0]
+            xP[1] = get_cross_point(pA0[1],pA1[1],pB0[1],pB1[1])
+            return xP
+        except:
+            return None
+    else:
+        #In this case, only points' names are passed
+        try:
+            xP[0]= pA0+"#"+pA1+"@"+pB0+"#"+pB1
+            pList = [pA0, pA1,pB0,pB1]
+            pListC = [get_point_coordinates(elements) for elements in pList]
+            xP[1] = get_cross_point(pListC[0],pListC[1],pListC[2],pListC[3])
+            return xP
+        except:
+            return None
+        
+def point_within_segment(pA,sA0,sA1):
+    """Returns true if pA lies within the segment sA0-sA1. Coordinates Tuples are passed
+        if pA == sA0 or sA1 also returns true"""
+    if sA0[0] == sA1[0]:
+        # vertical segment, check y coordinates.
+        min_sA_Y = min(sA0[1],sA1[1])
+        max_sA_Y = max(sA0[1],sA1[1])
+        if (pA[1] >= min_sA_Y) and (pA[1] <= max_sA_Y):
+            return True
+        else:
+            return False
+    else:
+        # horizontal segment or generic segment, check x coordinates.
+        min_sA_X = min(sA0[0],sA1[0])
+        max_sA_X = max(sA0[0],sA1[0])
+        if (pA[0] >= min_sA_X) and (pA[0] <= max_sA_X):
+            return True
+        else:
+            return False
+
+def point_within_segment_2(xpA,xsA0,xsA1,use_given_coordinates = True):
+    """Returns true if pA lies within the segment sA0-sA1. Points Tuples are passed
+        if pA == sA0 or pA == sA1 also returns true"""
+    if use_given_coordinates:
+        return point_within_segment(xpA[1],xsA0[1],xsA1[1])
+    else:
+        try:
+            pList = [xpA, xsA0,xsA1]
+            pListC = [get_point_coordinates(elements) for elements in pList]
+            return point_within_segment(pListC[0],pListC[1],pListC[2])
+        except:
+            return None
+    
+def get_entry_exit_points(pA0,pA1,poly):
+    """Returns a list with entry and exit points of the path defined
+    by segment pA0 -> pA1 when crosses polygon poly, method uses coordinates points
+    WARNING: For efficiency reasons we are assuming that all inputs are floats.
+    There WILL be problems if they are not, but it's too expensive to promote them
+    to floats here. Make sure your data is correct.
+    """
+    
+    pA0_in = point_within_polygon(pA0,poly)
+    pA1_in = point_within_polygon(pA1,poly)
+    N = len(poly)
+    x_points=[]
+    #Find all intersectings points
+    for i in range(0,N-1):
+        pA_x_poly = get_cross_point(pA0,pA1,poly[i],poly[i+1])
+        if pA_x_poly != None:
+            #There is a crossing point, check if it is within segment poly[i]->poli[i+1] and
+            # between pA0 -> pA1
+            test1 = point_within_segment(pA_x_poly,poly[i],poly[i+1])
+            test2 = point_within_segment(pA_x_poly,pA0,pA1)
+            if test1 and test2:
+                x_points.append(["Unknown",pA_x_poly,get_distance(pA0,pA_x_poly)])
+    
+    #Now we sort the points by distance to pA0
+    if len(x_points) == 0:
+        return []
+    else:
+        if len(x_points) > 1: x_points.sort(lambda p,q: cmp(p[2],q[2]))
+        type = ENTRY
+        if pA0_in: type = EXIT   #pA0 is inside the poly, so the first point is an exit point
+        for element in x_points:
+            element[0] = type
+            type = not type
+        return x_points
+    
+if __name__=='__main__':
+    print r((10,10),(0,10))
+    assert point_within_polygon((0.1,0.1),((0,0),(0,1),(1,0))) == True
+    assert point_within_polygon((0,0),((0,0),(0,1),(1,0))) == True
+    assert point_within_polygon((1,1),((0,0),(0,1),(1,0))) == False
