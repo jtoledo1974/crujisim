@@ -1425,6 +1425,7 @@ class VisTrack(object): # ensure a new style class
     def set_pac(self, value):
         self._pac = value
         if self.visible:
+            self._item_refresh_list.append('pac')
             self.redraw_l()
             if value and self.plot_only:
                 self.plot_only = False
@@ -1434,6 +1435,7 @@ class VisTrack(object): # ensure a new style class
     def set_vac(self, value):
         self._vac = value
         if self.visible:
+            self._item_refresh_list.append('vac')
             self.redraw_l()
             if value and self.plot_only:
                 self.plot_only = False
@@ -1499,27 +1501,46 @@ class VisTrack(object): # ensure a new style class
         self._speed_vector_length = value
         self.redraw_sv()
     speed_vector_length = property(get_speed_vector_length, set_speed_vector_length)
+
+    def get_label_item(self, item): return getattr(self, '_'+item)
+    def set_label_item(self, item, value):
+        setattr(self, '_'+item, value)
+        if self.visible:
+            self._item_refresh_list.append(item)
+            if item=='alt': self._item_refresh_list.append('cfl')
+            if item=='cfl': self.draw_cfl = True
+    cs   = property(lambda s: s.get_label_item('cs'),   lambda s,v: s.set_label_item('cs', v))
+    alt  = property(lambda s: s.get_label_item('alt'),  lambda s,v: s.set_label_item('alt', v))
+    rate = property(lambda s: s.get_label_item('rate'), lambda s,v: s.set_label_item('rate', v))
+    cfl  = property(lambda s: s.get_label_item('cfl'),  lambda s,v: s.set_label_item('cfl', v))
+    gs   = property(lambda s: s.get_label_item('gs'),   lambda s,v: s.set_label_item('gs', v))
+    mach = property(lambda s: s.get_label_item('mach'), lambda s,v: s.set_label_item('mach', v))
+    wake = property(lambda s: s.get_label_item('wake'), lambda s,v: s.set_label_item('wake', v))
+    spc  = property(lambda s: s.get_label_item('spc'),  lambda s,v: s.set_label_item('spc', v))
+    echo = property(lambda s: s.get_label_item('echo'), lambda s,v: s.set_label_item('echo', v))
+    hdg  = property(lambda s: s.get_label_item('hdg'),  lambda s,v: s.set_label_item('hdg', v))
+
    
-    def __setattr__(self,name,value):
-        """Capture attribute setting so as to trigger functionality"""
-        # Save the old value
-        try: oldvalue = self.__dict__[name]
-        except: oldvalue = None
-        
-        try:
-            object.__setattr__(self,name,value) # This actually sets the attributes
-        except:
-            raise("Unable to set %s to %s"%(name, value))
-        
-        # The TkFont class has a broken eq method, so we can't compare it
-        if name=='_l_font' or value==oldvalue or name=='_lineid':
-            return
-        elif (name in self.allitems) and self.visible:
-            self._item_refresh_list.append(name)
-            # When alt reaches cfl, cfl must be cleared
-            if name=='alt': self._item_refresh_list.append('cfl')
-            if name=='cfl': self.draw_cfl = True
-            
+    #def __setattr__(self,name,value):
+    #    """Capture attribute setting so as to trigger functionality"""
+    #    # Save the old value
+    #    try: oldvalue = self.__dict__[name]
+    #    except: oldvalue = None
+    #    
+    #    try:
+    #        object.__setattr__(self,name,value) # This actually sets the attributes
+    #    except:
+    #        raise("Unable to set %s to %s"%(name, value))
+    #    
+    #    # The TkFont class has a broken eq method, so we can't compare it
+    #    if name=='_l_font' or value==oldvalue or name=='_lineid':
+    #        return
+    #    elif (name in self.allitems) and self.visible:
+    #        self._item_refresh_list.append(name)
+    #        # When alt reaches cfl, cfl must be cleared
+    #        if name=='alt': self._item_refresh_list.append('cfl')
+    #        if name=='cfl': self.draw_cfl = True
+    #        
     def destroy(self):
         if VisTrack.timer_id: self._c.after_cancel(VisTrack.timer_id)
         VisTrack.timer_callbacks = []
@@ -3274,3 +3295,7 @@ if __name__ == "__main__":
         pass
     %s = property(get_%s, set_%s)
    """%(at, at, at, at, at, at, at))
+
+    for item in [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']:
+    
+        print "    %s = property(lambda s: s.get_label_item('%s'), lambda s,v: s.set_label_item('%s', v))"%(item, item, item)
