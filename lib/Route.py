@@ -81,19 +81,20 @@ class Route(list):
     def append(self, wp):
         if self.check_wp(wp):
             list.append(self, wp)
-        self[-1].inbd_track = None
-        self[-1].outbd_track = None
-        try: self[-2].outbd_track = None
+        prev = list.__getitem__(self,-1)
+        prev.inbd_track = None
+        prev.outbd_track = None
+        try: list.__getitem__(self,-1).outbd_track = None
         except: pass
     
     def insert(self, index, wp):
         if self.check_wp(wp):
             list.insert(self, index, wp)
-        self[index].inbd_track = None
-        self[index].outbd_track = None
-        try: self[index+1].inbd_track = None
+        wp.inbd_track = None
+        wp.outbd_track = None
+        try: list.__getitem__(self,index+1).inbd_track = None
         except: pass
-        try: self[index-1].outbd_track = None
+        try: list.__getitem__(self,index-1).outbd_track = None
         except: pass
         
     def __add__(self, other):
