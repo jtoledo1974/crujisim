@@ -665,7 +665,7 @@ class Aircraft:
     def set_route(self, points):
         """Takes a comma or spaced separated list of points and sets and
         replaces the aircraft route"""
-        self.route = Route.Route(points)
+        self.route = Route.Route(Route.get_waypoints(points))
         # In order to save processing time, we add the sector intersection
         # waypoints ahead of time, so that when the Aircraft calculates its ETO,
         # there already are ETOs for the TLPV important points as well.
@@ -692,13 +692,13 @@ class Aircraft:
             # we simply pick the first one. There should be a way to favor one or other
             for iaf in star.keys():
                 if iaf in self.route:
-                    self.route.substitute_after(iaf, [p[1] for p in star[iaf][1]], save=self.next_wp)
+                    self.route.substitute_after(iaf, [Route.WayPoint(p[1]) for p in star[iaf][1]], save=self.next_wp)
                     
         if self.adep in fir.rwys.keys() and self.pof == GROUND: # aplico la SID que toque
             (sid,star) = fir.procedimientos[fir.rwyInUse[self.adep]]
             for fix in sid.keys():
                 if fix in self.route:
-                    self.route.substitute_before(fix, [p[1] for p in sid[fix][1]], save=self.next_wp)
+                    self.route.substitute_before(fix, [Route.WayPoint(p[1]) for p in sid[fix][1]], save=self.next_wp)
                     
         #if self.adep in fir.aerodromes and self.route[0].fix!=self.adep:
         #    self.route.insert(0, self.adep)

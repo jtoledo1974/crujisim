@@ -36,6 +36,24 @@ WAYPOINT = 0
 FMS      = 1  # FMS added to implement a IAP, for instance
 TLPV     = 2  # Added by the TLPV to calculate a sector entry time, for instance
 
+def get_waypoints(item):
+    """Given a route either as a string, or a list of waypoints,
+    or a list of fix strings, returns a list of waypoints"""
+    if isinstance(item, str):
+        points = item.replace(",", " ").strip().split()
+        return [WP(p) for p in points]            
+    elif isinstance(item, WP):
+        return [item]
+    elif isinstance(item, list):
+        rlist = []
+        for wp in item:
+            if isinstance(wp, WP): rlist.append(wp)
+            elif isinstance(wp, str): rlist.append(WP(wp))
+            else: raise TypeError, 'get_waypoints: Unable to extract waypoint list from '+str(item)
+        return rlist
+    else:
+        raise TypeError, 'get_waypoints: Unable to extract waypoint list from '+str(item)
+
 class Route(list):
     
     # Methods which adapt the list object to our use
@@ -49,7 +67,7 @@ class Route(list):
                                        # when a waypoint is added with coords unknown
         self.insert_on_unknown = False # Whether or not a waypoint whose coordinates are unknown
                                        # is added to the route
-        for wp in self.get_waypoints(inlist):
+        for wp in inlist:
             self.append(wp)
     
     def __getslice__(self, i, j):
@@ -64,17 +82,23 @@ class Route(list):
         else:
             return Route(list.__getitem__(self, key))
     
-    def append(self, item):
-        for wp in self.get_waypoints(item):
-            if self.check_wp(wp): list.append(self, wp)
-        self.clear_tracks()
+    def append(self, wp):
+        if self.check_wp(wp):
+            list.append(self, wp)
+        self[-1].inbd_track = None
+        self[-1].outbd_track = None
+        try: self[-2].outbd_track = None
+        except: pass
     
-    def insert(self, index, item):
-        for wp in self.get_waypoints(item):
-            if self.check_wp(wp):
-                list.insert(self, index, wp)
-                index += 1
-        self.clear_tracks()
+    def insert(self, index, wp):
+        if self.check_wp(wp):
+            list.insert(self, index, wp)
+        self[index].inbd_track = None
+        self[index].outbd_track = None
+        try: self[index+1].inbd_track = None
+        except: pass
+        try: self[index-1].outbd_track = None
+        except: pass
         
     def __add__(self, other):
         if not isinstance(other, Route):
@@ -115,7 +139,7 @@ class Route(list):
                     logging.debug("Did not substitute %s after %s in order to save %s"%(after_route, self[i].fix, save.fix))
                     break
                 del self[i+1:]
-                self.append(after_route)
+                self += after_route
                 break
         if flag: raise ("Waypoint "+str(wp)+" not found in "+str(self))
         
@@ -131,7 +155,7 @@ class Route(list):
             logging.debug("Did not substitute %s before %s in order to save %s"%(before_route, self[i].fix, save.fix))
             return
         del self[:i]
-        self.insert(0, list)
+        self = before_route + self
     
     def get_inbd_track(self, wp):
         """Returns the inbound track to the given waypoint"""
@@ -214,24 +238,6 @@ class Route(list):
             if (isinstance(index, str) and index.upper()==self[i].fix) or \
                 (isinstance(index, WP) and index==self[i]):
                 return i
-
-    def get_waypoints(self, item):
-        """Given a route either as a string, or a list of waypoints,
-        or a list of fix strings, returns a list of waypoints"""
-        if isinstance(item, str):
-            points = item.replace(",", " ").strip().split()
-            return [WP(p) for p in points]            
-        elif isinstance(item, WP):
-            return [item]
-        elif isinstance(item, list):
-            rlist = []
-            for wp in item:
-                if isinstance(wp, WP): rlist.append(wp)
-                elif isinstance(wp, str): rlist.append(WP(wp))
-                else: raise TypeError('get_waypoints: Unable to extract waypoint list from '+str(item))
-            return rlist
-        else:
-            raise TypeError('get_waypoints: Unable to extract waypoint list from '+str(item))
 
     def clear_tracks(self):
         for wp in self:

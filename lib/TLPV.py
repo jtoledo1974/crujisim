@@ -58,7 +58,7 @@ def sector_intersections(route):
                 wp.sector_entry = xp[3]
             else:
                 wp.sector_exit = xp[3]
-            route = route[:i+1+n_added]+Route.Route(wp)+route[i+1+n_added:]
+            route = route[:i+1+n_added]+Route.Route([wp])+route[i+1+n_added:]
             n_added += 1
             
     # If the first point in the route is within a known sector, make sure we note it.
