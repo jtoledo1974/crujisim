@@ -67,8 +67,7 @@ class Route(list):
                                        # when a waypoint is added with coords unknown
         self.insert_on_unknown = False # Whether or not a waypoint whose coordinates are unknown
                                        # is added to the route
-        for wp in inlist:
-            self.append(wp)
+        list.__init__(self, inlist)
     
     def __getslice__(self, i, j):
         return Route(list.__getslice__(self, i, j))
