@@ -172,9 +172,11 @@ class Route(list):
         if self[0]==self[1]:
             if wp1.is_geo and not wp0.is_geo:
                 wp1.fix = wp0.fix
-            for attr in ('sector_entry', 'sector_exit', 'eto'):
+                wp1.is_geo = False
+            for attr in ('sector_entry', 'sector_exit', 'eto', 'ato'):
                 if getattr(wp0, attr) and not getattr(wp1, attr):
                     setattr(wp1, attr, getattr(wp0, attr))
+            wp1.inbd_track = wp0.inbd_track
             return self[1:].reduce()
         else:
             return self[:1]+self[1:].reduce()

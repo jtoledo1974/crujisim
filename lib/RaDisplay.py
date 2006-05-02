@@ -2446,6 +2446,11 @@ class RaDisplay(object):
         canvas = self.c
         if not self.auto_separation or self.separating_labels: return
         
+        # If a repositioning is in progress we just reset the variable and return
+        if self.stop_separating:
+            self.stop_separating = False
+            return
+        
         self.separating_labels = True
         self.stop_separating = False
         crono = time()
@@ -2956,6 +2961,7 @@ class RaDisplay(object):
         _draw_fix_names()
         _draw_tma()
         _draw_lim_sector()
+        self.c.lift('track')
          
     def redraw(self):
         """Delete and redraw all elements of the radar display"""

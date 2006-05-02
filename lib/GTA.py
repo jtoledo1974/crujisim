@@ -184,7 +184,7 @@ class GTA:
 
         # Advance flights
         for f in self.flights:
-            logging.debug("Advancing "+f.callsign)
+            #logging.debug("Advancing "+f.callsign)
             f.next(self.last_update)
             
         # Kill flights that have been coasting for 5 minutes
