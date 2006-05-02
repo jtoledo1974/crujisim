@@ -981,51 +981,53 @@ class VisTrack(object): # ensure a new style class
         do_scale -- scaling function
         undo_scale -- unscaling function """
         
-        self._c=canvas
-        self._message_handler=message_handler
-        self.do_scale = do_scale
-        self.undo_scale = undo_scale
+        self._c             = canvas
+        self._message_handler = message_handler
+        self.do_scale       = do_scale
+        self.undo_scale     = undo_scale
         
         # Defaults
         
         # Track attributes
         self._item_refresh_list = []  # List of label items that need to be refreshed
         # Set the default but don't trigger a redraw
-        object.__setattr__(self,'visible',False)
-        object.__setattr__(self,'mode', 'pp')
-        object.__setattr__(self,'label_format', 'pp')
-        object.__setattr__(self,'selected', False)
-        object.__setattr__(self,'assumed',False)
-        object.__setattr__(self,'plot_only',False)
-        object.__setattr__(self,'pac',False)
-        object.__setattr__(self,'vac',False)
+        self._visible       = False
+        self._mode          = 'pp'
+        self._label_format  = 'pp'
+        self._selected      = False
+        self._assumed       = False
+        self._plot_only     = False
+        self._pac           = False
+        self._vac           = False
         
-        object.__setattr__(self,'x',0)  # Screen coords
-        object.__setattr__(self,'y',0)
-        object.__setattr__(self,'wx',0)  # World coords
-        object.__setattr__(self,'wy',0)
-        object.__setattr__(self,'intensity',1.0)
+        #object.__setattr__(self,'x',0)  # Screen coords
+        # Can't set x directly until we also have a y
+        self._x             = 0.  # X screen coordinate
+        self._y             = 0.  # Y screen coordinate
+        self._wx            = 0.  # X world coordinate
+        self._wy            = 0.  # Y world coordinate
+        self._intensity     = 1.0 # Color intensity
         self.future_pos = []  # List of future positions. Used for STCA calculations
-        self.cs='ABC1234'  # Callsign
-        self.mach=.82
-        self.gs=250
-        self.ias=200
-        self.ias_max=340
-        self.wake='H'
-        self.echo='KOTEX'  # Controller input free text (max 5 letters)
-        self.hdg=200
-        self.track=200  # Magnetic track
-        self.alt=150
-        self.draw_cfl=False  # Whether or not to draw the current cfl
-        self.cfl=200
-        self.pfl=350
-        self.rate=2000  # Vertical rate of climb or descent
-        self.adep='LEMD'
-        self.ades='LEBB'
-        self.type='B737'
-        self.radio_cs='IBERIA'
-        self.rfl=330       
-        self.color = SmartColor('gray')
+        self.cs             = 'ABC1234'  # Callsign
+        self.mach           = .82
+        self.gs             = 250
+        self.ias            = 200
+        self.ias_max        = 340
+        self.wake           = 'H'
+        self.echo           = 'KOTEX'  # Controller input free text (max 5 letters)
+        self.hdg            = 200
+        self.track          = 200  # Magnetic track
+        self.alt            = 150
+        self.draw_cfl       = False  # Whether or not to draw the current cfl
+        self.cfl            = 200
+        self.pfl            = 350
+        self.rate           = 2000  # Vertical rate of climb or descent
+        self.adep           = 'LEMD'
+        self.ades           = 'LEBB'
+        self.type           = 'B737'
+        self.radio_cs       = 'IBERIA'
+        self.rfl            = 330       
+        self.color          = SmartColor('gray')
         self.selected_border_color = SmartColor('yellow')
         
         self._last_t = datetime.today() - timedelta(days=1)  # Last time the radar was updated
@@ -1039,38 +1041,36 @@ class VisTrack(object): # ensure a new style class
                       # and the associated canvas rectangle
         
         # Label
-        self._l = self.Label(self)
-        object.__setattr__(self,'l_font_size',11)
-        self._l_font = tkFont.Font(family="Helvetica",size=self.l_font_size)
-        self.label_heading = 117  # Label heading
-        self.label_radius = 30  # Label radius
+        self._l                     = self.Label(self)
+        self._l_font_size           = 11
+        self._l_font                = tkFont.Font(family="Helvetica",size=self.l_font_size)
+        self.label_heading          = 117  # Label heading
+        self.label_radius           = 30  # Label radius
         # lxo and lyo are the offsets of the label with respect to the plot
-        self.label_xo = self.label_radius * sin(radians(self.label_heading))
-        self.label_yo = self.label_radius * cos(radians(self.label_heading))
+        self.label_xo               = self.label_radius * sin(radians(self.label_heading))
+        self.label_yo               = self.label_radius * cos(radians(self.label_heading))
         # lx and ly are the actual screen coord of the label
-        self.label_x = self.x + self.label_xo
-        self.label_y = self.y + self.label_yo
-        self.label_width = 0
-        self.label_height = 0
+        self.label_x                = self.x + self.label_xo
+        self.label_y                = self.y + self.label_yo
+        self.label_width            = 0
+        self.label_height           = 0
         # Alternative versions of the label screen coordinates to try them out
         # while performing label separation
-        self.label_x_alt = self.label_x
-        self.label_y_alt = self.label_y
-        self.label_heading_alt = self.label_heading
+        self.label_x_alt            = self.label_x
+        self.label_y_alt            = self.label_y
+        self.label_heading_alt      = self.label_heading
         # Find the end of the leader line (it starts in the plot)
-        self._ldr_x = self.label_x
-        self._ldr_y = self.label_y + 10
-        self._lineid = None
-        object.__setattr__(self,'flashing',False)
-        self.auto_separation=True
-        self.last_rotation = 0  # Keeps the serial number of the last rotation event
-                                # so that auto rotation will try to move the last manually
-                                # moved label last.
-        
+        self._ldr_x                 = self.label_x
+        self._ldr_y                 = self.label_y + 10
+        self._lineid                = None
+        self._flashing              = False
+        self.auto_separation        = True
+        self.last_rotation          = 0  # Keeps the serial number of the last rotation event
+                                         # so that auto rotation will try to move the last manually
+                                         # moved label last.
         # Speed vector
-        self.speed_vector=(0,0)  # Final position of the speed vector in screen coords
-        object.__setattr__(self,'speed_vector_length',0.)  # Length in minutes
-        self._svid=None
+        self.speed_vector           = (0,0)  # Final position of the speed vector in screen coords
+        self._speed_vector_length   = 0.  # Length in minutes
             
         self.redraw()
         
@@ -1375,67 +1375,150 @@ class VisTrack(object): # ensure a new style class
         
         if not VisTrack.timer_id:
             VisTrack.timer_id = self._c.after(500,timer)
+    
+    # Getters and setters. This gives much better perfomance than
+    # using the __setattr__ method
         
+    def get_visible(self): return self._visible
+    def set_visible(self, value):
+        self._visible = value
+        self.redraw()
+    visible = property(get_visible, set_visible)
+    
+    def get_mode(self): return self._mode
+    def set_mode(self, value):
+        self._mode = value
+        if value=='pp': self.label_format='pp'
+        elif value=='atc': self.label_format='atc'
+    mode = property(get_mode, set_mode)
+    
+    def get_label_format(self): return self._label_format
+    def set_label_format(self):
+        self._label_format = value
+        if self.visible:
+            self.redraw_l()        
+    label_format = property(get_label_format, set_label_format)
+    
+    def get_selected(self): return self._selected
+    def set_selected(self, value):
+        self._selected = value
+        if self.visible: self.redraw_l()
+    selected = property(get_selected, set_selected)    
+    
+    def get_assumed(self): return self._assumed
+    def set_assumed(self, value):
+        self._assumed = value
+        if self.visible:
+            if value: self.color.set(self.ASSUMED_COLOR)
+            else:  self.color.set(self.NONASSUMED_COLOR)
+            self._l.cs.color.set(self.color.get_basecolor())
+            self.redraw()
+    assumed = property(get_assumed, set_assumed)
+        
+    def get_plot_only(self): return self._plot_only
+    def set_plot_only(self, value):
+        self._plot_only = value
+        self.redraw()
+    plot_only = property(get_plot_only, set_plot_only)
+        
+    def get_pac(self): return self._pac
+    def set_pac(self, value):
+        self._pac = value
+        if self.visible:
+            self.redraw_l()
+            if value and self.plot_only:
+                self.plot_only = False
+    pac = property(get_pac, set_pac)
+        
+    def get_vac(self): return self._vac
+    def set_vac(self, value):
+        self._vac = value
+        if self.visible:
+            self.redraw_l()
+            if value and self.plot_only:
+                self.plot_only = False
+    vac = property(get_vac, set_vac)
+
+    def get_x(self): return self._x
+    def set_x(self, value):
+        self._x = value
+        (self._wx,self._wy) = self.undo_scale((self.x,self.y))
+    x = property(get_x, set_x)
+        
+    def get_y(self): return self._y
+    def set_y(self, value):
+        self._y = value
+        (self._wx, self._wy) = self.undo_scale((self.x, self.y))
+    y = property(get_y, set_y)
+
+    def get_wx(self): return self._wx
+    def set_wx(self, value):
+        self._wx = value
+        (self._x, self._y) = self.do_scale((self.wx, self.wy))
+    wx = property(get_wx, get_wx)
+    
+    def get_wy(self): return self._wy
+    def set_wy(self, value):
+        self._wy = value
+        (self._x, self._y) = self.do_scale((self.wx, self.wy))
+    wy = property(get_wy, get_wy)
+    
+    def get_intensity(self): return self._intensity
+    def set_intensity(self, value):
+        self._intensity = value
+        l = self._l
+        for el in self, l.cs, l.vac, l.pac, l.wake:
+            el.color.set_intensity(value)
+        self.redraw()
+    intensity = property(get_intensity, set_intensity)
+   
+    def get_l_font_size(self): return self._l_font_size
+    def set_l_font_size(self, value):
+        self._l_font_size = value
+        if self.auto_separation: self.label_radius=value*3
+        self.redraw_l()
+    l_font_size = property(get_l_font_size, set_l_font_size)
+   
+    def get_flashing(self): return self._flashing
+    def set_flashing(self, value):
+        self._flashing = value
+        def flash_timer():
+            if self.timer_state: self._l.cs.color.set(self.ASSUMED_COLOR)
+            else: self._l.cs.color.set('black')
+            if self.flashing: self.add_timer_callback(flash_timer)
+            else:
+                self._l.cs.color.set(self.color.get_basecolor())
+            self._l.refresh('cs')
+        if value:
+            self.add_timer_callback(flash_timer)
+        else: self.plot_only = False
+    flashing = property(get_flashing, set_flashing)
+   
+    def get_speed_vector_length(self): return self._speed_vector_length
+    def set_speed_vector_length(self, value):
+        self._speed_vector_length = value
+        self.redraw_sv()
+    speed_vector_length = property(get_speed_vector_length, set_speed_vector_length)
+   
     def __setattr__(self,name,value):
         """Capture attribute setting so as to trigger functionality"""
         # Save the old value
         try: oldvalue = self.__dict__[name]
         except: oldvalue = None
         
-        object.__setattr__(self,name,value) # This actually sets the attributes
+        try:
+            object.__setattr__(self,name,value) # This actually sets the attributes
+        except:
+            raise("Unable to set %s to %s"%(name, value))
         
         # The TkFont class has a broken eq method, so we can't compare it
         if name=='_l_font' or value==oldvalue or name=='_lineid':
             return
-        elif name in ('x','y'):
-            (wx,wy) = self.undo_scale((self.x,self.y))
-            object.__setattr__(self,'wx',wx)
-            object.__setattr__(self,'wy',wy)
         elif (name in self.allitems) and self.visible:
             self._item_refresh_list.append(name)
             # When alt reaches cfl, cfl must be cleared
             if name=='alt': self._item_refresh_list.append('cfl')
             if name=='cfl': self.draw_cfl = True
-        elif name in ('wx','wy'):
-            (x,y) = self.do_scale((self.wx,self.wy))
-            object.__setattr__(self,'x',x)
-            object.__setattr__(self,'y',y)            
-        elif name=='assumed' and self.visible:
-            if value: self.color.set(self.ASSUMED_COLOR)
-            else:  self.color.set(self.NONASSUMED_COLOR)
-            self._l.cs.color.set(self.color.get_basecolor())
-            self.redraw()
-        elif name=='mode':
-            if value=='pp': self.label_format='pp'
-            elif value=='atc': self.label_format='atc'
-        elif name=='speed_vector_length':
-            self.redraw_sv()
-        elif name=='l_font_size':
-            if self.auto_separation: self.label_radius=value*3
-            self.redraw_l()
-        elif name in ('selected', 'label_format','pac','vac') \
-           and self.visible:
-            self.redraw_l()
-            if name in ('pac','vac') and value==True and self.plot_only:
-                self.plot_only=False
-        elif name in ('plot_only','visible'):
-            self.redraw()
-        elif name=='flashing':
-            def flash_timer():
-                if self.timer_state: self._l.cs.color.set(self.ASSUMED_COLOR)
-                else: self._l.cs.color.set('black')
-                if self.flashing: self.add_timer_callback(flash_timer)
-                else:
-                    self._l.cs.color.set(self.color.get_basecolor())
-                self._l.refresh('cs')
-            if value:
-                self.add_timer_callback(flash_timer)
-            else: self.plot_only = False
-        elif name=='intensity':
-            l = self._l
-            for el in self, l.cs, l.vac, l.pac, l.wake:
-                el.color.set_intensity(value)
-            self.redraw()
             
     def destroy(self):
         if VisTrack.timer_id: self._c.after_cancel(VisTrack.timer_id)
@@ -3168,17 +3251,26 @@ class Storm(object):
 if __name__ == "__main__":
     import Pseudopilot
     root = Tk()
-    #canvas = Canvas(root,bg='black')
-    #vt = VisTrack(canvas,None)
-    #label = vt.Label(vt)
-    #label.redraw()
-    #for i in label.items:
-    #    print label[i].__dict__
-    #l = canvas.create_line(0,0,1,1)
-    #ra_tag_bind(canvas,l,"<2>",ra_tag_bind)
-    #ra_tag_unbind(canvas,l,"<2>")
-    #ra_cleartagbinds(l)
-    fir=FIR('pasadas/Ruta-FIRMadrid/Ruta-FIRMadrid.fir')
-    logging.getLogger('').setLevel(logging.DEBUG)    
-    display=Pseudopilot.PpDisplay([],'testing','./img/crujisim.ico',fir,'CASTEJON')
-    root.mainloop()
+    canvas = Canvas(root,bg='black')
+    def message_handler(*a):
+        pass
+    def do_scale(a): return a
+    def undo_scale(a): return a
+    vt = VisTrack(canvas,message_handler, do_scale, undo_scale)
+    vt.x = 2
+    label = vt.Label(vt)
+    label.redraw()
+    for i in label.items:
+        print label[i].__dict__
+    l = canvas.create_line(0,0,1,1)
+    ra_tag_bind(canvas,l,"<2>",ra_tag_bind)
+    ra_tag_unbind(canvas,l,"<2>")
+    ra_cleartagbinds(l)
+    
+    for at in ('intensity','l_font_size','flashing','speed_vector_length'):
+        print("""def get_%s(self): return self._%s
+    def set_%s(self, value):
+        self._%s = value
+        pass
+    %s = property(get_%s, set_%s)
+   """%(at, at, at, at, at, at, at))

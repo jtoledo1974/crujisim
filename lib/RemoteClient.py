@@ -152,7 +152,10 @@ class RemoteClient:
             if not ss2.save() :
                 logging.error("Unable to save mini flight strips. Perhaps the file is already open?")
         
-        self.display.process_message(m)
+        try:
+            self.display.process_message(m)
+        except:
+            logging.warning("Processing message %s failed"%m, exc_info=True)
         
     def exit(self):
         p = self.protocol

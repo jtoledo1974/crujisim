@@ -50,7 +50,7 @@ class GTA:
     def __init__(self, exc_file = ""):
         self.exercise_file = exc_file
 
-        logging.debug("Opening exercise file "+exc_file)
+        logging.info("Loading exercise "+exc_file)
         e=Exercise(exc_file)
         
         # Find the FIR mentioned by the exercise file
