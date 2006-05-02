@@ -728,10 +728,11 @@ class Aircraft:
         
     def set_campo_eco(self):
         # TODO This should be part of TLPV.py, and maybe duplicated here for the benefit of the pseudopilot
-        self.campo_eco = self.route[-1].fix[0:3]
-        for ades in fir.aerodromes:
-            if self.ades==ades:
-                self.campo_eco=ades[2:4]
+        #self.campo_eco = self.route[-1].fix[0:3]
+        #for ades in fir.aerodromes:
+        #    if self.ades==ades:
+        #        self.campo_eco=ades[2:4]
+        self.campo_eco = TLPV.get_exit_ades(self)
             
     def set_ias(self,ias,force=False):
         self.std_speed = False

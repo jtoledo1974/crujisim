@@ -627,8 +627,8 @@ class ventana_auxiliar:
             # Build the GUI Dialog
             entries=[]
             ruta = ""
-            for route_points in sel.route:
-                ruta += " " + route_points.fix
+            for fix in [wp.fix for wp in sel.route if wp.type==Route.WAYPOINT]:
+                ruta += " " + fix
             ruta = ruta.strip()
             
             entries.append({'label':'Ruta:','width':50,'def_value':ruta})

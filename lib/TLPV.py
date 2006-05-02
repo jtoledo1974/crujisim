@@ -72,6 +72,25 @@ def sector_intersections(route):
         
     return route  # Eliminates redundancy
 
+def get_exit_ades(flight):
+    """Given an Aircraft or a flight plan returns either a the first three letters of the last waypoint
+    local to the FIR, or the last two letters of the adep local to the FIR"""
+    if flight.ades in fir.aerodromes:
+        return flight.ades[2:]
+    # Else
+    fet = None
+    # If it's a TLPV flight plan and fir_exit_t is already calculated:
+    if hasattr(flight, 'fir_exit_t') and flight.fir_exit_t: fet = flight.fir_exit_t
+    else:
+        try:    fet = max([wp.eto for wp in flight.route if wp.sector_exit])
+        except: fir_exit_t = None
+    if fet:
+        exit_wp = [wp for wp in flight.route if wp.eto >= fet and wp.type==Route.WAYPOINT][0]
+        return exit_wp.fix[:3]
+    else:
+        logging.debug("Unable to find exit or ades for %s"%flight.callsign)
+        return ''
+
 class TLPV:
     """Keeps track of flight plans in the system"""
     # TODO in order to keep the implementation simple there cannot be two
