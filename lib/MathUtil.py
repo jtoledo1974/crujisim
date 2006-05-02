@@ -108,12 +108,12 @@ def get_line_equation(pa0,pa1):
     #a1 = pfloat(pa1)
     a0, a1 = pa0, pa1
     d = a1[0]-a0[0]
-    if d != 0.0:
+    try:
         m = (a1[1]-a0[1])/d
         b = a0[1]-m*a0[0]
-        return [m,b]
-    else:
-        return ["Infinity",a0]
+        return (m,b)
+    except:
+        return (None,a0)
 
 def get_cross_point(pa0,pa1,pb0,pb1):
     """calculates crossing point's coordinates given the coordinates of four points
@@ -127,40 +127,48 @@ def get_cross_point(pa0,pa1,pb0,pb1):
 
     l1 = get_line_equation(a0,a1)
     l2 = get_line_equation(b0,b1)
+
+    # Most common case first. Two non parallel, non vertical lines
+    try:
+        d = l1[0]-l2[0]
+        x1 = (l2[1]-l1[1])/d
+        y1 = (l2[1]*l1[0]-l1[1]*l2[0])/d
+        return (x1,y1)
+    except: pass
     
-    if l1[0] == "Infinity" and l2[0] == "Infinity":
+    # Didn't work, let's see the border cases
+    if not l1[0] and not l2[0]:
         if l1[1] == l2[1]:
-            #If both lines are the same and vertical, returns de point on segment b
+            #If both lines are the same and vertical, returns the point on segment b
             #closest to pa0
             d00 = (a0[0]-b0[0])**2+(a0[1]-b0[1])**2
             d01 = (a0[0]-b1[0])**2+(a0[1]-b1[1])**2
             if d00 <= d01: return b0
             else: return b1
-        else: return None
-
-    elif l1[0] == "Infinity":
-            x1 = a0[0]
-            y1 = l2[0]*x1+l2[1]
-            return [x1,y1]
-    elif l2[0] == "Infinity":
-            x1 = b0[0]
-            y1 = l1[0]*x1+l1[1]
-            return [x1,y1]
-    else:
-        d = l1[0]-l2[0]
-        if d!=0.0:
-            x1 = (l2[1]-l1[1])/d
-            y1 = (l2[1]*l1[0]-l1[1]*l2[0])/d
-            return [x1,y1]
         else:
-            if l1[1] == l2[1]:
-                #If both lines are the same, returns de point on segment b
-                #closest to pa0
-                d00 = (a0[0]-b0[0])**2+(a0[1]-b0[1])**2
-                d01 = (a0[0]-b1[0])**2+(a0[1]-b1[1])**2
-                if d00 < d01: return b0
-                else: return b1
-            else: return None
+            # Parallel vertical lines
+            return None
+    elif not l1[0]:
+        # First line is vertical, second is not        
+        x1 = a0[0]
+        y1 = l2[0]*x1+l2[1]
+        return (x1,y1)
+    elif not l2[0]:
+        # Second line is vertical, first is not
+        x1 = b0[0]
+        y1 = l1[0]*x1+l1[1]
+        return (x1,y1)
+    elif l1[1] == l2[1]:
+        #If both lines are the same and not vertical, returns the point on segment b
+        #closest to pa0
+        d00 = (a0[0]-b0[0])**2+(a0[1]-b0[1])**2
+        d01 = (a0[0]-b1[0])**2+(a0[1]-b1[1])**2
+        if d00 < d01: return b0
+        else: return b1
+    else:
+        # We should have covered all cases previously
+        logging.error("get_cross_point: Imposible scenario")
+        return None
     
 def calculates_intersection(pA0,pA1,pB0,pB1,use_given_coordinates = True):
     """calculates intersection between line defined by pA0,pA1 and line defined by pB0,pB1"""
@@ -185,38 +193,33 @@ def calculates_intersection(pA0,pA1,pB0,pB1,use_given_coordinates = True):
         except:
             return None
         
-def point_within_segment(pA,sA0,sA1):
-    """Returns true if pA lies within the segment sA0-sA1. Coordinates Tuples are passed
-        if pA == sA0 or sA1 also returns true"""
-    if sA0[0] == sA1[0]:
-        # vertical segment, check y coordinates.
-        min_sA_Y = min(sA0[1],sA1[1])
-        max_sA_Y = max(sA0[1],sA1[1])
-        if (pA[1] >= min_sA_Y) and (pA[1] <= max_sA_Y):
-            return True
-        else:
-            return False
-    else:
-        # horizontal segment or generic segment, check x coordinates.
-        min_sA_X = min(sA0[0],sA1[0])
-        max_sA_X = max(sA0[0],sA1[0])
-        if (pA[0] >= min_sA_X) and (pA[0] <= max_sA_X):
-            return True
-        else:
-            return False
+#def point_within_segment(pA,sA0,sA1):
+#    """Returns true if pA lies within the segment sA0-sA1. Coordinates Tuples are passed
+#        if pA == sA0 or sA1 also returns true"""
+#    if sA0[0] == sA1[0]:
+#        # vertical segment, check y coordinates.
+#        min_sA_Y = min(sA0[1],sA1[1])
+#        max_sA_Y = max(sA0[1],sA1[1])
+#        if (pA[1] >= min_sA_Y) and (pA[1] <= max_sA_Y):
+#            return True
+#        else:
+#            return False
+#    else:
+#        # horizontal segment or generic segment, check x coordinates.
+#        min_sA_X = min(sA0[0],sA1[0])
+#        max_sA_X = max(sA0[0],sA1[0])
+#        if (pA[0] >= min_sA_X) and (pA[0] <= max_sA_X):
+#            return True
+#        else:
+#            return False
 
-def point_within_segment_2(xpA,xsA0,xsA1,use_given_coordinates = True):
+def point_within_segment(pA,sA0,sA1):
     """Returns true if pA lies within the segment sA0-sA1. Points Tuples are passed
         if pA == sA0 or pA == sA1 also returns true"""
-    if use_given_coordinates:
-        return point_within_segment(xpA[1],xsA0[1],xsA1[1])
-    else:
-        try:
-            pList = [xpA, xsA0,xsA1]
-            pListC = [get_point_coordinates(elements) for elements in pList]
-            return point_within_segment(pListC[0],pListC[1],pListC[2])
-        except:
-            return None
+    (px,py),(s0x,s0y),(s1x,s1y)=pA,sA0,sA1    
+    outside = (px>s0x and px>s1x) or (px<s0x and px<s1x) or \
+              (py>s0y and py>s1y) or (py<s0y and py<s1y)
+    return not outside
     
 def get_entry_exit_points(pA0,pA1,poly):
     """Returns a list with entry and exit points of the path defined
