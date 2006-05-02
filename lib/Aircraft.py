@@ -675,6 +675,7 @@ class Aircraft:
         self.complete_flight_plan()
         if not self.no_estimates:
             self.route = TLPV.sector_intersections(self.route)
+        self.route = self.route.reduce()
         
     def set_dest(self, ades):
         # TODO we should do proper validation here
