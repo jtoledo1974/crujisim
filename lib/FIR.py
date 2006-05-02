@@ -395,7 +395,7 @@ class FIR:
             v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()).groups()
             return (float(v[0]), float(v[3]))
         else:
-            raise('Point %s not found in %s'%(point_name, self.file))
+            raise RuntimeError, 'Point %s not found in %s'%(point_name, self.file)
             
 
 def load_firs(path):

@@ -74,13 +74,9 @@ class Route(list):
         return Route(list.__getslice__(self, i, j))
     
     def __getitem__(self, key):
-        if not isinstance(key, slice):
-            if isinstance(key, str):
-                return list.__getitem__(self, self.get_waypoint_index(key))
-            else:
-                return list.__getitem__(self, key)
-        else:
-            return Route(list.__getitem__(self, key))
+        try: return list.__getitem__(self, key)
+        except: pass
+        return list.__getitem__(self, self.get_waypoint_index(key))
     
     def append(self, wp):
         if self.check_wp(wp):
@@ -217,11 +213,11 @@ class Route(list):
     def check_wp(self, wp):
         """Checkes whether a given waypoint is of the right class, and verifies
         the existence or not of wp coordinates against this route's rules"""
-        if not isinstance(wp, WP): raise TypeError("Element "+str(wp)+" is not WayPoint instance")
-        try:
-            wp.pos()
+        try: wp.pos()
+        except AttributeError:
+            raise TypeError("Element "+str(wp)+" is not WayPoint instance")
         except:
-            if self.raise_on_unknown: raise TypeError("Unknown coordinates for waypoint "+str(wp))
+            if self.raise_on_unknown: raise RuntimeError, "Unknown coordinates for waypoint "+str(wp)
             else:
                 logging.warning("Unknown coordinates for waypoint "+str(wp))
                 if self.insert_on_unknown: return True

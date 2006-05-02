@@ -370,6 +370,8 @@ class Aircraft:
     def __init__(self, callsign, type, adep, ades, cfl, rfl, rte,
                  eobt=None, next_wp=None, next_wp_eto=None, wake_hint = None,
                  init = True):
+        
+        if not init: return  # The instance will be used as a copy in Aircraft.copy
 
         if (next_wp and not next_wp_eto) or (not next_wp and next_wp_eto):
             raise("Unable to calculate flight profile, either the next waypoint or the eto for the next waypoint is missing")
@@ -380,7 +382,6 @@ class Aircraft:
                                      # Used to avoid recursion
                                      # and avoiding calling sector_intersection
                                      # which stops the GTA thread for unknown reasons
-        if not init: self.no_estimates = True
         
         self.uid            = None  # Unique identifier. Set at the end of the init
         self.callsign       = None  # 'IBE767'
@@ -627,7 +628,7 @@ class Aircraft:
                     efecto_viento = (wx*dh,wy*dh) # Deriva por el viento
                     self.t += timedelta(hours=dh) #Almacenamos el tiempo
                 self.log_waypoint()  # Pops the old waypoint, and saves it in the log
-                self.calc_eto()
+                if not self.no_estimates: self.calc_eto()
             else:
                 self.salto=self.tas*dh # Distancia recorrida en este inc.de t sin viento
                 efecto_viento = (wx*dh,wy*dh) # Deriva por el viento
@@ -1007,6 +1008,7 @@ class Aircraft:
                         eobt = self.eobt, next_wp = self.next_wp,
                         next_wp_eto = self.next_wp_eto, wake_hint = self.wake_hint, init=False)
         acft.__dict__ = self.__dict__.copy()
+        acft.no_estimates = True
         acft.route = self.route.copy()
         acft.log = self.log.copy()
         return acft
