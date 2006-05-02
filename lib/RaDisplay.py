@@ -1381,12 +1381,14 @@ class VisTrack(object): # ensure a new style class
         
     def get_visible(self): return self._visible
     def set_visible(self, value):
+        if value == self._visible: return
         self._visible = value
         self.redraw()
     visible = property(get_visible, set_visible)
     
     def get_mode(self): return self._mode
     def set_mode(self, value):
+        if value == self._mode: return
         self._mode = value
         if value=='pp': self.label_format='pp'
         elif value=='atc': self.label_format='atc'
@@ -1394,6 +1396,7 @@ class VisTrack(object): # ensure a new style class
     
     def get_label_format(self): return self._label_format
     def set_label_format(self):
+        if value == self._label_format: return
         self._label_format = value
         if self.visible:
             self.redraw_l()        
@@ -1401,12 +1404,14 @@ class VisTrack(object): # ensure a new style class
     
     def get_selected(self): return self._selected
     def set_selected(self, value):
+        if value == self._selected: return
         self._selected = value
         if self.visible: self.redraw_l()
     selected = property(get_selected, set_selected)    
     
     def get_assumed(self): return self._assumed
     def set_assumed(self, value):
+        if value == self._assumed: return
         self._assumed = value
         if self.visible:
             if value: self.color.set(self.ASSUMED_COLOR)
@@ -1417,12 +1422,14 @@ class VisTrack(object): # ensure a new style class
         
     def get_plot_only(self): return self._plot_only
     def set_plot_only(self, value):
+        if value == self._plot_only: return
         self._plot_only = value
         self.redraw()
     plot_only = property(get_plot_only, set_plot_only)
         
     def get_pac(self): return self._pac
     def set_pac(self, value):
+        if value == self._pac: return
         self._pac = value
         if self.visible:
             self._item_refresh_list.append('pac')
@@ -1433,6 +1440,7 @@ class VisTrack(object): # ensure a new style class
         
     def get_vac(self): return self._vac
     def set_vac(self, value):
+        if value == self._vac: return
         self._vac = value
         if self.visible:
             self._item_refresh_list.append('vac')
@@ -1443,30 +1451,35 @@ class VisTrack(object): # ensure a new style class
 
     def get_x(self): return self._x
     def set_x(self, value):
+        if value == self._x: return
         self._x = value
         (self._wx,self._wy) = self.undo_scale((self.x,self.y))
     x = property(get_x, set_x)
         
     def get_y(self): return self._y
     def set_y(self, value):
+        if value == self._y: return
         self._y = value
         (self._wx, self._wy) = self.undo_scale((self.x, self.y))
     y = property(get_y, set_y)
 
     def get_wx(self): return self._wx
     def set_wx(self, value):
+        if value == self._wx: return
         self._wx = value
         (self._x, self._y) = self.do_scale((self.wx, self.wy))
     wx = property(get_wx, get_wx)
     
     def get_wy(self): return self._wy
     def set_wy(self, value):
+        if value == self._wy: return
         self._wy = value
         (self._x, self._y) = self.do_scale((self.wx, self.wy))
     wy = property(get_wy, get_wy)
     
     def get_intensity(self): return self._intensity
     def set_intensity(self, value):
+        if value == self._intensity: return
         self._intensity = value
         l = self._l
         for el in self, l.cs, l.vac, l.pac, l.wake:
@@ -1476,6 +1489,7 @@ class VisTrack(object): # ensure a new style class
    
     def get_l_font_size(self): return self._l_font_size
     def set_l_font_size(self, value):
+        if value == self._l_font_size: return
         self._l_font_size = value
         if self.auto_separation: self.label_radius=value*3
         self.redraw_l()
@@ -1483,6 +1497,7 @@ class VisTrack(object): # ensure a new style class
    
     def get_flashing(self): return self._flashing
     def set_flashing(self, value):
+        if value == self._flashing: return
         self._flashing = value
         def flash_timer():
             if self.timer_state: self._l.cs.color.set(self.ASSUMED_COLOR)
@@ -1498,12 +1513,16 @@ class VisTrack(object): # ensure a new style class
    
     def get_speed_vector_length(self): return self._speed_vector_length
     def set_speed_vector_length(self, value):
+        if value == self._speed_vector_length: return
         self._speed_vector_length = value
         self.redraw_sv()
     speed_vector_length = property(get_speed_vector_length, set_speed_vector_length)
 
     def get_label_item(self, item): return getattr(self, '_'+item)
     def set_label_item(self, item, value):
+        try:
+            if value == getattr(self, '_'+item): return
+        except: pass  # This is to account for the first time it is set
         setattr(self, '_'+item, value)
         if self.visible:
             self._item_refresh_list.append(item)
