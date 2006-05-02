@@ -220,7 +220,24 @@ def point_within_segment(pA,sA0,sA1):
     outside = (px>s0x and px>s1x) or (px<s0x and px<s1x) or \
               (py>s0y and py>s1y) or (py<s0y and py<s1y)
     return not outside
-    
+
+def get_bounding_cuadrangle(poly):
+    try: return get_bounding_cuadrangle.bc[tuple(poly)]
+    except AttributeError: get_bounding_cuadrangle.bc = {}
+    except: pass
+    x0 = min((x for (x,y) in poly))
+    y0 = min((y for (x,y) in poly))
+    x1 = max((x for (x,y) in poly))
+    y1 = max((y for (x,y) in poly))
+    get_bounding_cuadrangle.bc[tuple(poly)] = ((x0,y0),(x1,y1))
+    return ((x0,y0),(x1,y1))
+
+def could_intersect((s0x, s0y), (s1x, s1y), poly):
+    (x0, y0), (x1,y1) = get_bounding_cuadrangle(poly)
+    impossible = (s0x<x0 and s1x<x0) or (s0x>x1 and s1x>x1) \
+              or (s0y<y0 and s1y<y0) or (s0y>y1 and s1y>y1)
+    return not impossible
+            
 def get_entry_exit_points(pA0,pA1,poly):
     """Returns a list with entry and exit points of the path defined
     by segment pA0 -> pA1 when crosses polygon poly, method uses coordinates points
@@ -228,6 +245,8 @@ def get_entry_exit_points(pA0,pA1,poly):
     There WILL be problems if they are not, but it's too expensive to promote them
     to floats here. Make sure your data is correct.
     """
+    
+    if not could_intersect(pA0,pA1, poly): return []
     
     pA0_in = point_within_polygon(pA0,poly)
     pA1_in = point_within_polygon(pA1,poly)
