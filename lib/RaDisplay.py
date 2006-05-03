@@ -1374,7 +1374,11 @@ class VisTrack(object): # ensure a new style class
                 f(*kw)
         
         if not VisTrack.timer_id:
-            VisTrack.timer_id = self._c.after(500,timer)
+            VisTrack.timer_id = reactor.callLater(0.5,timer)
+            
+    def reset_timer(self):
+        if VisTrack.timer_id: self.timer_id.cancel()
+        VisTrack.timer_callbacks = []                    
     
     # Getters and setters. This gives much better perfomance than
     # using the __setattr__ method
@@ -1561,14 +1565,12 @@ class VisTrack(object): # ensure a new style class
     #        if name=='cfl': self.draw_cfl = True
     #        
     def destroy(self):
-        if VisTrack.timer_id: self._c.after_cancel(VisTrack.timer_id)
-        VisTrack.timer_callbacks = []
         self.delete()
         self._l.destroy()
         del(self._message_handler)
         del(self.do_scale)
         del(self.undo_scale)
-            
+        
     def __del__(self):
         logging.debug("VisTrack.__del__ %s"%self.cs)
             
@@ -3151,6 +3153,11 @@ class RaDisplay(object):
         ra_clearbinds(self)
         for t in self.tracks:
             t.destroy()
+        try:
+            self.tracks[0].reset_timer()
+        except:
+            logging.error("Error resetting timer", exc_info)
+            raise
         del self.tracks
         self.top_level.destroy()
         # Avoid memory leaks due to circular references preventing

@@ -144,8 +144,6 @@ class GTA:
             logging.info("Servidor iniciado y esperando conexiones en el puerto "+str(port))
         except:
             logging.critical("No se ha podido iniciar el servidor. El puerto "+str(port)+" está ocupado. Verifique si ya hay un servidor corriendo y reinicie la aplicación", exc_info=True)
-        
-        self.exception = ''
 
         while self.cont:
             try:
@@ -153,7 +151,7 @@ class GTA:
             except:
                 logging.error("Error in GTA.timer", exc_info=True)
             sleep(0.5)  # Thus we make sure that the clock is always up to date.
-           
+            
     def set_vel_reloj(self,k):
         self.fact_t=k
     
