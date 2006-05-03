@@ -1399,7 +1399,7 @@ class VisTrack(object): # ensure a new style class
     mode = property(get_mode, set_mode)
     
     def get_label_format(self): return self._label_format
-    def set_label_format(self):
+    def set_label_format(self, value):
         if value == self._label_format: return
         self._label_format = value
         if self.visible:
