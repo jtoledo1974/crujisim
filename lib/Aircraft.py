@@ -198,7 +198,7 @@ def get_hdg_obj(self,deriva,t):
         else: # Está dentro de la espera, entramos bucle de la espera
             self.to_do_aux[4] = True
             if not self.to_do_aux[0] in self.route: # El fijo principal debe estar en la ruta. Si no está se pone
-                self.route.insert(0,self.to_do_aux[0])
+                self.route.insert(0,Route.WayPoint(self.to_do_aux[0]))
             self.vect=rp((2.0*self.ground_spd,self.track)) # Con esta operación no nos borra el punto de la espera
             if len(self.to_do_aux)== 6: # Vamos a definir el rumbo objetivo, añadiéndolo al final
                 r_acerc = ( self.to_do_aux[1] - deriva) %360.0
