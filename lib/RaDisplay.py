@@ -1496,7 +1496,8 @@ class VisTrack(object): # ensure a new style class
         if value == self._l_font_size: return
         self._l_font_size = value
         if self.auto_separation: self.label_radius=value*3
-        self.redraw_l()
+        #self.redraw_l()
+        self._l.reformat()
     l_font_size = property(get_l_font_size, set_l_font_size)
    
     def get_flashing(self): return self._flashing
@@ -1543,27 +1544,6 @@ class VisTrack(object): # ensure a new style class
     echo = property(lambda s: s.get_label_item('echo'), lambda s,v: s.set_label_item('echo', v))
     hdg  = property(lambda s: s.get_label_item('hdg'),  lambda s,v: s.set_label_item('hdg', v))
 
-   
-    #def __setattr__(self,name,value):
-    #    """Capture attribute setting so as to trigger functionality"""
-    #    # Save the old value
-    #    try: oldvalue = self.__dict__[name]
-    #    except: oldvalue = None
-    #    
-    #    try:
-    #        object.__setattr__(self,name,value) # This actually sets the attributes
-    #    except:
-    #        raise("Unable to set %s to %s"%(name, value))
-    #    
-    #    # The TkFont class has a broken eq method, so we can't compare it
-    #    if name=='_l_font' or value==oldvalue or name=='_lineid':
-    #        return
-    #    elif (name in self.allitems) and self.visible:
-    #        self._item_refresh_list.append(name)
-    #        # When alt reaches cfl, cfl must be cleared
-    #        if name=='alt': self._item_refresh_list.append('cfl')
-    #        if name=='cfl': self.draw_cfl = True
-    #        
     def destroy(self):
         self.delete()
         self._l.destroy()
