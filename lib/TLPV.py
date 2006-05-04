@@ -287,7 +287,7 @@ class FlightPlan:
         self.rfl            = rfl
         self.pfl            = pfl
         self.filed_tas      = None
-        self.route          = Route.Route(rte)
+        self.route          = Route.Route(Route.get_waypoints(rte))
         self.next_wp        = None  # Next WP  (in SACTA terminology this is the Entry Point (Punto de Entrada)
         self.next_wp_eto    = None
         self.squawk         = None

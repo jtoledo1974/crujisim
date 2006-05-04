@@ -463,7 +463,7 @@ class STAR:
     def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
         self.txt_desig  = txt_desig
         self.ad_hp      = ad_hp
-        self.rte        = Route.Route(rte)
+        self.rte        = Route.Route(Route.get_waypoints(rte))
         self.rwy        = rwy
         
 class SID:

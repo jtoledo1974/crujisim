@@ -186,9 +186,6 @@ def get_hdg_obj(self,deriva,t):
         else:
             return (self.hdg - 90.0)%360.0
     elif self.to_do == 'hld': #Hacer esperas sobre un punto
-    # self.to_do_aux = [waypoint (route[0]), derrota_acerc, tiempo_alej,
-    #                   Tiempo en alejam. = 0.0,Esta en espera=False/True,
-    #                   giro I=-1.0/D=+1.0]
         if not self.to_do_aux[4] and self.to_do_aux[0] in self.route:
             # Aún no ha llegado a la espera, sigue volando en ruta
             self.pto=self.route[0].pos() #Punto al que se dirige con corrección de deriva
@@ -267,7 +264,7 @@ def get_hdg_obj(self,deriva,t):
         [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         if len(self.route) == 0: # Es el primer acceso a app desde la espera. Se añaden los puntos
             for [a,b,c,h] in puntos_alt:
-                self.route.append(b)
+                self.route.append(Route.WayPoint(b))
             wp = Route.WayPoint("_LLZ")
             wp._pos = xy_llz
             self.route.append(wp)
@@ -308,7 +305,7 @@ def get_hdg_obj(self,deriva,t):
                     if self._map: # Procedimiento de frustrada asignado
                         self.set_std_spd()
                         self.set_std_rate()
-                        self.route = Route.Route([p[1] for p in puntos_map] )
+                        self.route = Route.Route([Route.WayPoint(p[1]) for p in puntos_map] )
                     else:
                         logging.debug("Aterrizando el "+str(self.callsign))
                         return LANDED
@@ -785,7 +782,7 @@ class Aircraft:
     def fly_route(self,route):
         """Introduces a new route, and changes the flight mode to FPR"""
         self.cancel_app_auth()
-        self.route = Route.Route(route)
+        self.route = Route.Route(Route.get_waypoints(route))
         self.to_do = 'fpr'
         self.to_do_aux = []
         self.set_app_fix()
@@ -907,7 +904,7 @@ class Aircraft:
         [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         wp = Route.WP('_LLZ')
         wp._pos = xy_llz
-        self.route = [wp]
+        self.route = Route.Route([wp])
         self.int_loc = True
         (puntos_alt,llz,puntos_map) = fir.iaps[self.iaf]
         # En este paso se desciende el tráfico y se añaden los puntos
@@ -922,7 +919,7 @@ class Aircraft:
         (puntos_alt,llz,puntos_map) = fir.iaps[self.iaf]
         [xy_llz ,rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         self.to_do = 'int_rdl'
-        self.to_do_aux = [xy_llz, rdl]
+        self.to_do_aux = ["X%fY%f"%xy_llz, rdl]
         
     def orbit(self, turn_direction):
         self.to_do = 'orbit'
@@ -956,12 +953,9 @@ class Aircraft:
                 if self.route[i-1].fix == self.iaf:
                     self.route = self.route[:i]
                     break
-            #for [a,b,c,h] in puntos_alt:
-            #    self.route.append([a,b,c,0.0])
-            self.route.append([p[1] for p in puntos_alt])
+            self.route.append([Route.WayPoint(p[1]) for p in puntos_alt])
             wp = Route.WayPoint("_LLZ")
             wp._pos = llz[0]
-            #self.route.append([llz[0],'_LLZ',''])
             self.route.append(wp)
         logging.debug("Autorizado aproximación: " +str(self.route))
     
