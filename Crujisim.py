@@ -572,7 +572,7 @@ class ExEditor:
         self.fls.clear() 
         for i,f in self.ex.flights.items():
             # Column 0 of the model is the key in the flights dictionary
-            self.fls.append((i,f.callsign,f.adep,f.adep,f.route.replace(","," ")))
+            self.fls.append((i,f.callsign,f.adep,f.ades,f.route.replace(","," ")))
 
     def list_clicked(self,w=None,event=None):
         if event.type == gtk.gdk._2BUTTON_PRESS:
@@ -835,7 +835,7 @@ class FlightEditor:
 
         # Populate the dialog
         self.route.props.text = flight.route.replace(","," ")
-        for attr in ["callsign","adep","adep","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
+        for attr in ["callsign","adep","ades","fix","firstlevel","rfl","cfl","wtc","tas","type"]:
             getattr(self,attr).props.text = getattr(flight,attr)
         try: self.eto.props.text = hhmmss_to_hhmm(flight.eto)
         except: self.eto.props.text = flight.eto
@@ -993,7 +993,7 @@ class FlightEditor:
         self.completion.get_model().clear()
         fix_list = [f for f in self.route.props.text.split(" ") if f!=""]
         if fix_list == []: fix_list = [""]
-        for r in self.fir.routedb.matching_routes(fix_list,self.adep.props.text,self.adep.props.text):
+        for r in self.fir.routedb.matching_routes(fix_list,self.adep.props.text,self.ades.props.text):
             self.completion.get_model().append([r.replace(","," ")])
         
     def on_fix_changed(self,w, event=None):
@@ -1064,7 +1064,7 @@ class FlightEditor:
     def fill_flight(self, f):
         """Copies data from the dialog into the given flight object"""
         f.route = self.route.props.text.strip().replace(" ",",")
-        for attr in ["callsign","adep","adep","rfl","cfl","wtc","tas","type"]:
+        for attr in ["callsign","adep","ades","rfl","cfl","wtc","tas","type"]:
             setattr(f, attr, getattr(self,attr).props.text)
         if self.departure:
             eto, fix = self.eobt.props.text, f.route.split(",")[0]
@@ -1101,7 +1101,7 @@ class FlightEditor:
         else:
             f = self.flight
             self.fill_flight(f)  # Copy the validated form data into the given flight
-            self.fir.routedb.append(f.route,f.adep,f.adep)
+            self.fir.routedb.append(f.route,f.adep,f.ades)
 
         self.completion.disconnect(self.completion.hid)
 
@@ -1111,7 +1111,7 @@ class FlightEditor:
         self.sb.pop(0)
         checklist = [("callsign","^(\*){0,2}[a-zA-Z0-9]{3,8}$"),
             ("type","^[A-Z0-9-]{2,4}$"),("wtc","^[HML]$"),("tas","^\d{2,4}$"),
-            ("adep","^[A-Z]{4}$"),("adep","^[A-Z]{4}$"),
+            ("adep","^[A-Z]{4}$"),("ades","^[A-Z]{4}$"),
             ("route","^([A-Z0-9_]{2,6} {0,1})+$"),
             ("rfl","^\d{2,3}$"),("cfl","^\d{2,3}$")]
         if self.departure:
