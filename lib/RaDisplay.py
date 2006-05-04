@@ -1138,15 +1138,15 @@ class VisTrack(object): # ensure a new style class
             self.delete()
             return
             
-        self.redraw_p()  # Plot
         self.redraw_h()  # History
         self.redraw_sv() # Speed vector
-        
         # Leader and label
         if self.plot_only:
             self.delete_l()
         else:
             self.redraw_l()
+        self.redraw_p()  # Plot
+
             
     def refresh(self):
         """Reconfigure VisTrack items with current options
@@ -1208,8 +1208,10 @@ class VisTrack(object): # ensure a new style class
 
     def draw_h_plot(self,(h0,h1)):
         s = self.id
-        return self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
-                                 tags=(s,s+'hist','track'))        
+        item = self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
+                                 tags=(s,s+'hist','track'))
+        self._c.lower(item)
+        return item
             
     def delete_sv(self):
         """Delete the track's speed vector"""
