@@ -981,6 +981,7 @@ class VisTrack(object): # ensure a new style class
         do_scale -- scaling function
         undo_scale -- unscaling function """
         
+        self.id = 'track'+str(id(self))    
         self._c             = canvas
         self._message_handler = message_handler
         self.do_scale       = do_scale
@@ -1086,7 +1087,7 @@ class VisTrack(object): # ensure a new style class
         if not self.visible:
             return
             
-        st=str(self)
+        st=self.id
         dx,dy=x-self.x,y-self.y  # Calculate delta
         # Store the position in history if there has been a radar
         # update since the last one (more than five seconds ago)
@@ -1108,7 +1109,7 @@ class VisTrack(object): # ensure a new style class
             self._l.refresh(i)
         self._item_refresh_list=[]
         # Move moveable elements        
-        self._c.move(st+'move',dx,dy)
+        self._c.move(st,dx,dy)
         # Update position variables:
         self.label_x += dx
         self.label_y += dy
@@ -1121,7 +1122,7 @@ class VisTrack(object): # ensure a new style class
         # Same with speed vector
         speed_vector = s((self.wx,self.wy),pr((self.speed_vector_length * self.gs,self.track)))
         (sx, sy) = self.do_scale(speed_vector)
-        self._c.coords('speedvector'+str(self), self.x, self.y, sx, sy)
+        self._c.coords(st+'speedvector', self.x, self.y, sx, sy)
         
     def delete(self):
         """Delete the visual track and unbind all bindings"""
@@ -1147,8 +1148,6 @@ class VisTrack(object): # ensure a new style class
         else:
             self.redraw_l()
             
-        self._c.addtag_withtag('track',str(self)+'track')
-    
     def refresh(self):
         """Reconfigure VisTrack items with current options
         
@@ -1174,19 +1173,17 @@ class VisTrack(object): # ensure a new style class
         self.delete_p()
         size=self.plotsize
         x,y=self.x,self.y
-        s=str(self)
+        s=self.id
         if self.assumed:
             size=size+1 # Assumed plots are a litle bigger to appear the same size
             self._pitem = self._c.create_polygon(x-size,y,x,y-size,x+size,y,x,y+size,x-size,y,
                                               outline=self.color.get(),fill='',
-                                              tags=(s+'move',s+'color',s+'track',s+'plot'))
-            
-            
+                                              tags=(s,s+'plot','track'))
         else:
             self._pitem = self._c.create_polygon(x-size,y-size,x-size,y+size,x+size,y+size,
                                               x+size,y-size,x-size,y-size,
                                               outline=self.color.get(),fill='',
-                                              tags=(s+'move',s+'color',s+'track',s+'plot'))
+                                              tags=(s,s+'plot','track'))
             
         def plot_b1(e=None):
             self._message_handler(self,'plot','<Button-1>',None,e)
@@ -1199,7 +1196,7 @@ class VisTrack(object): # ensure a new style class
         
     def delete_h(self):
         """Delete this track's history plots"""
-        self._c.delete(str(self)+'hist')
+        self._c.delete(self.id+'hist')
     def redraw_h(self):
         """Draw the history with the current options"""
         self.delete_h()
@@ -1210,29 +1207,28 @@ class VisTrack(object): # ensure a new style class
             self._h[i][1] = rect_id
 
     def draw_h_plot(self,(h0,h1)):
-            return self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
-                                     tags=(str(self)+'hist',str(self)+'color',
-                                           str(self)+'track'))
-        
+        s = self.id
+        return self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
+                                 tags=(s,s+'hist','track'))        
             
     def delete_sv(self):
         """Delete the track's speed vector"""
         # Speed vector
-        s=str(self)
-        self._c.delete('speedvector'+s)
+        s = self.id
+        self._c.delete(s+'speedvector')
     def redraw_sv(self):
         """Redraw this track's speed vector"""
         self.delete_sv()
         if not self.visible: return
-        st=str(self)
+        st = self.id
         speed_vector = s((self.wx,self.wy),pr((self.speed_vector_length * self.gs,self.track)))
         screen_sv = self.do_scale(speed_vector)
         (sx,sy) = screen_sv
         self._c.create_line(self.x, self.y, sx, sy, fill=self.color.get(),
-                           tags=('speedvector'+st,st+'move',st+'color',st+'track'))
+                           tags=(st,st+'speedvector','track'))
     def delete_l(self):
-        c=self._c
-        s=str(self)
+        c = self._c
+        s = self.id
         
         if (self._lineid):
             ra_cleartagbinds(self._lineid)
@@ -1246,9 +1242,9 @@ class VisTrack(object): # ensure a new style class
     def redraw_l(self):
         """Draw the leader and label of the track using current options"""
         # Helper variables
-        c=self._c
-        cl=self.color.get()
-        s=str(self)
+        c  = self._c
+        cl = self.color.get()
+        s  = self.id
         lf = self._l_font
         
         # Delete old label, leader and selection box
@@ -1269,10 +1265,10 @@ class VisTrack(object): # ensure a new style class
         # Selection box
         if self.selected:
             c.create_rectangle(lx, ly, lx + lw, ly + lh, outline=self.selected_border_color.get(),
-                               tags=(s+'move',s+'label',s+'track', s+'selection_box'))
+                               tags=(s,s+'label', s+'selection_box', 'track'))
         # Leader line
         id=c.create_line(self.x, self.y, self._ldr_x, self._ldr_y, fill=self.color.get(),
-                      tags=(s+'move',s+'color',s+'track',s+'leader'))
+                      tags=(s,s+'leader','track'))
         self._lineid=id   
         ra_tag_bind(c,self._lineid,"<Button-1>",self.rotate_label)
         ra_tag_bind(c,self._lineid,"<Button-3>",self.counter_rotate_label)
@@ -1313,7 +1309,7 @@ class VisTrack(object): # ensure a new style class
         self.label_y += dy
         self.label_xo += dx
         self.label_yo += dy
-        self._c.move(str(self)+'label', dx, dy)
+        self._c.move(self.id+'label', dx, dy)
         # Leader line
         self._ldr_y = self.label_y + 10
         if (self.label_x - self.x) > 0:
@@ -1322,7 +1318,7 @@ class VisTrack(object): # ensure a new style class
             self._ldr_x = self.label_x + self.label_width
         ldr_x_offset,ldr_y_offset = self._ldr_x-self.x, self._ldr_y-self.y
         self.label_heading = 90.0-degrees(atan2(ldr_y_offset, ldr_x_offset))
-        self._c.coords(str(self)+'leader',self.x,self.y,self._ldr_x,self._ldr_y)
+        self._c.coords(self.id+'leader',self.x,self.y,self._ldr_x,self._ldr_y)
                     
     def reposition_label(self, newx, newy):
         """Repositions the label based on the new end of the leader line"""
@@ -1339,7 +1335,7 @@ class VisTrack(object): # ensure a new style class
             new_l_y = y+ldr_y_offset -10
         self.label_heading = 90.0-degrees(atan2(ldr_y_offset, ldr_x_offset))
         self.label_radius = sqrt(ldr_y_offset**2+ldr_x_offset**2)
-        self._c.coords(str(self)+'leader',self.x,self.y,newx,newy)
+        self._c.coords(self.id+'leader',self.x,self.y,newx,newy)
         
         dx=new_l_x-self.label_x
         dy=new_l_y-self.label_y
@@ -1347,7 +1343,7 @@ class VisTrack(object): # ensure a new style class
         self.label_y += dy
         self.label_xo += dx
         self.label_yo += dy
-        self._c.move(str(self)+'label', dx, dy)
+        self._c.move(self.id+'label', dx, dy)
         
         (self._ldr_x, self._ldr_y)=(newx,newy)
         
@@ -1623,7 +1619,7 @@ class VisTrack(object): # ensure a new style class
         def delete(self):
             """Delete old tag and remove old bindings"""
             c = self.vt._c  # Canvas
-            s = str(self.vt)
+            s = self.vt.id
             
             for i in self.items:
                 ra_cleartagbinds(self[i].i)
@@ -1643,7 +1639,7 @@ class VisTrack(object): # ensure a new style class
         def redraw(self):
             """Redraw the label and reset bindings"""
             c = self.vt._c  # Canvas
-            s = str(self.vt)
+            s = self.vt.id
             lf = self.vt._l_font
             self.format=self.vt.label_format
             
@@ -1657,7 +1653,7 @@ class VisTrack(object): # ensure a new style class
             for i_name in self.items:
                 i=self[i_name]  # i is an instance of the LabelItem class
                 i.i = c.create_text(i.x, i.y, text=i.t, fill=i.color.get(), tag=s+i_name, anchor=NW, font=lf)
-                c.itemconfig(i.i,tags=(s+'labelitem',s+'move',s+'color',s+'track', s+'label'))
+                c.itemconfig(i.i,tags=(s,s+'labelitem', s+'label','track'))
                     
             #Create bindings
             # Common bindings
