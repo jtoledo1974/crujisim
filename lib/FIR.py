@@ -46,6 +46,7 @@ class FIR:
         self.pos = self.get_point_coordinates  # Method alias
         
         self.points     =[] # List of geo coordinates of points
+        self.coords     ={} # Dictionary with point coordinates
         self.rel_points ={} #Dictionary of points relative to another. Format: [RELATIVE_POINT NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
         self.routes     =[] # List of points defining standard routes within the FIR
         self.airways    =[] # List of airways... just for displaying on map
@@ -90,6 +91,7 @@ class FIR:
                 x=float(x)
                 y=float(y)
                 self.points.append([nombre.upper(),(x,y)])
+                self.coords[nombre.upper()] = (x,y)
             elif len(coord_lista)==3:                              #if len coord is 3, the point is defined referenced to another
                 (nombre_base,x,y)=coord.split(',')
                 x=float(x)
@@ -389,8 +391,8 @@ class FIR:
             logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")        
             
     def get_point_coordinates(self,point_name):
-        if point_name in [p[0] for p in self.points]:
-            return [p[1] for p in self.points if p[0]==point_name][0]
+        if point_name in self.coords.keys():
+            return self.coords[point_name]
         elif re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()):
             v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()).groups()
             return (float(v[0]), float(v[3]))

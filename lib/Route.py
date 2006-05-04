@@ -62,11 +62,16 @@ class Route(list):
     # We need to add methods to make sure that inbd and outbound tracks
     # are deleted in the waypoints whenever the route is modified
     
-    def __init__(self, inlist=[]):
-        self.raise_on_unknown = False  # Whether or not an exception is raised
-                                       # when a waypoint is added with coords unknown
-        self.insert_on_unknown = False # Whether or not a waypoint whose coordinates are unknown
-                                       # is added to the route
+    def __init__(self, inlist=[], raise_on_unknown = False, insert_on_unknown = False):
+        # Whether or not an exception is raised
+        # when a waypoint is added with coords unknown
+        self.raise_on_unknown = raise_on_unknown
+        # Whether or not a waypoint whose coordinates are unknown
+        # is added to the route        
+        self.insert_on_unknown = insert_on_unknown
+        for wp in inlist[:]:
+            if not self.check_wp(wp):
+                inlist.remove(wp)            
         list.__init__(self, inlist)
     
     def __getslice__(self, i, j):
@@ -97,8 +102,9 @@ class Route(list):
         except: pass
         
     def __add__(self, other):
-        if not isinstance(other, Route):
-            raise("Unable to add a non Route object to route object")
+        for wp in other[:]:
+            if not self.check_wp(wp):
+                other.remove(wp)
         r = Route(list.__add__(self, other))
         r.clear_tracks()
         return r
