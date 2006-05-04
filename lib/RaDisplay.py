@@ -2547,11 +2547,6 @@ class RaDisplay(object):
         canvas = self.c
         if not self.auto_separation or self.separating_labels: return
         
-        # If a repositioning is in progress we just reset the variable and return
-        if self.stop_separating:
-            self.stop_separating = False
-            return
-        
         self.separating_labels = True
         self.stop_separating = False
         crono = time()
