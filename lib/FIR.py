@@ -116,6 +116,7 @@ class FIR:
                             (x,y)=pr(self.rel_points[relative_point_name][1])
                             (x,y)=(x+base_point_coordinates[0][0],y+base_point_coordinates[0][1])
                             self.points.append([relative_point_name,(x,y)])
+                            self.coords[relative_point_name]=(x,y)
                             scan_again = True
 
         # FIR Routes
