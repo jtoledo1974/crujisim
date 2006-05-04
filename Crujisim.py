@@ -809,7 +809,7 @@ class FlightEditor:
                         
         self.stripcontainer.set_focus_chain((self.callsign,self.type,self.wtc,self.tas,
                                              self.adep, self.eobt,
-                                             self.adep, self.rfl,self.route,self.fix,self.eto,
+                                             self.ades, self.rfl,self.route,self.fix,self.eto,
                                              self.firstlevel,self.cfl, self.addbutton,
                                              self.savebutton))        
         self.FlightEditor.connect("response", self.on_flighteditor_response)
