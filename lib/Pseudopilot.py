@@ -610,9 +610,9 @@ class ventana_auxiliar:
             def change_fpr(e=None,entries=None):
                 ent_route,ent_destino=entries['Ruta:'],entries['Destino:']
                 pts = ent_route.get()
-                r = Route.Route()
-                r.raise_on_unknown = True
-                try: r.append(pts)
+                try:
+                    r = Route.Route(Route.get_waypoints(pts),
+                        raise_on_unknown = True)
                 except:
                     ent_route['bg'] = 'red'
                     ent_route.focus_set()
