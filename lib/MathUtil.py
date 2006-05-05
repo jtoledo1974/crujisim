@@ -124,6 +124,14 @@ def get_cross_point(pa0,pa1,pb0,pb1):
     #b0=pfloat(pb0)
     #b1=pfloat(pb1)
     a0, a1, b0, b1 = pa0, pa1, pb0, pb1
+    
+    # Test for same points
+    if pa0 == pb0 and pa1==pb1:
+        return pa0
+    elif pa0 == pb0:
+        return pa0
+    elif pa1 == pb1:
+        return pb1
 
     l1 = get_line_equation(a0,a1)
     l2 = get_line_equation(b0,b1)
