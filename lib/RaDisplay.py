@@ -48,6 +48,7 @@ CHANGE_WIDTH = 13
 
 VOR     = 'VOR'
 NDB     = 'NDB'
+FIX     = 'FIX'
 AD      = 'AD'
 
 def ra_bind(object, widget, sequence, callback):
@@ -2326,6 +2327,7 @@ class RaMap(object):
         self.arcs               = {}  # Arc items attributes
         self.symbols            = {}  # Symbol items attributes
         self._intensity         = intensity
+        self.hidden             = False
     
     def add_text(self, text, pos, color='gray'):
         c = SmartColor(color, self.intensity).get()
@@ -2361,37 +2363,65 @@ class RaMap(object):
     def add_symbol(self, type, pos, color='gray'):
         c = SmartColor(color, self.intensity).get()
         (cx,cy) = self.do_scale(pos)
-        tags = (self.id, self.id+'symbol', 'map')
+        tags = [self.id, self.id+'symbol', 'map']
         canvas = self.canvas
         if type == VOR:
             radio = 5.0
             i = canvas.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=c,
-                          fill='',width=2,tag=(self.id,'map'))
+                          fill='',width=2)
+            tags.append(self.id+'symbol'+str(i))
+            tags_outline = tags + [self.id+'symbol'+str(i)+'outline', self.id+'symboloutline']
+            canvas.itemconfigure(i, tag=tuple(tags_outline))
             radio = 5.0/1.3
-            selfc.create_line(cx+radio,cy-radio,cx-radio,cy+radio,fill=c,tag=tags)
+            tags = tuple(tags + [self.id+'symbol'+str(i)+'fill'])
+            canvas.create_line(cx+radio,cy-radio,cx-radio,cy+radio,fill=c,tag=tags)
             canvas.create_line(cx-radio,cy-radio,cx+radio,cy+radio,fill=c,tag=tags)
         elif type == NDB:
             radio = 4.5
-            i = canvas.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=c,fill='',width=1,tag=tags)
+            i = canvas.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=c,fill='',width=1)
+            tags += [self.id+'symbol'+str(i), self.id+'symbol'+str(i)+'outline', self.id+'symboloutline']
+            tags = tuple(tags)
+            canvas.itemconfigure(i, tag=tags)
         elif type == FIX:
             coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
-            i = canvas.create_polygon(coord_pol,outline=c,fill='',tag=tags,width=1)
-        self.symbols[i]=(type, pos, color)
+            i = canvas.create_polygon(coord_pol,outline=c,fill='',width=1)
+            tags += [self.id+'symbol'+str(i), self.id+'symbol'+str(i)+'outline', self.id+'symboloutline']
+            tags = tuple(tags)
+            canvas.itemconfigure(i, tag=tags)
+        self.symbols[i]=(type, pos, color, (cx,cy))
         
     def reposition(self):
         """Reset coordinates according to the parent's coordinate system"""
         for item, (color, coords) in self.polylines.items()+self.polygons.items():
             new_coords = [c for p in coords for c in self.do_scale(p)]
             self.canvas.coords(item, *new_coords)
+        if len(self.symbols.items())>0:
+            (type, pos, color, screen_pos) = self.symbols.values()[0]
+            (dx, dy) = r(self.do_scale(pos), screen_pos)
+            self.canvas.move(self.id+'symbol', dx, dy)
+            for item, (type, pos, color, screen_pos) in self.symbols.items():
+                self.symbols[item] = (type, pos, color, self.do_scale(pos))
             
     def hide(self):
         for item in self.polylines.keys()+self.polygons.keys():
             self.canvas.itemconfigure(item, fill='')
+        self.canvas.itemconfigure(self.id+'symbol', fill='')
+        self.canvas.itemconfigure(self.id+'symboloutline', outline='')
+        self.hidden = True
             
     def show(self):
         for item, (color, coords) in self.polylines.items()+self.polygons.items():
-            color = SmartColor(color, intensity)
-            self.canvas.coords(item, fill='color')        
+            color = SmartColor(color, self.intensity).get()
+            self.canvas.itemconfigure(item, fill=color)
+        for item, (type, pos, color, screen_pos) in self.symbols.items():
+            color = SmartColor(color, self.intensity).get()
+            self.canvas.itemconfigure(self.id+'symbol'+str(item)+'fill', fill=color)
+            self.canvas.itemconfigure(self.id+'symbol'+str(item)+'outline', outline=color)
+        self.hidden = False
+            
+    def toggle(self):
+        if self.hidden: self.show()
+        else: self.hide()
             
     def get_intensity(self): return self._intensity
     def set_intensity(self, value):
@@ -2475,10 +2505,6 @@ class RaDisplay(object):
         self.local_maps_shown = []
         
         self.maps_colors = {}
-        self.maps_colors['lim_sector']  = SmartColor('blue')
-        self.maps_colors['tma']=SmartColor('gray30')
-        self.maps_colors['routes']=SmartColor('gray25')
-        self.maps_colors['fix']=SmartColor('gray25')
         self.maps_colors['fix_names']=SmartColor('gray40')
         self.maps_colors['deltas']=SmartColor('gray40')
         
@@ -2999,65 +3025,46 @@ class RaDisplay(object):
         
         # Create Map Objects
 
+        map_intensity = self.intensity["GLOBAL"]*self.intensity["MAP"]
+        
         # Currect sector background
-        sectormap = RaMap(self.c, self.do_scale, intensity=self.intensity["GLOBAL"]*self.intensity["MAP"])
+        sectormap = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'gray9'}
         sectormap.add_polygon(*fir.boundaries[self.sector], **kw)
-        self.maps['sector']=sectormap
+        self.maps['sector'] = sectormap
         if not self.draw_sector: sectormap.hide()
-            
-        def _draw_lim_sector():
-            # Dibujar límites del SECTOR
-            if self.draw_lim_sector:
-                aux=()
-                for a in self.fir.boundaries[self.sector]:
-                    aux=aux+do_scale(a)
-                #c.create_polygon(aux,fill='',outline='blue',tag=('sector','radisplay'))
-                color = self.maps_colors['lim_sector'].get()
-                c.create_line(aux,fill=color,tag=('boundary','radisplay'))
-                
-        def _draw_tma():
-            # Dibujar TMA's
-            if self.draw_tmas:
-                for a in fir.tmas:
-                    aux=()
-                    for i in range(0,len(a[0]),2):
-                        aux=aux+do_scale((a[0][i],a[0][i+1]))
-                    #c.create_line(aux,fill='gray60',tag=('tmas','radisplay'))
-                    color = self.maps_colors['tma'].get()
-                    c.create_line(aux,fill=color,tag=('tmas','radisplay'))
-                    
-                    
-        def _draw_routes():
-            # Dibujar las rutas
-            if self.draw_routes:
-                for a in fir.airways:
-                    aux=()
-                    for i in range(0,len(a[0]),2):
-                        aux=aux+do_scale((a[0][i],a[0][i+1]))
-                    color = self.maps_colors['routes'].get()
-                    c.create_line(aux,fill=color,tag=('routes','radisplay'))
-        def _draw_fix():
-            # Dibujar fijos
-            color = self.maps_colors['fix'].get()
-            if self.draw_point:
-                for a in fir.points:
-                    if a[0][0]<>'_':
-                        if len(a[0]) == 3:
-                            (cx,cy) = do_scale(a[1])
-                            radio = 5.0
-                            c.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=color,fill='',width=2,tag=('points','radisplay'))
-                            radio = 5.0/1.3
-                            c.create_line(cx+radio,cy-radio,cx-radio,cy+radio,fill=color,tag=('points','radisplay'))
-                            c.create_line(cx-radio,cy-radio,cx+radio,cy+radio,fill=color,tag=('points','radisplay'))
-                        elif len(a[0]) == 2:
-                            (cx,cy) = do_scale(a[1])
-                            radio = 4.5
-                            c.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=color,fill='',width=1,tag=('points','radisplay'))
-                        else:    
-                            (cx,cy) = do_scale(a[1])
-                            coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
-                            c.create_polygon(coord_pol,outline=color,fill='',tag=('points','radisplay'),width=1)
+        
+        seclimitmap = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        kw = {'color': 'blue'}
+        seclimitmap.add_polyline(*fir.boundaries[self.sector], **kw)
+        self.maps['sector_limit'] = seclimitmap
+        if not self.draw_lim_sector: seclimitmap.hide()
+
+        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        kw = {'color': 'gray30'}
+        for tma in fir.tmas:
+            map.add_polyline(*tma, **kw)
+        self.maps['tmas'] = map
+        if not self.draw_tmas: map.hide()
+        
+        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        kw = {'color': 'gray25'}
+        for airway in fir.airways:
+            map.add_polyline(*airway, **kw)
+        self.maps['airways'] = map
+        if not self.draw_routes: map.hide()
+
+        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        for p in [p for p in fir.points if p[0][0]<>'_']:
+            if len(p[0]) == 3:
+                map.add_symbol(VOR, p[1], color='gray25')
+            elif len(p[0]) == 2:
+                map.add_symbol(NDB, p[1], color='gray25')
+            else:
+                map.add_symbol(FIX, p[1], color='gray25')
+        self.maps['points'] = map
+        if not self.draw_point: map.hide()
+
         def _draw_fix_names():
             # Dibujar el nombre de los puntos
             color = self.maps_colors['fix_names'].get()
@@ -3152,13 +3159,9 @@ class RaDisplay(object):
             c.addtag_withtag('radisplay','local_maps')
             c.lower('radisplay')
 
-        _draw_routes()
         _draw_local_maps()
         _draw_deltas()
-        _draw_fix()
         _draw_fix_names()
-        _draw_tma()
-        _draw_lim_sector()
         self.c.lift('radisplay')
         self.c.lift('track')
          
@@ -3199,7 +3202,7 @@ class RaDisplay(object):
         
     def toggle_routes(self):
         self.draw_routes = not self.draw_routes
-        self.redraw_maps()    
+        self.maps['airways'].toggle()
     
     def toggle_point_names(self):
         self.draw_point_names = not self.draw_point_names
@@ -3207,19 +3210,19 @@ class RaDisplay(object):
         
     def toggle_point(self):
         self.draw_point = not self.draw_point
-        self.redraw_maps()
+        self.maps['points'].toggle()
 
     def toggle_sector(self):
         self.draw_sector = not self.draw_sector
-        self.redraw_maps()
+        self.maps['sector'].toggle()
         
     def toggle_lim_sector(self):
         self.draw_lim_sector = not self.draw_lim_sector
-        self.redraw_maps()
+        self.maps['sector_limit'].toggle()
 
     def toggle_tmas(self):
         self.draw_tmas = not self.draw_tmas
-        self.redraw_maps()
+        self.maps['tmas'].toggle()
         
     def toggle_deltas(self):
         self.draw_deltas = not self.draw_deltas

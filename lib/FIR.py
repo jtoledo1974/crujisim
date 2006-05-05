@@ -134,23 +134,13 @@ class FIR:
         lista=self._firdef.items('aerovias')
         for (num,aux) in lista:
             linea=aux.split(',')
-            aux2=()
-            for p in linea:
-                for q in self.points:
-                    if p==q[0]:
-                        aux2=aux2+q[1]
-            self.airways.append([aux2])
+            self.airways.append([self.coords[p] for p in linea])
         # FIR TMAs
         if self._firdef.has_section('tmas'):
             lista=self._firdef.items('tmas')
             for (num,aux) in lista:
                 linea=aux.split(',')
-                aux2=()
-                for p in linea:
-                    for q in self.points:
-                        if p==q[0]:
-                            aux2=aux2+q[1]
-                self.tmas.append([aux2])
+                self.tmas.append([self.coords[p] for p in linea])
         # Local maps
         if self._firdef.has_section('mapas_locales'):
             local_map_string = self._firdef.get('mapas_locales', 'mapas')
