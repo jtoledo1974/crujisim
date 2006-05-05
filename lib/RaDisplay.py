@@ -46,6 +46,9 @@ _binds = []
 IMGDIR='./img/'
 CHANGE_WIDTH = 13
 
+VOR     = 'VOR'
+NDB     = 'NDB'
+AD      = 'AD'
 
 def ra_bind(object, widget, sequence, callback):
     """Creates a TK binding and stores information for later deletion"""
@@ -786,6 +789,8 @@ class RaTabular(RaFrame):
 
 class SmartColor(object):
     """Given a color string and a brightness factor calculates the output color"""
+    
+    # TODO this should probably be rewritten using properties as the VisTrack
     
     winfo_rgb = None  # This function will be set when Tkinter is initialized
     
@@ -2308,6 +2313,98 @@ class LAD(object):
         b = int(10.0*a)
         return b / 10.0
 
+class RaMap(object):
+    """A static radar map"""
+    
+    def __init__(self, canvas, do_scale, intensity=1.0):
+        self.id                 = 'map'+str(id(self))
+        self.canvas             = canvas
+        self.do_scale           = do_scale
+        self.texts              = {}  # Text items attributes
+        self.polylines          = {}  # Polyline items attributes
+        self.polygons           = {}  # Polygon items attributes
+        self.arcs               = {}  # Arc items attributes
+        self.symbols            = {}  # Symbol items attributes
+        self._intensity         = intensity
+    
+    def add_text(self, text, pos, color='gray'):
+        c = SmartColor(color, self.intensity).get()
+        i = self.canvas.create_text(do_scale(pos), text=text, fill=c,
+                          tag=(self.id,'map'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
+        self.texts[i] = (text, pos, color)
+        
+    def add_polyline(self, *coords, **kw):
+        try: color = kw['color']
+        except: color = 'gray'
+        c = SmartColor(color, self.intensity).get()
+        kw = {"fill": c, 'tag': (self.id, 'map')}
+        new_coords = [self.do_scale(p) for p in coords]
+        i = self.canvas.create_line(*new_coords, **kw)
+        self.polylines[i] = (color, coords)
+        
+    def add_polygon(self, *coords, **kw):
+        try: color = kw['color']
+        except: color = 'gray'
+        c = SmartColor(color, self.intensity).get()
+        kw = {"fill": c, 'tag': (self.id, 'map')}
+        new_coords = [self.do_scale(p) for p in coords]
+        i = self.canvas.create_polygon(*new_coords, **kw)
+        self.polygons[i] = (color, coords)    
+        
+    def add_arc(self, top_left, bottom_right, start, extent, color='gray'):
+        c = SmartColor(color, self.intensity).get()
+        tl, br = self.do_scale(top_left), self.do_scale(bottom_right)
+        i = self.canvas.create_arc(top_left, bottom_right, start=start_value, extent=extent_value,
+                     outline=c, style='arc', tag=(self.id, 'map'))
+        self.arcs[i] = (top_left, bottom_right, start, extent, color)
+        
+    def add_symbol(self, type, pos, color='gray'):
+        c = SmartColor(color, self.intensity).get()
+        (cx,cy) = self.do_scale(pos)
+        tags = (self.id, self.id+'symbol', 'map')
+        canvas = self.canvas
+        if type == VOR:
+            radio = 5.0
+            i = canvas.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=c,
+                          fill='',width=2,tag=(self.id,'map'))
+            radio = 5.0/1.3
+            selfc.create_line(cx+radio,cy-radio,cx-radio,cy+radio,fill=c,tag=tags)
+            canvas.create_line(cx-radio,cy-radio,cx+radio,cy+radio,fill=c,tag=tags)
+        elif type == NDB:
+            radio = 4.5
+            i = canvas.create_oval(cx-radio,cy-radio,cx+radio,cy+radio,outline=c,fill='',width=1,tag=tags)
+        elif type == FIX:
+            coord_pol = (cx,cy-3.,cx+3.,cy+2.,cx-3.,cy+2.,cx,cy-3.)
+            i = canvas.create_polygon(coord_pol,outline=c,fill='',tag=tags,width=1)
+        self.symbols[i]=(type, pos, color)
+        
+    def reposition(self):
+        """Reset coordinates according to the parent's coordinate system"""
+        for item, (color, coords) in self.polylines.items()+self.polygons.items():
+            new_coords = [c for p in coords for c in self.do_scale(p)]
+            self.canvas.coords(item, *new_coords)
+            
+    def hide(self):
+        for item in self.polylines.keys()+self.polygons.keys():
+            self.canvas.itemconfigure(item, fill='')
+            
+    def show(self):
+        for item, (color, coords) in self.polylines.items()+self.polygons.items():
+            color = SmartColor(color, intensity)
+            self.canvas.coords(item, fill='color')        
+            
+    def get_intensity(self): return self._intensity
+    def set_intensity(self, value):
+        self._intensity = value
+        for item, (color, coords) in self.polylines.items()+self.polygons.items():
+            color = SmartColor(color, value).get()
+            self.canvas.itemconfigure(item, fill=color)
+    intensity = property(get_intensity, set_intensity)
+        
+    def destroy(self):
+        self.canvas.delete(self.id)
+        del self.canvas
+        del self.do_scale    
         
 class RaDisplay(object):
     """Generic radar display in which tracks and lads are shown
@@ -2364,6 +2461,7 @@ class RaDisplay(object):
         self.y0=0.  # in world coordinates
         self.scale=1.0  # Scale factor between screen and world coordinates
         
+        self.maps               = {}  # Dictionary of map objects
         self.draw_routes = True
         self.draw_point = True
         self.draw_sector = True
@@ -2377,8 +2475,7 @@ class RaDisplay(object):
         self.local_maps_shown = []
         
         self.maps_colors = {}
-        self.maps_colors['sector']=SmartColor('gray9')
-        self.maps_colors['lim_sector']=SmartColor('blue')
+        self.maps_colors['lim_sector']  = SmartColor('blue')
         self.maps_colors['tma']=SmartColor('gray30')
         self.maps_colors['routes']=SmartColor('gray25')
         self.maps_colors['fix']=SmartColor('gray25')
@@ -2893,18 +2990,22 @@ class RaDisplay(object):
         sector = self.sector
         do_scale = self.do_scale
         
-        self.c.delete('radisplay')        
+        self.c.delete('radisplay')
         
-        def _draw_sector():
-            # Dibujar SECTOR
-            if self.draw_sector:
-                aux=()
-                for a in self.fir.boundaries[self.sector]:
-                    aux=aux+do_scale(a)
-                    
-                color = self.maps_colors['sector'].get()
-                c.create_polygon(aux,fill=color,outline=color,tag=('sector','radisplay'))
-                
+        # Delete Map objects
+        for map in self.maps.values():
+            map.destroy()
+        self.maps = {}
+        
+        # Create Map Objects
+
+        # Currect sector background
+        sectormap = RaMap(self.c, self.do_scale, intensity=self.intensity["GLOBAL"]*self.intensity["MAP"])
+        kw = {'color': 'gray9'}
+        sectormap.add_polygon(*fir.boundaries[self.sector], **kw)
+        self.maps['sector']=sectormap
+        if not self.draw_sector: sectormap.hide()
+            
         def _draw_lim_sector():
             # Dibujar límites del SECTOR
             if self.draw_lim_sector:
@@ -3051,7 +3152,6 @@ class RaDisplay(object):
             c.addtag_withtag('radisplay','local_maps')
             c.lower('radisplay')
 
-        _draw_sector()
         _draw_routes()
         _draw_local_maps()
         _draw_deltas()
@@ -3059,12 +3159,13 @@ class RaDisplay(object):
         _draw_fix_names()
         _draw_tma()
         _draw_lim_sector()
+        self.c.lift('radisplay')
         self.c.lift('track')
          
     def redraw(self):
         """Delete and redraw all elements of the radar display"""
         self.redraw_maps()
-        
+
         # Refresh tracks
         for a in self.tracks:
             a.redraw()
@@ -3076,6 +3177,8 @@ class RaDisplay(object):
                                      # we want to make sure that it will not try to
                                      # move the labels because results would be
                                      # incorrect
+        for map in self.maps.values():
+            map.reposition()
         self.redraw_maps()
         for vt in self.tracks:
             (x,y)=self.do_scale((vt.wx,vt.wy))
@@ -3123,14 +3226,19 @@ class RaDisplay(object):
         self.redraw_maps()
         
     def exit(self):
+        # Drop bindings
         ra_clearbinds(self)
+        # Delete map objects
+        for map in self.maps.values():
+            map.destroy()
+        del self.maps
+        # Delete tracks
         for t in self.tracks:
             t.destroy()
         try:
             self.tracks[0].reset_timer()
         except:
-            logging.error("Error resetting timer", exc_info)
-            raise
+            logging.error("Error resetting timer")
         del self.tracks
         self.top_level.destroy()
         # Avoid memory leaks due to circular references preventing
@@ -3146,8 +3254,13 @@ class RaDisplay(object):
             self.update_lads()
         
         def set_MAP_intensity():
+            for map in self.maps.values():
+                map.intensity = self.intensity["GLOBAL"]*self.intensity["MAP"]
             for sc in self.maps_colors.values():
-                sc.set_intensity(self.intensity["GLOBAL"]*self.intensity["MAP"])
+                try:
+                    sc.set_intensity(self.intensity["GLOBAL"]*self.intensity["MAP"])
+                except:
+                    pass
             self.redraw_maps()
         
         def set_TRACKS_intensity():
@@ -3287,14 +3400,3 @@ if __name__ == "__main__":
     ra_tag_unbind(canvas,l,"<2>")
     ra_cleartagbinds(l)
     
-    for at in ('intensity','l_font_size','flashing','speed_vector_length'):
-        print("""def get_%s(self): return self._%s
-    def set_%s(self, value):
-        self._%s = value
-        pass
-    %s = property(get_%s, set_%s)
-   """%(at, at, at, at, at, at, at))
-
-    for item in [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']:
-    
-        print "    %s = property(lambda s: s.get_label_item('%s'), lambda s,v: s.set_label_item('%s', v))"%(item, item, item)
