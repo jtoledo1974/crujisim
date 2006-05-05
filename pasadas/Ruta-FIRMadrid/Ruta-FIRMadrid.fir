@@ -392,7 +392,7 @@ mapas = SECTORES
 nombre:Sectores
 sectorA01:polyline,white,_STG1,_STG2,_STG3,_STG4,RALUS,_STG5,_STG6,NARBO,_STG7,_STG8,DEMOS,_STG9,_STG10,_STG1
 sectorA02:polyline,white,_STG3,PATEL,_ZMR1,_ZMR2,_ZMR3,_ZMR4,_ZMR5,BARDI,_ZMR6,_ZMR7,_ZMR8,ADORO,_ZMR9,_ZMR10,_STG4,_STG3
-sectorA03:polyline,white,_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,_DGO1,_ZMR1,_ZMR2
+sectorA03:polyline,white,_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,BELEN,_ZMR2
 sectorA04:polyline,white,_DGO2,_PPN1,_PPN2,ENDAY,THUNE,_PPN3,_PPN4,_PPN5,LURAN,LATEK,_PPN6,SOVAR,_PPN7,MARIO,KUMAN,_PPN8,_PPN10,_PPN11,_PPN9,_DGO4,_DGO3,_DGO2
 sectorA05:polyline,white,_PPN8,_CJN1,ANZAN,_TLD2,_TLD1,_PPN11,_PPN10,_PPN8
 sectorA06:polyline,white,_TLD2,LOGRO,MOLIN,PARKA,_TLD3,CCS,RAKOD,_ZMR5,_ZMR4,_DGO5,_DGO4,_PPN9,_PPN11,_TLD1,_TLD2
@@ -401,7 +401,7 @@ sectorA06:polyline,white,_TLD2,LOGRO,MOLIN,PARKA,_TLD3,CCS,RAKOD,_ZMR5,_ZMR4,_DG
 nombre:SANTIAGO
 min_sep = 8.0
 auto_departure = AUTO
-limites:_STG1,_STG2,_STG3,_STG4,RALUS,_STG5,_STG6,NARBO,_STG7,_STG8,DEMOS,_STG9,_STG10,_STG1
+limites:_STG1,_STG2,KORUL,LOTEE,ATLEN,_STG3,_STG4,RALUS,_STG5,_STG6,NARBO,_STG7,_STG8,DEMOS,_STG9,_STG10,HIDRO,_STG1
 fijos_de_impresion:STG,AVS,BARKO,KORET
 local_ads:LEST,LEAS
 printing_fixes_dep_LEST:KORAV,MEGAT,ASTUR,LOMDA,FORNO,DEMOS
@@ -422,7 +422,7 @@ local_ads:LESA
 nombre:DOMINGO
 min_sep = 8.0
 auto_departure = AUTO
-limites:_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,_DGO1,_ZMR2
+limites:_ZMR2,_ZMR3,_ZMR4,_DGO5,_DGO4,_DGO3,_DGO2,BELEN,_ZMR2
 fijos_de_impresion:NEA,DGO,BLV
 fijos_de_impresion_secundarios:BGS,BELEN,RBO
 local_ads:LEBB
@@ -442,7 +442,7 @@ local_ads:LEPP,LEZG,LEBB
 nombre:CASTEJON
 min_sep = 8.0
 auto_departure = AUTO
-limites:_PPN8,_CJN1,ANZAN,_TLD2,_TLD1,_PPN11,_PPN10,_PPN8
+limites:_PPN8,PONEN,TOBAL,CLS,ASTRO,_CJN1,ANZAN,_TLD2,_TLD1,_PPN11,_PPN10,_PPN8
 fijos_de_impresion:CJN,SEGRE
 fijos_de_impresion_secundarios:ADUXO
 local_ads:
