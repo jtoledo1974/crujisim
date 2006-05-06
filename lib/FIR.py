@@ -283,12 +283,7 @@ class FIR:
             for (num,aux) in lista:
                 #logging.debug ('Leyendo delta '+str(num))
                 linea=aux.split(',')
-                aux2=()
-                for p in linea:
-                    for q in self.points:
-                        if p==q[0]:
-                            aux2=aux2+q[1]
-                self.deltas.append([aux2])
+                self.deltas.append([self.coords[p] for p in linea])
                 
         # Sector characteristics
                 

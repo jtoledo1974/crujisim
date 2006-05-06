@@ -2331,8 +2331,8 @@ class RaMap(object):
     
     def add_text(self, text, pos, color='gray'):
         c = SmartColor(color, self.intensity).get()
-        i = self.canvas.create_text(do_scale(pos), text=text, fill=c,
-                          tag=(self.id,'map'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
+        i = self.canvas.create_text(self.do_scale(pos), text=text, fill=c,
+                          tag=(self.id, self.id+'text','map'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
         self.texts[i] = (text, pos, color)
         
     def add_polyline(self, *coords, **kw):
@@ -2356,8 +2356,8 @@ class RaMap(object):
     def add_arc(self, top_left, bottom_right, start, extent, color='gray'):
         c = SmartColor(color, self.intensity).get()
         tl, br = self.do_scale(top_left), self.do_scale(bottom_right)
-        i = self.canvas.create_arc(top_left, bottom_right, start=start_value, extent=extent_value,
-                     outline=c, style='arc', tag=(self.id, 'map'))
+        i = self.canvas.create_arc(tl, br, start=start, extent=extent,
+                     outline=c, style='arc', tag=(self.id, self.id+'arc','map'))
         self.arcs[i] = (top_left, bottom_right, start, extent, color)
         
     def add_symbol(self, type, pos, color='gray'):
@@ -2395,18 +2395,22 @@ class RaMap(object):
         for item, (color, coords) in self.polylines.items()+self.polygons.items():
             new_coords = [c for p in coords for c in self.do_scale(p)]
             self.canvas.coords(item, *new_coords)
-        if len(self.symbols.items())>0:
-            (type, pos, color, screen_pos) = self.symbols.values()[0]
-            (dx, dy) = r(self.do_scale(pos), screen_pos)
-            self.canvas.move(self.id+'symbol', dx, dy)
-            for item, (type, pos, color, screen_pos) in self.symbols.items():
-                self.symbols[item] = (type, pos, color, self.do_scale(pos))
+        for item, (type, pos, color, screen_pos) in self.symbols.items():
+            new_screen_pos = self.do_scale(pos)
+            (dx, dy) = r(new_screen_pos, screen_pos)
+            print dx, dy
+            self.canvas.move(self.id+'symbol'+str(item), dx, dy)
+            self.symbols[item] = (type, pos, color, new_screen_pos)
+        for item, (text, pos, color) in self.texts.items():
+            new_coords = [c for c in self.do_scale(pos)]
+            self.canvas.coords(item, *new_coords)
             
     def hide(self):
-        for item in self.polylines.keys()+self.polygons.keys():
+        for item in self.polylines.keys()+self.polygons.keys()+self.texts.keys():
             self.canvas.itemconfigure(item, fill='')
         self.canvas.itemconfigure(self.id+'symbol', fill='')
         self.canvas.itemconfigure(self.id+'symboloutline', outline='')
+        self.canvas.itemconfigure(self.id+'arc', outline = '')
         self.hidden = True
             
     def show(self):
@@ -2417,6 +2421,9 @@ class RaMap(object):
             color = SmartColor(color, self.intensity).get()
             self.canvas.itemconfigure(self.id+'symbol'+str(item)+'fill', fill=color)
             self.canvas.itemconfigure(self.id+'symbol'+str(item)+'outline', outline=color)
+        for item, (text, pos, color) in self.texts.items():
+            color = SmartColor(color, self.intensity).get()
+            self.canvas.itemconfigure(item, fill=color)
         self.hidden = False
             
     def toggle(self):
@@ -2426,9 +2433,7 @@ class RaMap(object):
     def get_intensity(self): return self._intensity
     def set_intensity(self, value):
         self._intensity = value
-        for item, (color, coords) in self.polylines.items()+self.polygons.items():
-            color = SmartColor(color, value).get()
-            self.canvas.itemconfigure(item, fill=color)
+        if not self.hidden: self.show()
     intensity = property(get_intensity, set_intensity)
         
     def destroy(self):
@@ -2504,10 +2509,6 @@ class RaDisplay(object):
         self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
         self.local_maps_shown = []
         
-        self.maps_colors = {}
-        self.maps_colors['fix_names']=SmartColor('gray40')
-        self.maps_colors['deltas']=SmartColor('gray40')
-        
         self.auto_separation = True  # Separate labels automatically
         
         VisTrack.timer_id = None  # Reset the VisTrack class
@@ -2533,62 +2534,6 @@ class RaDisplay(object):
         self.rabrightness = RaBrightness(c, self.set_element_intensity,position=(self.width*0.4,self.height*0.8))
         self.rabrightness.hide()
 
-
-    def draw_polyline(self,object):
-        """draw a series of lines from point to point defined in object[2:]. object[2:] contains
-        points' names and points_definition contains de names and coordinates."""
-        color = object[1]
-        if object[1]=='':
-            color = 'white'
-        color=SmartColor(color, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-        coords = []
-        for p in object[2:]:
-            coords += self.do_scale(self.fir.get_point_coordinates(p))
-        kw = {'fill': color, 'tag': 'local_maps'}
-        self.c.create_line(*coords, **kw)
-                
-    def draw_SID_STAR(self,object):
-        
-        def draw_single_SID_STAR(single_sid_star,remove_underscored = True):
-            for i in range(0,len(single_sid_star[1])-1):
-                #We are not going to plot points which name starts with undescore
-                first_point_chosen = False
-                last_point_chosen = False
-                if single_sid_star[1][i][1][0]<>'_' or not remove_underscored:
-                    cx0 = float(single_sid_star[1][i][0][0])
-                    cy0 = float(single_sid_star[1][i][0][1])
-                    first_point_chosen = True
-                    for j in range(i+1,len(single_sid_star[1])):
-                        if single_sid_star[1][j][1][0]<>'_' or not remove_underscored:
-                            cx1 = float(single_sid_star[1][j][0][0])
-                            cy1 = float(single_sid_star[1][j][0][1])
-                            last_point_chosen = True
-                            break
-                if first_point_chosen and last_point_chosen:
-                    (px0, py0) = self.do_scale((cx0,cy0))
-                    (px1, py1) = self.do_scale((cx1,cy1))
-                    self.c.create_line(px0, py0, px1, py1, fill=color, tag='local_maps')
-        
-        sid_star_index = 0              #plot SID by default
-        if object[0] == 'draw_sid':
-            sid_star_index = 0
-        elif object[0] == 'draw_star':
-            sid_star_index = 1
-            
-        sid_star_rwy = object[1]
-        sid_star_name = object[2]
-        if len(object) > 3:
-            color = object[3]
-        else:
-            color = 'white'
-            
-        color=SmartColor(color, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()   
-        for sid_star_index_word in self.fir.procedimientos[sid_star_rwy][sid_star_index]:              #cycle through al SID's or STAR's of one RWY
-            sid_star=self.fir.procedimientos[sid_star_rwy][sid_star_index][sid_star_index_word]
-            if (sid_star_name == '') or (sid_star_name == sid_star[0]):
-                draw_single_SID_STAR(sid_star,True)
-
-      
     def change_size(self,e):
         self.width = e.width
         self.height = e.height
@@ -3016,8 +2961,6 @@ class RaDisplay(object):
         sector = self.sector
         do_scale = self.do_scale
         
-        self.c.delete('radisplay')
-        
         # Delete Map objects
         for map in self.maps.values():
             map.destroy()
@@ -3034,12 +2977,14 @@ class RaDisplay(object):
         self.maps['sector'] = sectormap
         if not self.draw_sector: sectormap.hide()
         
+        # Sector border
         seclimitmap = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'blue'}
         seclimitmap.add_polyline(*fir.boundaries[self.sector], **kw)
         self.maps['sector_limit'] = seclimitmap
         if not self.draw_lim_sector: seclimitmap.hide()
 
+        # TMAs
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'gray30'}
         for tma in fir.tmas:
@@ -3047,6 +2992,7 @@ class RaDisplay(object):
         self.maps['tmas'] = map
         if not self.draw_tmas: map.hide()
         
+        # Airways
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'gray25'}
         for airway in fir.airways:
@@ -3054,6 +3000,7 @@ class RaDisplay(object):
         self.maps['airways'] = map
         if not self.draw_routes: map.hide()
 
+        # Fixes (VORs, NDBs, FIXes)
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         for p in [p for p in fir.points if p[0][0]<>'_']:
             if len(p[0]) == 3:
@@ -3065,104 +3012,116 @@ class RaDisplay(object):
         self.maps['points'] = map
         if not self.draw_point: map.hide()
 
-        def _draw_fix_names():
-            # Dibujar el nombre de los puntos
-            color = self.maps_colors['fix_names'].get()
-            if self.draw_point_names:
-                for a in fir.points:
-                    if a[0][0]<>'_':
-                        c.create_text(do_scale(a[1]),text=a[0],fill=color,tag=('pointnames','radisplay'),anchor=SW,font='-*-Helvetica-Bold-*--*-9-*-')
-        # Dibujar zonas delta
-        def _draw_deltas():
-            color = self.maps_colors['deltas'].get()
-            if self.draw_deltas:
-                for a in fir.deltas:
-                    aux=()
-                    for i in range(0,len(a[0]),2):
-                        aux=aux+do_scale((a[0][i],a[0][i+1]))
-                    c.create_line(aux,fill=color,tag=('deltas','radisplay'))
+        # Fix names
+        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        for p in [p for p in fir.points if p[0][0]<>'_']:
+            map.add_text(p[0], p[1], color='gray40')
+        self.maps['point_names'] = map
+        if not self.draw_point_names: map.hide()
 
-        def _draw_local_maps():   
-            # Dibujar mapas locales
-            for map_name in self.local_maps_shown:
-                objects = fir.local_maps[map_name]
-                for ob in objects:
-                    if ob[0] == 'linea':
-                        cx0 = float(ob[1])
-                        cy0 = float(ob[2])
-                        cx1 = float(ob[3])
-                        cy1 = float(ob[4])
-                        if len(ob) > 5:
-                            col = ob[5]
-                        else:
-                            col = 'white'
-                        (px0, py0) = do_scale((cx0,cy0))
-                        (px1, py1) = do_scale((cx1,cy1))
-                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-                        c.create_line(px0, py0, px1, py1, fill=col, tag='local_maps')
-                    elif ob[0] == 'arco':
-                        cx0 = float(ob[1])
-                        cy0 = float(ob[2])
-                        cx1 = float(ob[3])
-                        cy1 = float(ob[4])
-                        start_value = float(ob[5])
-                        extent_value = float(ob[6])
-                        if len(ob) > 7:
-                            col = ob[7]
-                        else:
-                            col = 'white'
-                        (px0, py0) = do_scale((cx0,cy0))
-                        (px1, py1) = do_scale((cx1,cy1))
-                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-                        c.create_arc(px0, py0, px1, py1, start=start_value, extent=extent_value, outline=col, style='arc', tag='local_maps')
-                    elif ob[0] == 'ovalo':
-                        cx0 = float(ob[1])
-                        cy0 = float(ob[2])
-                        cx1 = float(ob[3])
-                        cy1 = float(ob[4])
-                        if len(ob) > 5:
-                            col = ob[5]
-                        else:
-                            col = 'white'
-                        (px0, py0) = do_scale((cx0,cy0))
-                        (px1, py1) = do_scale((cx1,cy1))
-                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-                        c.create_oval(px0, py0, px1, py1, fill=col, tag='local_maps')
-                    elif ob[0] == 'rectangulo':
-                        cx0 = float(ob[1])
-                        cy0 = float(ob[2])
-                        cx1 = float(ob[3])
-                        cy1 = float(ob[4])
-                        if len(ob) > 5:
-                            col = ob[5]
-                        else:
-                            col = 'white'
-                        (px0, py0) = do_scale((cx0,cy0))
-                        (px1, py1) = do_scale((cx1,cy1))
-                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-                        c.create_rectangle(px0, py0, px1, py1, fill=col, tag='local_maps')
-                    elif ob[0] == 'texto':
-                        x = float(ob[1])
-                        y = float(ob[2])
-                        txt = ob[3]
-                        if len(ob) > 4:
-                            col = ob[4]
-                        else:
-                            col = 'white'
-                        (px, py) = do_scale((x,y))
-                        col=SmartColor(col, self.intensity["MAP"]*self.intensity["GLOBAL"]).get()
-                        c.create_text(px, py, text=txt, fill=col,tag='local_maps',anchor=SW,font='-*-Times-Bold-*--*-10-*-')
-                    elif ob[0] == 'draw_star' or ob[0] == 'draw_sid':
-                        self.draw_SID_STAR(ob)
-                    elif ob[0] == 'polyline':
-                        self.draw_polyline(ob)
-            c.addtag_withtag('radisplay','local_maps')
-            c.lower('radisplay')
+        # Special Use Areas
+        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        kw = {'color': 'gray40'}
+        for delta in fir.deltas:
+            map.add_polyline(*delta, **kw)
+        self.maps['SUA'] = map
+        if not self.draw_deltas: map.hide()
 
-        _draw_local_maps()
-        _draw_deltas()
-        _draw_fix_names()
-        self.c.lift('radisplay')
+        def draw_SID_STAR(map, object):
+            
+            def draw_single_SID_STAR(single_sid_star,remove_underscored = True):
+                for i in range(0,len(single_sid_star[1])-1):
+                    #We are not going to plot points which name starts with undescore
+                    first_point_chosen = False
+                    last_point_chosen = False
+                    if single_sid_star[1][i][1][0]<>'_' or not remove_underscored:
+                        cx0 = float(single_sid_star[1][i][0][0])
+                        cy0 = float(single_sid_star[1][i][0][1])
+                        first_point_chosen = True
+                        for j in range(i+1,len(single_sid_star[1])):
+                            if single_sid_star[1][j][1][0]<>'_' or not remove_underscored:
+                                cx1 = float(single_sid_star[1][j][0][0])
+                                cy1 = float(single_sid_star[1][j][0][1])
+                                last_point_chosen = True
+                                break
+                    if first_point_chosen and last_point_chosen:
+                        map.add_polyline((cx0, cy0), (cx1, cy1), color=color)
+            
+            sid_star_index = 0              #plot SID by default
+            if object[0] == 'draw_sid':  sid_star_index = 0
+            elif object[0] == 'draw_star':  sid_star_index = 1
+                
+            sid_star_rwy = object[1]
+            sid_star_name = object[2]
+            if len(object) > 3: color = object[3]
+            else:  color = 'white'
+                
+            for sid_star_index_word in self.fir.procedimientos[sid_star_rwy][sid_star_index]:              #cycle through al SID's or STAR's of one RWY
+                sid_star=self.fir.procedimientos[sid_star_rwy][sid_star_index][sid_star_index_word]
+                if (sid_star_name == '') or (sid_star_name == sid_star[0]):
+                    draw_single_SID_STAR(sid_star,True)    
+          
+        # Local Maps
+        for map_name in fir.local_maps.keys():
+            map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+            objects = fir.local_maps[map_name]
+            for ob in objects:
+                if ob[0] == 'linea':
+                    cx0 = float(ob[1])
+                    cy0 = float(ob[2])
+                    cx1 = float(ob[3])
+                    cy1 = float(ob[4])
+                    if len(ob) > 5:
+                        col = ob[5]
+                    else:
+                        col = 'gray'
+                    map.add_polyline((cx0, cy0), (cx1, cy1), color=col)
+                elif ob[0] == 'arco':
+                    cx0, cy0, cx1, cy1 = float(ob[1]), float(ob[2]), float(ob[3]), float(ob[4])
+                    start, extent = float(ob[5]), float(ob[6])
+                    if len(ob) > 7: col = ob[7]
+                    else: col = 'gray'
+                    print cx0, cy0, start, extent
+                    map.add_arc((cx0, cy0), (cx1, cy1), start, extent, color=col)
+                elif ob[0] == 'ovalo':
+                    cx0 = float(ob[1])
+                    cy0 = float(ob[2])
+                    cx1 = float(ob[3])
+                    cy1 = float(ob[4])
+                    if len(ob) > 5:
+                        col = ob[5]
+                    else:
+                        col = 'gray'
+                    map.add_arc(cx0, cy0, cx1, cy1, 0, 360, color=col)
+                elif ob[0] == 'rectangulo':
+                    cx0 = float(ob[1])
+                    cy0 = float(ob[2])
+                    cx1 = float(ob[3])
+                    cy1 = float(ob[4])
+                    if len(ob) > 5:  col = ob[5]
+                    else:  col = 'gray'
+                    map.add_polyline(cx0, cy0, cx0, cy1, cx1, cy1, cx1, cy0, cx0, cy0, color=col)
+                elif ob[0] == 'texto':
+                    x, y = float(ob[1]), float(ob[2])
+                    txt = ob[3]
+                    if len(ob) > 4: col = ob[4]
+                    else: col = 'gray'
+                    map.add_text(ob[3], (x,y), color = col)
+                elif ob[0] == 'draw_star' or ob[0] == 'draw_sid':
+                    draw_SID_STAR(map, ob)
+                elif ob[0] == 'polyline':
+                    object = ob
+                    color = object[1]
+                    if object[1]=='':
+                        color = 'gray'
+                    coords = []
+                    for p in object[2:]:
+                        coords.append(self.fir.get_point_coordinates(p))
+                    kw = {'color': color}
+                    map.add_polyline(*coords, **kw)
+            self.maps[map_name] = map
+            if map_name not in self.local_maps_shown: map.hide()
+        #_draw_deltas()
         self.c.lift('track')
          
     def redraw(self):
@@ -3180,9 +3139,8 @@ class RaDisplay(object):
                                      # we want to make sure that it will not try to
                                      # move the labels because results would be
                                      # incorrect
-        for map in self.maps.values():
+        for map_name,map in self.maps.items():
             map.reposition()
-        self.redraw_maps()
         for vt in self.tracks:
             (x,y)=self.do_scale((vt.wx,vt.wy))
             vt.coords(x,y,None)
@@ -3206,7 +3164,7 @@ class RaDisplay(object):
     
     def toggle_point_names(self):
         self.draw_point_names = not self.draw_point_names
-        self.redraw_maps()
+        self.maps['point_names'].toggle()
         
     def toggle_point(self):
         self.draw_point = not self.draw_point
@@ -3226,7 +3184,8 @@ class RaDisplay(object):
         
     def toggle_deltas(self):
         self.draw_deltas = not self.draw_deltas
-        self.redraw_maps()
+        # Special Use Areas
+        self.maps['SUA'].toggle()
         
     def exit(self):
         # Drop bindings
@@ -3259,12 +3218,6 @@ class RaDisplay(object):
         def set_MAP_intensity():
             for map in self.maps.values():
                 map.intensity = self.intensity["GLOBAL"]*self.intensity["MAP"]
-            for sc in self.maps_colors.values():
-                try:
-                    sc.set_intensity(self.intensity["GLOBAL"]*self.intensity["MAP"])
-                except:
-                    pass
-            self.redraw_maps()
         
         def set_TRACKS_intensity():
             for tracks in self.tracks:
