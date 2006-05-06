@@ -246,6 +246,8 @@ class PpDisplay(RaDisplay):
     def update(self):
         def after_tracks(x):
             self.c.lift('track')
+            self.c.lift('plot')  # Otherwise the most recent history dot comes above
+                                 # and prevents correct clicking of the plot
             RaDisplay.update(self)
         threads.deferToThread(self.update_tracks).addCallback(after_tracks)
         self.update_clock()
@@ -266,10 +268,7 @@ class PpDisplay(RaDisplay):
         return True
             
     def update_track(self, f):
-        # TODO
-        # Whatever substitute for Pickle we choose on the network layer
-        # we should not rely on having access to the objects code
-        # We should only count on simple attributes, not methods
+        # TODO This should be a RaDisplay method
         vt = self._flights_tracks[f]
         vt.alt=f.lvl
         vt.cs=f.callsign

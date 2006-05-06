@@ -1190,12 +1190,12 @@ class VisTrack(object): # ensure a new style class
             size=size+1 # Assumed plots are a litle bigger to appear the same size
             self._pitem = self._c.create_polygon(x-size,y,x,y-size,x+size,y,x,y+size,x-size,y,
                                               outline=self.color.get(),fill='',
-                                              tags=(s,s+'plot','track'))
+                                              tags=(s,s+'plot','track','plot'))
         else:
             self._pitem = self._c.create_polygon(x-size,y-size,x-size,y+size,x+size,y+size,
                                               x+size,y-size,x-size,y-size,
                                               outline=self.color.get(),fill='',
-                                              tags=(s,s+'plot','track'))
+                                              tags=(s,s+'plot','track','plot'))
             
         def plot_b1(e=None):
             self._message_handler(self,'plot','<Button-1>',None,e)
@@ -1222,7 +1222,6 @@ class VisTrack(object): # ensure a new style class
         s = self.id
         item = self._c.create_rectangle(h0,h1,h0+1,h1+1,outline=self.color.get(),
                                  tags=(s,s+'hist','track'))
-        self._c.lower(item)
         return item
             
     def delete_sv(self):

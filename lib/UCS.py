@@ -329,6 +329,8 @@ class UCS(RaDisplay):
     def update(self):
         def after_tracks(x):
             self.c.lift('track')
+            self.c.lift('plot')  # Otherwise the most recent history dot comes above
+                                 # and prevents correct clicking of the plot
             RaDisplay.update(self)
         threads.deferToThread(self.update_tracks).addCallback(after_tracks)
         self.update_clock()
