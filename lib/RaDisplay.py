@@ -793,7 +793,8 @@ class SmartColor(object):
     
     # TODO this should probably be rewritten using properties as the VisTrack
     
-    winfo_rgb = None  # This function will be set when Tkinter is initialized
+    winfo_rgb       = None  # This function will be set when Tkinter is initialized
+    known_values    = {}    # We keep a cache of calculations
     
     def __init__(self,color='white',intensity=1.0):
         object.__setattr__(self,'color', color)  # displayed  color
@@ -817,6 +818,10 @@ class SmartColor(object):
         if color == '' or factor==1:
             self.color = self.basecolor
             return  # If no correction or transparent, simply set the base color
+        
+        if self.known_values.has_key((color, factor)):
+            self.color = self.known_values[(color, factor)]
+            return
     
         (red, green, blue) = self.winfo_rgb(color)
         
@@ -832,6 +837,7 @@ class SmartColor(object):
         b1=int(rgb2[2])
     
         self.color = self.rgb_to_string((r1,g1,b1))
+        self.known_values[(color, factor)] = self.color
 
     def RGBtoHSV(self, rgb,factor=1):
         """Returns HSV components from rgb (R,G,B)"""
@@ -1487,6 +1493,9 @@ class VisTrack(object): # ensure a new style class
     
     def get_intensity(self): return self._intensity
     def set_intensity(self, value):
+        # TODO setting the intensity should not force a full redraw.
+        # only item reconfiguration, the same way that RaMap does.
+        # Redrawing each track is not scalable at all
         if value == self._intensity: return
         self._intensity = value
         l = self._l
@@ -2398,7 +2407,6 @@ class RaMap(object):
         for item, (type, pos, color, screen_pos) in self.symbols.items():
             new_screen_pos = self.do_scale(pos)
             (dx, dy) = r(new_screen_pos, screen_pos)
-            print dx, dy
             self.canvas.move(self.id+'symbol'+str(item), dx, dy)
             self.symbols[item] = (type, pos, color, new_screen_pos)
         for item, (text, pos, color) in self.texts.items():
@@ -2406,6 +2414,7 @@ class RaMap(object):
             self.canvas.coords(item, *new_coords)
             
     def hide(self):
+        if self.hidden: return()
         for item in self.polylines.keys()+self.polygons.keys()+self.texts.keys():
             self.canvas.itemconfigure(item, fill='')
         self.canvas.itemconfigure(self.id+'symbol', fill='')
@@ -2413,17 +2422,39 @@ class RaMap(object):
         self.canvas.itemconfigure(self.id+'arc', outline = '')
         self.hidden = True
             
-    def show(self):
+    def show(self, force=False):
+        if not self.hidden and not force: return
+        # For performance reasons we want to group the itemconfig
+        # so first we set temporary tags, and then do the itemconfig for each group
+        # of items with the same color
+        tags = {}  
         for item, (color, coords) in self.polylines.items()+self.polygons.items():
             color = SmartColor(color, self.intensity).get()
-            self.canvas.itemconfigure(item, fill=color)
+            tag = 'refill'+color
+            self.canvas.addtag_withtag(tag, item)
+            tags[tag] = color
         for item, (type, pos, color, screen_pos) in self.symbols.items():
             color = SmartColor(color, self.intensity).get()
-            self.canvas.itemconfigure(self.id+'symbol'+str(item)+'fill', fill=color)
-            self.canvas.itemconfigure(self.id+'symbol'+str(item)+'outline', outline=color)
+            tag = 'refill'+color
+            self.canvas.addtag_withtag(tag, self.id+'symbol'+str(item)+'fill')
+            tags[tag] = color
+            tag = 'reoutline'+color
+            self.canvas.addtag_withtag(tag, self.id+'symbol'+str(item)+'outline')
+            tags[tag] = color
         for item, (text, pos, color) in self.texts.items():
             color = SmartColor(color, self.intensity).get()
-            self.canvas.itemconfigure(item, fill=color)
+            tag = 'refill'+color
+            self.canvas.addtag_withtag(tag, item)
+            tags[tag] = color
+
+        for (tag, color) in tags.items():
+            if tag.startswith('refill'):
+                self.canvas.itemconfigure(tag, fill=color)
+            elif tag.startswith('reoutline'):
+                self.canvas.itemconfigure(tag, outline=color)
+            else:
+                logging.error("Impossible scenario in RaMap.show()")
+            self.canvas.dtag(tag, tag)
         self.hidden = False
             
     def toggle(self):
@@ -2433,7 +2464,7 @@ class RaMap(object):
     def get_intensity(self): return self._intensity
     def set_intensity(self, value):
         self._intensity = value
-        if not self.hidden: self.show()
+        if not self.hidden: self.show(force=True)
     intensity = property(get_intensity, set_intensity)
         
     def destroy(self):
@@ -3081,7 +3112,6 @@ class RaDisplay(object):
                     start, extent = float(ob[5]), float(ob[6])
                     if len(ob) > 7: col = ob[7]
                     else: col = 'gray'
-                    print cx0, cy0, start, extent
                     map.add_arc((cx0, cy0), (cx1, cy1), start, extent, color=col)
                 elif ob[0] == 'ovalo':
                     cx0 = float(ob[1])

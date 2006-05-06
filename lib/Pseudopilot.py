@@ -518,7 +518,9 @@ class ventana_auxiliar:
             for map_name in master.fir.local_maps:
                 if self.var_ver_localmap[map_name].get() != 0:
                     master.local_maps_shown.append(map_name)
-            master.redraw_maps()
+                    master.maps[map_name].show()
+                else:
+                    master.maps[map_name].hide()
             
         def b_auto_separationaration():
             global auto_separation
