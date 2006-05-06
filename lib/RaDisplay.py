@@ -582,8 +582,6 @@ class RaClock(RaFrame):
             
 class RaTabular(RaFrame):
     """Generic frame containing tabular info"""
-        
-
 
     def __init__(self, master, **kw):
         def_opt={'position':(500,222),}
@@ -2445,6 +2443,11 @@ class RaMap(object):
             tag = 'refill'+color
             self.canvas.addtag_withtag(tag, item)
             tags[tag] = color
+        for item, (top_left, bottom_right, start, extent, color) in self.arcs.items():
+            color = SmartColor(color, self.intensity).get()
+            tag = 'reoutline'+color
+            self.canvas.addtag_withtag(tag, item)
+            tags[tag] = color
 
         for (tag, color) in tags.items():
             if tag.startswith('refill'):
@@ -3007,12 +3010,6 @@ class RaDisplay(object):
         self.maps['sector'] = sectormap
         if not self.draw_sector: sectormap.hide()
         
-        # Sector border
-        seclimitmap = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        kw = {'color': 'blue'}
-        seclimitmap.add_polyline(*fir.boundaries[self.sector], **kw)
-        self.maps['sector_limit'] = seclimitmap
-        if not self.draw_lim_sector: seclimitmap.hide()
 
         # TMAs
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
@@ -3030,6 +3027,14 @@ class RaDisplay(object):
         self.maps['airways'] = map
         if not self.draw_routes: map.hide()
 
+        # Special Use Areas
+        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        kw = {'color': 'gray40'}
+        for delta in fir.deltas:
+            map.add_polyline(*delta, **kw)
+        self.maps['SUA'] = map
+        if not self.draw_deltas: map.hide()
+
         # Fixes (VORs, NDBs, FIXes)
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         for p in [p for p in fir.points if p[0][0]<>'_']:
@@ -3042,6 +3047,13 @@ class RaDisplay(object):
         self.maps['points'] = map
         if not self.draw_point: map.hide()
 
+        # Sector border
+        seclimitmap = RaMap(self.c, self.do_scale, intensity = map_intensity)
+        kw = {'color': 'blue'}
+        seclimitmap.add_polyline(*fir.boundaries[self.sector], **kw)
+        self.maps['sector_limit'] = seclimitmap
+        if not self.draw_lim_sector: seclimitmap.hide()
+
         # Fix names
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         for p in [p for p in fir.points if p[0][0]<>'_']:
@@ -3049,13 +3061,6 @@ class RaDisplay(object):
         self.maps['point_names'] = map
         if not self.draw_point_names: map.hide()
 
-        # Special Use Areas
-        map = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        kw = {'color': 'gray40'}
-        for delta in fir.deltas:
-            map.add_polyline(*delta, **kw)
-        self.maps['SUA'] = map
-        if not self.draw_deltas: map.hide()
 
         def draw_SID_STAR(map, object):
             
