@@ -464,7 +464,8 @@ class Aircraft:
     def initialize(self):
         # Init code
         self.std_speed = True
-
+        if self.callsign=='ZORRO34':
+            print "zorro"
         if not self.next_wp: self.pof = GROUND
         else: self.pof = FLYING
 
@@ -695,7 +696,7 @@ class Aircraft:
                 if iaf in self.route:
                     self.route.substitute_after(iaf, [Route.WayPoint(p[1]) for p in star[iaf][1]], save=self.next_wp)
                     
-        if self.adep in fir.rwys.keys() and self.pof == GROUND: # aplico la SID que toque
+        if self.adep in fir.rwys.keys() and self.pof in (GROUND, LOADING): # aplico la SID que toque
             (sid,star) = fir.procedimientos[fir.rwyInUse[self.adep]]
             for fix in sid.keys():
                 if fix in self.route:

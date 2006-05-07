@@ -141,7 +141,7 @@ class Route(list):
                     logging.debug("Did not substitute %s after %s in order to save %s"%(after_route, self[i].fix, save.fix))
                     break
                 del self[i+1:]
-                self += after_route
+                self.extend(after_route)
                 break
         if flag: raise ("Waypoint "+str(wp)+" not found in "+str(self))
         
@@ -157,7 +157,11 @@ class Route(list):
             logging.debug("Did not substitute %s before %s in order to save %s"%(before_route, self[i].fix, save.fix))
             return
         del self[:i]
-        self = before_route + self
+        new = before_route + self
+        del self[:]
+        # TODO I'm sure there must be a proper way to do this.
+        for wp in new:
+            self.append(wp)
     
     def get_inbd_track(self, wp):
         """Returns the inbound track to the given waypoint"""
@@ -317,10 +321,10 @@ if __name__=='__main__':
     class FIR:
         def pos(*arg): return (random.random()*100,random.random()*100)
     fir = FIR()
-    r = Route("pdt parla canes pi pi pi pi")
+    r = Route(get_waypoints("pdt parla canes pi pi pi pi"))
     print r
-    r.substitute_after("parla", "laks aldkfj slkjf")
-    r.substitute_before("pdt", "x10.1y20 x10y0 tres")
+    r.substitute_after("parla", get_waypoints("laks aldkfj slkjf"))
+    r.substitute_before("pdt", get_waypoints("x10.1y20 x10y0 tres"))
     print "Route", r
     print "Contains", "pdt", r[0] in r
     print "index", r.get_waypoint_index("pdt"), r.get_waypoint_index(r[3])
@@ -328,8 +332,10 @@ if __name__=='__main__':
         r.get_inbd_track(0), r.get_inbd_track(1), r.get_outbd_track(0)
     print type(r[2:4]), r[2:4]
     print "r['pdt'] = ", r['pdt']
-    print str(Route("pdt parla X10Y10 X10Y10 papa").reduce())
-    r = Route("logro vtb ge pdt")
-    r.substitute_after('vtb', 'vtb parla pdt')
-    print r
+    print "papiii"
+    print "REDUCE", str(Route(get_waypoints("pdt parla X10Y10 X10Y10 papa")).reduce())
+    r = Route(get_waypoints("logro vtb ge pdt kaka"))
+    r.substitute_after('pdt', get_waypoints('rbo dgo'))
+    r.substitute_before('pdt', get_waypoints('crisa logro'))
+    print "ROUTE", r
     
