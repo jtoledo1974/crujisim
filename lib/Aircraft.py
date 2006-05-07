@@ -571,6 +571,7 @@ class Aircraft:
             self.ground_spd = self.tas + wind_paral
             try: deriva = degrees(asin(wind_perp / self.tas))
             except ZeroDivisionError: deriva = 0
+            except ValueError: deriva = 0  # TODO check what the hell is thiss
             r_obj = get_hdg_obj(self,deriva,t)
             if r_obj == LANDED:
                 self.pof, self.spof = GROUND, LANDED
