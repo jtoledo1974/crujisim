@@ -1378,7 +1378,9 @@ class VisTrack(object): # ensure a new style class
                 
             # Call callbacks            
             for f, kw in tc:
-                f(*kw)
+                try: f(*kw)
+                except:
+                    logging.debug("Error while executing timer", exc_info=True)
         
         if not VisTrack.timer_id:
             VisTrack.timer_id = reactor.callLater(0.5,timer)
