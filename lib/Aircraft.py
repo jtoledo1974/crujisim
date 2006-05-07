@@ -99,7 +99,10 @@ def v(self):
     """Returns the target TAS to acquire"""
     #Devuelve TAS
     if not self.std_speed: # Velocidad mínima manteniedo IAS
-        return tas_from_cas(self.tgt_ias, self.lvl*100)
+        try: return tas_from_cas(self.tgt_ias, self.lvl*100)
+        except:
+            logging.error("Error setting standard TAS for %s"%self.callsign, exc_info=True)
+            return 250.
     if self.perf.bada:
         if self.lvl<self.cfl: tas = self.perf.get_climb_perf(self.lvl)[0] 
         elif self.lvl>self.cfl: tas = self.perf.get_descent_perf(self.lvl)[0]
