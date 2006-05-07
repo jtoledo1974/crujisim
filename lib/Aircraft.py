@@ -958,7 +958,7 @@ class Aircraft:
                 if self.route[i-1].fix == self.iaf:
                     self.route = self.route[:i]
                     break
-            self.route.append([Route.WayPoint(p[1]) for p in puntos_alt])
+            self.route.extend([Route.WayPoint(p[1]) for p in puntos_alt])
             wp = Route.WayPoint("_LLZ")
             wp._pos = llz[0]
             self.route.append(wp)
