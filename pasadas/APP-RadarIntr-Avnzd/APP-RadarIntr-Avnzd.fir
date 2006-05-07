@@ -621,7 +621,7 @@ auto_departure = MANUAL
 limites:_TMA1,_SEC1,_SEC2,_SEC4,_SEC5,_TMA10,_TMA11,_TMA12,_TMA1
 fijos_de_impresion:PARLA
 fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,RBO
-released_required_ads:LEGT
+release_required_ads:LEGT
 
 [sector2]
 nombre:TE
@@ -630,7 +630,7 @@ auto_departure = MANUAL
 limites:_SEC1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_SEC3,_SEC2,_SEC1
 fijos_de_impresion:CANES
 fijos_de_impresion_secundarios:CJN,BAN,PINAR
-released_required_ads:LETO
+release_required_ads:LETO
 
 [sector3]
 nombre:FINAL
@@ -639,5 +639,5 @@ auto_departure = AUTO
 limites:_SEC4,_SEC3,_TMA8,_TMA9,_SEC5,_SEC4
 fijos_de_impresion:PDT,_2DME
 fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,CJN,BAN,RBO
-released_required_ads:LETO,LEGT
+release_required_ads:LETO,LEGT
 

@@ -368,6 +368,7 @@ class FIR:
             try: ads=self._firdef.get(section,'release_required_ads').split(',')
             except: ads=[]
             self.release_required_ads[sector]=ads
+            print str(self.release_required_ads[sector])
 
         # Load the route database which correspond to this FIR
         import Exercise
