@@ -2409,6 +2409,9 @@ class RaMap(object):
         for item, (text, pos, color) in self.texts.items():
             new_coords = [c for c in self.do_scale(pos)]
             self.canvas.coords(item, *new_coords)
+        for item, (top_left, bottom_right, start, extent, color) in self.arcs.items():
+            new_coords = [c for p in (top_left, bottom_right) for c in self.do_scale(p)]
+            self.canvas.coords(item, *new_coords)
             
     def hide(self):
         if self.hidden: return()
