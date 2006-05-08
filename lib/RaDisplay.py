@@ -353,6 +353,68 @@ class RaFrame:
         # Print a message to make sure we are freing the memory
         logging.debug("RaFrame.__del__")
         
+        
+class VFPVfield:
+    """Basic entry field for RaVFPV"""
+    def ___init___(self,master,**kw):
+        self.flabel = ""                    #title of the entry field
+        self.fentry = StringVar()           #data of the entry field
+        self.masterframe = master           #master frame or canvas
+        self.fsize = None                   #Size of the entry field in characters
+        self.fl_fg = "black"                #Label foreground color
+        self.fl_bg = "gray"                 #Label background color
+        self.fe_fg = "black"                #Entry field foreground color
+        self.fe_bg = "white"                #Entry field backgorund color
+        
+        
+        self.frame = f = Frame(master,bg = self.fl_bg, anchor = NW)     #creates the frame container for both widgets
+        self._build(**kw)
+        #self._entry_colors={'background':self.fe_fg,
+        #            'highlightbackground':self.bg,
+        #            'highlightcolor':'Black',
+        #            'foreground':self.bg,
+        #            'selectbackground':self.bg,
+        #            'selectforeground':self.fg,
+        #            'insertbackground':self.bd,
+
+        
+    def _build(self,**kw):
+        self._fentry_options={
+            'insertwidth':5,
+            'relief':FLAT,
+            'borderwidth':0,
+            'insertborderwidth':0}
+        self.label = Label(f, bg = self.fl_bg, fg = self.fl_fg, text = self.flabel)
+        self.label.pack(anchor = NW)
+        self.entry = Entry(f, bg = self.fe_bg, fg = self.el_fg, textvariable = self.fentry,insertbackground = self.fe_bg,
+                           **self._fentry_options)
+        self.entry.pack(anchor = NW)
+        self.configure(**kw)
+
+            
+    def disable(self):
+        self.fentry.configure(state = DISABLED)
+        
+    def enable(self):
+        self.fentry.configure(state = NORMAL)
+        
+    def configure(self,**kw):
+        if kw.has_key('entry_bg'): self.entry['bg'] = kw['entry_bg']
+        if kw.has_key ('entry_fg'): self.entry['fg'] = kw['entry_fg']
+        if kw.has_key('label_bg'): self.label['bg'] = kw['label_bg']
+        if kw.has_key ('label_fg'): self.label['fg'] = kw['label_fg']
+        if kw.has_key('enable'): self.entry['state'] = NORMAL
+        if kw.has_key('disable'): self.entry['state'] = DISABLE
+        if kw.has_key('size'): self.entry['size'] = kw['size']
+        if kw.has_key('field_label'): self.flabel = kw['field_label']
+        if kw.has_key('field_entry'): self.fentry.set(kw['field_entry'])
+        
+        
+        
+        
+class RaVFPV(RaFrame):
+    pass
+        
 class RaDialog(RaFrame):
     """A frame whith OK and Cancel buttons and optional entries"""
     
