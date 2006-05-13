@@ -111,6 +111,7 @@ class PpDisplay(RaDisplay):
             flights = m['flights']
             for f in flights: update_flight(f)
             self.wind = m['wind']
+            self.giw.qnh = m['qnh']
             self.stop_separating = True
 
             # Update print_tabular
@@ -822,7 +823,6 @@ class ventana_auxiliar:
             sel = self.master.selected_track
             # TODO The RaDialog should probably export the contents frame
             # and we could use it here to build the contents using a proper grid
-            print sel.adep, sel.ades, sel.type, sel.rfl, sel.radio_cs
             RaDialog(self.master.c, label=sel.cs+': Detalles',
                      text='Origen: ' + sel.adep +
                      '\tDestino: '   + sel.ades +
@@ -883,7 +883,7 @@ class ventana_auxiliar:
                 global rwyInUse
                 com_airp.pop(0)
                 for [airp,num] in com_airp:
-                    print 'Pista en uso de ',airp,' es ahora: ',num.cget('value'),'. Cambiando los procedimientos'
+                    logging.debug('Pista en uso de %s es ahora: %s'%(airp,num.cget('value')))
                     rwyInUse[airp] = num.cget('value')
                     for avo in ejercicio:
                         avo.complete_flight_plan()
@@ -1272,6 +1272,6 @@ class PPGeneralInformationWindow(GeneralInformationWindow):
             self.radisplay.sendMessage({"message":"qnh",
                                     "qnh":self.qnh,
                                     "dir":dir})
-        entries = [{'label':'QNH:','width':6,'def_value':self.qnh}]
+        entries = [{'label':'QNH:','width':6,'def_value':"%.1f"%self.qnh}]
         entries.append({'label':'Sube(S)/Baja(B):','width':1,'def_value':''})
         RaDialog(self.radisplay.c,label='Modificar QNH',entries=entries, ok_callback=dialog_cb)    

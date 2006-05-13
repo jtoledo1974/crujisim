@@ -885,7 +885,7 @@ class GeneralInformationWindow(RaFrame):
         bg = 'black'
         self.qnh_b = Button(self.contents, font=font,
                     foreground = fg,    #Very yellowed orange color
-                    background = bg, text=str(int(floor(self._qnh))))
+                    background = bg, text="%d"%floor(self._qnh))
         self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'TL: xx', state=DISABLED)
         self.mr_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'MULTIRAD', state=DISABLED)
         self.vid_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SIN VIDEO', state=DISABLED)
@@ -911,12 +911,10 @@ class GeneralInformationWindow(RaFrame):
         self.radisplay.set_active_sectors([s for s, v in self.sector_vars.items()
                                            if v.get()])   
     def get_qnh(self):
-        print "en get qnh"
         return self._qnh
     def set_qnh(self, value):
-        print "EN SET QNH"
         self._qnh = value
-        try: self.qnh_b['text'] = str(int(floor(self._qnh)))
+        try: self.qnh_b['text'] = "%d"%floor(self._qnh)
         except AttributeError: pass            
     qnh = property(get_qnh, set_qnh)
         

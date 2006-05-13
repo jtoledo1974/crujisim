@@ -23,20 +23,26 @@
 """GTA (Generador de Tráfico Aéreo - Air Traffic Generator)
 This is the main simulation engine to which clients connect"""
 
-# Modules to be imported  
+
+# System imports
 from time import time, sleep
 import logging
+import random
+import cPickle
+pickle = cPickle
+import zlib
+import os
+import datetime
+
+# Twisted imports
 try:
   from twisted.internet.protocol import Factory
   from twisted.internet import reactor, tksupport, defer
   from twisted.protocols.basic import NetstringReceiver
 except:
   logging.exception ("Error while importing the Twisted Framefork modules")
-import cPickle
-pickle = cPickle
-import zlib
-import os
-import datetime
+
+# Application imports
 import ConfMgr
 import Aircraft
 import Route
@@ -45,6 +51,10 @@ from RemoteClient import PSEUDOPILOT, ATC
 import FIR
 from Exercise import Exercise
 import TLPV
+
+# Constants
+# QNH standard variation mB per second
+QNH_STD_VAR = 0.0005
 
 class GTA:
     def __init__(self, exc_file = ""):
@@ -66,7 +76,17 @@ class GTA:
         TLPV.fir        = fir
         
         self.sector     = e.sector
+        # TODO wind and qnh should be properties of the atmosphere object
+        # and should be variables dependent on location and height in the case of wind
         self.wind       = [e.wind_knots, e.wind_azimuth]
+        # We have set somewhere else a fixed seed so that squawks are reproducible
+        # but we want the qnh to be different in each exercise, so we use getstate and setstate
+        st = random.getstate()
+        random.seed()
+        self.qnh        = random.gauss(1013.2, 8)
+        self.qnh_var    = random.gauss(0, QNH_STD_VAR)  # Variation in mB per second.
+                                                # Should not be much more than 1mB per 10minutes
+        random.setstate(st)
         
         # Initializes time
         self.cont = True  # Marks when the main loop should exit
@@ -171,6 +191,9 @@ class GTA:
         if not self.paused:
             td = datetime.timedelta(seconds = delta*self.fact_t)
             self.t += td
+            
+        # Calculate new QNH
+        self.qnh = self.qnh+self.qnh_var*delta*self.fact_t
         
         # Send formated time to clients
         for client in self.pseudopilots+self.controllers:
@@ -200,7 +223,8 @@ class GTA:
         for protocol in self.protocol_factory.protocols:
             protocol.sendMessage({'message':'update',
                                   'flights':self.flights,
-                                  'wind':self.wind})
+                                  'wind':self.wind,
+                                  'qnh': self.qnh})
 
         self.last_update = self.t
     
@@ -280,6 +304,15 @@ class GTA:
             wind = m["wind"]
             Aircraft.wind = self.wind = wind
             logging.info('Viento ahora es (int,rumbo) '+str(wind))
+            
+        elif m['message']=='qnh':
+            self.qnh, dir = m['qnh'], m['dir']
+            if not dir: self.qnh_var = 0
+            else: # dir is either -1 or 1
+                var = 0
+                while abs(var)<1/600.: # One mB per 10 minutes
+                    var = dir*abs(random.gauss(0, QNH_STD_VAR))
+                self.qnh_var = var
                 
         elif m['message']=='kill':
             logging.info("Killing "+str(m))
@@ -413,7 +446,7 @@ class GTA:
             #if p.client.type==ATC: f.atc_pos = None
             #else: f.pp_pos = None
         else:
-            loging.critical("Unknown message type in message "+str(m))
+            logging.critical("Unknown message type in message "+str(m))
         # If any an action has been taken on a flight, update this flight
         # on all of the pseudopilot positions
         if m.has_key("cs") and m['message']!='kill':

@@ -113,10 +113,10 @@ class UCS(RaDisplay):
             flights = m['flights']
             for f in flights: update_flight(f)
             self.wind = m['wind']
+            self.giw.qnh = m['qnh']
             self.stop_separating = True
             self.dep_tabular.update()
             self.update()
-
 
         if m['message']=='update_flight':
             f = update_flight(m['flight'])  # Returns the updated flight
