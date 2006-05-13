@@ -493,12 +493,12 @@ class RaDisplay(object):
             for j in range(i+1,len(self.tracks)):
                 ti = self.tracks[i]
                 tj = self.tracks[j]
-                if not ti.visible or not tj.visible \
-                 or ti.alt < vfilter or tj.alt < vfilter: continue
+                if not ti.visible or not tj.visible: continue
                 
                 # Test for conflict
                 ix,iy,jx,jy = ti.wx,ti.wy,tj.wx,tj.wy
                 dist=sqrt((ix-jx)**2+(iy-jy)**2)        
+                if ti.alt < vfilter or tj.alt < vfilter: continue
                 if dist<min_sep and abs(ti.alt-tj.alt)<minvert:
                     t_alerts[ti] |= VAC
                     t_alerts[tj] |= VAC
@@ -509,6 +509,7 @@ class RaDisplay(object):
                 
                 for ((ix,iy,ialt),(jx,jy,jalt)) in zip(ti.future_pos,tj.future_pos):
                     dist=sqrt((ix-jx)**2+(iy-jy)**2)
+                    if ialt < vfilter or jalt < vfilter: continue
                     if dist<min_sep and abs(ialt-jalt)<minvert:
                         t_alerts[ti] |= PAC
                         t_alerts[tj] |= PAC
