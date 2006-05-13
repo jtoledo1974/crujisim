@@ -713,8 +713,12 @@ class Aircraft:
             
     def set_type(self, type):
         """Saves the aircraft type and loads performance data"""
-        while type[0].isdigit():  # Remove number of aircraft if present
-            type = type[1:]
+        save_type = type
+        try:
+            while type[0].isdigit():  # Remove number of aircraft if present
+                type = type[1:]
+        except IndexError:
+            logging.error("Unkown type %s for %s. The type code may not be a number"%(save_type, self.callsign))
         self.type = type
         try: self.perf = BADA.Performance(type)
         except:
