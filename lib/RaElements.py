@@ -889,7 +889,7 @@ class GeneralInformationWindow(RaFrame):
         self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'TL: xx', state=DISABLED)
         self.mr_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'MULTIRAD', state=DISABLED)
         self.vid_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SIN VIDEO', state=DISABLED)
-        self.ac_b = Button(self.contents, font = font, fg = 'green', bg=bg, text = 'AC')
+        self.ac_b = Button(self.contents, font = font, fg = 'green', bg=bg, text = 'AC', command=self.toggle_pac)
         self.mode_b = Button(self.contents, font = font, fg = 'green', bg=bg, text = 'AUTONOMO', state=DISABLED)
         self.sect_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SECT', command=self.toggle_sectors_window)
         
@@ -905,6 +905,14 @@ class GeneralInformationWindow(RaFrame):
     def toggle_sectors_window(self):
         self.sector_win.conmuta()
         self.sector_win.configure(position=self.sect_b.winfo_pointerxy())
+    
+    def toggle_pac(self):
+        if self.ac_b['fg']=='green':
+            self.ac_b['fg']='red'
+            self.radisplay.pac = False
+        else:
+            self.ac_b['fg']='green'
+            self.radisplay.pac = True    
         
     def sector_set(self):
         """Method called whenever sector checkboxes are modified"""

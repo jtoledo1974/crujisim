@@ -103,6 +103,7 @@ class RaDisplay(object):
         self.local_maps_shown = []
         
         self.auto_separation = True  # Separate labels automatically
+        self.pac = True
         
         VisTrack.timer_id = None  # Reset the VisTrack class
         self.tracks = []  # List of tracks (VisualTrack instances)
@@ -485,11 +486,15 @@ class RaDisplay(object):
         
         minvert = 9.5  # 950 feet minimum vertical distance
                 
+        # Vertical filter
+        vfilter = max(self.fir.ad_elevations.values()) + 1  # 1000 feet over the highest AD
+                
         for i in range(len(self.tracks)):
             for j in range(i+1,len(self.tracks)):
                 ti = self.tracks[i]
                 tj = self.tracks[j]
-                if not ti.visible or not tj.visible: continue
+                if not ti.visible or not tj.visible \
+                 or ti.alt < vfilter or tj.alt < vfilter: continue
                 
                 # Test for conflict
                 ix,iy,jx,jy = ti.wx,ti.wy,tj.wx,tj.wy
@@ -500,6 +505,8 @@ class RaDisplay(object):
                     continue
                 
                 # STCA
+                if not self.pac: continue
+                
                 for ((ix,iy,ialt),(jx,jy,jalt)) in zip(ti.future_pos,tj.future_pos):
                     dist=sqrt((ix-jx)**2+(iy-jy)**2)
                     if dist<min_sep and abs(ialt-jalt)<minvert:
