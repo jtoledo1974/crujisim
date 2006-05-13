@@ -845,7 +845,7 @@ class RaTabular(RaFrame):
 
 class GeneralInformationWindow(RaFrame):
     """A window containing generic information related to the position"""
-    def __init__(self, master, sectors, **kw):
+    def __init__(self, radisplay, sectors, activesectors, **kw):
         """Create an unclosable frame displaying the clock time
         
         SPECIFIC OPTIONS
@@ -853,6 +853,8 @@ class GeneralInformationWindow(RaFrame):
         """
         def_opt={'position':(5,5), 'anchor':NW, 'closebutton':False, 'undockbutton':False}
         def_opt.update(kw)
+        self.radisplay = radisplay
+        master = radisplay.c
         self._qnh = 1013
         # The frame constructor method will call _build
         RaFrame.__init__(self, master, **def_opt)
@@ -868,7 +870,8 @@ class GeneralInformationWindow(RaFrame):
         l.pack(side=TOP)
         for s in sectors:
             v = self.sector_vars[s] = IntVar()
-            l = Checkbutton(swc, text=s, font=font, fg=fg, bg=bg, variable=v)
+            if s in activesectors: v.set(1)
+            l = Checkbutton(swc, text=s, font=font, fg=fg, bg=bg, selectcolor=bg, variable=v, command=self.sector_set)
             l.pack(side=TOP, anchor=W)
         self.sector_win.hide()
         
@@ -904,6 +907,10 @@ class GeneralInformationWindow(RaFrame):
     def toggle_sectors_window(self):
         self.sector_win.conmuta()
         self.sector_win.configure(position=self.sect_b.winfo_pointerxy())
+        
+    def sector_set(self):
+        self.radisplay.set_active_sectors([s for s, v in self.sector_vars.items()
+                                           if v.get()])
     
     def get_qnh(self): return self._qnh
     def set_qnh(self, value):
@@ -912,6 +919,9 @@ class GeneralInformationWindow(RaFrame):
         
     def configure(self,**options):
         RaFrame.configure(self,**options)
+        
+    def exit(self):
+        del self.radisplay
     
 
 class SmartColor(object):
@@ -3325,6 +3335,11 @@ class RaDisplay(object):
         """Convert screen coodinates into world coordinates"""
         return s((self.x0,self.y0),p(r((a[0],-a[1]),(self.center_x,-self.center_y)),1/self.scale))
         
+    def set_active_sectors(self, sector_list):
+        if len(sector_list)<1: return
+        self.sector = sector_list[0]
+        self.redraw_maps()
+    
     def toggle_routes(self):
         self.draw_routes = not self.draw_routes
         self.maps['airways'].toggle()

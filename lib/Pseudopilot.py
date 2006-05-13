@@ -63,7 +63,7 @@ class PpDisplay(RaDisplay):
         offset=0
         delta=30
         
-        self.giw = GeneralInformationWindow(self.c, fir.sectors)
+        self.giw = GeneralInformationWindow(self, fir.sectors, (self.sector))
         self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
         offset += delta
@@ -363,6 +363,8 @@ class PpDisplay(RaDisplay):
         # the garbage collector from discarding this object
         del(self.toolbar.master)
         del(self.dep_tabular.master)
+        # Destroy radar windows
+        self.giw.exit()        
         RaDisplay.exit(self)
         del self._flights_tracks
         del self._tracks_flights
