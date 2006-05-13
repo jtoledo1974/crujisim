@@ -60,22 +60,19 @@ class PpDisplay(RaDisplay):
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
         
-        x1=0
-        y1=0
+        offset=0
         delta=30
-        self.clock=RaClock(self.c,position=[x1,y1])
+        
+        self.giw = GeneralInformationWindow(self.c, fir.sectors)
+        self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
-        x1=x1+delta
-        y1=y1+delta
-        self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
+        offset += delta
+        self.print_tabular = RaTabular(self.c, position=[offset, offset], anchor=NW,label="FICHAS",closebuttonhides=True)
         self.print_tabular.legend['text']='INDICATIV'
         self.print_tabular.adjust(0,10,0,10)
-        x1=x1+delta
-        y1=y1+delta
-        # self.print_tabular.hide()
-        self.dep_tabular = DepTabular(self, self.c,position=[x1,y1])
+        offset += delta
+        self.dep_tabular = DepTabular(self, self.c,position=[offset, offset])
         self.dep_tabular.adjust(0,32,0,0)
-        # self.dep_tabular.hide()
         
         self.center_x = self.width/2
         self.center_y = self.height/2
@@ -195,7 +192,7 @@ class PpDisplay(RaDisplay):
             line=line+pto
         if len(line)>3: canvas.create_line(line,fill='yellow',tags=track.callsign+'wp')
         size=2
-        for a in track.route:
+        for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             (rect_x, rect_y) = do_scale(a.pos())
             point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=track.callsign+'wp')
             def clicked_on_waypoint(e, point_coord=a.pos(),point_name=a.fix):

@@ -28,63 +28,6 @@ import datetime
 import time
 
 SNDDIR='./snd/'
-#class ATC_DepTabular(RaTabular):
-#    """A tabular window showing departure aircraft"""
-#    # TODO
-#    # On second thought the DepTabular should feed from the master's flights
-#    # list, as the master should have all the information about the state
-#    # of the departing aircraft
-#    def __init__(self, radisplay, canvas=None, flights=None,mode='atc',**kw):
-#        """Create a tabular showing aircraft reports and requests"""
-#        RaTabular.__init__(self, canvas, label='PREACTIVOS', closebuttonhides=True,
-#                           anchor = NW,**kw)
-#        self.canvas = canvas
-#        self.master = radisplay
-#        self.mode = mode
-#        self.list.configure(font="Courier 8", selectmode=SINGLE)
-#        self.legend['text']='INDICATIV'+' '+'ORIG'+' '+'DEST'+' '+'HDEP '+' '+'TIPO '+' '+'SID'
-#            
-#        ra_bind(radisplay, self.list, "<Button-1>", self.clicked)
-#        self.deps=[]
-# 
-#
-#    def update(self, dep_list):
-#        """Update the tabular using the given departure list"""
-#        self.list.delete(0,self.list.size())
-#        self.deps=[]
-#        i=0
-#        for dep in dep_list:
-#            self.deps.append(dep)
-#            eobt = '%02d:%02d:%02d'%get_h_m_s(dep['eobt']*3600)
-#            t = dep['cs'].ljust(9)+' '+dep['ad'].ljust(4)+' '+dep['ades'].ljust(4)+' '+eobt[0:5]+' '+dep['type'].ljust(5)+' '+dep['sid']
-#            self.insert(i, t)
-#            if self.mode == 'pp':
-#                if dep['state']==Aircraft.READY:
-#                    self.list.itemconfig(i, background="green", foreground="black")
-#            i+=1
-#        
-#
-#        #if len([dep for dep in self.deps if dep['state']==Aircraft.READY])>0:
-#        #    pass
-#        #if self.showed:
-#        #    print 'DepTabular.update: self._x, self_y' + str((self._x,self._y))
-#        #    self.container.update_idletasks()
-#        #    self.adjust()
-#        #    self.show()
-#        if self.showed: self.adjust()
-#                
-#    def clicked(self, e=None):
-#        lb = self.list
-#        if lb.nearest(e.y)<0:  # No items
-#            return
-#        index = lb.nearest(e.y)
-#        if e.y<lb.bbox(index)[1] or e.y>(lb.bbox(index)[3]+lb.bbox(index)[1]):
-#            return  # Not really clicked within the item
-#        dep=self.deps[index]
-#        #if dep['state']==Aircraft.READY:
-#        #    x1=self.container.winfo_x()+self.container.winfo_width()/2
-#        #    y1=self.container.winfo_y()+self.container.winfo_height()/2
-#        #    self.depart_dialog(dep, index)
 
 class UCS(RaDisplay):
     """Air Traffic Controllers' radar display and user interface"""
@@ -117,20 +60,17 @@ class UCS(RaDisplay):
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
         
-        x1=0
-        y1=0
+        offset=0
         delta=30
-
-        self.clock=RaClock(self.c,position=[x1,y1])
+        
+        self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
-        x1=x1+delta
-        y1=y1+delta
+        offset += delta
         #self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
         #self.print_tabular.legend['text']='INDICATIV'
         #self.print_tabular.adjust(0,10,0,10)
-        x1=x1+delta
-        y1=y1+delta
-        self.dep_tabular = DepTabular(self, self.c,mode = 'atc',position=[x1,y1])
+        offset += delta
+        self.dep_tabular = DepTabular(self, self.c,mode = 'atc',position=[offset, offset])
         self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
@@ -752,3 +692,4 @@ class ventana_auxiliar:
         
         self.toolbar_id=w.create_window(0,alto,width=ancho,window=ventana,anchor='sw')
         ventana.update_idletasks()
+

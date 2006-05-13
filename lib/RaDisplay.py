@@ -843,10 +843,76 @@ class RaTabular(RaFrame):
         #if mh>self.max_height and self.max_height != 0: mh= self.max_height
         self.list.configure(height=mh, width=mw)
 
+class GeneralInformationWindow(RaFrame):
+    """A window containing generic information related to the position"""
+    def __init__(self, master, sectors, **kw):
+        """Create an unclosable frame displaying the clock time
         
+        SPECIFIC OPTIONS
+        time -- a text string to display
+        """
+        def_opt={'position':(5,5), 'anchor':NW, 'closebutton':False, 'undockbutton':False}
+        def_opt.update(kw)
+        self._qnh = 1013
+        # The frame constructor method will call _build
+        RaFrame.__init__(self, master, **def_opt)
 
+        # Sector selection window
+        self.sector_vars = {}
+        self.sector_win = sw = RaFrame(master, position=(250,250), closebuttonhides=True)
+        swc = sw.contents
+        font = ('Arial', '9', 'bold')
+        fg = 'gray90'
+        bg = 'black'
+        l = Label(swc, text='SECTORES', font=font, fg=fg, bg=bg)
+        l.pack(side=TOP)
+        for s in sectors:
+            v = self.sector_vars[s] = IntVar()
+            l = Checkbutton(swc, text=s, font=font, fg=fg, bg=bg, variable=v)
+            l.pack(side=TOP, anchor=W)
+        self.sector_win.hide()
         
-
+    def _build(self, master=None, windowed=False, **kw):
+        if windowed:
+            def_opt={'label':'Reloj'}
+            def_opt.update(kw)
+        else:
+            def_opt=kw
+        RaFrame._build(self, master=master, windowed=windowed, **def_opt)
+        font = ('Arial','9','bold')
+        fg = 'gray90'
+        bg = 'black'
+        self.qnh_b = Button(self.contents, font=font,
+                    foreground = fg,    #Very yellowed orange color
+                    background = bg, text=str(self._qnh))
+        self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'TL: xx', state=DISABLED)
+        self.mr_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'MULTIRAD', state=DISABLED)
+        self.vid_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SIN VIDEO', state=DISABLED)
+        self.ac_b = Button(self.contents, font = font, fg = 'green', bg=bg, text = 'AC')
+        self.mode_b = Button(self.contents, font = font, fg = 'green', bg=bg, text = 'AUTONOMO', state=DISABLED)
+        self.sect_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SECT', command=self.toggle_sectors_window)
+        
+        self.qnh_b.pack(side= LEFT, padx=1, pady=1)
+        self.tl_b.pack(side=LEFT, padx = 1, pady=1)
+        #self.mr_b.pack(side=LEFT, padx = 1, pady=1)
+        #self.vid_b.pack(side=LEFT, padx = 1, pady=1)
+        self.ac_b.pack(side=LEFT, padx = 1, pady=1)
+        #self.mode_b.pack(side=LEFT, padx = 1, pady=1)
+        self.sect_b.pack(side=LEFT, padx = 1, pady=1)
+        
+    
+    def toggle_sectors_window(self):
+        self.sector_win.conmuta()
+        self.sector_win.configure(position=self.sect_b.winfo_pointerxy())
+    
+    def get_qnh(self): return self._qnh
+    def set_qnh(self, value):
+        self._qnh = floor(value)
+        self.qnh_button['text'] = self._qnh
+        
+    def configure(self,**options):
+        RaFrame.configure(self,**options)
+    
 
 class SmartColor(object):
     """Given a color string and a brightness factor calculates the output color"""
