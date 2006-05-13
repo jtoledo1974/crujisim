@@ -20,11 +20,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Classes used by the pseudopilot interface of Crujisim"""
 
-from RaDisplay import *
+import datetime
+from time import time, sleep
+
+from RaDisplay import *  # This also imports all RaElements classes
 import Aircraft
 import Route
-import datetime
-import time
 
 SNDDIR='./snd/'
 
@@ -63,7 +64,8 @@ class PpDisplay(RaDisplay):
         offset=0
         delta=30
         
-        self.giw = GeneralInformationWindow(self, fir.sectors, (self.sector))
+        self.giw = PPGeneralInformationWindow(self, fir.sectors, (self.sector), position=(offset, offset))
+        offset += delta
         self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
         offset += delta
@@ -261,7 +263,7 @@ class PpDisplay(RaDisplay):
         # update the actual tracks in bunches of 30. This improves responsiveness
         for i in range(len(self.flights)):
             reactor.callFromThread(self.update_track,self.flights[i])
-            if not i%25: time.sleep(0.01) # Let the display refresh for every n tracks
+            if not i%25: sleep(0.01) # Let the display refresh for every n tracks
         return True
             
     def update_track(self, f):
@@ -1236,3 +1238,40 @@ class DepTabular(RaTabular):
         y1=self.container.winfo_y()+self.container.winfo_height()/2
         RaDialog(self.canvas,label=dep.callsign+': Despegar',
                     ok_callback=depart,entries=entries,position=(x1,y1))   
+
+class PPGeneralInformationWindow(GeneralInformationWindow):
+    """A window containing generic information related to the position"""
+    def __init__(self, radisplay, sectors, activesectors, **kw):
+        """GeneralInformationWindow tailored for Pseudopilots displays"""
+        GeneralInformationWindow.__init__(self, radisplay, sectors, activesectors, **kw)
+        
+        self.qnh_b['command'] = self.modify_qnh
+        
+    def modify_qnh(self):
+        def dialog_cb(entries):
+            error = False
+            ent_qnh = entries['QNH:']
+            ent_dir = entries['Sube(S)/Baja(B):']
+            try:
+                self.qnh = float(ent_qnh.get())
+            except:
+                ent_qnh['bg'] = 'red'
+                ent_qnh.focus_set()
+                error = True
+            dir = ent_dir.get()
+            if dir.upper() not in ('S', 'B', ''):
+                ent_dir['bg'] = 'red'
+                eng_dir.focus_set()
+                error = True
+            else:
+                if dir.upper() == 'S': dir = +1
+                elif dir.upper() == 'B': dir = -1
+                else: dir = 0
+            if error:
+                return False  # Validation failed
+            self.radisplay.sendMessage({"message":"qnh",
+                                    "qnh":self.qnh,
+                                    "dir":dir})
+        entries = [{'label':'QNH:','width':6,'def_value':self.qnh}]
+        entries.append({'label':'Sube(S)/Baja(B):','width':1,'def_value':''})
+        RaDialog(self.radisplay.c,label='Modificar QNH',entries=entries, ok_callback=dialog_cb)    

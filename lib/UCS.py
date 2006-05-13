@@ -20,12 +20,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Classes used by the air traffic controller's interface of Crujisim"""
 
-from RaDisplay import *
-import Aircraft
-from Pseudopilot import DepTabular
-import Route
 import datetime
-import time
+from time import time, sleep
+
+from RaDisplay import *  # This also imports all RaElements classes
+import Aircraft
+import Route
+from Pseudopilot import DepTabular
 
 SNDDIR='./snd/'
 
@@ -63,6 +64,8 @@ class UCS(RaDisplay):
         offset=0
         delta=30
         
+        self.giw = GeneralInformationWindow(self, fir.sectors, (self.sector), position=(offset, offset))
+        offset += delta
         self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
         offset += delta
@@ -287,7 +290,7 @@ class UCS(RaDisplay):
         # update the actual tracks in bunches of 30. This improves responsiveness
         for i in range(len(self.flights)):
             reactor.callFromThread(self.update_track,self.flights[i])
-            if not i%25: time.sleep(0.01) # Let the display refresh for every n tracks
+            if not i%25: sleep(0.01) # Let the display refresh for every n tracks
         return True
             
     def update_track(self, f):
