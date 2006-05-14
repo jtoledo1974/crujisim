@@ -67,7 +67,7 @@ class GTA_Client_Protocol(NetstringReceiver):
             return
         
         try: self.client.process_message(m)
-        except: logging.error("Unable to process server message", exc_info=True)
+        except: logging.error("Unable to process server message %s"%m, exc_info=True)
         
     def sendMessage(self, object):
         object = {"command_no": self.command_no, "data": object}
