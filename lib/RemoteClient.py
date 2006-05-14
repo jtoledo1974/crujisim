@@ -66,7 +66,8 @@ class GTA_Client_Protocol(NetstringReceiver):
             self.defer_list[m['command_no']].callback(m['data'])
             return
         
-        self.client.process_message(m)
+        try: self.client.process_message(m)
+        except: logging.error("Unable to process server message", exc_info=True)
         
     def sendMessage(self, object):
         object = {"command_no": self.command_no, "data": object}
