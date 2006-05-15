@@ -619,6 +619,7 @@ class ventana_auxiliar:
                 except:
                     ent_route['bg'] = 'red'
                     ent_route.focus_set()
+                    logging.debug("Unable to set the new route", exc_info=True)
                     return False  # Validation failed
                 # TODO we should validate the destination
                 sel.ades = ent_destino.get().upper()

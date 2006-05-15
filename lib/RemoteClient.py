@@ -40,6 +40,7 @@ from FIR import *
 import UI
 from ConfMgr import *
 from StripSeries import StripSeries
+import Route  # In order to set the fir object
 
 # Constants
 PSEUDOPILOT = "pseudopilot"
@@ -124,7 +125,9 @@ class RemoteClient:
         elif m['message']=='init':
             logging.debug("Init message received")
             fir=m['fir']
+            Route.fir = fir
             sector=m['sector']
+            
             exc_file = self.exc_file = m['exercise_file']
             window_name = exc_file+" ("+ str(sector)+")"            
             if self.type==PSEUDOPILOT:
