@@ -513,8 +513,12 @@ class Aircraft:
     def next(self,t):
         """Advance simulation to time t"""
         global wind
-            
-        if self.pof == GROUND and t > self.eobt and self.auto_depart:
+
+        try:            
+            if self.pof == GROUND and t > self.eobt and self.auto_depart:
+                self.pof = TAKEOFF
+        except TypeError:
+            logging.error("Type error when checking phase of flight of %s, assuming departure"%self.callsign)
             self.pof = TAKEOFF
         if t < self.t or self.pof==GROUND:
             if self.pof == FLYING: self.pof = INACTIVE
