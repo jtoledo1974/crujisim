@@ -55,8 +55,6 @@ class FIR:
         self.aerodromes ={} # Dictionary of AD_HP objects
         self.ad_elevations = {} # List of AD elevations
         self.holds      =[] # List of published holds (See Hold class)
-        self.rwys       ={} # IFR rwys of each AD
-        self.rwyInUse   ={} # Rwy in use at each AD
         self.procedimientos={}  # Standard procedures (SIDs and STARs)
         self.iaps       ={} # Instrument Approach Procedures
         self.deltas     =[]
@@ -181,100 +179,101 @@ class FIR:
         if self._firdef.has_section('aeropuertos_con_procedimientos'):
             lista=self._firdef.items('aeropuertos_con_procedimientos')
             for (airp,total_rwys) in lista:
-                self.rwys[airp.upper()] = total_rwys
+                ad = self.aerodromes[airp.upper()]
+                for rwy in total_rwys.split(','):
+                    ad.rwy_direction_list.append(RWY_DIRECTION(rwy.upper()[4:]))
                 # First runway if the preferential
-                self.rwyInUse[airp.upper()] = total_rwys.split(',')[0]
+                ad.rwy_in_use = ad.rwy_direction_list[0]
         # SID and STAR procedures
-        for aerop in self.rwys.keys():
-            for pista in self.rwys[aerop].split(','):
-                # SID
-                sid = {}
-                lista = self._firdef.items('sid_'+pista)
-                for (nombre_sid,puntos_sid) in lista:
-                    last_point = puntos_sid.split(',')[-1]
-                    # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
-                    points_sid = []
-                    for nombre_punto in puntos_sid.split(','):
-                        punto_esta=False
-                        for q in self.points:
-                            if nombre_punto==q[0]:
-                                points_sid.append([q[1],q[0],'00:00'])
-                                punto_esta=True
-                        if not punto_esta:
-                            logging.warning ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
-                    sid[last_point] = (nombre_sid,points_sid)
-                # Procedimientos STAR
-                star = {}
-                lista = self._firdef.items('star_'+pista)
-                for (nombre_star,puntos_star) in lista:
-                    last_point = puntos_star.split(',')[0]
-                    # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
-                    points_star = []
-                    for nombre_punto in puntos_star.split(','):
-                        punto_esta=False
-                        for q in self.points:
-                            if nombre_punto==q[0]:
-                                points_star.append([q[1],q[0],'00:00'])
-                                punto_esta=True
-                        if not punto_esta:
-                            logging.warning ('Punto ',nombre_punto,' no encontrado en procedimiento ', nombre_star)
-                            #        points_star.pop(-1)
-                    star[last_point] = (nombre_star,points_star)
-                self.procedimientos[pista] = (sid,star)
-        #logging.debug ('Lista de procedimientos'+ str(self.procedimientos))
-        #logging.debug ('Pistas: '+ str(self.rwys))
-        #logging.debug ('Pistas en uso:' + str(self.rwyInUse))
+        for ad, rwy_direction in ((ad, rwy) for ad in self.aerodromes.values()
+                                     for rwy in ad.rwy_direction_list):
+            pista = ad.code_id+rwy_direction.txt_desig
+            # SID
+            sid = {}
+            lista = self._firdef.items('sid_'+pista)
+            for (nombre_sid,puntos_sid) in lista:
+                last_point = puntos_sid.split(',')[-1]
+                # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
+                points_sid = []
+                for nombre_punto in puntos_sid.split(','):
+                    punto_esta=False
+                    for q in self.points:
+                        if nombre_punto==q[0]:
+                            points_sid.append([q[1],q[0],'00:00'])
+                            punto_esta=True
+                    if not punto_esta:
+                        logging.warning ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
+                sid[last_point] = (nombre_sid,points_sid)
+            # Procedimientos STAR
+            star = {}
+            lista = self._firdef.items('star_'+pista)
+            for (nombre_star,puntos_star) in lista:
+                last_point = puntos_star.split(',')[0]
+                # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
+                points_star = []
+                for nombre_punto in puntos_star.split(','):
+                    punto_esta=False
+                    for q in self.points:
+                        if nombre_punto==q[0]:
+                            points_star.append([q[1],q[0],'00:00'])
+                            punto_esta=True
+                    if not punto_esta:
+                        logging.warning ('Punto ',nombre_punto,' no encontrado en procedimiento ', nombre_star)
+                        #        points_star.pop(-1)
+                star[last_point] = (nombre_star,points_star)
+            self.procedimientos[pista] = (sid,star)
 
         # Instrument Approach Procedures
-        for ad in self.rwys.keys():
-            for pista in self.rwys[ad].split(','):
-                # Procedimientos aproximación
-                procs_app=self._firdef.items('app_'+pista)
-                for [fijo,lista] in procs_app:
-                    lista = lista.split(',')
-                    #logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
-                    points_app = []
-                    for i in range(0,len(lista),2):
-                        dato = lista[i]
-                        altitud=lista[i+1]
-                        if dato == 'LLZ':
-                            break
-                        else:
-                            punto_esta=False
-                            for q in self.points:
-                                if dato==q[0]:
-                                    points_app.append([q[1],q[0],'',float(altitud)])
-                                    punto_esta=True
-                            if not punto_esta:
-                                logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
-                    llz_data = []
-                    nombre_ayuda = lista[i+1]
-                    rdl_ayuda = float(lista[i+2])
-                    dist_ayuda = float(lista[i+3])
-                    pdte_ayuda = float(lista[i+4])
-                    alt_pista = float(lista[i+5])
-                    for q in self.points:
-                        if lista[i+1]==q[0]:
-                            llz_data = [q[1],(rdl_ayuda + 180.)%360.,dist_ayuda,pdte_ayuda,alt_pista]
-                            break
-                    if llz_data == []:
-                        logging.warning ('Localizador no encontrado en procedimiento app_'+pista+' APP')
-                        # Ahora vamos a por los puntos de la frustrada        
-                    points_map = []
-                    lista = lista [i+7:]
-                    #logging.debug ('Resto para MAp: '+str(lista))
-                    for i in range(0,len(lista),2):
-                        dato = lista[i]
-                        altitud=lista[i+1]
+        for pista in (ad.code_id+rwy.txt_desig
+                        for ad in self.aerodromes.values()
+                          for rwy in ad.rwy_direction_list):
+            # Procedimientos aproximación
+            procs_app=self._firdef.items('app_'+pista)
+            for [fijo,lista] in procs_app:
+                lista = lista.split(',')
+                #logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
+                points_app = []
+                for i in range(0,len(lista),2):
+                    dato = lista[i]
+                    altitud=lista[i+1]
+                    if dato == 'LLZ':
+                        break
+                    else:
                         punto_esta=False
                         for q in self.points:
                             if dato==q[0]:
-                                points_map.append([q[1],q[0],'',float(altitud)])
+                                points_app.append([q[1],q[0],'',float(altitud)])
                                 punto_esta=True
                         if not punto_esta:
-                            logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
-                            # Guardamos los procedimientos
-                    self.iaps[fijo.upper()]=(points_app,llz_data,points_map)
+                            logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' APP')
+                llz_data = []
+                nombre_ayuda = lista[i+1]
+                rdl_ayuda = float(lista[i+2])
+                dist_ayuda = float(lista[i+3])
+                pdte_ayuda = float(lista[i+4])
+                alt_pista = float(lista[i+5])
+                for q in self.points:
+                    if lista[i+1]==q[0]:
+                        llz_data = [q[1],(rdl_ayuda + 180.)%360.,dist_ayuda,pdte_ayuda,alt_pista]
+                        break
+                if llz_data == []:
+                    logging.warning ('Localizador no encontrado en procedimiento app_'+pista+' APP')
+                    # Ahora vamos a por los puntos de la frustrada        
+                points_map = []
+                lista = lista [i+7:]
+                #logging.debug ('Resto para MAp: '+str(lista))
+                for i in range(0,len(lista),2):
+                    dato = lista[i]
+                    altitud=lista[i+1]
+                    punto_esta=False
+                    for q in self.points:
+                        if dato==q[0]:
+                            points_map.append([q[1],q[0],'',float(altitud)])
+                            punto_esta=True
+                    if not punto_esta:
+                        logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
+                        # Guardamos los procedimientos
+                self.iaps[fijo.upper()]=(points_app,llz_data,points_map)
         #logging.debug ('Lista de procedimientos de aproximación'+str(self.iaps)
         
         # Deltas del FIR
@@ -384,6 +383,10 @@ class FIR:
             return (float(v[0]), float(v[3]))
         else:
             raise RuntimeError, 'Point %s not found in %s'%(point_name, self.file)
+        
+    def ad_has_ifr_rwys(self, code_id):
+        return code_id in self.aerodromes.keys() \
+                        and len(self.aerodromes[code_id].rwy_direction_list)>0
             
 
 def load_firs(path):
@@ -427,8 +430,8 @@ class AD_HP: # Aerodrome / Heliport
         self.txt_name               = txt_name
         self.pos                    = pos
         self.val_elev               = val_elev
-        self.current_rwy_direction  = None
         self.rwy_direction_list     = []
+        self.rwy_in_use             = None
 
 class Hold:
     # TODO this does not reflect AICM. We need to support the whole
@@ -443,7 +446,7 @@ class Hold:
         
 class RWY_DIRECTION:
     def __init__(self, txt_desig):
-        self.txt_desig  = text_desig  # TXT_DESIG must have between 2 and 3 characters, of which the first 2 may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T, etc..
+        self.txt_desig  = txt_desig  # TXT_DESIG must have between 2 and 3 characters, of which the first 2 may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T, etc..
         self.sid_list   = []
         self.star_list  = []
         self.iap_list   = []

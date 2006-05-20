@@ -591,7 +591,7 @@ class Aircraft:
             # Ha pasado el punto al que se dirige
             if self.salto>self.vect[0] or self.waypoint_reached():
                 if len(self.route)==1:
-                    if self.app_auth and self.ades in fir.rwys.keys():
+                    if self.app_auth and fir.ad_has_ifr_rwys(self.ades):
                         self.to_do = 'app'
                         #             (puntos_alt,llz,puntos_map) = iaps[sel.iaf]
                         #             self.to_do_aux = app
@@ -689,16 +689,20 @@ class Aircraft:
         # Completa el plan de vuelo con la SID o STAR, si es que hay alguna publicada para adep y destino
         # TODO should this function be really an Aircraft method?
         # or rather a Route method, or even a FIR method?
-        if self.ades in fir.rwys.keys(): # aplico la STAR que toque
-            (sid,star) = fir.procedimientos[fir.rwyInUse[self.ades]]
+        if fir.ad_has_ifr_rwys(self.ades): # aplico la STAR que toque
+            ad = fir.aerodromes[self.ades]
+            rwy = ad.code_id + ad.rwy_in_use.txt_desig
+            (sid,star) = fir.procedimientos[rwy]
             # TODO Currrently if there are more than one STARs beggining at an IAF,
             # we simply pick the first one. There should be a way to favor one or other
             for iaf in star.keys():
                 if iaf in self.route:
                     self.route.substitute_after(iaf, [Route.WayPoint(p[1]) for p in star[iaf][1]], save=self.next_wp)
                     
-        if self.adep in fir.rwys.keys() and self.pof in (GROUND, LOADING): # aplico la SID que toque
-            (sid,star) = fir.procedimientos[fir.rwyInUse[self.adep]]
+        if fir.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING): # aplico la SID que toque
+            ad = fir.aerodromes[self.adep]
+            rwy = ad.code_id + ad.rwy_in_use.txt_desig
+            (sid,star) = fir.procedimientos[rwy]
             for fix in sid.keys():
                 if fix in self.route:
                     self.route.substitute_before(fix, [Route.WayPoint(p[1]) for p in sid[fix][1]], save=self.next_wp)

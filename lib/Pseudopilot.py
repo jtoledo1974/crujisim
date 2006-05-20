@@ -770,7 +770,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Ejectuar MAP')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.ades not in master.fir.rwys.keys():
+            if not master.fir.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label='Ejecutar MAP',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return                
@@ -784,7 +784,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Interceptar ILS')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.ades not in master.fir.rwys.keys():
+            if not master.fir.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label=sel.callsign+': Interceptar ILS',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
@@ -804,7 +804,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Interceptar LLZ')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.ades not in master.fir.rwys.keys():
+            if not master.fir.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label=sel.callsign+': Interceptar LLZ',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
@@ -904,7 +904,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Autorizar a Aproximación')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if sel.ades not in master.fir.rwys.keys():
+            if not master.fir.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label=sel.callsign+': Autorizar a aproximación',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
