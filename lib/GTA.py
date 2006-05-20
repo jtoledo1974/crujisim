@@ -127,7 +127,7 @@ class GTA:
             # the EOBT is the estimate to the first point in the route
             # We substitute the overflight (created using next_wp_eto) with a departure
             # (created using an EOBT)
-            if a.adep in fir.aerodromes:
+            if a.adep in fir.aerodromes.keys():
                 eobt = a.route[0].eto
                 a = Aircraft.Aircraft(a.callsign, a.type, a.adep, a.ades,
                                        a.cfl, a.rfl, a.route, eobt = eobt,

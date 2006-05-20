@@ -473,11 +473,7 @@ class Aircraft:
             self.ground_spd = self.tas = v(self)
             self.lvl = self.cfl
         else:  # GROUND
-            try: self.lvl = fir.ad_elevations[self.adep]
-            except:
-                if self.adep in fir.aerodromes:
-                    logging.warning("No elevation known for "+self.adep+". Setting initial altitude to 0")
-                self.lvl = 0
+            self.lvl = fir.aerodromes[self.adep].val_elev
             # We need to start up with an initial speed because the
             # accelaration code is not realistic
             self.ground_spd = self.tas = 60.  
@@ -602,7 +598,7 @@ class Aircraft:
                         self.salto=self.tas*dh # Distancia recorrida en este inc.de t sin viento
                         efecto_viento = (wx*dh,wy*dh) # Deriva por el viento
                         self.t = t
-                    elif self.route[0].fix in fir.aerodromes: # Si el último punto está en la lista de aeropuertos, orbita sobre él
+                    elif self.route[0].fix in fir.aerodromes.keys(): # Si el último punto está en la lista de aeropuertos, orbita sobre él
                         if self.to_do == 'fpr': # En caso de que llegue a ese punto en ruta
                             try:
                                 ph = [hold for hold in fir.holds if hold.fix == self.route[0].fix][0]

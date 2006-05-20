@@ -1152,10 +1152,6 @@ class AcftNotices(RaTabular):
 
 class DepTabular(RaTabular):
     """A tabular window showing departure aircraft"""
-    # TODO
-    # On second thought the DepTabular should feed from the master's flights
-    # list, as the master should have all the information about the state
-    # of the departing aircraft
     def __init__(self, radisplay, canvas=None, flights=None,mode='pp',**kw):
         """Create a tabular showing aircraft reports and requests"""
         RaTabular.__init__(self, canvas, label='PREACTIVOS', closebuttonhides=True,
@@ -1181,13 +1177,13 @@ class DepTabular(RaTabular):
 
         i=0
         for f in self.deps:
-                eobt = '%02d:%02d'%(f.eobt.hour, f.eobt.minute)
-                t = f.callsign.ljust(9)+' '+f.adep.ljust(4)+' '+\
-                    f.ades.ljust(4)+' '+eobt+' '+f.type.ljust(5)
-                self.insert(i,t)
-                if self.mode == 'pp' and f.eobt < self.master.t and not f.auto_depart:
-                    self.list.itemconfig(i, background='green', foreground='black')
-                i += 1
+            eobt = '%02d:%02d'%(f.eobt.hour, f.eobt.minute)
+            t = f.callsign.ljust(9)+' '+f.adep.ljust(4)+' '+\
+                f.ades.ljust(4)+' '+eobt+' '+f.type.ljust(5)
+            self.insert(i,t)
+            if self.mode == 'pp' and f.eobt < self.master.t and not f.auto_depart:
+                self.list.itemconfig(i, background='green', foreground='black')
+            i += 1
                         
         if self.showed: self.adjust()
                 

@@ -487,7 +487,7 @@ class RaDisplay(object):
         minvert = 9.5  # 950 feet minimum vertical distance
                 
         # Vertical filter
-        vfilter = max(self.fir.ad_elevations.values()) + 1  # 1000 feet over the highest AD
+        vfilter = max([ad.val_elev for ad in self.fir.aerodromes.values()]) + 1  # 1000 feet over the highest AD
                 
         for i in range(len(self.tracks)):
             for j in range(i+1,len(self.tracks)):

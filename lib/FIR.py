@@ -52,7 +52,7 @@ class FIR:
         self.airways    =[] # List of airways... just for displaying on map
         self.tmas       =[] # List of points defining TMAs
         self.local_maps ={} # Dictionary of local maps
-        self.aerodromes =[] # List of aerodrome codes
+        self.aerodromes ={} # Dictionary of AD_HP objects
         self.ad_elevations = {} # List of AD elevations
         self.holds      =[] # List of published holds (See Hold class)
         self.rwys       ={} # IFR rwys of each AD
@@ -163,11 +163,11 @@ class FIR:
             lista=self._firdef.items('aeropuertos')
             for (num,aux) in lista:
                 for a in aux.split(','):
-                    self.aerodromes.append(a)
+                    self.aerodromes[a] = AD_HP(a)
         if self._firdef.has_section('elevaciones'):
             elev_list=self._firdef.items('elevaciones')[0][1].split(",")
-            for ad,elev in zip(self.aerodromes, elev_list):
-                self.ad_elevations[ad]=int(elev)
+            for ad,elev in zip(self.aerodromes.keys(), elev_list):
+                self.aerodromes[ad].val_elev=int(elev)
         # Published holding patterns
         if self._firdef.has_section('esperas_publicadas'):
             lista=self._firdef.items('esperas_publicadas')
@@ -423,15 +423,12 @@ Point = Designated_Point  # Alias for the class
 
 class AD_HP: # Aerodrome / Heliport
     def __init__(self, code_id, txt_name = '', pos = None, val_elev = 0):
-        self.code_id    = code_id
-        self.txt_name   = txt_name
-        self.pos        = pos
-        self.val_elev   = elev
-        
-        self.iap_list   = []
-        self.rwy_list   = []
-        self.star_list  = []
-        self.sid_list   = []
+        self.code_id                = code_id
+        self.txt_name               = txt_name
+        self.pos                    = pos
+        self.val_elev               = val_elev
+        self.current_rwy_direction  = None
+        self.rwy_direction_list     = []
 
 class Hold:
     # TODO this does not reflect AICM. We need to support the whole
@@ -444,15 +441,20 @@ class Hold:
         self.min_FL     = min_FL        # minimun FL at the holding pattern
         self.max_FL     = max_FL        # maximun FL at the holding pattern
         
+class RWY_DIRECTION:
+    def __init__(self, txt_desig):
+        self.txt_desig  = text_desig  # TXT_DESIG must have between 2 and 3 characters, of which the first 2 may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T, etc..
+        self.sid_list   = []
+        self.star_list  = []
+        self.iap_list   = []
+        
 class STAR:
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
     def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
         self.txt_desig  = txt_desig
-        self.ad_hp      = ad_hp
         self.rte        = Route.Route(Route.get_waypoints(rte))
-        self.rwy        = rwy
         
 class SID:
     # TODO this only covers basic AICM attributes.
@@ -460,9 +462,7 @@ class SID:
     # to support things like SLP and vertical limitations
     def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
         self.txt_desig  = txt_desig
-        self.ad_hp      = ad_hp
         self.rte        = Route.Route(rte)
-        self.rwy        = rwy
         
 
 if __name__ == "__main__":

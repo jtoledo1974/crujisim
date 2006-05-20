@@ -75,7 +75,7 @@ def sector_intersections(route):
 def get_exit_ades(flight):
     """Given an Aircraft or a flight plan returns either a the first three letters of the last waypoint
     local to the FIR, or the last two letters of the adep local to the FIR"""
-    if flight.ades in fir.aerodromes:
+    if flight.ades in fir.aerodromes.keys():
         return flight.ades[2:]
     # Else
     fet = None
