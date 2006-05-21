@@ -885,7 +885,7 @@ class GeneralInformationWindow(RaFrame):
         bg = 'black'
         self.qnh_b = Button(self.contents, font=font,
                     foreground = fg,    #Very yellowed orange color
-                    background = bg, text="%d"%floor(self._qnh))
+                    background = bg, text="QNH: %d"%floor(self._qnh))
         self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'TL: xx', state=DISABLED)
         self.mr_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'MULTIRAD', state=DISABLED)
         self.vid_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SIN VIDEO', state=DISABLED)
@@ -922,7 +922,7 @@ class GeneralInformationWindow(RaFrame):
         return self._qnh
     def set_qnh(self, value):
         self._qnh = value
-        try: self.qnh_b['text'] = "%d"%floor(self._qnh)
+        try: self.qnh_b['text'] = "QNH: %d"%floor(self._qnh)
         except AttributeError: pass            
     qnh = property(get_qnh, set_qnh)
         

@@ -409,6 +409,8 @@ class Aircraft:
         self.t              = None
 
         self.route          = None  # Route object (Route.py)
+        self.sid            = None  # SID to be flown
+        self.star           = None  # STAR to be flown
         self.set_route(rte)
         self.log = Route.Route()    # A Route object to keep track of flight progress
         self.pos            = None  # (0.0,0.0) x,y (Cartesian coordinates in nautical miles)
@@ -700,6 +702,7 @@ class Aircraft:
                     self.route.substitute_after(star.start_fix, star.rte, save=self.next_wp)
                 else:
                     self.route.substitute_after(star.start_fix, star.rte)
+                self.star = star
                     
         if fir.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING): # aplico la SID que toque
             ad = fir.aerodromes[self.adep]
@@ -711,7 +714,7 @@ class Aircraft:
                     self.route.substitute_before(sid.end_fix, sid.rte, save=self.next_wp)
                 else:
                     self.route.substitute_before(sid.end_fix, sid.rte)
-                    
+                self.sid = sid
         
         self.route = self.route.reduce()
             
@@ -998,7 +1001,11 @@ class Aircraft:
     def depart(self, sid, cfl, t):
         # Ahora se depega el avión y se elimina de la lista
         self.t = t
-        self.t_ficha = t - timedelta(hours=100)  # TODO This does not belong here
+        # Get the actual sid object
+        if not sid=='':
+            sid = fir.aerodromes[self.adep].get_sid(sid)
+            if self.sid: self.route.substitute_before(Route.WP(self.sid.end_fix), sid.rte)
+            else: self.rte = sid.rte + self.rte
         self.cfl = cfl
         self.pof = TAKEOFF
         self.next(t)

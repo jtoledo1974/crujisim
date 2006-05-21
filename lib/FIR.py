@@ -412,6 +412,12 @@ class AD_HP: # Aerodrome / Heliport
         self.val_elev               = val_elev
         self.rwy_direction_list     = []
         self.rwy_in_use             = None
+        
+    def get_sid(self, txt_desig):
+        return [sid for rwy in self.rwy_direction_list
+                           for sid in rwy.sid_dict.values()
+                               if sid.txt_desig==txt_desig][0]
+        
 
 class Hold:
     # TODO this does not reflect AICM. We need to support the whole
@@ -439,6 +445,8 @@ class STAR:
         self.txt_desig  = txt_desig
         self.rte        = Route.Route(Route.get_waypoints(rte))
         self.start_fix  = txt_desig[:-2]
+
+    def __str__(self): return self.txt_desig
         
 class SID:
     # TODO this only covers basic AICM attributes.
@@ -448,6 +456,8 @@ class SID:
         self.txt_desig  = txt_desig
         self.rte        = Route.Route(Route.get_waypoints(rte))
         self.end_fix    = txt_desig[:-2]
+        
+    def __str__(self): return self.txt_desig
 
 if __name__ == "__main__":
     #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')

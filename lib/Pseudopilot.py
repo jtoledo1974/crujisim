@@ -1165,8 +1165,10 @@ class DepTabular(RaTabular):
         i=0
         for f in self.deps:
             eobt = '%02d:%02d'%(f.eobt.hour, f.eobt.minute)
+            try: sid = f.sid.txt_desig
+            except: sid = ''
             t = f.callsign.ljust(9)+' '+f.adep.ljust(4)+' '+\
-                f.ades.ljust(4)+' '+eobt+' '+f.type.ljust(5)
+                f.ades.ljust(4)+' '+eobt+' '+f.type.ljust(5)+' '+sid
             self.insert(i,t)
             if self.mode == 'pp' and f.eobt < self.master.t and not f.auto_depart:
                 self.list.itemconfig(i, background='green', foreground='black')
