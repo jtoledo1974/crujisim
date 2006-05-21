@@ -696,7 +696,10 @@ class Aircraft:
                 # TODO Currrently if there are more than one STARs beggining at an IAF,
                 # we simply pick the first one. There should be a way to favor one or other
                 star = star_list[0]
-                self.route.substitute_after(star.start_fix, star.rte)
+                if self.pof == LOADING:
+                    self.route.substitute_after(star.start_fix, star.rte, save=self.next_wp)
+                else:
+                    self.route.substitute_after(star.start_fix, star.rte)
                     
         if fir.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING): # aplico la SID que toque
             ad = fir.aerodromes[self.adep]
@@ -704,7 +707,11 @@ class Aircraft:
                                if sid.end_fix in self.route]
             if len(sid_list)>0:
                 sid = sid_list[0]
-                self.route.substitute_before(sid.end_fix, sid.rte)
+                if self.pof == LOADING:
+                    self.route.substitute_before(sid.end_fix, sid.rte, save=self.next_wp)
+                else:
+                    self.route.substitute_before(sid.end_fix, sid.rte)
+                    
         
         self.route = self.route.reduce()
             

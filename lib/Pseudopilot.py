@@ -854,51 +854,27 @@ class ventana_auxiliar:
             # TODO THIS IS PROBABLY NOT WORKING!!
             # Needs to be retested and probably rethought
             self.close_windows()
-            global win_identifier
-            if win_identifier<>None:
-                w.delete(win_identifier)
-                win_identifier=None
+            # Find airports with several runways
+            ad_list = [ad for ad in master.fir.aerodromes.values()
+                        if len(ad.rwy_direction_list)>1]
+
+            if len(ad_list) == 0:
+                RaDialog(w,label='Cambio de pista', text='No hay aeropuertos con más de una pista IFR')
                 return
-            rwy_chg = Frame(w)
-            txt_titulo = Label (rwy_chg, text = 'Nuevas pistas en uso')
-            txt_titulo.grid(column=0,row=0,columnspan=2)
-            line = 1
-            com_airp=[['',0]]
-            for airp in rwys.keys():
-                com_airp.append([airp,0.0])
-                txt_airp = Label (rwy_chg, text = airp.upper())
-                txt_airp.grid(column=0,row=line,sticky=W)
-                com_airp[line][1] = ComboBox (rwy_chg, bg = 'white',editable = True)
-                num = 0
-                for pista in rwys[airp].split(','):
-                    com_airp[line][1].insert(num,pista)
-                    if pista == rwyInUse[airp]:
-                        com_airp[line][1].pick(num)
-                    num=num+1
-                com_airp[line][1].grid(column=1,row=line,sticky=W)
-                line=line+1
-            but_acept = Button(rwy_chg,text='Hecho')
-            but_acept.grid(column=0,row=line)
-            win_identifier = w.create_window(400,400,window=rwy_chg)
-            def close_rwy_chg(e=None,ident = win_identifier):
-                global rwyInUse
-                com_airp.pop(0)
-                for [airp,num] in com_airp:
-                    logging.debug('Pista en uso de %s es ahora: %s'%(airp,num.cget('value')))
-                    rwyInUse[airp] = num.cget('value')
-                    for avo in ejercicio:
-                        avo.complete_flight_plan()
-                        if avo.adep in rwys.keys() and avo.pof == Aircraft.GROUND:
-                            avo.route.pop(0)
-                        avo.set_app_fix()   
-                w.delete(ident)
-            but_acept['command']= close_rwy_chg
             
-            but_cancel = Button(rwy_chg,text='Descartar')
-            but_cancel.grid(column=1,row=line)
-            def discard_rwy_chg(e=None,ident = win_identifier):
-                w.delete(ident)
-            but_cancel['command']= discard_rwy_chg
+            def close_rwy_chg(e=None,entries=None):
+                for ad in ad_list:
+                    if entries[ad.code_id]['value']!=ad.rwy_in_use.txt_desig:
+                        master.sendMessage({"message":"rwy_in_use", "ad":ad.code_id,
+                                            "rwy":entries[ad.code_id]['value']})
+            
+            entries=[]
+            for ad in ad_list:
+                entries.append({'label':ad.code_id,
+                            'values':[rwy.txt_desig for rwy in ad.rwy_direction_list],
+                            'def_value':ad.rwy_in_use.txt_desig})
+            RaDialog(w,label='Cambiar pistas en uso',
+                     ok_callback=close_rwy_chg, entries=entries)      
             
         def b_auth_approach():
             self.close_windows()

@@ -314,6 +314,11 @@ class GTA:
                     var = dir*abs(random.gauss(0, QNH_STD_VAR))
                 self.qnh_var = var
                 
+        elif m['message']=='rwy_in_use':
+            ad, rwy = m['ad'], m['rwy']
+            try: self.change_rwy_in_use(ad, rwy)
+            except: logging.warning("Error while changing rwy %s %s"%(ad,rwy), exc_info = True)
+                
         elif m['message']=='kill':
             logging.info("Killing "+str(m))
             try: self.kill_flight(f)
@@ -455,6 +460,20 @@ class GTA:
             # controller's position
             if p.client.type == ATC:
               self.send_flight(f,self.controllers)
+              
+    def change_rwy_in_use(self, ad_code_id, rwy_direction_desig):
+        """Modifies the rwy in use in for the given airport, and
+        changes the SID and STAR procedures for the relevant aircraft"""
+        try:
+            ad = self.fir.aerodromes[ad_code_id]
+            rwy_direction = [rwy for rwy in ad.rwy_direction_list
+                                     if rwy.txt_desig == rwy_direction_desig][0]
+        except:
+            logging.error("No runway direction %s defined for airport %s"%(ad_code_id,rwy_direction_desig),
+                          exc_info=True)
+        ad.rwy_in_use = rwy_direction
+        for flight in (f for f in self.flights if not f.pp_pos):
+            flight.complete_flight_plan()
 
     def kill_flight(self, f):
         self.flights.remove(f)

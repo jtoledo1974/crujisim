@@ -634,7 +634,6 @@ class RaDisplay(object):
             
             def draw_single_SID_STAR(single_sid_star,remove_underscored = True):
                 rte = single_sid_star.rte
-                print str(rte)
                 wp0  = rte[0]
                 for i in range(1, len(rte)):
                     wp1 = rte[i]
