@@ -216,7 +216,7 @@ class GTA:
         # Kill flights that have been coasting for 5 minutes
         for f in self.flights[:]:  # Since flights will be deleted, we iterate over a copy of the list
             if f.spof == Aircraft.COASTING and f.log[-1].ato+datetime.timedelta(minutes=5)<self.t \
-                or f.spof == Aircraft.LANDED:
+                or f.pof == Aircraft.LANDED:
                 self.kill_flight(f)
         
         # Send updates to clients

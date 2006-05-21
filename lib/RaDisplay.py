@@ -633,37 +633,28 @@ class RaDisplay(object):
         def draw_SID_STAR(map, object):
             
             def draw_single_SID_STAR(single_sid_star,remove_underscored = True):
-                for i in range(0,len(single_sid_star[1])-1):
-                    #We are not going to plot points which name starts with undescore
-                    first_point_chosen = False
-                    last_point_chosen = False
-                    if single_sid_star[1][i][1][0]<>'_' or not remove_underscored:
-                        cx0 = float(single_sid_star[1][i][0][0])
-                        cy0 = float(single_sid_star[1][i][0][1])
-                        first_point_chosen = True
-                        for j in range(i+1,len(single_sid_star[1])):
-                            if single_sid_star[1][j][1][0]<>'_' or not remove_underscored:
-                                cx1 = float(single_sid_star[1][j][0][0])
-                                cy1 = float(single_sid_star[1][j][0][1])
-                                last_point_chosen = True
-                                break
-                    if first_point_chosen and last_point_chosen:
-                        map.add_polyline((cx0, cy0), (cx1, cy1), color=color)
-            
-            sid_star_index = 0              #plot SID by default
-            if object[0] == 'draw_sid':  sid_star_index = 0
-            elif object[0] == 'draw_star':  sid_star_index = 1
-                
+                rte = single_sid_star.rte
+                print str(rte)
+                wp0  = rte[0]
+                for i in range(1, len(rte)):
+                    wp1 = rte[i]
+                    if wp1.fix[0] == '_' and remove_underscored: continue
+                    map.add_polyline(wp0.pos(), wp1.pos(), color=color)
+                    wp0 = wp1
+                    
             sid_star_rwy = object[1]
             sid_star_name = object[2]
             if len(object) > 3: color = object[3]
             else:  color = 'white'
-                
-            for sid_star_index_word in self.fir.procedimientos[sid_star_rwy][sid_star_index]:              #cycle through al SID's or STAR's of one RWY
-                sid_star=self.fir.procedimientos[sid_star_rwy][sid_star_index][sid_star_index_word]
-                if (sid_star_name == '') or (sid_star_name == sid_star[0]):
-                    draw_single_SID_STAR(sid_star,True)    
-          
+            
+            ad = self.fir.aerodromes[sid_star_rwy[:4]]
+            if object[0] == 'draw_sid':     dict = ad.rwy_in_use.sid_dict
+            elif object[0] == 'draw_star':  dict = ad.rwy_in_use.star_dict
+            
+            for proc in (proc for proc in dict.values()
+                                if sid_star_name=='' or sid_star_name == proc.txt_desig):
+                draw_single_SID_STAR(proc, True)
+              
         # Local Maps
         for map_name in fir.local_maps.keys():
             map = RaMap(self.c, self.do_scale, intensity = map_intensity)
@@ -754,7 +745,11 @@ class RaDisplay(object):
         # return s((self.center_x,self.center_y),p(r((a[0],-a[1]),(self.x0,-self.y0)),self.scale))
         # Better to do the calculations inline to avoid the overhead of the function calling
         # on this very often called function
-        return (self.center_x+(a[0]-self.x0)*self.scale,self.center_y+(-a[1]+self.y0)*self.scale)
+        try:
+            return (self.center_x+(a[0]-self.x0)*self.scale,self.center_y+(-a[1]+self.y0)*self.scale)
+        except:
+            logging.error('do_scale: Unable to scale point %s'%a)
+            raise
         
     def undo_scale(self,a):
         """Convert screen coodinates into world coordinates"""

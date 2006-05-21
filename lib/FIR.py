@@ -24,7 +24,10 @@ import logging
 import os
 import re
 from stat import *
+
+# Application imports
 from MathUtil import *
+import Route
 
 # TODO the whole FIR object should be rewritten
 # The file format should probably be switched to an XML file that more closely follows
@@ -45,6 +48,8 @@ class FIR:
         
         self.pos = self.get_point_coordinates  # Method alias
         
+        Route.fir = self
+        
         self.points     =[] # List of geo coordinates of points
         self.coords     ={} # Dictionary with point coordinates
         self.rel_points ={} #Dictionary of points relative to another. Format: [RELATIVE_POINT NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
@@ -53,7 +58,6 @@ class FIR:
         self.tmas       =[] # List of points defining TMAs
         self.local_maps ={} # Dictionary of local maps
         self.aerodromes ={} # Dictionary of AD_HP objects
-        self.ad_elevations = {} # List of AD elevations
         self.holds      =[] # List of published holds (See Hold class)
         self.procedimientos={}  # Standard procedures (SIDs and STARs)
         self.iaps       ={} # Instrument Approach Procedures
@@ -189,39 +193,15 @@ class FIR:
                                      for rwy in ad.rwy_direction_list):
             pista = ad.code_id+rwy_direction.txt_desig
             # SID
-            sid = {}
             lista = self._firdef.items('sid_'+pista)
-            for (nombre_sid,puntos_sid) in lista:
-                last_point = puntos_sid.split(',')[-1]
-                # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
-                points_sid = []
-                for nombre_punto in puntos_sid.split(','):
-                    punto_esta=False
-                    for q in self.points:
-                        if nombre_punto==q[0]:
-                            points_sid.append([q[1],q[0],'00:00'])
-                            punto_esta=True
-                    if not punto_esta:
-                        logging.warning ('Punto ' + nombre_punto + ' no encontrado en procedimiento '+ nombre_sid)
-                sid[last_point] = (nombre_sid,points_sid)
+            for (sid_desig,sid_points) in lista:
+                sid_desig = sid_desig.upper()
+                rwy_direction.sid_dict[sid_desig] = SID(sid_desig, sid_points)
             # Procedimientos STAR
-            star = {}
             lista = self._firdef.items('star_'+pista)
-            for (nombre_star,puntos_star) in lista:
-                last_point = puntos_star.split(',')[0]
-                # Cambiamos el formato de puntos para que se pueda añadir directamente al plan de vuelo
-                points_star = []
-                for nombre_punto in puntos_star.split(','):
-                    punto_esta=False
-                    for q in self.points:
-                        if nombre_punto==q[0]:
-                            points_star.append([q[1],q[0],'00:00'])
-                            punto_esta=True
-                    if not punto_esta:
-                        logging.warning ('Punto ',nombre_punto,' no encontrado en procedimiento ', nombre_star)
-                        #        points_star.pop(-1)
-                star[last_point] = (nombre_star,points_star)
-            self.procedimientos[pista] = (sid,star)
+            for (star_desig,star_points) in lista:
+                star_desig = star_desig.upper()
+                rwy_direction.star_dict[star_desig] = STAR(star_desig, star_points)
 
         # Instrument Approach Procedures
         for pista in (ad.code_id+rwy.txt_desig
@@ -447,26 +427,27 @@ class Hold:
 class RWY_DIRECTION:
     def __init__(self, txt_desig):
         self.txt_desig  = txt_desig  # TXT_DESIG must have between 2 and 3 characters, of which the first 2 may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T, etc..
-        self.sid_list   = []
-        self.star_list  = []
-        self.iap_list   = []
+        self.sid_dict   = {}
+        self.star_dict  = {}
+        self.iap_dict   = {}
         
 class STAR:
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
-    def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
+    def __init__(self, txt_desig, rte):
         self.txt_desig  = txt_desig
         self.rte        = Route.Route(Route.get_waypoints(rte))
+        self.start_fix  = txt_desig[:-2]
         
 class SID:
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
-    def __init__(self, txt_desig, ad_hp, rte, rwy_direction=None):
+    def __init__(self, txt_desig, rte):
         self.txt_desig  = txt_desig
-        self.rte        = Route.Route(rte)
-        
+        self.rte        = Route.Route(Route.get_waypoints(rte))
+        self.end_fix    = txt_desig[:-2]
 
 if __name__ == "__main__":
     #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')

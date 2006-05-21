@@ -464,8 +464,6 @@ class Aircraft:
     def initialize(self):
         # Init code
         self.std_speed = True
-        if self.callsign=='ZORRO34':
-            print "zorro"
         if not self.next_wp: self.pof = GROUND
         else: self.pof = FLYING
 
@@ -528,7 +526,7 @@ class Aircraft:
             ne_backup = self.no_estimates
             self.no_estimates = True
             t2 = self.t + timedelta(seconds=15)
-            while (t-self.t)>timedelta(seconds=15):
+            while (t-self.t)>timedelta(seconds=15) and self.pof!=LANDED:
                 self.next(t2)
                 t2 += timedelta(seconds=15)
             self.no_estimates = ne_backup
@@ -574,7 +572,7 @@ class Aircraft:
             except ValueError: deriva = 0  # TODO check what the hell is thiss
             r_obj = get_hdg_obj(self,deriva,t)
             if r_obj == LANDED:
-                self.pof, self.spof = GROUND, LANDED
+                self.pof = LANDED
                 return
             if self.hdg<180.0 and r_obj>self.hdg+180.0:
                 r_obj=r_obj-360.0
@@ -686,32 +684,27 @@ class Aircraft:
         self.set_campo_eco()
     
     def complete_flight_plan(self):
-        # Completa el plan de vuelo con la SID o STAR, si es que hay alguna publicada para adep y destino
+        """Adds SID and/or STAR to the route if one is published"""
+        
         # TODO should this function be really an Aircraft method?
         # or rather a Route method, or even a FIR method?
         if fir.ad_has_ifr_rwys(self.ades): # aplico la STAR que toque
             ad = fir.aerodromes[self.ades]
-            rwy = ad.code_id + ad.rwy_in_use.txt_desig
-            (sid,star) = fir.procedimientos[rwy]
-            # TODO Currrently if there are more than one STARs beggining at an IAF,
-            # we simply pick the first one. There should be a way to favor one or other
-            for iaf in star.keys():
-                if iaf in self.route:
-                    self.route.substitute_after(iaf, [Route.WayPoint(p[1]) for p in star[iaf][1]], save=self.next_wp)
+            star_list = [star for star in ad.rwy_in_use.star_dict.values()
+                                 if star.start_fix in self.route]
+            if len(star_list)>0:
+                # TODO Currrently if there are more than one STARs beggining at an IAF,
+                # we simply pick the first one. There should be a way to favor one or other
+                star = star_list[0]
+                self.route.substitute_after(star.start_fix, star.rte)
                     
         if fir.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING): # aplico la SID que toque
             ad = fir.aerodromes[self.adep]
-            rwy = ad.code_id + ad.rwy_in_use.txt_desig
-            (sid,star) = fir.procedimientos[rwy]
-            for fix in sid.keys():
-                if fix in self.route:
-                    self.route.substitute_before(fix, [Route.WayPoint(p[1]) for p in sid[fix][1]], save=self.next_wp)
-                    
-        #if self.adep in fir.aerodromes and self.route[0].fix!=self.adep:
-        #    self.route.insert(0, self.adep)
-        #
-        #if self.ades in fir.aerodromes and self.route[-1].fix!=self.ades:
-        #    self.route.append(self.ades)
+            sid_list = [sid for sid in ad.rwy_in_use.sid_dict.values()
+                               if sid.end_fix in self.route]
+            if len(sid_list)>0:
+                sid = sid_list[0]
+                self.route.substitute_before(sid.end_fix, sid.rte)
         
         self.route = self.route.reduce()
             
