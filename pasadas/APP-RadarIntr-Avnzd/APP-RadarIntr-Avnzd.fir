@@ -617,7 +617,7 @@ DUKKE = _LETO_7DME,5000,VJZ,4000,LLZ,TJZ,050,1.0,0.0472,1992,True,TJZ,4000,_LETO
 [sector1]
 nombre:TW
 min_sep = 5.0
-auto_departure = MANUAL
+auto_departure = AUTO
 limites:_TMA1,_SEC1,_SEC2,_SEC4,_SEC5,_TMA10,_TMA11,_TMA12,_TMA1
 fijos_de_impresion:PARLA
 fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,RBO
@@ -626,7 +626,7 @@ release_required_ads:LEGT
 [sector2]
 nombre:TE
 min_sep = 5.0
-auto_departure = MANUAL
+auto_departure = AUTO
 limites:_SEC1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_SEC3,_SEC2,_SEC1
 fijos_de_impresion:CANES
 fijos_de_impresion_secundarios:CJN,BAN,PINAR
