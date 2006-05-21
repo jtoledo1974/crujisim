@@ -1194,7 +1194,7 @@ class DepTabular(RaTabular):
         def depart(e=None,entries=None):
             ent_sid=entries['SID:']
             ent_cfl=entries['CFL:']
-            sid=ent_sid.get()
+            sid=ent_sid['value']
             cfl=ent_cfl.get()
             fallo = False
             if cfl.isdigit():
@@ -1218,7 +1218,9 @@ class DepTabular(RaTabular):
             
         # Build the GUI Dialog
         entries=[]
-        entries.append({'label':'SID:','width':5,'def_value':''})
+        sids = [sid.txt_desig
+                for sid in self.master.fir.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
+        entries.append({'label':'SID:','width':5, 'values':sids, 'def_value':dep.sid.txt_desig})
         entries.append({'label':'CFL:','width':3,'def_value':int(dep.cfl)})
         x1=self.container.winfo_x()+self.container.winfo_width()/2
         y1=self.container.winfo_y()+self.container.winfo_height()/2
