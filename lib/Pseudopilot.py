@@ -131,6 +131,17 @@ class PpDisplay(RaDisplay):
             f = update_flight(m['flight'])  # Returns the updated flight
             self.update_track(f)
             
+        if m['message'] == 'rwy_in_use':
+            ad_code_id, rwy_direction_desig = m['ad'], m['rwy']
+            try:
+                ad = self.fir.aerodromes[ad_code_id]
+                rwy_direction = [rwy for rwy in ad.rwy_direction_list
+                                         if rwy.txt_desig == rwy_direction_desig][0]
+            except:
+                logging.error("No runway direction %s defined for airport %s"%(ad_code_id,rwy_direction_desig),
+                              exc_info=True)
+            ad.rwy_in_use = rwy_direction            
+            
         if m['message'] == 'kill_flight':
             try: f = [f for f in self.flights if f.uid == m['uid']][0]
             except: return

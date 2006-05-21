@@ -474,6 +474,9 @@ class GTA:
         ad.rwy_in_use = rwy_direction
         for flight in (f for f in self.flights if not f.pp_pos):
             flight.complete_flight_plan()
+        for c in self.pseudopilots:
+            m = {"message":"rwy_in_use", "ad":ad.code_id,"rwy":ad.rwy_in_use.txt_desig}
+            c.protocol.sendMessage(m)
 
     def kill_flight(self, f):
         self.flights.remove(f)
