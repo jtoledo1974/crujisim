@@ -645,10 +645,15 @@ class RaDisplay(object):
             sid_star_name = object[2]
             if len(object) > 3: color = object[3]
             else:  color = 'white'
-            
-            ad = self.fir.aerodromes[sid_star_rwy[:4]]
-            if object[0] == 'draw_sid':     dict = ad.rwy_in_use.sid_dict
-            elif object[0] == 'draw_star':  dict = ad.rwy_in_use.star_dict
+
+            try:            
+                ad = self.fir.aerodromes[sid_star_rwy[:4]]
+                rwy_desig = sid_star_rwy[4:]
+                rwy = [rwy for rwy in ad.rwy_direction_list if rwy.txt_desig == rwy_desig][0]
+            except:
+                logging.error("Unable to draw procedure for %s"%sid_star_rwy, exc_info=True)
+            if object[0] == 'draw_sid':     dict = rwy.sid_dict
+            elif object[0] == 'draw_star':  dict = rwy.star_dict
             
             for proc in (proc for proc in dict.values()
                                 if sid_star_name=='' or sid_star_name == proc.txt_desig):
