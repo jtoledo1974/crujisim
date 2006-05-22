@@ -801,6 +801,7 @@ class Aircraft:
         self.route = Route.Route(Route.get_waypoints(route))
         self.to_do = 'fpr'
         self.to_do_aux = []
+        self.route = TLPV.sector_intersections(self.route)
         self.set_app_fix()
         self.calc_eto()
         self.set_campo_eco()
@@ -1001,8 +1002,9 @@ class Aircraft:
     def depart(self, sid, cfl, t):
         # Ahora se depega el avión y se elimina de la lista
         self.t = t
-        # Get the actual sid object
-        if not sid=='':
+        # Get the actual sid object, but only if a SID has been given,
+        # and we had a previous SID
+        if not sid=='' and self.sid:
             sid = fir.aerodromes[self.adep].get_sid(sid)
             if self.sid: self.route.substitute_before(Route.WP(self.sid.end_fix), sid.rte)
             else: self.rte = sid.rte + self.rte

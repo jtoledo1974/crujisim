@@ -44,6 +44,10 @@ def sector_intersections(route):
     the FIR sectors"""
     rte_orig = route[:]
 
+    # Remove previous TLPV waypoints
+    for wp in (wp for wp in rte_orig[:] if wp.type==Route.TLPV):
+        rte_orig.remove(wp)
+        
     n_added = 0  # Number of added intersections        
     for i in range(len(rte_orig)-1):
         xpoints = []
@@ -89,7 +93,7 @@ def get_exit_ades(flight):
         return exit_wp.fix[:3]
     else:
         logging.debug("Unable to find exit or ades for %s"%flight.callsign)
-        return ''
+        return flight.campo_eco
 
 class TLPV:
     """Keeps track of flight plans in the system"""

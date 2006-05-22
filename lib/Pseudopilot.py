@@ -159,7 +159,7 @@ class PpDisplay(RaDisplay):
             except ValueError: pass  # Don't act if the fpr did not exist
             canvas.delete(f.callsign+'wp')
             try: self.waypoints.remove(f)
-            except ValueError: pass  # Don't act if the fpr did not exist
+            except ValueError: pass  # Don't act if the waypoints did not exist
             # Delete LADS attached if any
             for lad in (lad for lad in self.lads[:] if lad.start==vt or lad.end==vt):
                 lad.delete()
