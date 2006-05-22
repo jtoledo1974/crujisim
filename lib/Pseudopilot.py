@@ -1220,7 +1220,9 @@ class DepTabular(RaTabular):
         entries=[]
         sids = [sid.txt_desig
                 for sid in self.master.fir.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
-        entries.append({'label':'SID:','width':5, 'values':sids, 'def_value':dep.sid.txt_desig})
+        if not dep.sid: dep_sid = ''
+        else: dep_sid = dep.sid.txt_desig
+        entries.append({'label':'SID:','width':5, 'values':sids, 'def_value':''})
         entries.append({'label':'CFL:','width':3,'def_value':int(dep.cfl)})
         x1=self.container.winfo_x()+self.container.winfo_width()/2
         y1=self.container.winfo_y()+self.container.winfo_height()/2
