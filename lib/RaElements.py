@@ -2234,7 +2234,7 @@ class LAD(object):
         c=radisplay.c
         
         # No se estaba definiendo un LAD. Comenzar a definir uno
-        self.adep = self.get_acft_or_point(e.x,e.y)
+        self.start = self.get_acft_or_point(e.x,e.y)
         ra_unbind(rd, c, '<Motion>')
         ra_unbind(rd, c, '<Button-2>')
         ra_unbind(rd, c, '<Button-3>')
@@ -2308,21 +2308,21 @@ class LAD(object):
     def update_lad_being_defined(self,e=None):
         canvas=self.radisplay.c        
         canvas.delete('lad_defined')
-        (x0, y0) = self.adep.x,self.adep.y
-        ades = self.radisplay.undo_scale((e.x, e.y))
-        lad_xsize = ades[0] - self.adep.wx
-        lad_ysize = ades[1] - self.adep.wy
+        (x0, y0) = self.start.x,self.start.y
+        end = self.radisplay.undo_scale((e.x, e.y))
+        lad_xsize = end[0] - self.start.wx
+        lad_ysize = end[1] - self.start.wy
         angulo = 90.0 - degrees( atan2( lad_ysize, lad_xsize ) )
         if angulo < 0.0: angulo += 360.0
         dist = self.round_down(sqrt( lad_xsize * lad_xsize + lad_ysize * lad_ysize))
-        time_min = 60.0 * dist / self.adep.gs
+        time_min = 60.0 * dist / self.start.gs
         lad_center_x = (x0 + e.x)/2
         lad_center_y = (y0 + e.y)/2
         canvas.create_line(x0, y0,e.x, e.y, fill=self.lad_color.get(), tags="lad_defined")
         lad_text1 = "A: %03d" % angulo
         lad_text2 = "D: %03d" % dist
         # Check if LAD begins in a point or in a plane
-        if self.adep.gs < 10.:
+        if self.start.gs < 10.:
             lad_text3 = ""
             lad_lines = 2  # LAD will show 2 lines with information (Azimuth, Distance)
         else:
@@ -2345,7 +2345,7 @@ class LAD(object):
         ra_unbind(rd, c, '<Motion>')
         ra_unbind(rd, c, '<Button-2>')
         ra_unbind(rd, c, '<Button-3>')
-        self.ades=self.get_acft_or_point(e.x,e.y)
+        self.end=self.get_acft_or_point(e.x,e.y)
         self.radisplay.lads.append(self)
         ra_bind(rd, c, '<Button-2>', rd.b2_cb)
         ra_bind(rd, c, '<Button-3>', rd.b3_cb)
@@ -2375,8 +2375,8 @@ class LAD(object):
         # Create a new LAD
         self.radisplay.lads.append(self)
         
-        (xinitA, yinitA) = (self.adep.wx,self.adep.wy)
-        (xinitB, yinitB) = (self.ades.wx,self.ades.wy)
+        (xinitA, yinitA) = (self.start.wx,self.start.wy)
+        (xinitB, yinitB) = (self.end.wx,self.end.wy)
         lad_xdif = xinitB - xinitA
         lad_ydif = yinitB - yinitA
         current_azimuth = 90.0 - degrees( atan2 (lad_ydif, lad_xdif) )
@@ -2396,11 +2396,11 @@ class LAD(object):
         self.line_id = canvas.create_line(x0, y0, x1, y1, fill=color, tags=(s+'lad',s+'line'))
         xm = (x0+x1) / 2
         ym = (y0+y1) / 2
-        min_dist_time = self.compute_mindisttime(xinitA, yinitA, self.adep.track, self.adep.gs, xinitB, yinitB, self.ades.track, self.ades.gs)
+        min_dist_time = self.compute_mindisttime(xinitA, yinitA, self.start.track, self.start.gs, xinitB, yinitB, self.end.track, self.end.gs)
         # Limit min_dist_time<500 to avoid overflow problems when min_dist_time is too high
         if (min_dist_time != None) and (min_dist_time > 0.0)and (min_dist_time<500.0):
             # Flights will cross
-            min_dist = self.compute_mindist(xinitA, yinitA, self.adep.track, self.adep.gs, xinitB, yinitB, self.ades.track, self.ades.gs)
+            min_dist = self.compute_mindist(xinitA, yinitA, self.start.track, self.start.gs, xinitB, yinitB, self.end.track, self.end.gs)
             lad_lines = 4 # 4 lines of text in LAD square
 
             text3 = "T: %03d" % min_dist_time
@@ -2418,7 +2418,7 @@ class LAD(object):
         if (self.superlad) and (min_dist_time != None) and (min_dist_time > 0.0):
             # Flights will cross
             size=2
-            (posAx, posAy, posBx, posBy) = self.compute_cross_points(xinitA, yinitA, self.adep.track, self.adep.gs, xinitB, yinitB, self.ades.track, self.ades.gs)
+            (posAx, posAy, posBx, posBy) = self.compute_cross_points(xinitA, yinitA, self.start.track, self.start.gs, xinitB, yinitB, self.end.track, self.end.gs)
             (crossAx, crossAy) = do_scale((posAx, posAy))
             (crossBx, crossBy) = do_scale((posBx, posBy))
             canvas.create_line(x0, y0, crossAx, crossAy, fill=self.super_lad_color.get(), tags=(s+'lad',s+'crosspoint'))

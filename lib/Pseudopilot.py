@@ -151,6 +151,18 @@ class PpDisplay(RaDisplay):
             del self._flights_tracks[f]
             del self._tracks_flights[vt]
             self.tracks.remove(vt)
+            
+            # Delete fpr and waypoints if any
+            canvas = self.c
+            canvas.delete(f.callsign+'fpr')
+            try: self.routes.remove(f)
+            except ValueError: pass  # Don't act if the fpr did not exist
+            canvas.delete(f.callsign+'wp')
+            try: self.waypoints.remove(f)
+            except ValueError: pass  # Don't act if the fpr did not exist
+            # Delete LADS attached if any
+            for lad in (lad for lad in self.lads[:] if lad.start==vt or lad.end==vt):
+                lad.delete()
 
     def delete_routes(self,e=None):
         for track in self.tracks:
