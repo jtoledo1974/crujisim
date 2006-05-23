@@ -2320,7 +2320,7 @@ class LAD(object):
         lad_center_y = (y0 + e.y)/2
         canvas.create_line(x0, y0,e.x, e.y, fill=self.lad_color.get(), tags="lad_defined")
         lad_text1 = "A: %03d" % angulo
-        lad_text2 = "D: %03d" % dist
+        lad_text2 = "D: %05.1f" % dist
         # Check if LAD begins in a point or in a plane
         if self.start.gs < 10.:
             lad_text3 = ""
