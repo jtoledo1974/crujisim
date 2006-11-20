@@ -198,7 +198,7 @@ class TLPV:
             cfd.origin          = a.adep
             cfd.destination     = a.ades
             cfd.fl              = "%d"%a.rfl
-            cfd.cfl             = a.pfl
+            cfd.cfl             = "%d"%a.pfl
             cfd.cssr            = "%04o"%a.squawk
             cfd.route           = route
             cfd.rules           = ""
