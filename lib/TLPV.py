@@ -29,7 +29,7 @@ import MathUtil
 import StripSeries
 import Aircraft  # To use the callsign database
 
-random.seed(0)  # So that we can replicate the squawks created
+#random.seed(0)  # So that we can replicate the squawks created
 
 # Constants
 PENDING     = 0  # Pending
