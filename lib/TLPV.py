@@ -198,7 +198,12 @@ class TLPV:
             cfd.origin          = a.adep
             cfd.destination     = a.ades
             cfd.fl              = "%d"%a.rfl
-            cfd.cfl             = "%d"%a.pfl
+            # If the plane departs from a local airport, cfl is not printed
+            if a.adep in fir.local_ads[sector]:
+                cfd.cfl             = ""
+            else:
+                cfd.cfl             = "%d"%a.pfl
+            
             cfd.cssr            = "%04o"%a.squawk
             cfd.route           = route
             cfd.rules           = ""
@@ -260,7 +265,7 @@ class TLPV:
                     fd.prev_fix_est     = prev_t
                     fd.fix_est          = fijo_t
                     fd.next_fix_est     = next_t
-                    fd.pfl              = "%d"%a.pfl
+                    fd.pfl              = "%d"%a.pfl  
                     fs_list.append(fd)
                     
         return fs_list
