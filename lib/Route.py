@@ -202,6 +202,7 @@ class Route(list):
         if self[0]==self[1]:
             if wp1.is_geo and not wp0.is_geo:
                 wp1.fix = wp0.fix
+                wp1.type = wp0.type
                 wp1.is_geo = False
             for attr in ('sector_entry', 'sector_exit', 'eto', 'ato'):
                 if getattr(wp0, attr) and not getattr(wp1, attr):
