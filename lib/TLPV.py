@@ -226,12 +226,13 @@ class TLPV:
             else:
                 prev=prev_t=''
             for i in range(len(a.route)):
-                if i>=1 and a.route[i-1].type not in (Route.TLPV, Route.FMS):
-                    prev    = a.route[i-1].fix
-                    prev_t  = format_t(a.route[i-1].eto)
-                elif i>=1 and a.fir_entry_t and a.route[i-1].eto==a.fir_entry_t:
+                if i>=1 and a.fir_entry_t and a.route[i-1].eto<a.fir_entry_t:
                     prev    = 'ENTRAD'
                     prev_t  = format_t(a.route[i].eto)
+                elif i>=1 and a.route[i-1].type not in (Route.TLPV, Route.FMS):
+                    prev    = a.route[i-1].fix
+                    prev_t  = format_t(a.route[i-1].eto)
+
                 if a.route[i].fix in current_printing_fixes:
                   # Main flight strip fix 
                     fijo=a.route[i].fix
@@ -253,7 +254,7 @@ class TLPV:
                         # Printing fix is last route point and adep is local
                         next    = a.ades
                         next_t  = ''
-                    elif i<len(a.route)-1 and a.fir_exit_t and a.route[i+1].eto >= a.fir_exit_t:
+                    elif i<len(a.route)-1 and a.fir_exit_t and a.route[i+1].eto>a.fir_exit_t:
                         # Next waypoint marks FIR exit
                         next    = 'SALIDA'
                         next_t  = format_t(a.route[i+1].eto)
