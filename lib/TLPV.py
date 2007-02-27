@@ -254,7 +254,7 @@ class TLPV:
                         # Printing fix is last route point and adep is local
                         next    = a.ades
                         next_t  = ''
-                    elif i<len(a.route)-1 and a.fir_exit_t and a.route[i+1].eto>a.fir_exit_t:
+                    elif i<len(a.route)-1 and a.fir_exit_t and a.route[i+1].eto>a.fir_exit_t and a.ades not in fir.local_ads[sector]:
                         # Next waypoint marks FIR exit
                         next    = 'SALIDA'
                         next_t  = format_t(a.route[i+1].eto)
