@@ -454,6 +454,6 @@ min_sep = 8.0
 auto_departure = AUTO
 limites:_TLD2,LOGRO,MOLIN,PARKA,_TLD3,CCS,RAKOD,_ZMR5,_ZMR4,_DGO5,_DGO4,_PPN9,_PPN11,_TLD1,_TLD2
 fijos_de_impresion:NVS,TLD,VTB,RBO
-fijos_de_impresion_secundarios:GOTOR
+fijos_de_impresion_secundarios:GOTOR,PARKA
 local_ads:LESA
 #LESA are taken as LOCALS AD for DGO. The strip will be printed within a reasonable time
