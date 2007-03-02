@@ -131,8 +131,11 @@ class TLPV:
         # we define the first sector entry time as the FIR entry time
         try:    fp.fir_entry_t = min(fp.sector_entry_t.values())
         except: fp.fir_entry_t = None
-        try:    fp.fir_exit_t = max([wp.eto for wp in fp.route if wp.sector_exit])
-        except: fp.fir_exit_t = None
+        if fp.ades not in fir.aerodromes.keys():
+            try: fp.fir_exit_t = max([wp.eto for wp in fp.route if wp.sector_exit])
+            except: fp.fir_exit_t = None
+        else:
+            fp.fir_exit_t = None
                 
         return fp
     
