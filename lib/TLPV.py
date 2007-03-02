@@ -134,7 +134,7 @@ class TLPV:
         if fp.ades not in fir.aerodromes.keys():
             try: fp.fir_exit_t = max([wp.eto for wp in fp.route if wp.sector_exit])
             except: fp.fir_exit_t = None
-        else:
+        else: #Ades is local
             fp.fir_exit_t = None
                 
         return fp
@@ -257,7 +257,7 @@ class TLPV:
                         # Printing fix is last route point and adep is local
                         next    = a.ades
                         next_t  = ''
-                    elif i<len(a.route)-1 and a.fir_exit_t and a.route[i+1].eto>a.fir_exit_t and a.ades not in fir.local_ads[sector]:
+                    elif i<len(a.route)-1 and a.fir_exit_t and a.route[i+1].eto>a.fir_exit_t:
                         # Next waypoint marks FIR exit
                         next    = 'SALIDA'
                         next_t  = format_t(a.route[i+1].eto)
