@@ -1178,7 +1178,7 @@ class VisTrack(object): # ensure a new style class
         self.alt            = 150
         self.draw_cfl       = False  # Whether or not to draw the current cfl
         self.cfl            = 200
-        self.pfl            = 350
+        self.ecl            = 350
         self.rate           = 2000  # Vertical rate of climb or descent
         self.adep           = 'LEMD'
         self.ades           = 'LEBB'
@@ -1983,17 +1983,17 @@ class VisTrack(object): # ensure a new style class
             ent_CFL = Entry(win, width=3)
             ent_CFL.insert(0, str(int(self.vt.cfl)))
             ent_CFL.select_range(0, END)
-            lbl_PFL = Label(win, text="PFL:")
-            ent_PFL = Entry(win, width=3)
-            ent_PFL.insert(0, str(int(self.vt.pfl)))
+            lbl_ECL = Label(win, text="ECL:")
+            ent_ECL = Entry(win, width=3)
+            ent_ECL.insert(0, str(int(self.vt.ecl)))
             but_Comm = Button(win, text="COMUNICAR")
             but_Acp = Button(win, text="ACP")
             but_Can = Button(win, text="CNL")
             lbl_cls.grid(row=0,columnspan=2,sticky=W+E)
             lbl_CFL.grid(row=1, column=0)
             ent_CFL.grid(row=1, column=1)
-            lbl_PFL.grid(row=2, column=0)
-            ent_PFL.grid(row=2, column=1)
+            lbl_ECL.grid(row=2, column=0)
+            ent_ECL.grid(row=2, column=1)
             but_Comm.grid(row=3, column=0, columnspan=2,sticky=W+E)
             but_Acp.grid(row=4, column=0, columnspan=1,sticky=W+E)
             but_Can.grid(row=4, column=1, columnspan=1,sticky=W+E)
@@ -2004,9 +2004,9 @@ class VisTrack(object): # ensure a new style class
                 w.unbind_all("<KP_Enter>")
                 w.unbind_all("<Escape>")
                 self.c.delete(ident)
-            def set_FLs(cfl,pfl):
-                self.vt.pfl=int(pfl)
-                self.vt._message_handler(self.vt,'pfl','update',pfl,e)
+            def set_FLs(cfl,ecl):
+                self.vt.ecl=int(ecl)
+                self.vt._message_handler(self.vt,'ecl','update',ecl,e)
                 d = self.vt._message_handler(self.vt,'cfl','update',cfl,e)
                 def result((r, cfl_max)):
                     if r:
@@ -2022,11 +2022,11 @@ class VisTrack(object): # ensure a new style class
                 else: d.addCallback(result)
             def aceptar(e=None):
                 cfl = ent_CFL.get()
-                pfl = ent_PFL.get()
-                set_FLs(cfl,pfl)
+                ecl = ent_ECL.get()
+                set_FLs(cfl,ecl)
             def comm(e=None):
-                cfl=pfl=ent_PFL.get()
-                set_FLs(cfl,pfl)
+                cfl=ecl=ent_ECL.get()
+                set_FLs(cfl,ecl)
             but_Comm['command'] = comm
             but_Acp['command'] = aceptar
             but_Can['command'] = close_win

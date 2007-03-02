@@ -395,7 +395,7 @@ class Aircraft:
         self.ades           = ades  # 'LEMD'
         self.cfl            = cfl   # Cleared Flight Level, the FL the aircraft is climbing/descending towards
         self.rfl            = rfl   # Requested Flight Level. As filed in the flight plan
-        self.pfl            = rfl   # Planned Flight Level.
+        self.ecl            = rfl   # Planned Flight Level.
                                     # TODO This should not be an aircraft attribute,
                                     # but rather a TLPV.FlightPlan attribute
         
@@ -785,9 +785,9 @@ class Aircraft:
         else:
             return (False, self.perf.max_fl)
         
-    def set_pfl(self, pfl):
+    def set_ecl(self, ecl):
         # TODO This should be handled in TLPV, not here.
-        self.pfl = pfl
+        self.ecl = ecl
         
     def set_heading(self, hdg, opt):
         self.tgt_hdg = hdg

@@ -311,7 +311,7 @@ class PpDisplay(RaDisplay):
         vt.radio_cs = f.radio_callsign
         vt.rfl = f.rfl
         vt.cfl=f.cfl
-        vt.pfl=f.pfl
+        vt.ecl=f.ecl
         vt.flashing = f.trans_pp_pos
         if (f.pp_pos == None) or (f.pp_pos != self.pos_number): vt.assumed = False
         if f.pp_pos == self.pos_number: vt.assumed = True        
@@ -325,9 +325,9 @@ class PpDisplay(RaDisplay):
         f=self._tracks_flights[vt]
         if item=='plot':
             if action=='<Button-1>': self.show_hide_fpr(f)
-        if item=='pfl':
+        if item=='ecl':
             if action=='update':
-                self.sendMessage({"message":"set_pfl", "cs": f.callsign, "pfl":int(value)})
+                self.sendMessage({"message":"set_ecl", "cs": f.callsign, "ecl":int(value)})
         if item=='cfl':
             if action=='update':
                 d = self.sendMessage({"message":"set_cfl", "cs": f.callsign, "cfl":int(value)})

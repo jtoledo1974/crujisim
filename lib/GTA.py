@@ -139,10 +139,10 @@ class GTA:
             self.flights.append(a)
             
             # Creates new flight plans from the loaded aircraft
-            if a.eobt: pfl = a.rfl  # If it's a departure
-            else: pfl = a.cfl
+            if a.eobt: ecl = a.rfl  # If it's a departure
+            else: ecl = a.cfl
             fp = tlpv.create_fp(ef.callsign, ef.type, ef.adep, ef.ades,
-                                  float(ef.rfl), pfl, a.route, eobt = a.eobt,
+                                  float(ef.rfl), ecl, a.route, eobt = a.eobt,
                                   next_wp = a.next_wp, next_wp_eto = a.next_wp_eto)
             a.squawk = fp.squawk  # Set the aircraft's transponder to what the flight plan says
             a.fs_print_t = fp.fs_print_t
@@ -379,10 +379,10 @@ class GTA:
             try: f.execute_app(ades=m["ades"], iaf=m["iaf"])
             except: logging.warning("Error while setting approach",
                                     exc_info = True)
-        elif m['message']=="set_pfl":
-            logging.debug("Set PFL "+str(m))
-            try: f.set_pfl(m["pfl"])
-            except: logging.warning("Error while setting PFL",
+        elif m['message']=="set_ecl":
+            logging.debug("Set ECL "+str(m))
+            try: f.set_ecl(m["ecl"])
+            except: logging.warning("Error while setting ECL",
                                     exc_info = True)
         elif m['message']=="set_cfl":
             logging.debug("Set CFL "+str(m))

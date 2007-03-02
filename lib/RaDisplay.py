@@ -141,7 +141,7 @@ class RaDisplay(object):
     def vt_handler(self,vt,item,action,value,e=None):
         """Handle events raised by visual tracks
         Visual tracks have their own GUI code to present the user
-        with CFL and PFL dialog, for instance, but then they notify the parent
+        with CFL and ECL dialog, for instance, but then they notify the parent
         about the result using this function"""
         if action=="<Button-2>" and item!='plot':
             self.cancel_lad_serial=e.serial

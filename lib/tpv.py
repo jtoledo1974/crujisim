@@ -188,7 +188,7 @@ def tpv():
         
         cfl = float(lista[5])
         d.set_cfl(float(lista[4]))
-        d.pfl=d.cfl
+        d.ecl=d.cfl
         ruta=[]
         for p in lista[6:]:
             if len(p)==15:

@@ -106,13 +106,13 @@ class TLPV:
         self.exercise_name = exercise_name
         pass
     
-    def create_fp(self, callsign, type, adep, ades, rfl, pfl, rte,
+    def create_fp(self, callsign, type, adep, ades, rfl, ecl, rte,
                  eobt=None, next_wp=None, next_wp_eto=None,
                  init = True):
         """Creates a new flight plan
         Either the eobt or (next_wp and eto) are mandatory in order to calculate estimates"""
             
-        fp = FlightPlan(callsign, type, adep, ades, rfl, pfl, rte,
+        fp = FlightPlan(callsign, type, adep, ades, rfl, ecl, rte,
                         eobt=eobt, next_wp=next_wp, next_wp_eto=next_wp_eto)
         self.flightplans.append(fp)
         
@@ -202,7 +202,7 @@ class TLPV:
             if a.adep in fir.local_ads[sector]:
                 cfd.cfl             = ""
             else:
-                cfd.cfl             = "%d"%a.pfl
+                cfd.cfl             = "%d"%a.ecl
             
             cfd.cssr            = "%04o"%a.squawk
             cfd.route           = route
@@ -266,7 +266,7 @@ class TLPV:
                     fd.prev_fix_est     = prev_t
                     fd.fix_est          = fijo_t
                     fd.next_fix_est     = next_t
-                    fd.pfl              = "%d"%a.pfl  
+                    fd.ecl              = "%d"%a.ecl  
                     fs_list.append(fd)
                     
         return fs_list
@@ -279,7 +279,7 @@ class TLPV:
         logging.debug("TLPV.__del__")
 
 class FlightPlan:
-    def __init__(self, callsign, type, adep, ades, rfl, pfl, rte,
+    def __init__(self, callsign, type, adep, ades, rfl, ecl, rte,
                  eobt=None, next_wp=None, next_wp_eto=None,
                  init = True):
 
@@ -296,7 +296,7 @@ class FlightPlan:
         self.type           = type
         self.eobt           = eobt
         self.rfl            = rfl
-        self.pfl            = pfl
+        self.ecl            = ecl
         self.filed_tas      = None
         self.route          = Route.Route(Route.get_waypoints(rte))
         self.next_wp        = None  # Next WP  (in SACTA terminology this is the Entry Point (Punto de Entrada)
