@@ -144,8 +144,8 @@ class RemoteClient:
         
         elif m['message']=='flightstrips':
             fs_list = m['fs_list']
-            ss  = StripSeries(exercise_name=self.exc_file, output_file='etiquetas.pdf')
-            ss2 = StripSeries(exercise_name=self.exc_file, output_file='minietiquetas.pdf')
+            ss  = StripSeries(exercise_name=self.exc_file, output_file='fichas.pdf')
+            ss2 = StripSeries(exercise_name=self.exc_file, output_file='minifichas.pdf')
 
             for fd in fs_list:
                 ss.draw_flight_data(fd)

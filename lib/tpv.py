@@ -399,8 +399,8 @@ def tpv():
         else:
             name = ejercicio_elegido[1]
             
-        ss = StripSeries(exercise_name = name, output_file="etiquetas.pdf")
-        ss2 = StripSeries(exercise_name = name, output_file="minietiquetas.pdf")
+        ss = StripSeries(exercise_name = name, output_file="fichas.pdf")
+        ss2 = StripSeries(exercise_name = name, output_file="minifichas.pdf")
         for (aux,s) in orden:
             a = ejercicio[s]
             # Nombre contiene el indicativo OACI para sacar el callsign
@@ -564,7 +564,7 @@ class DlgPdfWriteError:
         dlg=self.dlg=Tk()
         f1=Frame(dlg)
         f2=Frame(dlg)
-        texto=Label(f1,text='Ha sido imposible guardar el archivo de fichas (etiquetas.pdf) o (mini_etiquetas.pdf)\n Es probable que tenga abierto el archivo.')
+        texto=Label(f1,text='Ha sido imposible guardar el archivo de fichas (fichas.pdf) o (mini_fichas.pdf)\n Es probable que tenga abierto el archivo.')
         photo=ImageTk.PhotoImage(Image.open(IMGDIR+"stock_dialog-warning.png"))
         icono=Label(f1, image=photo)
         icono.photo=photo

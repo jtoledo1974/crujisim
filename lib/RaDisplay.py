@@ -68,7 +68,7 @@ class RaDisplay(object):
         screen_height = self.screen_height
         tl.wm_geometry("%dx%d+%d+%d" % (screen_width, screen_height, 0, 0))
         
-        self.c = c = Canvas(tl,bg='black')
+        self.c = c = Canvas(tl,bg='gray3')
         c.pack(expand=1,fill=BOTH)
         ra_bind(self, c, '<Configure>', self.change_size)
 
@@ -114,7 +114,7 @@ class RaDisplay(object):
 
         self.pos_number = None  # Radar position number (identifies this radar display)
         
-        self.label_font_size = 9
+        self.label_font_size = 8
         self.label_font = tkFont.Font(family="Helvetica",size=self.label_font_size)
         self.label_moved = False  # Whether a label has recently been manually moved
         
@@ -283,7 +283,7 @@ class RaDisplay(object):
                         conflict_list.append(tj)
                         cuenta[tj]=0
                         giro_min.append(0)
-            # Si intersectan probamos las posiciones posibles de la etiqueta para ver si libra en alguna. En caso contrario,se escoge 
+            # Si intersectan probamos las posiciones posibles de la ficha para ver si libra en alguna. En caso contrario,se escoge 
             # el de menor interferenci
             #print("Intersecting labels: "+str([t.cs for t in conflict_list]))
             intersectan_girado = intersectan
@@ -573,7 +573,7 @@ class RaDisplay(object):
         
         # Currect sector background
         sectormap = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        kw = {'color': 'gray9'}
+        kw = {'color': 'black'}
         sectormap.add_polygon(*fir.boundaries[self.sector], **kw)
         self.maps['sector'] = sectormap
         if not self.draw_sector: sectormap.hide()

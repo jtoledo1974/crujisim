@@ -297,7 +297,7 @@ class GTA:
                 self.paused=True
                 
         elif m['message']=='clock_speed':
-            logging.info("Clock speed: "+str(m["data"]))
+            #logging.info("Clock speed: "+str(m["data"]))
             self.set_vel_reloj(m["data"])
 
         elif m['message']=='wind':

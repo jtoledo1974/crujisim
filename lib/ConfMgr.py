@@ -50,6 +50,9 @@ class CrujiConfig(object):
         self.phase_option = self.read_option('Global','phase_option',"---","string")
         
     def save(self):
+        config_fp=open(_config_file_name, "r")
+        self.cp.readfp(config_fp)
+        config_fp.close()
         try:
             self.cp.add_section('Global')
         except:

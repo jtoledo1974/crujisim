@@ -18,7 +18,7 @@ del directorio "doc".
 Instrucciones Básicas de Uso
 ----------------------------
 
-La información que se presenta en las etiquetas al arrancar una pasada o al
+La información que se presenta en las fichas al arrancar una pasada o al
 conectarse como pseudopiloto es la siguiente:
 
   INDICATIVO
@@ -26,7 +26,7 @@ conectarse como pseudopiloto es la siguiente:
   RUMBO
   VELOCIDAD (GS ó Nº DE MACH) + ESTELA + CAMPO ECO
   
-Al conectarse a una pasada ya arrancada como controlador la etiqueta no
+Al conectarse a una pasada ya arrancada como controlador la ficha no
 presenta el rumbo, ni puede alternar entre GS y Nº de Mach.
   
 En el panel de botones podemos cambiar la presentación desplazando la
@@ -38,7 +38,7 @@ Comunes Pseudopiloto y ATC:
   - Ajuste de escala (Tanto este botón como el anterior modifican su
     comportamiento en función del botón del ratón que se use)
   - Retorno automático a escala estándar y centrado
-  - Cambiar el tamaño de las etiquetas alternando pequeña/mediana/grande
+  - Cambiar el tamaño de las fichas alternando pequeña/mediana/grande
   - Ver datos del vuelo seleccionado
   - Ajuste del vector velocidad (hasta cinco minutos)
   - Ajuste de mapas
@@ -59,11 +59,11 @@ Aquí va una lista de cómo hacer las cosas más usuales:
 VER / QUITAR PANEL CON BOTONES
 Tocar con botón izquierdo sobre el reloj
 
-DESPLAZAR ETIQUETA
+DESPLAZAR ficha
 Hacer click con el botón izquierdo o derecho sobre el líder (la línea que
-une la etiqueta con la traza) para rotar la etiqueta 90 grados.
+une la ficha con la traza) para rotar la ficha 90 grados.
 Hacer click con el  botón central sobre el indicativo y arrastrar la
-etiqueta para desplazarla arbitrariamente
+ficha para desplazarla arbitrariamente
 
 SELECCIONAR / DESELECCIONAR UN VUELO
 Apretar botón central sobre el indicativo cambia entre los dos estados
@@ -126,7 +126,7 @@ Apretar botón izquierdo sobre la traza
 CREAR UN LAD
 Se inicia un LAD con el botón central, y se fija con el botón derecho. Se
 cancela la creación con el botón izquierdo. Si uno de los extremos se ha
-fijado sobre una traza, la etiqueta incluye el tiempo que tardaría la
+fijado sobre una traza, la ficha incluye el tiempo que tardaría la
 aeronave en alcanzar el otro extremo a la velocidad actual.
 
 QUITAR UN LAD

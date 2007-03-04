@@ -944,7 +944,7 @@ def separate_labels(canvas):
                     conflict_list.append(tj)
                     cuenta[tj]=0
                     giro_min.append(0)
-        # Si intersectan probamos las posiciones posibles de la etiqueta para ver si libra en alguna. En caso contrario,se escoge 
+        # Si intersectan probamos las posiciones posibles de la ficha para ver si libra en alguna. En caso contrario,se escoge 
         # el de menor interferenci
         #print("Intersecting labels: "+str([t.cs for t in conflict_list]))
         intersectan_girado = intersectan
@@ -1097,12 +1097,12 @@ def separate_labels(canvas):
 
     
 def se_cortan (label_modif,i,j):
-  # Devuelve si las etiquetas está separadas entre los aviones i y j de ejercicio
+  # Devuelve si las fichas está separadas entre los aviones i y j de ejercicio
     if ejercicio[i].is_flying():
         (xip,yip) = do_scale(ejercicio[i].get_coords())
         xis , yis = xip + label_modif[i][0] , yip + label_modif[i][1]
         xii , yii = xis + ejercicio[i].vt.label_width , yis + ejercicio[i].vt.label_height
-        # Comprobamos las cuatro esquinas del avión j y que no se corten los soportes de etiquetas, asícomo ningn plot
+        # Comprobamos las cuatro esquinas del avión j y que no se corten los soportes de fichas, asícomo ningn plot
         if ejercicio[j].is_flying():
             (xjp,yjp) = do_scale(ejercicio[j].get_coords())
             xjs , yjs = xjp + label_modif[j][0] , yjp + label_modif[j][1]
@@ -1274,7 +1274,7 @@ def b_parar():
         h_inicio=fact_t*time()-t0
         reloj_funciona=False
         
-def b_tamano_etiquetas():
+def b_tamano_fichas():
     global label_font, label_font_size
     LABEL_MIN_FONT_SIZE = 7
     LABEL_MAX_FONT_SIZE = 11
@@ -1944,7 +1944,7 @@ def ventana_auxiliar(e):
             but_zoom_menos.pack(side=LEFT,expand=1,fill=X)
             but_standard = Button(ventana,bitmap='@'+IMGDIR+'center.xbm',command=b_standard)
             but_standard.pack(side=LEFT,expand=1,fill=X)
-            but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_etiquetas)
+            but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_fichas)
             but_tamano_etiq.pack(side=LEFT,expand=1,fill=X)
             but_term = Button(ventana,text='Kill',command=kill_acft)
             but_term.pack(side=LEFT,expand=1,fill=X)
@@ -2080,7 +2080,7 @@ def ventana_auxiliar(e):
             but_zoom_menos.grid(column=5,row=1,sticky=E+W)
             but_standard = Button(ventana,bitmap='@'+IMGDIR+'center.xbm',command=b_standard)
             but_standard.grid(column=6,row=1,sticky=E+W)
-            but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_etiquetas)
+            but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm',command=b_tamano_fichas)
             but_tamano_etiq.grid(column=7,row=1)
             def cambia_vect_vel(e=None):
                 set_speed_time(float(var_vect_vel.get())/60.)

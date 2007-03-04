@@ -28,6 +28,9 @@ import Aircraft
 import Route
 from Pseudopilot import DepTabular
 
+from Pseudopilot import DepTabular
+import ConfMgr
+
 SNDDIR='./snd/'
 
 class UCS(RaDisplay):
@@ -61,24 +64,32 @@ class UCS(RaDisplay):
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
         
-        offset=0
-        delta=30
         
-        self.giw = GeneralInformationWindow(self, fir.sectors, (self.sector), position=(offset, offset))
-        offset += delta
-        self.clock=RaClock(self.c,position=[offset, offset])
+        posx = int(ConfMgr.read_option(self.sector, "PosGIx", "0"))
+        posy = int(ConfMgr.read_option(self.sector, "PosGIy", "0"))
+        self.PosGI = [posx, posy]
+        posx = int(ConfMgr.read_option(self.sector,"PosClockx", "10"))
+        posy = int(ConfMgr.read_option(self.sector, "PosClocky", "50"))
+        self.PosClock = [posx, posy]
+        posx = int(ConfMgr.read_option(self.sector, "PosTabularx", "10"))
+        posy = int(ConfMgr.read_option(self.sector, "PosTabulary", "120"))
+        self.PosTabular = [posx, posy]
+        posx = int(ConfMgr.read_option(self.sector, "PosDepTabularx", "720"))
+        posy = int(ConfMgr.read_option(self.sector,"PosDepTabulary", "580"))
+        self.PosDepTabular = [posx, posy]
+        
+        self.giw = PPGeneralInformationWindow(self, fir.sectors, (self.sector), position=self.PosGI)
+        self.clock=RaClock(self.c,position=self.PosClock)
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
-        offset += delta
         #self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
         #self.print_tabular.legend['text']='INDICATIV'
         #self.print_tabular.adjust(0,10,0,10)
-        offset += delta
-        self.dep_tabular = DepTabular(self, self.c,mode = 'atc',position=[offset, offset])
+        self.dep_tabular = DepTabular(self, self.c,position=self.PosDepTabular)
         self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
         self.center_x = self.width/2
-        self.center_y = self.height/2
+        self.center_y = (self.height-40.)/2
         self.get_scale()
         self.reposition()
         self.redraw()
@@ -365,6 +376,16 @@ class UCS(RaDisplay):
         pass
     
     def exit(self):
+        
+        ConfMgr.write_option(self.sector, "PosGIx", str(self.giw._x))
+        ConfMgr.write_option(self.sector, "PosGIy", str(self.giw._y))
+        ConfMgr.write_option(self.sector, "PosClockx", str(self.clock._x))
+        ConfMgr.write_option(self.sector, "PosClocky", str(self.clock._y))
+        #ConfMgr.write_option(self.sector, "PosTabularx", str(self.print_tabular._x))
+        #ConfMgr.write_option(self.sector, "PosTabulary", str(self.print_tabular._y))
+        ConfMgr.write_option(self.sector, "PosDepTabularx", str(self.dep_tabular._x))
+        ConfMgr.write_option(self.sector, "PosDepTabulary", str(self.dep_tabular._y)) 
+
         self.clock.close()
         del (self.clock)
         del(self.toolbar.master)
@@ -484,7 +505,7 @@ class ventana_auxiliar:
             master.get_scale()
             master.reposition()
                             
-        def b_tamano_etiquetas(event):
+        def b_tamano_fichas(event):
             if event.num == 1:
                 step_increment = LABEL_SIZE_STEP
             elif event.num == 3:
@@ -599,9 +620,9 @@ class ventana_auxiliar:
         
         self.but_tamano_etiq = Button(ventana,bitmap='@'+IMGDIR+'labelsize.xbm')
         self.but_tamano_etiq.pack(side=LEFT,expand=1,fill=X)
-        self.but_tamano_etiq.bind("<Button-1>",b_tamano_etiquetas)
-        self.but_tamano_etiq.bind("<Button-2>",b_tamano_etiquetas)
-        self.but_tamano_etiq.bind("<Button-3>",b_tamano_etiquetas)
+        self.but_tamano_etiq.bind("<Button-1>",b_tamano_fichas)
+        self.but_tamano_etiq.bind("<Button-2>",b_tamano_fichas)
+        self.but_tamano_etiq.bind("<Button-3>",b_tamano_fichas)
         
         self.but_term = Button(ventana,text='Kill',state=DISABLED)
         self.but_term.pack(side=LEFT,expand=1,fill=X)
