@@ -1,0 +1,32 @@
+-DLH3312, taxi to Dusseldof via bravo gate
+-OAL3385, say callsign
+-IBE4330, ascienda a nivel de vuelo uno dos siete coma uno. Adiós.
+-Si un controlador va a la cárcel, ¿al salir tiene que volver a habilitarse?
+GBUBC: Madrid APP, this is GBUBC at flight level 3700.|APP: GBUBC, Roger. Contact Houston Space Center.
+BAW723: CEANA TWR, Speedbird 723.|TWR: Speedbird 723, CEANA TWR, go ahead.|BAW723: CEANA TWR, Speedbird 723 has a message to transmit.|TWR: Speedbird 723, CEANA TWR ready to copy your message.|BAW723: CEANA TWR, Speedbird 723, message is: MAYDAY, MAYDAY, MAYDAY.
+-AFR345, pist in use 30
+-IBE2311, aproximación de CEANA, muy buenas. Notifique nivel que requiere.|-IBE2311 con destino LECE. Requerimos nivel de vuelo cero.
+APP: IBE325, ¿no va Vd un poco a la izquierda del localizador?|IBE325: Es correcto... y mi copiloto un poco a la derecha.
+APP: IBE125, haga un 180 y esperas sobre CANES.|IBE125: ¿Sabe Vd que nos cuesta 1000 Euros cada vuelta en el circuito de espera?|APP: IBE125, recibido. Notifique si se queda sin saldo.
+APP: UAL212, traffic at twelve, 6 miles ahead, Fokker 50, eastbound.|UAL212: APP, we have that Fokker in sight.
+APP: GBUBC, say fuelstate.|GBUBC: Fuelstate|APP: GBUBC, say again?|GBUBC: Again....
+RUTA: Delta 351, your traffic at 10 o'clock, 7 miles!|DAL351: Request another hint. We have digital watches!
+APP: BAW2327, confirm you have copied HOTEL information.|BAW2327: Negative, Sir. Report room number.
+TWR: GBEBU, are you a Cessna?|GBEBU: No, sir...I am a Caucasian male.
+APP: JKK2327, reduzca indicada a 120 nudos.|JKK2327: ¿Sabe Vd cuál es la velocidad de pérdida de este avión con flaps|extendidos?|APP: Ni idea, pero seguramente su copiloto pueda decírselo.
+APP: T2207, climb to FL380. Climb at 5000 fpm or higher.|...|APP: T2207, report heading.|T2207: Up, Sir.
+TWR: IBE2365, llame a APP en 121,7. Buen vuelo.|IBE2365: APP en 121,7. Hemos visto alguna clase de animal muerto en el|extremo de pista.|TWR: JKK2328, autorizado a despegar, viento 24010. ¿Ha copiado del IBE2365?|JKK2328: Hemos copiado y avisado a catering. Muchas gracias.
+APP: AFR9027, are you an Airbus 340 or an Airbus 320?|AFR9027: An Airbus 340, Sir, AFR9027.|APP: Would you mind switching the other two engines on and climbing at 1000 fpm?
+BAW789: This is Speedbird 789, requesting pushback.|ATC: And where is the world's most experienced pilot going today without filing a flight plan?
+TWR: Have you got enough fuel or not?|Piloto: Yes.|TWR: Yes what?|Piloto: Yes, SIR!
+KLM242: Good morning, Frankfurt ground, KLM 242 request start up and push back.|TWR: KLM242 expect start up in two hours.|KLM242: Please confirm two hours delay?|TWR: Affirmative.|KLM242: Roger. In that case, cancel the good morning!
+APP: ECECB, notifique altura y posición.|ECECB: Mido 1,80 y estoy sentado.
+APP: BAW4444D, traffic at 2 o'clock, 500 ft below you.|BAW4444D: Well, we see a light coming towards us.|APP: Look again - there's probably a plane behind that light.
+ATC: AAL2766, say altitude.|AAL2766: ALTITUDE!|APP: AAL2766, say airspeed.|AAL2766: AIRSPEED!|APP: AAL2766, say cancel IFR flight plan.|AAL2766: Flight level 90, one five zero knots indicated!
+APP (mujer): IBE2625, ¿quiere que le ponga a 10 millas de la toma?|IBE2625 (hombre): Inténtelo, inténtelo.
+TWR: BAW761, it looks like one of your baggage doors is open.|BAW761: Ah, thanks tower, but you must be looking at our APU door.|TWR: Okay, BAW761, cleared for  takeoff, wind 22015.|BAW761: Cleared for takeoff, BAW761.|(El avión rota)|TWR: BAW761, ahh ... it appears that your APU is leaking luggage...
+ATC: N1234, confirm you have current ATIS.|N1234: N1234 has Whiskey.|Unidentified pilot: In that case, welcome to the party!
+IBE23: Torre, de IBE23. Hemos visto una vaca entre Tango y la pista.|TWR: IBE23, ¿me dice exactamente a qué altura?|IBE23: A cero pies.
+-CEANA TWR: ECDAV, copy traffic information.|-ECDAV: Go ahead for ECDAV.|-CEANA TWR: ECDAV, flock of birds overflying RWY 30.
+-Alumno: ¿Es cierto que los aviones reducen tanto su velocidad cuando descienden?.|-Instructor: Sí, es cierto, debido a que al volar más cerca del suelo tienen más traqueteo y además les afecta más la atracción terrestre.
+-ATC: EZY3522, turn right 30 degrees for noise abatement |-EZY3352: Confirm right turn? We are at FL350. How much noise can we make up here? |-ATC: Have you ever heard the noise a 737 makes when it hits a 747?

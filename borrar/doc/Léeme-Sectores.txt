@@ -1,0 +1,145 @@
+Construcción de los ficheros .fir
+=================================
+
+Estos ficheros contienen toda la información del espacio aéreo que vamos a controlar. A continuación se detallan todas las secciones con las características de cada sección.
+
+DATOS
+-----
+En esta sección hay una sola línea que tiene el nombre del espacio aéreo que estamos definiendo
+
+[datos]
+nombre: AppConv
+
+PUNTOS
+------
+En esta sección se definen todos los puntos del espacio aéreo. Los puntos se definen por un nombre y sus coordenadas x,y en unos ejes cartesianos antihorarios -x creciente hacia el Este, y creciente hacia el Norte-. Es importante que las coordenadas se den en millas náuticas (NM), ya que las velocidades de las aeronaves de dan en kts (NM/h). En cualquier caso, las unidades tienen que ser coherentes con las unidades de velocidad definidas en el fichero 'Modelos_avo.txt'.
+Para definir los procedimientos, y otras cosas se utilizan puntos auxiliares que no son puntos reales del espacio aéreo, por lo que puede no interesarnos que sus nombres se vean con el resto de puntos. En estos casos se debe comenzar el nombre por un guión bajo ('_'). De esta manera no se pone el nombre con el resto de puntos ni al dibujar la ruta del avión.
+
+[puntos]
+PDT: 114.35,115.25
+CJN: 118.98,205.34
+etc...
+
+RUTAS QUE QUEREMOS VER REPRESENTADAS
+------------------------------------
+En el siguiente apartado se definen las rutas que se dibujarán al representar el espacio aéreo como una serie de puntos separados por comas. Es importante que los nombres se pongan en mayúsculas. Cada ruta lleva asociado un número (que no tiene ningún especial) que la diferencia del resto de rutas.
+Nota: Dado que las coordenadas de los puntos tienen errores, es recomendable dibujar las rutas de VOR a VOR. De esta manera las rutas se ven rectas aunque los puntos por los que pasa no estén perfectamente alineados. Naturalmente, esto no afecta para nada a los planes de vuelo de los aviones, que deben incluir todos los puntos de la ruta y procederán por cada uno ellos.
+
+[rutas]
+1: PDT,CJN,TLD
+2: TLD,NVS,BGS,SNR
+etc...
+
+TMA's
+-----
+En el siguiente apartado se definen las líneas que se dibujarán al representar los límites de los TMA's como una serie de puntos separados por comas. Es importante que los nombres se pongan en mayúsculas. Cada línea lleva asociado un número (que no tiene ningún especial) que la diferencia del resto de líneas. Habitualmente, los nombres de estos puntos empiezan por '_' ya que no queremos ver sus nombres visualizados en la pantalla.
+
+[tmas]
+1: _TMA1,_TMA2,_TMA3,_TMA1
+etc...
+
+ZONAS DELTA Y RESTRINGIDAS
+--------------------------
+En el siguiente apartado se definen las líneas que se dibujarán al representar los límites de las zonas delta y restingidas como una serie de puntos separados por comas. Es importante que los nombres se pongan en mayúsculas. Cada línea lleva asociado un número (que no tiene ningún especial) que la diferencia del resto de líneas. Habitualmente, los nombres de estos puntos empiezan por '_' ya que no queremos ver sus nombres visualizados en la pantalla
+
+[deltas]
+1: _LED481,_LED482,_LED483,_LED481
+2: _TSA34B1,_TSA34B2,_TSA34B3,_TSA34B4,_TSA34B1
+etc...
+
+AEROPUERTOS
+-----------
+Cuando un avión alcanza el último punto de su ruta, mantiene su rumbo constante. Este comportamiento no interesa cuando este punto es un aeropuerto o un IAF, ya que deberían hacer esperas allí. Estos puntos son los que se incluyen en este apartado.
+
+[aeropuertos]
+1: LEBB,LEZL,TERRA,MARES,PDT,CANES,etc...
+
+ESPERAS PUBLICADAS
+------------------
+En este apartado se incluyen las esperas publicadas para el espacio aéreo. En caso de que un avión ejecute una espera sobre un fijo, buscará los parámetros en este apartado. En caso de no encontrarlos, mantendrá un rumbo de acercamiento igual al que mantenía, hará alejamientos de un minuto y virajes a izquierdas. Los valores de definición son los siguientes:
+FIJO: rumbo de acercamiento,tiempo de alejamiento en minutos, sentido del giros (D/I)
+
+[esperas]
+TERRA : 300.0,1.0,D
+etc...
+
+AEROPUERTOS CON PROCEDIMIENTOS
+------------------------------
+Se incluye el nombre del aeropuerto, junto con una lista de las pistas que tiene. El nombre del aeropuerto debe coincidir con el indicativo OACI del mismo, para poder identificarlo con el destino del avión. Los nombres de las pistas deben ir separadas por comas y sin espacios. Estos nombres se utilizan para encontrar los procedimientos SID, STAR y de aproximación.
+Nota: La primera pista se considera como la pista preferente y será la elegida por defecto.
+
+[aeropuertos_con_procedimientos] 
+LEBB = LEBB30,LEBB12
+etc...
+
+PROCEDIMIENTOS SID / STAR / APROXIMACIÓN
+----------------------------------------
+Cada pista de cada aeropuerto debe tener sus respectivos apartados SID, STAR y APP en los que se especifican cada uno de los procedimientos.
+Los procedimientos SID/STAR van incluidos en una sección que se llama [sid_XXXXXX] y [star_XXXXXX], siendo XXXX la pista a la que se refieren. Dentro del apartado se define cada procedimiento con su nombre y a continuación los puntos que la componen separados por comas. Por ejemplo para la pista LEBB30 podría ser:
+  
+[sid_LEBB30]
+NORTA1A = CNA,_COM1,_COM2,_COM3,_N1A1,_N1A2,_N1A3,_N1A4,_N1A5,NORTA
+ROKIS1A = CNA,_COM1,_COM2,_COM3,ROKIS
+etc...
+
+[star_LEBB30]
+MANTO1E = MANTO,CNA,_CNATERRA,TERRA
+ROKIS1E = ROKIS,CNA,_CNATERRA,TERRA
+etc..
+
+Los procedimientos de aproximación se definen con el nombre del IAF desde el que comienzan. Al tratarse de un simulador, solamente se admite un procedimiento para cada IAF. La aproximación de define en tres partes diferenciadas:
+1.- Puntos desde el IAF (sin incluirlo) con la altitud a la que deben descender los aviones en cada tramo. No tiene por qué haber ninguno, pero interesa que haya al menos un punto para definir la altitud inicial de aproximación.
+2.- Datos del localizador: nombre de la radioayuda, radial que debe seguir inbound, distancia desde el umbral hasta la radioayuda, la pendiente de la senda de planeo y finalmente la altitud del umbral.
+Nota: En el caso de tratarse de una aproximación visual, debe tratarse como una ILS a efectos de simulador.
+3.- Valor de 'True'
+4.- Puntos que componen la frustrada, así como las altitudes a las que debe ascender en cada tramo.
+
+[app_LEBB30]
+TERRA = _APPT1,4400,LLZ,CNA,120,2.0,0.05,400,True,CNA,5000,TERRA,5000
+
+Después de TERRA, procedería al punto ficticio _APPT1con una altitud inicial de aproximación de 4400ft. El descenso a esta altitud inicial se hace al autorizar la aproximación. Una vez que ha pasado _APPT1, intercepta el radial 120 de CNA inbound y sigue la senda de planeo que comienza en el 2.0DME RDL120CNA, con una pendiente del 5 % (0.05) y a una altitud del umbral de 400 ft . En caso de aproximación frustrada, procedería a CNA y después TERRA, ascendiendo a 5000ft, donde entraría en la espera.
+
+SECTORES DEL ESPACIO AÉREO
+--------------------------
+Los datos de los distintos sectores se dan en las secciones [sector%i], donde %i es un número diferente para cada sector. Para cada sector se dan los siguientes datos:
+1.- el nombre del sector
+2.- separación radar a emplear en NM (para separación convencional se recomienda poner 0.1, ya que la separación se basa en procedimientos y éstos no están incluidos en el simulador
+3.- auto_departure: Indica si los aviones despegan a la hora prevista o si tenemos que despegarlos nosotros manualmente. Puede tener dos valores "AUTO" o "MANUAL"
+4.- límites del sector
+5.- fijos de impresión en fichas. Los fijos de impresión se agrupan en dos categorías:
+   5.1.- Fijos de impresión: son los principales del sector.
+   5.2.- Fijos de impresión secundarios: se utilizan únicamente en el caso de que el vuelo no pase por ningún fijo principal.
+   5.3.- Fijos de impresion de salidas de aerodromos locales: se usan como para salidas desde AD
+   5.4.- Fijos de impresión de arribadas a aerodromos locales: se usan como 
+ para arribadas al AD
+	El formarto para definir estas secciones será:
+		a) Salidas-> 	printing_fixes_dep_XXXX	donde XXXX es el indicativo del AD
+		b) Arribadas->	printing_fixes_arr_XXXX	donde XXXX es el indicativo del AD
+Nota: En el caso de que un avión no pasase por ninguno de los fijos anteriores, el programa saca ficha de un fijo intermedio del avión.
+6.- Aeropuertos dentro de nuestro sector
+7.- Aeropuertos cuyas salidas requieren un suelto del controlador. Hace que las salidas aparezcan en la lista de despegues y que se imprima la ficha de coordinación
+
+[sector1]
+nombre:APPCONV
+min_sep:0.1
+auto_departure:MANUAL
+limites: _TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMXJ,LEBB
+fijos_de_impresion: CNA,TERRA,MARES
+fijos_de_impresion_secundarios: NORTA,TACOS,ROKIS,MANTO,DUMAS,35DME
+local_ads:LECE
+released_required_ads:LECE
+printing_fixes_dep_LECE: NORTA,TACOS
+printing_fixes_arr_LECE:
+
+[sector2]
+nombre:RUTA RADAR
+min_sep:8.0
+auto_departure:AUTO
+limites: _RUTA1,_RUTA2,_RUTA3,_RUTA4,_RUTA5,_RUTA1
+fijos_de_impresion: PDT,BAN,BLV,PPN
+fijos_de_impresion_secundarios: ORBIS
+local_ads:LEXJ,LEBB,LEBG
+released_required_ads:LEXJ,LEBB
+etc...
+
+$Id$

@@ -1,0 +1,37 @@
+﻿ualizado a $Date$
+
+TODO's CRUJISIM
+===============
+
+CAMBIOS DE ARQUITECTURA
+- Reescribir avion.py y tpv.py. Es necesario modularizar el tratamiento de
+rutas. Una ruta debe ser un objeto inteligente que admita añadir y eliminar
+tramos, así como mantener información de estimadas, requerimientos de pasos
+por nivel, etc.
+- La impresión de fichas y elementos asociados del plan de vuelo deben ser
+tratados desde unos nuevos módulos TLPV y TDVM, a los que deben conectarse
+las posiciones de controlador, en lugar de hacerlo directamente al GTA como
+lo hacen ahora. De ese modo también podremos empezar a simular el
+transpodedor y la correlación o no de las trazas.
+
+ERRORES
+- El comando de autorizar a aproximación pregunta al usuario el destino y el
+fijo de aproximación, pero no utiliza esa información 
+- Es necesario recuperar la funcionalidad del tabular de notificaciones y
+las tormentas, que se perdió al desarrollar la nueva presentación radar.
+
+MEJORAS
+- No estamos teniendo en cuenta si los aviones están equipados RVSM, ni a la
+hora de presentar las fichas, ni para decidir cuándo se está produciendo un crujido.
+- El nuevo metepasadas aún no admite introducir datos de requerimientos.
+- Deben desaparecer los LADs unidos a aviones que han aterrizado
+- A�dir una opci� para poder inhabilitar el PAC y/o el VAC
+
+TODO's METEPASADAS
+=====================================
+ERRORES
+- Al cambiar los datos generales de una pasada no se modifica el nombre del
+archivo de ejercicio.
+- Si creas una pasada que ya está creada al grabarla no te avisa de que va a sobreescribir otra.
+
+$Id$

@@ -1,0 +1,54 @@
+Cómo definir mapas locales
+
+En el archivo de descripción de FIR pueden definirse mapas locales. Para
+ello hay que incluir una sección [mapas_locales], con un único elemento
+llamado "mapas", que contendrá la lista de secciones que van a definir los
+mapas locales. Luego, en secciones separadas, se irán definiendo los diferentes
+mapas.
+
+Por ejemplo:
+
+[mapas_locales]
+mapas:mapa1,mimapa,mapa3
+
+[mapa1]
+...se define mapa1...
+
+[mimapa]
+...se define mimapa...
+
+[mapa3]
+...se define mapa3...
+
+
+
+La sección correspondiente a cada mapa debe contener un elemento llamado
+"nombre", que contendrá el nombre del mapa que la aplicación muestra en el
+menú. También contendrá un elemento por cada objeto gráfico del mapa. Los
+objetos soportados son: textos, líneas, rectángulos, óvalos y arcos.
+
+Ejemplo:
+
+[mapa1]
+nombre:Mapa Ejemplo 1
+objeto1:texto,342.0,-412.5,Esto es un texto de ejemplo,blue
+objeto2:ovalo,342.0,-410.0,350.0,-400.0,green
+
+
+Los nombres de los elementos gráficos son irrelevantes. El formato de los
+objetos gráficos es:
+
+texto,x,y,texto[,color]
+linea,x0,y0,x1,y1[,color]
+ovalo,x0,y0,x1,y1[,color]
+arco,x0,y0,x1,y1,angulo_inicial,angulo_subtendido[,color]
+
+En el caso del óvalo, (x0,y0), (x1,y1) son las coordenadas del rectángulo que
+rodea al óvalo.
+
+Los arcos se representan como "trozos de elipse". Las coordenadas (x0,y0), (x1,y1)
+son las coordenadas del rectángulo que rodea a la elipse, el ángulo inicial (en grados)
+se toma considerando el eje x como ángulo 0, y el ángulo subtendido se mide en grados.
+
+--
+$Id$
