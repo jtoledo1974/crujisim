@@ -28,7 +28,6 @@ import Aircraft
 import Route
 from Pseudopilot import DepTabular
 
-from Pseudopilot import DepTabular
 import ConfMgr
 
 SNDDIR='./snd/'
@@ -64,27 +63,19 @@ class UCS(RaDisplay):
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
         
+        offset=0
+        delta=30
         
-        posx = int(ConfMgr.read_option(self.sector, "PosGIx", "0"))
-        posy = int(ConfMgr.read_option(self.sector, "PosGIy", "0"))
-        self.PosGI = [posx, posy]
-        posx = int(ConfMgr.read_option(self.sector,"PosClockx", "10"))
-        posy = int(ConfMgr.read_option(self.sector, "PosClocky", "50"))
-        self.PosClock = [posx, posy]
-        posx = int(ConfMgr.read_option(self.sector, "PosTabularx", "10"))
-        posy = int(ConfMgr.read_option(self.sector, "PosTabulary", "120"))
-        self.PosTabular = [posx, posy]
-        posx = int(ConfMgr.read_option(self.sector, "PosDepTabularx", "720"))
-        posy = int(ConfMgr.read_option(self.sector,"PosDepTabulary", "580"))
-        self.PosDepTabular = [posx, posy]
-        
-        self.giw = PPGeneralInformationWindow(self, fir.sectors, (self.sector), position=self.PosGI)
-        self.clock=RaClock(self.c,position=self.PosClock)
+        self.giw = GeneralInformationWindow(self, fir.sectors, (self.sector), position=(offset, offset))
+        offset += delta
+        self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
+        offset += delta
         #self.print_tabular = RaTabular(self.c, position=[x1,y1], anchor=NW,label="FICHAS",closebuttonhides=True)
         #self.print_tabular.legend['text']='INDICATIV'
         #self.print_tabular.adjust(0,10,0,10)
-        self.dep_tabular = DepTabular(self, self.c,position=self.PosDepTabular)
+        offset += delta
+        self.dep_tabular = DepTabular(self, self.c,mode = 'atc',position=[offset, offset])
         self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
@@ -376,16 +367,6 @@ class UCS(RaDisplay):
         pass
     
     def exit(self):
-        
-        ConfMgr.write_option(self.sector, "PosGIx", str(self.giw._x))
-        ConfMgr.write_option(self.sector, "PosGIy", str(self.giw._y))
-        ConfMgr.write_option(self.sector, "PosClockx", str(self.clock._x))
-        ConfMgr.write_option(self.sector, "PosClocky", str(self.clock._y))
-        #ConfMgr.write_option(self.sector, "PosTabularx", str(self.print_tabular._x))
-        #ConfMgr.write_option(self.sector, "PosTabulary", str(self.print_tabular._y))
-        ConfMgr.write_option(self.sector, "PosDepTabularx", str(self.dep_tabular._x))
-        ConfMgr.write_option(self.sector, "PosDepTabulary", str(self.dep_tabular._y)) 
-
         self.clock.close()
         del (self.clock)
         del(self.toolbar.master)
