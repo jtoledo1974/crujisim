@@ -1,6 +1,0 @@
-# Mapping format
-# DA - Datos de adaptación, U - Usuario, E - Ejercicio
-# C - Promoción (Course), P - Fase (Phase), D - Día, P - Pasada, S - Turno (Shift)
-[Mappings]
-DA33U01E009 = C23P1D01P1SM,C23P1D03P1SM
-DA33U01E010 = C23P1D01P2SM,C23P1D03P2SM
