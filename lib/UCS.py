@@ -692,7 +692,7 @@ class ventana_auxiliar:
             master.change_speed_vector(self.speed_vector_var.get()/60.)
         cnt_vect_vel = Control(ventana, label="Vel:", min=0, max=5, integer=1, command=cambia_vect_vel, variable=self.speed_vector_var)
         cnt_vect_vel.pack(side=LEFT,expand=1,fill=X)
-        cnt_vel_reloj = Control(ventana, label="Clock X:", min=0.5, max=99.0, step=0.1, state=DISABLED)
+        cnt_vel_reloj = Control(ventana, label="Reloj X:", min=0.5, max=99.0, step=0.1, state=DISABLED)
         cnt_vel_reloj.pack(side=LEFT,expand=1,fill=X)
         
         self.toolbar_id=w.create_window(0,alto,width=ancho,window=ventana,anchor='sw')
