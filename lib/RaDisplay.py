@@ -166,12 +166,16 @@ class RaDisplay(object):
                 if self.label_moved:
                     reactor.callInThread(self.separate_labels, vt)
                     self.label_moved = False
-        if item=='leader':
+        elif item=='leader':
             if action=='<Button-1>' or action=='<Button-3>':
                 reactor.callInThread(self.separate_labels, vt)
-        if item=='transfer':
+        elif item=='transfer':
             m={"message":"transfer", "cs": vt.cs}
             self.sendMessage(m)
+        elif item=='echo':
+            m={"message":"set_echo","cs":vt.cs,"echo":value}
+            self.sendMessage(m)
+  
 
     
     def b1_cb(self,e=None):

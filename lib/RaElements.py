@@ -1825,6 +1825,7 @@ class VisTrack(object): # ensure a new style class
             ra_tag_bind(self.c,self.cs.i,"<Button-3>",self.cs_b3)
             ra_tag_bind(self.c,self.echo.i,"<Button-3>",self.echo_b3)
             ra_tag_bind(self.c,self.alt.i,"<Button-1>",self.change_altitude)
+            ra_tag_bind(self.c,self.echo.i,"<Button-1>",self.change_echo)
             # PP bindings
             if self.vt.mode=='pp':
                 ra_tag_bind(self.c,self.gs.i,"<Button-2>",self.gs_b2)
@@ -1836,6 +1837,7 @@ class VisTrack(object): # ensure a new style class
             # ATC bindings
             elif self.vt.mode=='atc':
                 ra_tag_bind(self.c,self.cfl.i,"<Button-1>",self.change_altitude)
+                
             
         def reformat(self):
             """Recalculates the text for the label items, and the new label geometry"""
@@ -2215,8 +2217,43 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<KP_Enter>",set_speed)
             self.c.bind_all("<Escape>",close_win)
             
-        #def __del__(self):
-        #    logging.debug("Label.__del__")
+        def change_echo(self,e):
+            # TODO we should look for server reply to confirm value setting
+            # in the same way we do for cfl and rate
+            
+            win = Frame(self.c)
+            lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-2)
+            lbl_echo = Label(win, text="MNS MANUAL:")
+            ent_echo = Entry(win, width=5)
+            ent_echo.insert(0, self.echo.t)
+            
+            but_Acp = Button(win, text="Aceptar")
+            but_Can = Button(win, text="Cancelar")
+            lbl_cls.grid(row=0,columnspan=2,sticky=W+E)
+            lbl_echo.grid(row=1, column=0)
+            ent_echo.grid(row=1, column=1)
+            but_Acp.grid(row=2, column=0, columnspan=2,sticky=W+E)
+            but_Can.grid(row=3, column=0, columnspan=2,sticky=W+E)
+            window_ident = self.c.create_window(e.x, e.y, window=win)
+            ent_echo.focus_set()
+            
+            def close_win(e=None,ident=window_ident,w=self.c):
+                w.unbind_all("<Return>")
+                w.unbind_all("<KP_Enter>")
+                w.unbind_all("<Escape>")
+                self.c.delete(ident)
+            def set_echo(e=None):
+                echo = ent_echo.get().upper()[:5]
+                self.vt.echo=echo
+                self.vt._message_handler(self.vt,'echo','update',echo,e)
+                close_win()
+            
+            but_Acp['command'] = set_echo
+            but_Can['command'] = close_win
+            self.c.bind_all("<Return>",set_echo)
+            self.c.bind_all("<KP_Enter>",set_echo)
+            self.c.bind_all("<Escape>",close_win)
+            
 
 class LAD(object):
     """Línea azimut distance = azimut distance line

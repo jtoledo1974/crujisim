@@ -450,6 +450,12 @@ class GTA:
             if p.client.type == PSEUDOPILOT: f.trans_pp_pos = True
             #if p.client.type==ATC: f.atc_pos = None
             #else: f.pp_pos = None
+        elif m['message']=="set_echo":
+          logging.debug("Set ECHO "+str(m))
+          try:
+              f.campo_eco=m["echo"]
+          except: logging.warning("Error while setting ECHO",
+                                    exc_info = True)
         else:
             logging.critical("Unknown message type in message "+str(m))
         # If any an action has been taken on a flight, update this flight
