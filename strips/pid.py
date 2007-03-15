@@ -1,4 +1,5 @@
 # $Id: pid.py,v 1.2 2000/10/22 15:16:55 clee Exp $
+#-*- coding:iso8859-15 -*-
 # based upon 
 # piddle.py -- Plug In Drawing, Does Little Else
 # Copyright (C) 1999  Joseph J. Strout

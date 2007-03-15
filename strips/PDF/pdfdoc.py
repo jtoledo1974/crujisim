@@ -1,4 +1,5 @@
 #pdfdoc.py
+#-*- coding:UTF-8 -*-
 """ 
 PDFgen is a library to generate PDF files containing text and graphics.  It is the 
 foundation for a complete reporting solution in Python.  
@@ -173,7 +174,7 @@ class PDFDocument:
         i = 1
         self.xref = []
         f.write("%PDF-1.2" + LINEEND)  # for CID support
-        f.write("%�춾" + LINEEND)
+        f.write("%íì¶¾" + LINEEND)
         for obj in self.objects:
             pos = f.tell()
             self.xref.append(pos)
@@ -199,7 +200,7 @@ class PDFDocument:
     def printPDF(self):
         "prints it to standard output.  Logs positions for doing trailer"
         print "%PDF-1.0"
-        print "%�춾"
+        print "%íì¶¾"
         i = 1
         self.xref = []
         for obj in self.objects:
