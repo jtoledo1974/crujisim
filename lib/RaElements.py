@@ -2218,14 +2218,12 @@ class VisTrack(object): # ensure a new style class
             self.c.bind_all("<Escape>",close_win)
             
         def change_echo(self,e):
-            # TODO we should look for server reply to confirm value setting
-            # in the same way we do for cfl and rate
-            
             win = Frame(self.c)
             lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-2)
             lbl_echo = Label(win, text="MNS MANUAL:")
             ent_echo = Entry(win, width=5)
             ent_echo.insert(0, self.echo.t)
+            ent_echo.select_range(0, END)
             
             but_Acp = Button(win, text="Aceptar")
             but_Can = Button(win, text="Cancelar")
