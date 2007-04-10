@@ -1759,6 +1759,7 @@ class VisTrack(object): # ensure a new style class
             self.gs = self.LabelItem(vt)
             self.mach = self.LabelItem(vt)
             self.echo = self.LabelItem(vt)
+            self.echo.t = ' '
             self.wake = self.LabelItem(vt)
             self.wake.color = SmartColor('')
             self.hdg = self.LabelItem(vt)
@@ -2222,7 +2223,10 @@ class VisTrack(object): # ensure a new style class
             lbl_cls = Label(win, text=self.cs.t,bg='blue',fg='white',width = CHANGE_WIDTH-2)
             lbl_echo = Label(win, text="MNS MANUAL:")
             ent_echo = Entry(win, width=5)
-            ent_echo.insert(0, self.echo.t)
+            try:
+                ent_echo.insert(0, self.echo.t)
+            except:
+                logging.debug("Unable to set echo:"%s,self.echo.t)
             ent_echo.select_range(0, END)
             
             but_Acp = Button(win, text="Aceptar")
