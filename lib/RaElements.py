@@ -2247,7 +2247,7 @@ class VisTrack(object): # ensure a new style class
             def set_echo(e=None):
                 echo = ent_echo.get().upper()[:5]
                 self.vt.echo=echo
-                self.vt._message_handler(self.vt,'echo','update',echo,e)
+                self.vt._message_handler(self.vt,'set_echo','update',echo,e)
                 close_win()
             
             but_Acp['command'] = set_echo

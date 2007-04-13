@@ -172,7 +172,7 @@ class RaDisplay(object):
         elif item=='transfer':
             m={"message":"transfer", "cs": vt.cs}
             self.sendMessage(m)
-        elif item=='echo':
+        elif item=='set_echo':
             m={"message":"set_echo","cs":vt.cs,"echo":value}
             self.sendMessage(m)
   
