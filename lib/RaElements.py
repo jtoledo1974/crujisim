@@ -1127,7 +1127,7 @@ class VisTrack(object): # ensure a new style class
     ON, OFF = True, False  
     timer_state = ON  # Toggles when there are timers set between ON and OFF
     ASSUMED_COLOR = 'green'
-    NONASSUMED_COLOR = 'gray'
+    NONASSUMED_COLOR = 'white'
     
     def __init__(self, canvas, message_handler, do_scale, undo_scale):
         """Construct a radar track inside the parent display.
@@ -1185,7 +1185,7 @@ class VisTrack(object): # ensure a new style class
         self.type           = 'B737'
         self.radio_cs       = 'IBERIA'
         self.rfl            = 330       
-        self.color          = SmartColor('gray')
+        self.color          = SmartColor('#88FF88')   #Light green
         self.selected_border_color = SmartColor('yellow')
         
         self._last_t = datetime.datetime.today() - datetime.timedelta(days=1)  # Last time the radar was updated
