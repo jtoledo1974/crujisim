@@ -1185,7 +1185,7 @@ class VisTrack(object): # ensure a new style class
         self.type           = 'B737'
         self.radio_cs       = 'IBERIA'
         self.rfl            = 330       
-        self.color          = SmartColor('#88FF88')   #Light green
+        self.color          = SmartColor('#99DD99')   #Light green
         self.selected_border_color = SmartColor('yellow')
         
         self._last_t = datetime.datetime.today() - datetime.timedelta(days=1)  # Last time the radar was updated
