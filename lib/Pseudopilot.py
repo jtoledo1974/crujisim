@@ -1255,10 +1255,14 @@ class DepTabular(RaTabular):
             
         # Build the GUI Dialog
         entries=[]
-        sids = [sid.txt_desig
-                for sid in self.master.fir.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
-        if not dep.sid: dep_sid = ''
-        else: dep_sid = dep.sid.txt_desig
+        try:
+            sids = [sid.txt_desig
+                    for sid in self.master.fir.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
+            dep_sid = dep.sid.txt_desig
+        except:
+            logging.warning("No SIDs found for %s departing from %s"%(dep.callsign,dep.adep))
+            sids = ''
+            dep_sid = ''
         entries.append({'label':'SID:','width':5, 'values':sids, 'def_value':''})
         entries.append({'label':'CFL:','width':3,'def_value':int(dep.cfl)})
         x1=self.container.winfo_x()+self.container.winfo_width()/2

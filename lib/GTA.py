@@ -133,7 +133,7 @@ class GTA:
                                        a.cfl, a.rfl, a.route, eobt = eobt,
                                        wake_hint=a.wake_hint)
                 if not fir.auto_departures[self.sector] \
-                  or a.adep in fir.release_required_ads[self.sector]:
+                  and a.adep in fir.release_required_ads[self.sector]:
                     a.auto_depart = False
             
             self.flights.append(a)
