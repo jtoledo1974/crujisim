@@ -51,6 +51,7 @@ VOR     = 'VOR'
 NDB     = 'NDB'
 FIX     = 'FIX'
 AD      = 'AD'
+TA      = 60 #Transition altitude (/100), used to generate Transition Level (tlevel)
 
 def ra_bind(object, widget, sequence, callback):
     """Creates a TK binding and stores information for later deletion"""
@@ -854,6 +855,7 @@ class GeneralInformationWindow(RaFrame):
         self.radisplay = radisplay
         master = radisplay.c
         self._qnh = 1013.8
+        self.tlevel = 70
         # The frame constructor method will call _build
         RaFrame.__init__(self, master, **def_opt)
 
@@ -884,9 +886,9 @@ class GeneralInformationWindow(RaFrame):
         fg = 'gray90'
         bg = 'black'
         self.qnh_b = Button(self.contents, font=font,
-                    foreground = fg,    #Very yellowed orange color
+                    foreground = 'green', #QNH is 1013.8 (>1013.2)
                     background = bg, text="QNH: %d"%floor(self._qnh))
-        self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'TL: xx', state=DISABLED)
+        self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = "TL: %d"%self.tlevel, state=DISABLED)
         self.mr_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'MULTIRAD', state=DISABLED)
         self.vid_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'SIN VIDEO', state=DISABLED)
         self.ac_b = Button(self.contents, font = font, fg = 'green', bg=bg, text = 'AC', command=self.toggle_pac)
@@ -918,14 +920,39 @@ class GeneralInformationWindow(RaFrame):
         """Method called whenever sector checkboxes are modified"""
         self.radisplay.set_active_sectors([s for s, v in self.sector_vars.items()
                                            if v.get()])   
+    
+    def set_tlevel(self, qnh):
+        if qnh>1013.2:
+            tlevel=TA+10
+        elif qnh <=1013.2 and qnh >=995.1:
+            tlevel=TA+15
+        elif qnh <995.1 and qnh >=977.2:
+            tlevel=TA+20
+        elif qnh <977.2 and qnh >=959.5:
+            tlevel=TA+25
+        elif qnh <959.5:
+            tlevel=TA+30
+        else:
+            tlevel=00
+        try: self.tl_b['text'] = "TL: %d"%tlevel
+        except AttributeError: pass  
+            
     def get_qnh(self):
         return self._qnh
+    
     def set_qnh(self, value):
         self._qnh = value
+        self.set_tlevel(self._qnh)
+        if self._qnh >= 1013.2:
+            fg='green'
+        else:
+            fg='red'
         try: self.qnh_b['text'] = "QNH: %d"%floor(self._qnh)
-        except AttributeError: pass            
+        except AttributeError: pass
+        try: self.qnh_b['foreground'] = fg
+        except AttributeError: pass
     qnh = property(get_qnh, set_qnh)
-        
+    
     def configure(self,**options):
         RaFrame.configure(self,**options)
         
