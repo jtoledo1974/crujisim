@@ -30,3 +30,14 @@ IBE23: Torre, de IBE23. Hemos visto una vaca entre Tango y la pista.|TWR: IBE23,
 -CEANA TWR: ECDAV, copy traffic information.|-ECDAV: Go ahead for ECDAV.|-CEANA TWR: ECDAV, flock of birds overflying RWY 30.
 -Alumno: ¿Es cierto que los aviones reducen tanto su velocidad cuando descienden?.|-Instructor: Sí, es cierto, debido a que al volar más cerca del suelo tienen más traqueteo y además les afecta más la atracción terrestre.
 -ATC: EZY3522, turn right 30 degrees for noise abatement |-EZY3352: Confirm right turn? We are at FL350. How much noise can we make up here? |-ATC: Have you ever heard the noise a 737 makes when it hits a 747?
+-IBE 3212, autorizado a aterrizar pista 30, precaución, Jumbo en pista.
+-KLM 4542, for traffic separation stand by.
+-This is Madrid Control calling on emergency guard.
+-Piloto: AFR 3222, over Belen FL 330.|ATC: Looking out.
+-Aproximación, de Torre: La pista está rolando, vamos a cambiar el viento.
+-Aproximación, de Terra.
+-De Toledo: He intentado separar estos dos pero no lo he conseguido. Contigo.
+-Station calling, roger.
+-JKK1122, aterrizado a autorizar.
+-ATC: ECDHP, autorizado a despegar. Piloto: eeehh… en estos momentos estamos abandonando CTR.ECDHP.
+-DAH 7736, maintain present heading or less.

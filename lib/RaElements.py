@@ -886,7 +886,7 @@ class GeneralInformationWindow(RaFrame):
         fg = 'gray90'
         bg = 'black'
         self.qnh_b = Button(self.contents, font=font,
-                    foreground = 'green', #QNH is 1013.8 (>1013.2)
+                    foreground = 'green', 
                     background = bg, text="QNH: %d"%floor(self._qnh))
         self.tl_b = Button(self.contents, font = font, fg = fg, bg=bg, text = "TL: %d"%self.tlevel, state=DISABLED)
         self.mr_b = Button(self.contents, font = font, fg = fg, bg=bg, text = 'MULTIRAD', state=DISABLED)
@@ -943,13 +943,7 @@ class GeneralInformationWindow(RaFrame):
     def set_qnh(self, value):
         self._qnh = value
         self.set_tlevel(self._qnh)
-        if self._qnh >= 1013.2:
-            fg='green'
-        else:
-            fg='red'
         try: self.qnh_b['text'] = "QNH: %d"%floor(self._qnh)
-        except AttributeError: pass
-        try: self.qnh_b['foreground'] = fg
         except AttributeError: pass
     qnh = property(get_qnh, set_qnh)
     
