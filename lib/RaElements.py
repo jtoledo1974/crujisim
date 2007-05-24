@@ -1142,7 +1142,7 @@ class VisTrack(object): # ensure a new style class
     """Visual representation of a radar track on either a pseudopilot display
     or a controller display"""
     
-    allitems = [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','pac','vac']
+    allitems = [ 'cs','alt','rate','cfl','gs','mach','wake','spc','echo','hdg','dir','fhdg','pac','vac']
     timer_id = None  # Whenever there are timer based callbacks pending, this is set
     timer_callbacks = []  # List of timer based callbacks and args
     ON, OFF = True, False  
@@ -1196,6 +1196,9 @@ class VisTrack(object): # ensure a new style class
         self.echo           = 'KOTEX'  # Controller input free text (max 5 letters)
         self.hdg            = 200
         self.track          = 200  # Magnetic track
+        self.fhdg           = 200   #Target (future) heading
+        self.dir            = '>'
+        self.draw_fhdg      = False  # Whether or not to draw the future hdg
         self.alt            = 150
         self.draw_cfl       = False  # Whether or not to draw the current cfl
         self.cfl            = 200
@@ -1205,7 +1208,8 @@ class VisTrack(object): # ensure a new style class
         self.ades           = 'LEBB'
         self.type           = 'B737'
         self.radio_cs       = 'IBERIA'
-        self.rfl            = 330       
+        self.rfl            = 330
+        
         self.color          = SmartColor('#99DD99')   #Light green
         self.selected_border_color = SmartColor('yellow')
         
@@ -1713,6 +1717,9 @@ class VisTrack(object): # ensure a new style class
             self._item_refresh_list.append(item)
             if item=='alt': self._item_refresh_list.append('cfl')
             if item=='cfl': self.draw_cfl = True
+            if item=='hdg':
+                self._item_refresh_list.append('fhdg')
+                self._item_refresh_list.append('dir')
     cs   = property(lambda s: s.get_label_item('cs'),   lambda s,v: s.set_label_item('cs', v))
     alt  = property(lambda s: s.get_label_item('alt'),  lambda s,v: s.set_label_item('alt', v))
     rate = property(lambda s: s.get_label_item('rate'), lambda s,v: s.set_label_item('rate', v))
@@ -1723,7 +1730,8 @@ class VisTrack(object): # ensure a new style class
     spc  = property(lambda s: s.get_label_item('spc'),  lambda s,v: s.set_label_item('spc', v))
     echo = property(lambda s: s.get_label_item('echo'), lambda s,v: s.set_label_item('echo', v))
     hdg  = property(lambda s: s.get_label_item('hdg'),  lambda s,v: s.set_label_item('hdg', v))
-
+    fhdg = property(lambda s: s.get_label_item('fhdg'), lambda s,v: s.set_label_item('fhdg', v))
+    dir  = property(lambda s: s.get_label_item('dir'),  lambda s,v: s.set_label_item('dir', v))
     def destroy(self):
         self.delete()
         self._l.destroy()
@@ -1739,12 +1747,12 @@ class VisTrack(object): # ensure a new style class
         formats={'pp':{-1:['pac','vac'],
                        0:['cs'],                      # pp = Pseudopilot
                        1:['alt','rate','cfl'],
-                       2:['hdg'],
+                       2:['hdg','dir','fhdg'],
                        3:['gs','wake','spc','echo']},
                  'pp-mach':{-1:['pac','vac'],
                             0:['cs'],
                             1:['alt','rate','cfl'],
-                            2:['hdg'],
+                            2:['hdg','dir','fhdg'],
                             3:['mach','wake','spc','echo']},
                 'atc':{-1:['pac','vac'],
                             0:['cs'],
@@ -1784,9 +1792,10 @@ class VisTrack(object): # ensure a new style class
             self.wake = self.LabelItem(vt)
             self.wake.color = SmartColor('')
             self.hdg = self.LabelItem(vt)
+            self.dir = self.LabelItem(vt)
             self.spc = self.LabelItem(vt)
             self.spc.t = ' '
-            
+            self.fhdg = self.LabelItem(vt)
             self.pac = self.LabelItem(vt)     
             self.pac.t = 'PAC'
             self.pac.color = SmartColor('')
@@ -1918,6 +1927,45 @@ class VisTrack(object): # ensure a new style class
                 else: self.wake.color.set(vt.color.get())
             elif i=='hdg':
                 self.hdg.t='%03d'%(int(vt.hdg))
+                if vt.draw_fhdg:
+                    if (vt.hdg-vt.fhdg)>2.:
+                        self.fhdg.t='%03d'%(int(vt.fhdg))
+                    elif (vt.hdg-vt.fhdg)<-2.:
+                        self.fhdg.t='%03d'%(int(vt.fhdg))
+                    else:
+                        vt.draw_fhdg = False
+                        self.fhdg.t = ''
+                else:
+                    self.fhdg.t = ''
+            elif i=='dir':
+                if vt.draw_fhdg:
+                    if (vt.hdg-vt.fhdg)>2.:
+                        if abs(vt.hdg-vt.fhdg)<180:
+                            self.dir.t='<'
+                        else:
+                            self.dir.t='>'
+                    elif (vt.hdg-vt.fhdg)<-2.:
+                        if abs(vt.hdg-vt.fhdg)<180:
+                            self.dir.t='>'
+                        else:
+                            self.dir.t='<'
+                    else:
+                        self.dir.t = '  '
+                else:
+                    self.dir.t = '  '
+            elif i=='fhdg':
+                self.fhdg.t='%03d'%(int(vt.fhdg))
+                 #logging.debug(self.fhdg.t)
+                if vt.draw_fhdg:
+                    if (vt.hdg-vt.fhdg)>2.:
+                        self.fhdg.t='%03d'%(int(vt.fhdg))
+                    elif (vt.hdg-vt.fhdg)<-2.:
+                        self.fhdg.t='%03d'%(int(vt.fhdg))
+                    else:
+                        vt.draw_fhdg = False
+                        self.fhdg.t = ''
+                else:
+                    self.fhdg.t = ''
             elif i=='alt':
                 self.alt.t='%03d'%(int(vt.alt+0.5))
             elif i=='rate':
@@ -2139,9 +2187,11 @@ class VisTrack(object): # ensure a new style class
                 w.unbind_all("<Escape>")
                 self.c.delete(ident)
             def set_heading(e=None):
-                hdg = ent_hdg.get()
+                fhdg=ent_hdg.get()
+                self.vt.fhdg=int(fhdg)
+                self.vt.draw_fhdg = TRUE
                 opt = ent_side.cget('value')
-                self.vt._message_handler(self.vt,'hdg','update',(hdg,opt),e)
+                self.vt._message_handler(self.vt,'hdg','update',(fhdg,opt),e)
                 close_win()
             but_Acp['command'] = set_heading
             but_Can['command'] = close_win
