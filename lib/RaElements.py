@@ -1198,6 +1198,7 @@ class VisTrack(object): # ensure a new style class
         self.track          = 200  # Magnetic track
         self.fhdg           = 200   #Target (future) heading
         self.dir            = '>'
+        self.opc            = 'ECON'
         self.draw_fhdg      = False  # Whether or not to draw the future hdg
         self.alt            = 150
         self.draw_cfl       = False  # Whether or not to draw the current cfl
@@ -1795,6 +1796,7 @@ class VisTrack(object): # ensure a new style class
             self.dir = self.LabelItem(vt)
             self.spc = self.LabelItem(vt)
             self.spc.t = ' '
+            self.opc = self.LabelItem(vt)
             self.fhdg = self.LabelItem(vt)
             self.pac = self.LabelItem(vt)     
             self.pac.t = 'PAC'
@@ -1938,17 +1940,30 @@ class VisTrack(object): # ensure a new style class
                 else:
                     self.fhdg.t = ''
             elif i=='dir':
-                if vt.draw_fhdg:
-                    if (vt.hdg-vt.fhdg)>2.:
-                        if abs(vt.hdg-vt.fhdg)<180:
-                            self.dir.t='<'
+                if self.opc == 'ECON':
+                    if vt.draw_fhdg:
+                        if (vt.hdg-vt.fhdg)>2.:
+                            if abs(vt.hdg-vt.fhdg)<180:
+                                self.dir.t='<'
+                            else:
+                                self.dir.t='>'
+                        elif (vt.hdg-vt.fhdg)<-2.:
+                            if abs(vt.hdg-vt.fhdg)<180:
+                                self.dir.t='>'
+                            else:
+                                self.dir.t='<'
                         else:
-                            self.dir.t='>'
-                    elif (vt.hdg-vt.fhdg)<-2.:
-                        if abs(vt.hdg-vt.fhdg)<180:
-                            self.dir.t='>'
-                        else:
-                            self.dir.t='<'
+                            self.dir.t = '  '
+                    else:
+                        self.dir.t = '  '
+                elif self.opc == 'DCHA':
+                    if vt.draw_fhdg:
+                        self.dir.t='>'
+                    else:
+                        self.dir.t = '  '
+                elif self.opc == 'IZDA':
+                    if vt.draw_fhdg:
+                        self.dir.t='<'
                     else:
                         self.dir.t = '  '
                 else:
@@ -2191,6 +2206,7 @@ class VisTrack(object): # ensure a new style class
                 self.vt.fhdg=int(fhdg)
                 self.vt.draw_fhdg = TRUE
                 opt = ent_side.cget('value')
+                self.opc = opt
                 self.vt._message_handler(self.vt,'hdg','update',(fhdg,opt),e)
                 close_win()
             but_Acp['command'] = set_heading
