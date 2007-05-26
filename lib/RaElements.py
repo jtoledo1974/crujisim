@@ -1953,8 +1953,8 @@ class VisTrack(object): # ensure a new style class
                             else:
                                 self.dir.t='<'
                         else:
-                            self.dir.t = '  '
-                    else:
+                            self.dir.t = '  '# Two spaces, as wide as the >,
+                    else:                   # so that a reformat is not necessary
                         self.dir.t = '  '
                 elif self.opc == 'DCHA':
                     if vt.draw_fhdg:
@@ -1970,12 +1970,16 @@ class VisTrack(object): # ensure a new style class
                     self.dir.t = '  '
             elif i=='fhdg':
                 self.fhdg.t='%03d'%(int(vt.fhdg))
-                 #logging.debug(self.fhdg.t)
                 if vt.draw_fhdg:
                     if (vt.hdg-vt.fhdg)>2.:
                         self.fhdg.t='%03d'%(int(vt.fhdg))
                     elif (vt.hdg-vt.fhdg)<-2.:
-                        self.fhdg.t='%03d'%(int(vt.fhdg))
+                        if self.fhdg.t == '360' and self.hdg.t == '000': #HDG is never 360,
+                            vt.draw_fhdg = False                         #changes to 000
+                            self.fhdg.t = ''
+                            self.dir.t = '  '
+                        else:
+                            self.fhdg.t='%03d'%(int(vt.fhdg))
                     else:
                         vt.draw_fhdg = False
                         self.fhdg.t = ''
