@@ -2065,7 +2065,8 @@ class VisTrack(object): # ensure a new style class
             self.vt._message_handler(self.vt,'mach','<Button-2>',None,e)
         def echo_b3(self,e):
             self.vt._message_handler(self.vt,'echo','<Button-3>',None,e)
-            
+            self.vt.draw_fhdg = False   #If a DIRECT to WP is given, fhdg is not shown
+                                        #TODO: fhdg should be erased when direct is actually given
         
         def change_altitude(self,e=None):
             win = Frame(self.c)
