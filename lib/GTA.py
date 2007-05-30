@@ -43,10 +43,10 @@ except:
   logging.exception ("Error while importing the Twisted Framefork modules")
 
 # Application imports
-import ConfMgr
+#import ConfMgr
 import Aircraft
 import Route
-conf = ConfMgr.CrujiConfig()
+#conf = ConfMgr.CrujiConfig()
 from RemoteClient import PSEUDOPILOT, ATC
 import FIR
 from Exercise import Exercise
@@ -57,9 +57,10 @@ import TLPV
 QNH_STD_VAR = 0.0005
 
 class GTA:
-    def __init__(self, exc_file = ""):
+    def __init__(self, conf, exc_file = ""):
+        self.conf = conf
         self.exercise_file = exc_file
-
+        
         logging.info("Loading exercise "+exc_file)
         e=Exercise(exc_file)
         
@@ -121,7 +122,7 @@ class GTA:
                 continue
             
             a.lvl = int(ef.firstlevel)
-
+            
             # TODO We need to know which of the flights are true departures. We assume that 
             # if the aircraft departs from an airfield local to the FIR,
             # the EOBT is the estimate to the first point in the route
@@ -158,7 +159,7 @@ class GTA:
 
         
     def start(self, port=-1):
-        if port==-1: port=conf.server_port
+        if port==-1: port=self.conf.server_port
         try:
             self.listening_port = reactor.listenTCP(port, self.protocol_factory)
             logging.info("Servidor iniciado y esperando conexiones en el puerto "+str(port))

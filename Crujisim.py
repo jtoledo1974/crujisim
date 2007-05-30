@@ -437,7 +437,7 @@ class Crujisim:
             
         self.MainWindow.hide()
         try:
-            defer = RemoteClient().connect(host, int(port), output["type"])
+            defer = RemoteClient(conf).connect(host, int(port), output["type"])
         except:
             failed()
         defer.addCallback(exit).addErrback(failed)
@@ -456,8 +456,8 @@ class Crujisim:
             self.MainWindow.present()
             pass
         
-        logging.debug("Creating GTA object")    
-        gta = GTA(exc_file)
+        logging.debug("Creating GTA object")
+        gta = GTA(conf,exc_file)
         logging.debug("Starting GTA thread")
         #reactor.callInThread(lambda : gta.start().addCallback(exit))
         #gta.start().addCallback(exit)
@@ -465,7 +465,7 @@ class Crujisim:
         
         self.MainWindow.hide()
         logging.debug("Creating RemoteClient object")
-        RemoteClient().connect("localhost",conf.server_port, PSEUDOPILOT)
+        RemoteClient(conf).connect("localhost",conf.server_port, PSEUDOPILOT)
 
 class ExEditor:
     # Response constants

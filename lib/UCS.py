@@ -28,14 +28,13 @@ import Aircraft
 import Route
 from Pseudopilot import DepTabular
 
-import ConfMgr
 
 SNDDIR='./snd/'
 
 class UCS(RaDisplay):
     """Air Traffic Controllers' radar display and user interface"""
     
-    def __init__(self,title,icon_path,fir,sector,mode='atc'):
+    def __init__(self,conf,title,icon_path,fir,sector,mode='atc'):
         """Instantiate a Pseudopilot Radar Display
         
         title - window title
@@ -46,7 +45,8 @@ class UCS(RaDisplay):
         self.toolbar_height = 60  # Pseudopilot display toolbar height
         self._flights_tracks = {}
         self._tracks_flights = {}
-        RaDisplay.__init__(self,title,icon_path,fir,sector, self.toolbar_height)
+        self.conf = conf
+        RaDisplay.__init__(self,self.conf,title,icon_path,fir,sector,self.toolbar_height)
         self.flights = []
         self.mode = mode
         self.t = datetime.datetime.today()
@@ -369,6 +369,9 @@ class UCS(RaDisplay):
     def exit(self):
         self.clock.close()
         del (self.clock)
+        for map_name in self.fir.local_maps:
+            self.conf.write_option("Aux_Maps",map_name,self.toolbar.var_ver_localmap[map_name].get())
+            
         del(self.toolbar.master)
         del(self.toolbar)
         RaDisplay.exit(self)
@@ -380,6 +383,7 @@ class UCS(RaDisplay):
 class ventana_auxiliar:
     def __init__(self,master):
         self.master=master
+        self.conf=master.conf
         self.opened_windows=[]
         self.vr = IntVar()
         self.vr.set(master.draw_routes)
@@ -403,7 +407,7 @@ class ventana_auxiliar:
         
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
-            self.var_ver_localmap[map_name].set(0)
+            self.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
         
         self.auto_sep = IntVar()
         self.auto_sep.set(self.master.auto_separation)
@@ -509,11 +513,17 @@ class ventana_auxiliar:
         def b_show_hide_localmaps():
             master.local_maps_shown = []
             for map_name in master.fir.local_maps:
-                if self.var_ver_localmap[map_name].get() != 0:
-                    master.local_maps_shown.append(map_name)
-                    master.maps[map_name].show()
-                else:
-                    master.maps[map_name].hide()
+                try:
+                    if self.var_ver_localmap[map_name].get() != 0:
+                        master.local_maps_shown.append(map_name)
+                        self.master.maps[map_name].show()
+                    else:
+                        self.master.maps[map_name].hide()
+                except:
+                    logging.debug("Unable to show/hide localmaps", exc_info=True)
+                    
+        #TODO: To show maps from FIR file at start           
+        b_show_hide_localmaps()
             
         def b_auto_separationaration():
             global auto_separation

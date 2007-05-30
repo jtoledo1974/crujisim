@@ -38,7 +38,6 @@ from Pseudopilot import PpDisplay
 from UCS import UCS
 from FIR import *
 import UI
-from ConfMgr import *
 from StripSeries import StripSeries
 import Route  # In order to set the fir object
 
@@ -97,6 +96,8 @@ class GTA_Client_Protocol(NetstringReceiver):
 
 class RemoteClient:
     
+    def __init__(self, conf):
+        self.conf = conf
     
     def connect(self, ip, port, type, connectionLost=None):
         d=self.d=defer.Deferred()
@@ -132,10 +133,10 @@ class RemoteClient:
             window_name = exc_file+" ("+ str(sector)+")"            
             if self.type==PSEUDOPILOT:
                 logging.debug("Creating PpDisplay object")
-                d=self.display=PpDisplay(window_name,'./img/crujisim.ico',fir,sector,mode='pp')
+                d=self.display=PpDisplay(self.conf,window_name,'./img/crujisim.ico',fir,sector,mode='pp')
             elif self.type==ATC:
                 logging.debug("Creating UCS object")
-                d=self.display=UCS(window_name,'./img/crujisim.ico',fir,sector,mode='atc')
+                d=self.display=UCS(self.conf,window_name,'./img/crujisim.ico',fir,sector,mode='atc')
             d.sendMessage = self.protocol.sendMessage
             try:d.pos_number = m['pos_number']
             except: logging.warning("Unable to set pos_number")

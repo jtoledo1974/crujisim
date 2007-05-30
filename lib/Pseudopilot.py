@@ -33,7 +33,7 @@ SNDDIR='./snd/'
 class PpDisplay(RaDisplay):
     """Radar display with a pseudopilot interface"""
     
-    def __init__(self,title,icon_path,fir,sector,mode='pp'):
+    def __init__(self,conf,title,icon_path,fir,sector,mode='pp'):
         """Instantiate a Pseudopilot Radar Display
         
         title - window title
@@ -41,11 +41,11 @@ class PpDisplay(RaDisplay):
         fir -- fir object
         sector -- name of the sector to work with
         """
-
+        self.conf = conf
         self.toolbar_height = 60  # Pseudopilot display toolbar height
         self._flights_tracks = {}
         self._tracks_flights = {}
-        RaDisplay.__init__(self,title,icon_path,fir,sector, self.toolbar_height)
+        RaDisplay.__init__(self,self.conf,title,icon_path,fir,sector,self.toolbar_height)
         self.flights = []
         self.mode = mode
         self.t = datetime.datetime.today()
@@ -58,10 +58,9 @@ class PpDisplay(RaDisplay):
         self.clock_speed_var = DoubleVar()
         self.clock_speed_var.set(1.0)
             
-        self.update_tracks()
         self.toolbar = ventana_auxiliar(self)
         self.toolbar.redraw()
-        
+        self.update_tracks()
         
         #To get previous position of clock and tabs
         
@@ -408,8 +407,11 @@ class PpDisplay(RaDisplay):
         ConfMgr.write_option(self.sector, "PosTabularx", str(self.print_tabular._x))
         ConfMgr.write_option(self.sector, "PosTabulary", str(self.print_tabular._y))
         ConfMgr.write_option(self.sector, "PosDepTabularx", str(self.dep_tabular._x))
-        ConfMgr.write_option(self.sector, "PosDepTabulary", str(self.dep_tabular._y)) 
-
+        ConfMgr.write_option(self.sector, "PosDepTabulary", str(self.dep_tabular._y))
+        
+        for map_name in self.fir.local_maps:
+            self.conf.write_option("Aux_Maps",map_name,self.toolbar.var_ver_localmap[map_name].get())
+      
         # Avoid memory leaks due to circular references preventing
         # the garbage collector from discarding this object
         del(self.toolbar.master)
@@ -426,6 +428,7 @@ class PpDisplay(RaDisplay):
 class ventana_auxiliar:
     def __init__(self,master):
         self.master=master
+        self.conf=master.conf
         self.opened_windows=[]
         self.vr = IntVar()
         self.vr.set(master.draw_routes)
@@ -446,11 +449,9 @@ class ventana_auxiliar:
         self.var_ver_desp_tab.set(1)
         self.var_ver_fichas_tab = IntVar()
         self.var_ver_fichas_tab.set(1)
-
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
-            self.var_ver_localmap[map_name].set(0)
-        
+            self.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
         self.auto_sep = IntVar()
         self.auto_sep.set(self.master.auto_separation)
         self.speed_vector_var = IntVar()
@@ -476,8 +477,7 @@ class ventana_auxiliar:
         scale=master.scale
         
         w.delete(self.toolbar_id)
-
-
+        
         MINIMUM_DISPLACEMENT = 80
         NORMAL_DISPLACEMENT = 10
         MAXIMUM_DISPLACEMENT = 3
@@ -565,12 +565,18 @@ class ventana_auxiliar:
         def b_show_hide_localmaps():
             master.local_maps_shown = []
             for map_name in master.fir.local_maps:
-                if self.var_ver_localmap[map_name].get() != 0:
-                    master.local_maps_shown.append(map_name)
-                    master.maps[map_name].show()
-                else:
-                    master.maps[map_name].hide()
-            
+                try:
+                    if self.var_ver_localmap[map_name].get() != 0:
+                        master.local_maps_shown.append(map_name)
+                        self.master.maps[map_name].show()
+                    else:
+                        self.master.maps[map_name].hide()
+                except:
+                    logging.debug("Unable to show/hide localmaps", exc_info=True)
+                    
+        #TODO: To show maps from FIR file at start           
+        b_show_hide_localmaps()
+           
         def b_auto_separationaration():
             global auto_separation
             auto_separation = not auto_separation

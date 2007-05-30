@@ -39,5 +39,5 @@ IBE23: Torre, de IBE23. Hemos visto una vaca entre Tango y la pista.|TWR: IBE23,
 -De Toledo: He intentado separar estos dos pero no lo he conseguido. Contigo.
 -Station calling, roger.
 -JKK1122, aterrizado a autorizar.
--ATC: ECDHP, autorizado a despegar. Piloto: eeehh… en estos momentos estamos abandonando CTR.ECDHP.
+-ATC: ECDHP, autorizado a despegar.|Piloto: eeehh… en estos momentos estamos abandonando CTR.ECDHP.
 -DAH 7736, maintain present heading or less.

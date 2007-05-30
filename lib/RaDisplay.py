@@ -39,7 +39,7 @@ class RaDisplay(object):
     
     This class requires that a Tk session is already active
     """
-    def __init__(self,title,icon_path,fir,sector,toolbar_height):
+    def __init__(self,conf,title,icon_path,fir,sector,toolbar_height):
         """Instantiate a generic Radar Display
         
         title - window title
@@ -50,6 +50,7 @@ class RaDisplay(object):
         
         self.fir=fir
         self.sector=sector
+        self.conf=conf
         
         self.top_level=Toplevel()
         tl = self.top_level
@@ -90,14 +91,15 @@ class RaDisplay(object):
         self.scale=1.0  # Scale factor between screen and world coordinates
         
         self.maps               = {}  # Dictionary of map objects
-        self.draw_routes = True
-        self.draw_point = True
-        self.draw_sector = True
-        self.draw_lim_sector = True
-        self.draw_point_names = True
-        self.draw_tmas = True
-        self.draw_deltas = False
-
+        
+        #Get values stored (map = active/non-active) in cujisim.ini
+        self.draw_point_names   = self.conf.read_option("Maps","Point_names",True,"bool")
+        self.draw_point         = self.conf.read_option("Maps","Points",True,"bool")
+        self.draw_routes        = self.conf.read_option("Maps","Routes",True,"bool")
+        self.draw_sector        = self.conf.read_option("Maps","Sector",True,"bool")
+        self.draw_lim_sector    = self.conf.read_option("Maps","Lim_sector",True,"bool")
+        self.draw_tmas          = self.conf.read_option("Maps","TMAs",True,"bool")
+        self.draw_deltas        = self.conf.read_option("Maps","Deltas",True,"bool")
         
         self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
         self.local_maps_shown = []
@@ -799,6 +801,16 @@ class RaDisplay(object):
         self.maps['SUA'].toggle()
         
     def exit(self):
+        # Save map options
+        
+        self.conf.write_option("Maps","Point_names",self.draw_point_names)
+        self.conf.write_option("Maps","Points",self.draw_point)
+        self.conf.write_option("Maps","Routes",self.draw_routes)
+        self.conf.write_option("Maps","Sector",self.draw_sector)
+        self.conf.write_option("Maps","Lim_sector",self.draw_lim_sector)
+        self.conf.write_option("Maps","TMAs",self.draw_tmas)
+        self.conf.write_option("Maps","Deltas",self.draw_deltas)
+        
         # Drop bindings
         ra_clearbinds(self)
         # Delete map objects

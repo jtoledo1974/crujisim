@@ -69,7 +69,7 @@ class CrujiConfig(object):
         self.cp.write(config_fp)
         config_fp.close()
                 
-    def read_option(self,section, name, default_value=None, type="string"):
+    def read_option(self, section, name, default_value=None, type="string"):
         """Returns current value for the specified option in the specified section.
         If there is no current value for this option (either the configuration file,
         the section or the option do not exist), return the value indicated in default_value.
@@ -84,9 +84,27 @@ class CrujiConfig(object):
         except:
             logging.debug("Failed to read option: "+str(name))
             value=default_value
-
-        return value
             
+        return value
+    
+    def write_option(self, section, name, value):
+        """Set new value for the specified option in the specified section.
+        If the section or the option were not present before this call, create
+        them. If the configuration file is missing, create it.
+        """
+        try:
+            config_fp=open(_config_file_name, "r")
+            self.cp.readfp(config_fp)
+            config_fp.close()
+        except:
+            logging.warning("Application configuration file missing. Creating it.")
+        if not(self.cp.has_section(section)):
+            self.cp.add_section(section)
+        self.cp.set(section, name, value)
+        config_fp=open(_config_file_name, "w+")
+        self.cp.write(config_fp)
+        config_fp.close()   
+
 
 def read_option(section, name, default_value=None):
     """Returns current value for the specified option in the specified section.
