@@ -266,7 +266,7 @@ class RaFrame(object):
 
         if not self._kw.has_key('position'): pos=(0,0)
         else: pos=self._kw['position']
-        if not self._kw.has_key('anchor'): anchor=NW
+        if not self._kw.has_key('anchor'): anchor=CENTER
         else: anchor=self._kw['anchor']
 
         # We reset x and y only if this is the first time we are placing the
@@ -621,7 +621,7 @@ class RaClock(RaFrame):
         SPECIFIC OPTIONS
         time -- a text string to display
         """
-        def_opt={'position':(5,5), 'anchor':NW, 'closebutton':False, 'undockbutton':False}
+        def_opt={'position':(5,5), 'anchor':CENTER, 'closebutton':False, 'undockbutton':False}
         def_opt.update(kw)
         # The frame constructor method will call _build
         RaFrame.__init__(self, master, **def_opt)
@@ -637,7 +637,7 @@ class RaClock(RaFrame):
                     font=('Courier','20','bold'),
                     foreground="#%04x%04x%04x" % (63736,46774,7453),    #Very yellowed orange color
                     background='black')                                 
-        self._time.grid(padx=5,pady=2)
+        self._time.grid(padx=5,pady=5)
         
     def configure(self,**options):
         RaFrame.configure(self,**options)

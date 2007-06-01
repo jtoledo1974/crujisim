@@ -26,7 +26,6 @@ from time import time, sleep
 from RaDisplay import *  # This also imports all RaElements classes
 import Aircraft
 import Route
-import ConfMgr
 
 SNDDIR='./snd/'
 
@@ -59,22 +58,20 @@ class PpDisplay(RaDisplay):
         self.clock_speed_var.set(1.0)
             
         self.toolbar = ventana_auxiliar(self)
-        self.toolbar.redraw()
-        self.update_tracks()
         
         #To get previous position of clock and tabs
         
-        posx = int(ConfMgr.read_option(self.sector, "PosGIx", "0"))
-        posy = int(ConfMgr.read_option(self.sector, "PosGIy", "0"))
+        posx = int(self.conf.read_option(self.sector, "PosGIx", "0"))
+        posy = int(self.conf.read_option(self.sector, "PosGIy", "0"))
         self.PosGI = [posx, posy]
-        posx = int(ConfMgr.read_option(self.sector, "PosClockx", "10"))
-        posy = int(ConfMgr.read_option(self.sector, "PosClocky", "50"))
+        posx = int(self.conf.read_option(self.sector, "PosClockx", "10"))
+        posy = int(self.conf.read_option(self.sector, "PosClocky", "50"))
         self.PosClock = [posx, posy]
-        posx = int(ConfMgr.read_option(self.sector, "PosTabularx", "10"))
-        posy = int(ConfMgr.read_option(self.sector, "PosTabulary", "120"))
+        posx = int(self.conf.read_option(self.sector, "PosTabularx", "10"))
+        posy = int(self.conf.read_option(self.sector, "PosTabulary", "120"))
         self.PosTabular = [posx, posy]
-        posx = int(ConfMgr.read_option(self.sector, "PosDepTabularx", "720"))
-        posy = int(ConfMgr.read_option(self.sector, "PosDepTabulary", "580"))
+        posx = int(self.conf.read_option(self.sector, "PosDepTabularx", "720"))
+        posy = int(self.conf.read_option(self.sector, "PosDepTabulary", "580"))
         self.PosDepTabular = [posx, posy]
         
         self.giw = PPGeneralInformationWindow(self, fir.sectors, (self.sector), position=self.PosGI)
@@ -88,12 +85,26 @@ class PpDisplay(RaDisplay):
 
         self.dep_tabular = DepTabular(self, self.c,position=self.PosDepTabular)
         self.dep_tabular.adjust(0,32,0,0)
+
+        #Get stored values to show/hide the local maps
+        for map_name in self.fir.local_maps:
+            self.toolbar.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
+    
+        #Get stored values to show/hide the auxiliary tabs (Departures and Printed Strips)
+        dep_tab = self.conf.read_option("Aux_Tabs","Dep_tabular",True,"bool")
+        if dep_tab: self.dep_tabular.show()
+        else: self.dep_tabular.hide()
         
-     
+        print_tab = self.conf.read_option("Aux_Tabs","Print_tabular",True,"bool")
+        if dep_tab: self.print_tabular.show()
+        else: self.print_tabular.hide()
+        
         self.center_x = self.width/2
         self.center_y = (self.height-40.)/2
         self.get_scale()
         self.reposition()
+        self.toolbar.redraw()
+        self.update_tracks()
         self.redraw()
         self.separate_labels()
         
@@ -400,17 +411,20 @@ class PpDisplay(RaDisplay):
     def exit(self):
         self.clock.close()
         
-        ConfMgr.write_option(self.sector, "PosGIx", str(self.giw._x))
-        ConfMgr.write_option(self.sector, "PosGIy", str(self.giw._y))
-        ConfMgr.write_option(self.sector, "PosClockx", str(self.clock._x))
-        ConfMgr.write_option(self.sector, "PosClocky", str(self.clock._y))
-        ConfMgr.write_option(self.sector, "PosTabularx", str(self.print_tabular._x))
-        ConfMgr.write_option(self.sector, "PosTabulary", str(self.print_tabular._y))
-        ConfMgr.write_option(self.sector, "PosDepTabularx", str(self.dep_tabular._x))
-        ConfMgr.write_option(self.sector, "PosDepTabulary", str(self.dep_tabular._y))
+        self.conf.write_option(self.sector, "PosGIx", str(self.giw._x))
+        self.conf.write_option(self.sector, "PosGIy", str(self.giw._y))
+        self.conf.write_option(self.sector, "PosClockx", str(self.clock._x))
+        self.conf.write_option(self.sector, "PosClocky", str(self.clock._y))
+        self.conf.write_option(self.sector, "PosTabularx", str(self.print_tabular._x))
+        self.conf.write_option(self.sector, "PosTabulary", str(self.print_tabular._y))
+        self.conf.write_option(self.sector, "PosDepTabularx", str(self.dep_tabular._x))
+        self.conf.write_option(self.sector, "PosDepTabulary", str(self.dep_tabular._y))
+        
+        self.conf.write_option("Aux_Tabs", "Dep_tabular", bool(self.dep_tabular.showed))
+        self.conf.write_option("Aux_Tabs", "Print_tabular", bool(self.print_tabular.showed))
         
         for map_name in self.fir.local_maps:
-            self.conf.write_option("Aux_Maps",map_name,self.toolbar.var_ver_localmap[map_name].get())
+            self.conf.write_option("Aux_Maps",map_name,bool(self.toolbar.var_ver_localmap[map_name].get()))
       
         # Avoid memory leaks due to circular references preventing
         # the garbage collector from discarding this object
@@ -446,12 +460,9 @@ class ventana_auxiliar:
         self.vd.set(master.draw_deltas)
         self.var_ver_localmap = {}
         self.var_ver_desp_tab = IntVar()
-        self.var_ver_desp_tab.set(1)
         self.var_ver_fichas_tab = IntVar()
-        self.var_ver_fichas_tab.set(1)
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
-            self.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
         self.auto_sep = IntVar()
         self.auto_sep.set(self.master.auto_separation)
         self.speed_vector_var = IntVar()
@@ -1111,7 +1122,6 @@ class ventana_auxiliar:
             #self.but_reports = Button(ventana_tabs, text='Notificaciones',
             #                     command = acftnotices.show, state=DISABLED)
             #self.but_reports.grid(column=0,row=0,sticky=E+W)
-            
             self.var_ver_desp_tab.set(master.dep_tabular.showed)
             self.var_ver_fichas_tab.set(master.print_tabular.showed)
             self.but_departures = Checkbutton(ventana_tabs, text='Despegues',variable=self.var_ver_desp_tab,
@@ -1193,7 +1203,6 @@ class DepTabular(RaTabular):
         self.legend['text']='INDICATIV'+' '+'ORIG'+' '+'DEST'+' '+'HDEP '+' '+'TIPO '+' '+'SID'
         ra_bind(radisplay, self.list, "<Button-1>", self.clicked)
         self.deps=[]
- 
 
     def update(self):
         """Update the tabular using the given departure list"""

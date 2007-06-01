@@ -61,7 +61,6 @@ class UCS(RaDisplay):
             
         self.update_tracks()
         self.toolbar = ventana_auxiliar(self)
-        self.toolbar.redraw()
         
         offset=0
         delta=30
@@ -79,10 +78,20 @@ class UCS(RaDisplay):
         self.dep_tabular.adjust(0,32,0,0)
         # self.dep_tabular.hide()
         
+        #Get stored values to show/hide the local maps
+        for map_name in self.fir.local_maps:
+            self.toolbar.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
+    
+        #Get stored values to show/hide the auxiliary tabs (Departures)
+        dep_tab = self.conf.read_option("Aux_Tabs","Dep_tabular",True,"bool")
+        if dep_tab: self.dep_tabular.show()
+        else: self.dep_tabular.hide()
+        
         self.center_x = self.width/2
         self.center_y = (self.height-40.)/2
         self.get_scale()
         self.reposition()
+        self.toolbar.redraw()
         self.redraw()
         self.separate_labels()
         
@@ -369,9 +378,11 @@ class UCS(RaDisplay):
     def exit(self):
         self.clock.close()
         del (self.clock)
+        #Save local map options
         for map_name in self.fir.local_maps:
-            self.conf.write_option("Aux_Maps",map_name,self.toolbar.var_ver_localmap[map_name].get())
-            
+            self.conf.write_option("Aux_Maps",map_name,bool(self.toolbar.var_ver_localmap[map_name].get()))
+        #Save Departure tabular status (showed or not)
+        self.conf.write_option("Aux_Tabs", "Dep_tabular", bool(self.dep_tabular.showed))
         del(self.toolbar.master)
         del(self.toolbar)
         RaDisplay.exit(self)
@@ -401,13 +412,10 @@ class ventana_auxiliar:
         self.vd.set(master.draw_deltas)
         self.var_ver_localmap = {}
         self.var_ver_desp_tab = IntVar()
-        self.var_ver_desp_tab.set(1)
         self.var_ver_fichas_tab = IntVar()
-        self.var_ver_fichas_tab.set(1)
         
         for map_name in master.fir.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
-            self.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
         
         self.auto_sep = IntVar()
         self.auto_sep.set(self.master.auto_separation)
