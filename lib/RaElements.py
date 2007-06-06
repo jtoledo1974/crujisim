@@ -33,6 +33,8 @@ from twisted.internet import reactor
 from FIR import *
 from MathUtil import *
 
+import ConfMgr
+
 # Globals
 
 _radialogs={} # List of all dialogs, to avoid duplicates
@@ -266,7 +268,7 @@ class RaFrame(object):
 
         if not self._kw.has_key('position'): pos=(0,0)
         else: pos=self._kw['position']
-        if not self._kw.has_key('anchor'): anchor=CENTER
+        if not self._kw.has_key('anchor'): anchor=NW
         else: anchor=self._kw['anchor']
 
         # We reset x and y only if this is the first time we are placing the
@@ -1101,15 +1103,16 @@ class RaBrightness(RaFrame):
        
         
     def _build(self, master=None, windowed=False, **kw):
-
+        A=(1.0-0.35)/25
+        B=1.0
         RaFrame._build(self, master=master, windowed=windowed,  **kw)
-        #self.contents["bg"] = self.bd
-        #self.contents.pack(fill=BOTH,expand=1)
- 
+        
         gvar = DoubleVar()  # General
         tvar = DoubleVar()  # Tracks
         mvar = DoubleVar()  # Maps
         lvar = DoubleVar()  # LADs
+
+        
         self.scale_colors={'background':self.bd,
                             'highlightbackground':self.bd,
                             'highlightcolor':self.bd,
@@ -1123,12 +1126,11 @@ class RaBrightness(RaFrame):
             B=1.0
             cb({"GLOBAL":A*gvar.get()+B, "TRACKS":A*tvar.get()+B,
                       "MAP": A*mvar.get()+B, "LADS":A*lvar.get()+B})
-            
         for t,v in (("G",gvar), ("P",tvar),
                     ("M",mvar), ("L",lvar)):
             f = Frame(self.contents, background=self.bd)
             l = Label(f,text=t,background=self.bd,fg=self.fg)
-            v.set(0)
+            v.set(v.get())
             v.trace("w", changed)
             w = Scale(f, variable = v)
             l.pack(side=TOP)
@@ -1137,6 +1139,7 @@ class RaBrightness(RaFrame):
             w.configure(**self.scale_colors)
             w.configure(showvalue=1, sliderlength=20, from_=50, to=-25, resolution=1, variable = v)
         del(self.callback)
+    
     
 class VisTrack(object): # ensure a new style class
     """Visual representation of a radar track on either a pseudopilot display

@@ -77,6 +77,8 @@ class CrujiConfig(object):
         try:
             if type=="int":
                 value=self.cp.getint(section,name)
+            elif type=="float":
+                value=self.cp.getfloat(section,name)
             elif type=="bool":
                 value=self.cp.getboolean(section,name)
             else:
@@ -106,41 +108,41 @@ class CrujiConfig(object):
         config_fp.close()   
 
 
-def read_option(section, name, default_value=None):
-    """Returns current value for the specified option in the specified section.
-    If there is no current value for this option (either the configuration file,
-    the section or the option do not exist), return the value indicated in default_value.
-    """
-    cp=ConfigParser.ConfigParser()
-    try:
-        config_fp=open(_config_file_name, "r")
-        cp.readfp(config_fp)
-        config_fp.close()
-    except:
-        logging.warning("Trying to read config value, application configuration file missing.")        
-    if cp.has_option(section, name):
-        return cp.get(section, name)
-    else:
-        return default_value
-        
-def write_option(section, name, value):
-    """Set new value for the specified option in the specified section.
-    If the section or the option were not present before this call, create
-    them. If the configuration file is missing, create it.
-    """
-    cp=ConfigParser.ConfigParser()
-    try:
-        config_fp=open(_config_file_name, "r")
-        cp.readfp(config_fp)
-        config_fp.close()
-    except:
-        logging.warning("Application configuration file missing. Creating it.")
-    if not(cp.has_section(section)):
-        cp.add_section(section)
-    cp.set(section, name, value)
-    config_fp=open(_config_file_name, "w+")
-    cp.write(config_fp)
-    config_fp.close()
+#def read_option(section, name, default_value=None):
+#    """Returns current value for the specified option in the specified section.
+#    If there is no current value for this option (either the configuration file,
+#    the section or the option do not exist), return the value indicated in default_value.
+#    """
+#    cp=ConfigParser.ConfigParser()
+#    try:
+#        config_fp=open(_config_file_name, "r")
+#        cp.readfp(config_fp)
+#        config_fp.close()
+#    except:
+#        logging.warning("Trying to read config value, application configuration file missing.")        
+#    if cp.has_option(section, name):
+#        return cp.get(section, name)
+#    else:
+#        return default_value
+#        
+#def write_option(section, name, value):
+#    """Set new value for the specified option in the specified section.
+#    If the section or the option were not present before this call, create
+#    them. If the configuration file is missing, create it.
+#    """
+#    cp=ConfigParser.ConfigParser()
+#    try:
+#        config_fp=open(_config_file_name, "r")
+#        cp.readfp(config_fp)
+#        config_fp.close()
+#    except:
+#        logging.warning("Application configuration file missing. Creating it.")
+#    if not(cp.has_section(section)):
+#        cp.add_section(section)
+#    cp.set(section, name, value)
+#    config_fp=open(_config_file_name, "w+")
+#    cp.write(config_fp)
+#    config_fp.close()
     
 # This is here just for debugging purposes
 if __name__ == "__main__":

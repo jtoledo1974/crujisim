@@ -101,7 +101,6 @@ class RaDisplay(object):
         self.draw_tmas          = self.conf.read_option("Maps","TMAs",True,"bool")
         self.draw_deltas        = self.conf.read_option("Maps","Deltas",True,"bool")
         
-        self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
         self.local_maps_shown = []
         
         self.auto_separation = True  # Separate labels automatically
@@ -126,7 +125,12 @@ class RaDisplay(object):
         
         self.get_scale() # Calculate initial x0, y0 and scale
         
-        self.intensity={"GLOBAL":1.0,"MAP":1.0,"TRACKS":1.0,"LADS":1.0}
+        self.intensity={"GLOBAL":ConfMgr.CrujiConfig().read_option("Brightness", "GLOBAL", 0 ,"float" ),
+                        "TRACKS":ConfMgr.CrujiConfig().read_option("Brightness", "TRACKS", 0 ,"float"),
+                        "MAP":ConfMgr.CrujiConfig().read_option("Brightness", "MAP", 0, "float" ),
+                        "LADS":ConfMgr.CrujiConfig().read_option("Brightness", "LADS", 0, "float" )}
+        
+        
         self.rabrightness = RaBrightness(c, self.set_element_intensity,position=(self.width*0.4,self.height*0.8))
         self.rabrightness.hide()
 
@@ -801,8 +805,8 @@ class RaDisplay(object):
         self.maps['SUA'].toggle()
         
     def exit(self):
-        # Save map options
         
+        # Save map options 
         self.conf.write_option("Maps","Point_names",self.draw_point_names)
         self.conf.write_option("Maps","Points",self.draw_point)
         self.conf.write_option("Maps","Routes",self.draw_routes)
@@ -810,6 +814,15 @@ class RaDisplay(object):
         self.conf.write_option("Maps","Lim_sector",self.draw_lim_sector)
         self.conf.write_option("Maps","TMAs",self.draw_tmas)
         self.conf.write_option("Maps","Deltas",self.draw_deltas)
+        
+        # Save brightness options
+        ConfMgr.CrujiConfig().write_option("Brightness", "GLOBAL",self.intensity["GLOBAL"])
+        ConfMgr.CrujiConfig().write_option("Brightness", "TRACKS",self.intensity["TRACKS"])
+        ConfMgr.CrujiConfig().write_option("Brightness", "MAP",self.intensity["MAP"])
+        ConfMgr.CrujiConfig().write_option("Brightness", "LADS",self.intensity["LADS"])
+        
+        
+        
         
         # Drop bindings
         ra_clearbinds(self)
