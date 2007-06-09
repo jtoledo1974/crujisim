@@ -125,10 +125,10 @@ class RaDisplay(object):
         
         self.get_scale() # Calculate initial x0, y0 and scale
         
-        self.intensity={"GLOBAL":ConfMgr.CrujiConfig().read_option("Brightness", "GLOBAL", 0 ,"float" ),
-                        "TRACKS":ConfMgr.CrujiConfig().read_option("Brightness", "TRACKS", 0 ,"float"),
-                        "MAP":ConfMgr.CrujiConfig().read_option("Brightness", "MAP", 0, "float" ),
-                        "LADS":ConfMgr.CrujiConfig().read_option("Brightness", "LADS", 0, "float" )}
+        self.intensity={"GLOBAL":ConfMgr.CrujiConfig().read_option("Brightness", "GLOBAL", 1.0 ,"float" ),
+                        "TRACKS":ConfMgr.CrujiConfig().read_option("Brightness", "TRACKS", 1.0 ,"float"),
+                        "MAP":ConfMgr.CrujiConfig().read_option("Brightness", "MAP", 1.0, "float" ),
+                        "LADS":ConfMgr.CrujiConfig().read_option("Brightness", "LADS", 1.0, "float" )}
         
         
         self.rabrightness = RaBrightness(c, self.set_element_intensity,position=(self.width*0.4,self.height*0.8))
