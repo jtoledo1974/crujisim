@@ -1,11 +1,8 @@
-# App Radar fase basica
+# App Radar fase bï¿½ica
 [datos]
 nombre: AppRadarBasico
 
 [puntos]
-_833DMEILS33:BRA,8.33,149
-_833RINT:_833DMEILS33,5.0,105
-_833LINT:_833DMEILS33,5.0,195
 HIDRO:80.773,-119.857
 DEMOS:104.223,-274.889
 NARBO:155.467,-269.244
@@ -65,7 +62,7 @@ RONKO:474.651,-276.626
 SURCO:494.193,-287.483
 MARIO:508.524,-295.734
 GRAUS:535.448,-310.499
-DOBAN:430.79,-287.483
+DOVAN:430.79,-287.483
 LARDA:459.017,-297.471
 ZARKO:483.77,-306.591
 KUMAN:502.878,-313.973
@@ -258,41 +255,30 @@ _TMA10:325.633,-435.81
 _TMA11:311.985,-415.451
 _TMA12:318.254,-393.724
 
-[aerovias]
-1:CRISA,VTB
-2:NEA,ORBIS,NVS,CRISA,TLD
-3:DGO,RBO,PDT,VTB,LOGRO
-4:PPN,BAN,PINAR,CJN,CLS
-6:ZMR,NVS,RBO,PINAR,SEGRE,PONEN
-7:BARDI,NVS,GE,PARLA
-8:RAKOD,NVS
-9:CCS,TLD,PARLA,PDT,CANES,CJN,ASTRO
-
 
 [rutas]
+36:_2DMEILS,MA,_6DMEILS,8,_10DMEILS,12,_14DMEILS,_16,_27
+38:_8_D,_8_I
+39:_10DMEILS_D,_10DMEILS_I
+40:_12_D,_12_I
+41:_14DMEILS_D,_14DMEILS_I
 
 [aeropuertos]
 1:LEMD,PDT,GE,_2DME
-[elevaciones]
-1:0020,0024,0021,0024
 
 [tmas]
-;tma_santiago:_TSTG1,_TSTG2,_TSTG3,KORAV,MEGAT,ASTUR,LOMDA,FORNO,_TSTG4,_TSTG5,RALUS,_TSTG6,_TSTG7,NARBO,_TSTG8,_TSTG9,DEMOS
-;tma_asturias:KANDA,_TAVS1,_TAVS2,MUSIL,_TAVS3,_TAVS4,RATPO,_TAVS5,LURIM,_TAVS6,_TAVS7,_TAVS8,KANDA
-;tma_santander:_TSNR1,_TSNR2,_TSNR3,_TSNR4,_TSNR5,_TSNR6,_TSNR7,_TSNR1
-;tma_bilbao:_TBLV1,_TBLV2,_TBLV3,_TBLV4,_TBLV5,_TBLV6,_TBLV7,_TSNR4,_TSNR3,_TBLV1
-;tma_pamplona:_TPPN1,_TPPN2,_TPPN3,_TPPN4,_TPPN5,_TPPN6,_TPPN7,_TPPN1
-;tma_salamanca:_TBBI1,_TBBI2,_TBBI3,_TBBI1
+tma_santiago:_TSTG1,_TSTG2,_TSTG3,KORAV,MEGAT,ASTUR,LOMDA,FORNO,_TSTG4,_TSTG5,RALUS,_TSTG6,_TSTG7,NARBO,_TSTG8,_TSTG9,DEMOS
+tma_asturias:KANDA,_TAVS1,_TAVS2,MUSIL,_TAVS3,_TAVS4,RATPO,_TAVS5,LURIM,_TAVS6,_TAVS7,_TAVS8,KANDA
+tma_santander:_TSNR1,_TSNR2,_TSNR3,_TSNR4,_TSNR5,_TSNR6,_TSNR7,_TSNR1
+tma_bilbao:_TBLV1,_TBLV2,_TBLV3,_TBLV4,_TBLV5,_TBLV6,_TBLV7,_TSNR4,_TSNR3,_TBLV1
+tma_pamplona:_TPPN1,_TPPN2,_TPPN3,_TPPN4,_TPPN5,_TPPN6,_TPPN7,_TPPN1
+tma_salamanca:_TBBI1,_TBBI2,_TBBI3,_TBBI1
 tma_madrid:_TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_TMA9,_TMA10,_TMA11,_TMA12,_TMA1
-;tma_zaragoza:_TZZA1,_TZZA2,_TZZA3,_TZZA4,_TZZA5,_TZZA6,_TZZA7,_TZZA1
+tma_zaragoza:_TZZA1,_TZZA2,_TZZA3,_TZZA4,_TZZA5,_TZZA6,_TZZA7,_TZZA1
 [deltas]
 
 [mapas_locales]
-mapas=mapa1,SIDs,STARs,ILS33,LM_1
-
-[LM_1]
-nombre:LM1
-comandZ01:polyline,#3409a6,_833LINT,_833DMEILS33,_833RINT
+mapas=mapa1,SIDs,STARs
 
 [mapa1]
 nombre:MVA
@@ -353,22 +339,39 @@ mva55:texto,408.639193384,-357.301423664,8000,gray60
 mva56:texto,422.102770992,-398.429886768,7000,gray60
 mva57:texto,365.66640458,-436.054131043,6000,gray60
 
-[ILS33]
-nombre:ILS33
-a36:polyline,gray60,_2DMEILS,_27
-a38:polyline,gray60,_8_D,_8_I
-a39:polyline,gray60,_10DMEILS_D,_10DMEILS_I
-a40:polyline,gray60,_12_D,_12_I
-a41:polyline,gray60,_14DMEILS_D,_14DMEILS_I
-
 [SIDs]
 nombre:SIDs LEMD33
-comandoA01:draw_sid,LEMD33,,gray60
+linea1A:linea,354.197,-392.526,350.706,-386.88,gray60
+linea1B:linea,350.706,-386.88,346.977,-381.284,gray60
+linea1C:linea,346.977,-381.284,322.224,-396.049,gray60
+linea2A:linea,350.706,-386.88,369.993,-369.993,gray60
+linea2B:linea,369.993,-369.993,393.009,-273.587,gray60
+linea3:linea,369.993,-369.993,399.523,-343.503,gray60
+linea4:linea,369.993,-369.993,399.957,-364.348,gray60
+linea5A:linea,350.706,-386.88,371.018,-386.709,gray60
+linea5B:linea,371.018,-386.709,399.957,-401.694,gray60
+linea6:linea,399.957,-401.694,454.24,-486.81,gray60
+linea7:linea,399.957,-401.694,465.531,-444.252,gray60
+linea8:linea,399.957,-364.348,409.946,-362.611,gray60
+linea9:linea,409.946,-362.611,452.069,-354.36,gray60
 
 [STARs]
 nombre:STARs LEMD33
-comandoB01:draw_star,LEMD33,,gray60
-comandoB02:polyline,gray60,PARLA,PDT
+linea7A:linea,329.172,-342.635,346.977,-381.284,gray60
+linea7B:linea,346.977,-381.284,339.756,-408.009,gray60
+linea7C:linea,339.756,-408.009,341.02,-412.70,gray60
+linea7D:linea,341.02,-412.70,359.29,-407.46,gray60
+linea8:linea,322.224,-396.049,339.756,-408.009,gray60
+linea9:linea,355.662,-435.133,341.02,-412.70,gray60
+
+linea10:linea,316.579,-420.368,341.02,-412.70,gray60
+linea11A:linea,399.523,-343.503,399.957,-364.348,gray60
+linea11B:linea,399.957,-364.348,399.957,-401.694,gray60
+linea11C:linea,399.957,-401.694,385.141,-404.245,gray60
+linea11D:linea,385.141,-404.245,362.44,-406.24,gray60
+linea12:linea,422.105,-394.746,399.957,-401.694,gray60
+linea13:linea,454.24,-486.81,399.957,-401.694,gray60
+linea14:linea,465.531,-444.252,399.957,-401.694,gray60
 
 [esperas_publicadas] ; fijo:rumbo acercamiento,tiempo de alejamiento y giros D/I
 ORBIS: 155,1.0,D
@@ -400,16 +403,13 @@ NVS1A: NVS,GE,PARLA,_2DME
 TLD1A: TLD,PARLA,_2DME
 VTB1A: VTB,_VTB1A1,PARLA,_2DME
 
-[app_LEMD33]; Procedimientos de aproximación (APP) y aproximación frustrada (MAP)
-PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000 ; Puntos anteriores hasta LLZ. Después viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorización aterrizaje y puntos MAP
+[app_LEMD33]; Procedimientos de aproximaciï¿½ (APP) y aproximaciï¿½ frustrada (MAP)
+PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Despuï¿½ viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaciï¿½ aterrizaje y puntos MAP
 _2DME = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
-
 [sector1]
 nombre:AppRadarBasico
 min_sep = 5.0
 auto_departure = MANUAL
 limites:_TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6,_TMA7,_TMA8,_TMA9,_TMA10,_TMA11,_TMA12,_TMA1
-local_ads:LEMD
-fijos_de_impresion:PDT,_2DME
-fijos_de_impresion_secundarios:ACD,RBO
-release_required_ads:LEMD
+fijos_de_impresion:PDT
+fijos_de_impresion_secundarios:CNR,NVS,TLD,VTB,CJN,BAN,RBO
