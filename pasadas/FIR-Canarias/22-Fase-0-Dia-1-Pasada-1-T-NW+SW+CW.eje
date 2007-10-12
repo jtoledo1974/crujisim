@@ -1,0 +1,10 @@
+[vuelos]
+baw = B747,H,EGUN,SGEZ,320,320,DEMOS,NELSO,ROSTA,H130101F320V410,NORED,EDUMO
+
+[datos]
+fir = FIR-Canarias
+sector = NW+SW+CW
+viento = 000,00
+comentario = 22-Fase-0-Dia-1-Pasada-1-T OTRO SECTOR EN PRUEBA(1)
+hora_inicio = 13:00
+

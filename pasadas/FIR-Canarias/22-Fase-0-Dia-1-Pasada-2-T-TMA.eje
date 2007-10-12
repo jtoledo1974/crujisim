@@ -1,0 +1,10 @@
+[vuelos]
+baw = B747,H,LEMD,GCLP,330,330,SNT,ORTIS,BRICK,H120301F330V420,GDV,LPC
+
+[datos]
+fir = FIR-Canarias
+sector = TMA
+viento = 000,00
+comentario = 22-Fase-0-Dia-1-Pasada-2-T PUNTOS2(1)
+hora_inicio = 12:01
+

@@ -1,0 +1,10 @@
+[vuelos]
+jkk = B757,H,LEBL,MMMX,340,330,LUPEX,KONBA,GURKA,BRICK,H140101F330V390,GOMER,APASO,USOTI,TENPA
+
+[datos]
+fir = FIR-Canarias
+sector = NW
+viento = 000,00
+comentario = 22-Fase-0-Dia-1-Pasada-1-T SECTOR2PRUEBAS(1)
+hora_inicio = 14:00
+

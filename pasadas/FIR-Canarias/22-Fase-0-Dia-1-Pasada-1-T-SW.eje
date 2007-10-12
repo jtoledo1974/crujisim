@@ -1,0 +1,10 @@
+[vuelos]
+ibe234 = A340,H,LEMD,SBGL,340,340,DEMOS,NELSO,ROSTA,H120101F340V420,NORED,EDUMO
+
+[datos]
+fir = FIR-Canarias
+sector = SW
+viento = 000,00
+comentario = 22-Fase-0-Dia-1-Pasada-1-T PRUEBASSECTORES(1)
+hora_inicio = 12:00
+
