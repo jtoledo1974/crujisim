@@ -282,7 +282,7 @@ class WayPoint:
     def pos(self):
         if self._pos: return self._pos
         else:
-            self._pos = fir.pos(self.fix)
+            self._pos = fir.get_point_coordinates(self.fix)
             return self._pos
         
     def copy(self):

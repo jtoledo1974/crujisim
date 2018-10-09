@@ -1,0 +1,19 @@
+### Python ###
+
+# Byte-compiled / optimized / DLL files
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# virtualenv
+.venv/
+venv/
+ENV/
+
+# Crujisim
+.cache
+crujisim.log
+crujisim.ini
+fichas.pdf
+minifichas.pdf

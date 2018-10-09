@@ -46,7 +46,8 @@ class FIR:
         
         self.file = fir_file
         
-        self.pos = self.get_point_coordinates  # Method alias
+        def pos(self, p):                   # TODO Used to be a method alias, but object couldn't be pickled
+            self.get_point_coordinates(p)   # Need to find a better way of doing this.
         
         Route.fir = self
         
