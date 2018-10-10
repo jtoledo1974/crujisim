@@ -79,7 +79,7 @@ try:
     import UI
     import ConfMgr
     conf = ConfMgr.CrujiConfig()
-    from GTA import GTA
+    from GTAnet import GTAnet
     from RemoteClient import *
 except:
     logging.exception("Error loading program modules")
@@ -489,7 +489,7 @@ class Crujisim:
             pass
 
         logging.debug("Creating GTA object")
-        gta = GTA(conf, exc_file)
+        gta = GTAnet(conf, exc_file)
         logging.debug("Starting GTA thread")
         #reactor.callInThread(lambda : gta.start().addCallback(exit))
         # gta.start().addCallback(exit)

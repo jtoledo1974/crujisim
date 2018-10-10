@@ -24,6 +24,7 @@ import ConfigParser
 import logging
 
 _config_file_name = "crujisim.ini"
+SERVER_PORT = 20123
 
 
 class CrujiConfig(object):
@@ -48,7 +49,7 @@ class CrujiConfig(object):
         self.show_palotes_image = self.read_option(
             'Global', 'show_palotes', True, "bool")
         self.server_port = self.read_option(
-            'Global', 'server_port', 20123, "int")
+            'Global', 'server_port', SERVER_PORT, "int")
         self.printer_sound = self.read_option(
             'Global', 'printer_sound', True, "bool")
         self.fir_option = self.read_option(
