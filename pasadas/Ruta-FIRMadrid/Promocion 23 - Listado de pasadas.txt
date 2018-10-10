@@ -1,0 +1,202 @@
+
+LISTADO EJERCICIOS
+
+FASE 1
+------
+Día 1 Pasada 1: DA 33, Usuario 1, Ejercicio 9
+Día 1 Pasada 2: DA 33, Usuario 1, Ejercicio 10
+Día 1 Pasada 3: DA 33, Usuario 1, Ejercicio 11
+Día 1 Pasada 4: DA 33, Usuario 1, Ejercicio 12
+
+Día 2 Pasada 1: DA 33, Usuario 1, Ejercicio 13
+Día 2 Pasada 2: DA 33, Usuario 1, Ejercicio 14
+Día 2 Pasada 3: DA 33, Usuario 1, Ejercicio 15
+Día 2 Pasada 4: DA 33, Usuario 1, Ejercicio 16
+
+Día 3 Pasada 1: DA 33, Usuario 1, Ejercicio 9 (Se repiten las del día 1)
+Día 3 Pasada 2: DA 33, Usuario 1, Ejercicio 10
+Día 3 Pasada 3: DA 33, Usuario 1, Ejercicio 11
+Día 3 Pasada 4: DA 33, Usuario 1, Ejercicio 12
+
+Día 4 Pasada 1: DA 33, Usuario 1, Ejercicio 13 (Se repiten las del día 2)
+Día 4 Pasada 2: DA 33, Usuario 1, Ejercicio 14
+Día 4 Pasada 3: DA 33, Usuario 1, Ejercicio 15
+Día 4 Pasada 4: DA 33, Usuario 1, Ejercicio 16
+
+Día 5 Pasada 1: DA 33, Usuario 1, Ejercicio 17
+Día 5 Pasada 2: DA 33, Usuario 1, Ejercicio 18
+Día 5 Pasada 3: DA 33, Usuario 1, Ejercicio 19
+Día 5 Pasada 4: DA 33, Usuario 1, Ejercicio 20
+
+Día 6 Pasada 1: DA 33, Usuario 1, Ejercicio 13 (Se repiten las del día 2 y día 4)
+Día 6 Pasada 2: DA 33, Usuario 1, Ejercicio 14
+Día 6 Pasada 3: DA 33, Usuario 1, Ejercicio 15
+Día 6 Pasada 4: DA 33, Usuario 1, Ejercicio 16
+
+Día 7 Pasada 1: DA 33, Usuario 1, Ejercicio 21
+Día 7 Pasada 2: DA 33, Usuario 1, Ejercicio 22
+Día 7 Pasada 3: DA 33, Usuario 1, Ejercicio 23
+Día 7 Pasada 4: DA 33, Usuario 1, Ejercicio 24
+
+Día 8 Pasada 1: DA 33, Usuario 1, Ejercicio 17 (Se repiten las del día 5)
+Día 8 Pasada 2: DA 33, Usuario 1, Ejercicio 18
+Día 8 Pasada 3: DA 33, Usuario 1, Ejercicio 19
+Día 8 Pasada 4: DA 33, Usuario 1, Ejercicio 20
+
+Día 9 Pasada 1: DA 33, Usuario 1, Ejercicio 21 (Se repiten las del día 7)
+Día 9 Pasada 2: DA 33, Usuario 1, Ejercicio 22
+Día 9 Pasada 3: DA 33, Usuario 1, Ejercicio 23
+Día 9 Pasada 4: DA 33, Usuario 1, Ejercicio 24
+
+Día 10 Pasada 1: DA 33, Usuario 1, Ejercicio 25
+Día 10 Pasada 2: DA 33, Usuario 1, Ejercicio 26
+Día 10 Pasada 3: DA 33, Usuario 1, Ejercicio 27
+Día 10 Pasada 4: DA 33, Usuario 1, Ejercicio 28
+
+Día 11 Pasada 1: DA 33, Usuario 1, Ejercicio 29
+Día 11 Pasada 2: DA 33, Usuario 1, Ejercicio 30
+Día 11 Pasada 3: DA 33, Usuario 1, Ejercicio 31
+Día 11 Pasada 4: DA 33, Usuario 1, Ejercicio 32
+
+Día 12 Pasada 1: DA 33, Usuario 1, Ejercicio 25 (Se repiten las del día 10)
+Día 12 Pasada 2: DA 33, Usuario 1, Ejercicio 26
+Día 12 Pasada 3: DA 33, Usuario 1, Ejercicio 27
+Día 12 Pasada 4: DA 33, Usuario 1, Ejercicio 28
+
+Día 13 Pasadas 1 y 2: DA 33, Usuario 1, Ejercicio 112
+Día 13 Pasadas 3 y 4: DA 33, Usuario 1, Ejercicio 113
+
+Día 14 Pasadas 1 y 2: DA 33, Usuario 1, Ejercicio 114
+Día 14 Pasadas 3 y 4: DA 33, Usuario 1, Ejercicio 110
+
+Día 15 Pasadas 1 y 2: DA 33, Usuario 1, Ejercicio 109
+Día 15 Pasadas 3 y 4: DA 33, Usuario 1, Ejercicio 111
+
+
+
+FASE 2
+------
+
+Día 1 Pasada 1: DA 33, Usuario 1, Ejercicio 33
+Día 1 Pasada 2: DA 33, Usuario 1, Ejercicio 34
+Día 1 Pasada 3: DA 33, Usuario 1, Ejercicio 35
+Día 1 Pasada 4: DA 33, Usuario 1, Ejercicio 36
+
+Día 2 Pasada 1: DA 33, Usuario 1, Ejercicio 37
+Día 2 Pasada 2: DA 33, Usuario 1, Ejercicio 38
+Día 2 Pasada 3: DA 33, Usuario 1, Ejercicio 39
+Día 2 Pasada 4: DA 33, Usuario 1, Ejercicio 40
+
+Día 3 Pasada 1: DA 33, Usuario 1, Ejercicio 41
+Día 3 Pasada 2: DA 33, Usuario 1, Ejercicio 42
+Día 3 Pasada 3: DA 33, Usuario 1, Ejercicio 43
+Día 3 Pasada 4: DA 33, Usuario 1, Ejercicio 44
+
+Día 4 Pasada 1: DA 33, Usuario 1, Ejercicio 33 (Se repiten las del dia 1)
+Día 4 Pasada 2: DA 33, Usuario 1, Ejercicio 34
+Día 4 Pasada 3: DA 33, Usuario 1, Ejercicio 35
+Día 4 Pasada 4: DA 33, Usuario 1, Ejercicio 36
+
+Día 5 Pasada 1: DA 33, Usuario 1, Ejercicio 37 (Se repiten las del dia 2)
+Día 5 Pasada 2: DA 33, Usuario 1, Ejercicio 38
+Día 5 Pasada 3: DA 33, Usuario 1, Ejercicio 39
+Día 5 Pasada 4: DA 33, Usuario 1, Ejercicio 40
+	
+Día 6 Pasada 1: DA 33, Usuario 1, Ejercicio 48
+Día 6 Pasada 2: DA 33, Usuario 1, Ejercicio 52
+Día 6 Pasada 3: DA 33, Usuario 1, Ejercicio 53
+Día 6 Pasada 4: DA 33, Usuario 1, Ejercicio 54
+
+Día 7 Pasada 1: DA 33, Usuario 1, Ejercicio 57
+Día 7 Pasada 2: DA 33, Usuario 1, Ejercicio 49
+Día 7 Pasada 3: DA 33, Usuario 1, Ejercicio 50
+Día 7 Pasada 4: DA 33, Usuario 1, Ejercicio 51
+
+Día 8 Pasada 1: DA 33, Usuario 1, Ejercicio 53
+Día 8 Pasada 2: DA 33, Usuario 1, Ejercicio 54
+Día 8 Pasada 3: DA 33, Usuario 1, Ejercicio 55
+Día 8 Pasada 4: DA 33, Usuario 1, Ejercicio 56
+
+Día 9 Pasada 1: DA 33, Usuario 1, Ejercicio 43
+Día 9 Pasada 2: DA 33, Usuario 1, Ejercicio 44
+Día 9 Pasada 3: DA 33, Usuario 1, Ejercicio 45
+Día 9 Pasada 4: DA 33, Usuario 1, Ejercicio 46
+
+Día 10 Pasada 1: DA 33, Usuario 1, Ejercicio 51
+Día 10 Pasada 2: DA 33, Usuario 1, Ejercicio 52 (48 tarde)
+Día 10 Pasada 3: DA 33, Usuario 1, Ejercicio 53
+Día 10 Pasada 4: DA 33, Usuario 1, Ejercicio 54
+
+Día 11 Pasada 1: DA 33, Usuario 1, Ejercicio 57
+Día 11 Pasada 2: DA 33, Usuario 1, Ejercicio 49
+Día 11 Pasada 3: DA 33, Usuario 1, Ejercicio 50
+Día 11 Pasada 4: DA 33, Usuario 1, Ejercicio 51
+
+Día 12 Pasada 1: DA 33, Usuario 1, Ejercicio 48
+Día 12 Pasada 2: DA 33, Usuario 1, Ejercicio 52
+Día 12 Pasada 3: DA 33, Usuario 1, Ejercicio 53
+Día 12 Pasada 4: DA 33, Usuario 1, Ejercicio 54
+
+Día 13 Pasada 1: DA 33, Usuario 1, Ejercicio 57
+Día 13 Pasada 2: DA 33, Usuario 1, Ejercicio 49 
+Día 13 Pasada 3: DA 33, Usuario 1, Ejercicio 50
+Día 13 Pasada 4: DA 33, Usuario 1, Ejercicio 51
+
+Día 14 Pasada 1: DA 33, Usuario 1, Ejercicio 53 (Sesión 2)
+Día 14 Pasada 2: DA 33, Usuario 1, Ejercicio 54
+Día 14 Pasada 3: DA 33, Usuario 1, Ejercicio 55
+Día 14 Pasada 4: DA 33, Usuario 1, Ejercicio 56
+
+
+FASE 3
+------
+
+Día 1 Pasada 1: DA 33, Usuario 1, Ejercicio 58
+Día 1 Pasada 2: DA 33, Usuario 1, Ejercicio 59
+Día 1 Pasada 3: DA 33, Usuario 1, Ejercicio 60
+Día 1 Pasada 4: DA 33, Usuario 1, Ejercicio 61
+
+Día 2 Pasada 1: DA 33, Usuario 1, Ejercicio 64 (tarde 63)
+Día 2 Pasada 2: DA 33, Usuario 1, Ejercicio 62 (tarde 61)
+Día 2 Pasada 3: DA 33, Usuario 1, Ejercicio 61 (tarde 62)
+Día 2 Pasada 4: DA 33, Usuario 1, Ejercicio 63 (tarde 64)
+
+Día 4 Pasada 1: DA 33, Usuario 1, Ejercicio 58
+Día 4 Pasada 2: DA 33, Usuario 1, Ejercicio 59
+Día 4 Pasada 3: DA 33, Usuario 1, Ejercicio 60
+Día 4 Pasada 4: DA 33, Usuario 1, Ejercicio 61
+
+Día 5 Pasada 1: DA 33, Usuario 1, Ejercicio 62 (Tarde 61)
+Día 5 Pasada 2: DA 33, Usuario 1, Ejercicio 63 (Tarde 62)
+Día 5 Pasada 3: DA 33, Usuario 1, Ejercicio 61 (Tarde 63)
+Día 5 Pasada 4: DA 33, Usuario 1, Ejercicio 64 (Tarde 64)
+
+Día 7 Pasada 1: DA 33, Usuario 1, Ejercicio 65 
+Día 7 Pasada 2: DA 33, Usuario 1, Ejercicio 66 
+Día 7 Pasada 3: DA 33, Usuario 1, Ejercicio 67 
+Día 7 Pasada 4: DA 33, Usuario 1, Ejercicio 68 
+
+Día 8 Pasada 1: DA 33, Usuario 1, Ejercicio 67 
+Día 8 Pasada 2: DA 33, Usuario 1, Ejercicio 68 
+Día 8 Pasada 3: DA 33, Usuario 1, Ejercicio 69 
+Día 8 Pasada 4: DA 33, Usuario 1, Ejercicio 70 
+
+Día 10 Pasada 1: DA 33, Usuario 1, Ejercicio 65 
+Día 10 Pasada 2: DA 33, Usuario 1, Ejercicio 66 
+Día 10 Pasada 3: DA 33, Usuario 1, Ejercicio 67 
+Día 10 Pasada 4: DA 33, Usuario 1, Ejercicio 68 
+
+Día 11 Pasada 1: DA 33, Usuario 1, Ejercicio 72
+Día 11 Pasada 2: DA 33, Usuario 1, Ejercicio 73 
+Día 11 Pasada 3: DA 33, Usuario 1, Ejercicio 74 
+Día 11 Pasada 4: DA 33, Usuario 1, Ejercicio 75
+
+Día 13 Pasada 1: DA 33, Usuario 1, Ejercicio 65 (tarde 65)
+Día 13 Pasada 2: DA 33, Usuario 1, Ejercicio 66 (tarde 66)
+Día 13 Pasada 3: DA 33, Usuario 1, Ejercicio 67 (tarde 69)
+Día 13 Pasada 4: DA 33, Usuario 1, Ejercicio 68	(tarde 70)
+
+Día 14 Pasada 1: DA 33, Usuario 1, Ejercicio 74
+Día 14 Pasada 2: DA 33, Usuario 1, Ejercicio 76 
+Día 14 Pasada 3: DA 33, Usuario 1, Ejercicio 77 
+Día 14 Pasada 4: DA 33, Usuario 1, Ejercicio 78

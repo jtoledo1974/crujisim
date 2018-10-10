@@ -155,7 +155,7 @@ tma_madrid: _TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA6
 [sector1]
 nombre:DOMINGO
 min_sep = 0.1
-auto_departure = AUTO
+auto_departure = MANUAL
 limites:_DGO1,PATEL,BELEN,_DGO2,ENDAY,IRATI,RONKO,LARDA,_DGO3,PINAR,_DGO4,CUCAS,BEMRA,FERMO,_DGO1
 fijos_de_impresion:PATEL,SNR,BLV,OLTRE,NEA,DGO,PPN,ARMIN,DOBAN,ENDAY
 fijos_de_impresion_secundarios:BELEN,IRATI,RONKO,LARDA,PINAR,CUCAS,BEMRA,FERMO,RBO,SIE
@@ -163,4 +163,4 @@ fijos_de_impresion_secundarios:BELEN,IRATI,RONKO,LARDA,PINAR,CUCAS,BEMRA,FERMO,R
 local_ads:LEXJ,LEBB,LEBG
 # IFR departures from this airport will always require a release from ATC
 # A Coord flight strip will be printed
-release_required_ads:LEXJ,LEBB
+released_required_ads:LEXJ,LEBB

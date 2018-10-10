@@ -1,0 +1,28 @@
+[vuelos]
+tap346 = B727,M,LEMD,LPPR,330,020,BRA,H101400F020V450,ACD,CNR,NVS,ZMR
+dah868 = DC10,H,LEMD,DAAG,360,020,BRA,H100400F020V425,ACD,VJZ,CJN,ASTRO
+afr445f = A300,H,LEMD,LFML,360,020,BRA,H102800F020V388,ACD,RBO,PINAR,SEGRE,PONEN
+ans2369 = ATP,M,EIDW,LEMD,290,190,NEA,ORBIS,CNR,GE,H102410F190V273,PARLA,_2DME
+tap989 = B737,M,LPPT,LEMD,320,090,CCS,TLD,H084102F090V438,PARLA,_2DME
+afr667 = A310,H,LFPO,LEMD,330,210,PPN,BAN,PINAR,CJN,H101818F210V438,CANES,PDT
+ibe5436 = B738,M,LPPT,LEMD,350,210,CCS,TLD,H101751F210V411,PARLA,_2DME
+ibe699 = B737,M,LFML,LEMD,330,090,TOBAL,ADUXO,CJN,H100001F090V297,CANES,PDT
+ibe2006 = B747,H,LIRF,LEMD,370,210,CLS,CJN,CANES,H100715F210V492,PDT
+jkk786 = DC10,H,LEMD,DAAG,380,020,BRA,H102100F020V425,ACD,VJZ,CJN,ASTRO
+lince612 = DA20,M,LEMD,LEMD,130,020,BRA,H100900F020V413,ACD,CNR,NVS,TLD,PARLA,_2DME
+gdcrf = SW3,L,LFBZ,LPPT,130,130,PPN,H100301F130V290,BAN,CNR,TLD,CCS
+
+[req]
+ibe699 = 1002,"Solicitamos esperas en PDT a 090 debido a problemas hidráulicos"
+lince612 = 1011,"Solicitamos esperas en CNR a 130 para realizar unas comprobaciones"
+ibe2006 = 1010,"Frustramos. Solicitamos esperas en PDT a 080 hasta solucionar el problema"
+tap346 = 1015,"Debido a problema de presurización solicitamos mantener FL110"
+jkk786 = 1022,"Debido a una LED en actividad no se puede volar directo a ASTRO, hay que desviarlo por LOGRO"
+afr445f = 1028,"De BCN ACC: debido a fallo radar, no admitimos más tráfico. Tráficos por PONEN con destino Francia rerutéalos hacia BAN-PPN"
+
+[datos]
+fir = AppRadarBasico
+sector = AppRadarBasico
+viento = 000,00
+comentario = 22-Fase-1-Dia-9-Pasada-1-2-3-4-M (incidencias) (21)
+hora_inicio = 09:58

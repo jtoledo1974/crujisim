@@ -1,0 +1,19 @@
+[datos]
+fir = AppRadarBasico
+sector = AppRadarBasico
+course = 23
+ejer = 0
+shift = M
+comment = Un solo avion
+da = 0
+hora_inicio = 12:00
+usu = 0
+phase = 1
+pass_no = 1
+comentario = 23-Fase-1-Dia-01-Pasada-1-M-AppRadarBasico.eje (1)
+day = 1
+viento = 000,00
+
+[vuelos]
+ibe256 = A340,H,LEST,LEMD,330,200,ZMR,NVS,H120000F330V420,GE,PARLA,PDT
+

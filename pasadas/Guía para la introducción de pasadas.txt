@@ -1,0 +1,89 @@
+
+Este documento contiene una guía lo más completa posible del 
+procedimiento a seguir para introducir un pasada en el crujisim, 
+incluyendo la recolección de las fichas. 
+
+El texto es largo para incluir todos los detalles, pero en realidad
+todo es muy sencillo y se tarda más en explicarlo que hacerlo.
+
+
+RECOGIDA DE FICHAS Y DATOS
+--------------------------
+
+Durante la pasada es útil que el planificador descarte las fichas
+que se imprimen únicamente con el PFL o con hora de estimada cambiada.
+No aportan información sobre el vuelo y es una ficha más que se debe
+comprobar a la hora de introducir los vuelos.
+
+Sin embargo se debe recordar no tirar las fichas de coordinación
+que haya de los despegues, porque es la única ficha de la pasada donde
+aparece la EOBT, y es necesaria para los despegues.
+
+Anota lo antes posible en una ficha no válida (por ejemplo, en una de
+las que sobra de PFL) la fase, el día, la pasada y el sector.
+Es importante también que bien el pseudopiloto, bien el plani al
+final de la pasada apunte los datos sobre el ejercicio que se 
+pueden leer en la línea de abajo de la posición de pseudo:
+DA, Usuario, Ejercicio, Sesión. Es importante anotar esto porque
+a menudo las pasadas se repiten y de este modo lo podemos saber
+a ciencia cierta.
+
+Utiliza la ficha con los datos de la pasada para hacer el paquete
+con el conjunto de las fichas.
+
+
+INTRODUCCIÓN EN EL CRUJISIM DE LA PASADA
+----------------------------------------
+
+En primer lugar comprueba mira en el archivo "Promocion 23 - Listado
+de pasadas.txt" si la pasada en cuestión es repetición de una pasada
+anterior. Si lo es, merece la pena pasarla acelerada sólo para
+comprobar si había algo incorrecto, y si lo es, corregirlo. Si la
+pasada ya estaba metida obviamente no es necesario volver a meterla.
+
+Para meter una pasada nueva arranca el crujisim y pulsa "Crear pasada" y
+selecciona el FIR que corresponde.
+
+En la pantalla en blanco que aparece empieza por introducir los datos 
+generales pulsando el botón "Editar datos generales" arriba a la dcha.
+Para saber la hora de inicio de la pasada, busca la más temprana de las
+horas de impresión de las fichas que tengas. La hora de impresión es el
+segundo campo por la derecha en negrita en la parte inferior derecha de
+la ficha. Introduce la hora tal como aparece en la ficha, es decir,
+como cuatro dígitos.
+
+El viento calma se introduce como 0,0 y viento del norte de 20 nudos sería
+360,20 .
+
+Añadir en comentarios el código de ejercicio. Este código hay que mirarlo
+en la pantalla de pseudopiloto del simulador (Botones en barras inferiores de
+la pantalla). Son tres campos:
+
+	DA:33
+	USU:1
+	EJE:9
+
+Para meterlo seguir el formato: DA33U1E09. Usad dos digitos para el numero de ejercicio.
+Así, si el ejercicio es el 8, DA33U1E08.
+
+No es necesario que tengas ordenadas las fichas de ninguna manera para
+empezar a introducir los vuelos. Simplemente coge la primera y pulsa abajo
+a la derecha en "Nuevo vuelo"
+
+Algunas notas sobre cada campo:
+
+Indicativo: Si el avión no está equipado RVSM copia el indicativo
+incluyendo las estrellas al principio, p.ej: **DUMBO13
+
+Modelo avión: Tal cual viene en la ficha
+
+Estela: Tal cual viene en la ficha
+
+Velocidad: Sólo con tres cifras
+
+Origen y Destino: Tal cual
+
+Ruta: 
+
+
+ 

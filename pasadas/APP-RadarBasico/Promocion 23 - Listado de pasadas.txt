@@ -1,0 +1,42 @@
+
+LISTADO EJERCICIOS
+
+FASE PRESIMULADOR Fase 0
+------------------------
+Día 1 Pasada 1: DA 06, Usuario 2, Ejercicio 
+Día 1 Pasada 2: DA 06, Usuario 2, Ejercicio 
+Día 1 Pasada 3: DA 06, Usuario 2, Ejercicio 4
+Día 1 Pasada 4: DA 06, Usuario 2, Ejercicio 5
+
+Día 2 Pasada 1: DA 06, Usuario 2, Ejercicio 
+Día 2 Pasada 2: DA 06, Usuario 2, Ejercicio 7
+Día 2 Pasada 3: DA 06, Usuario 2, Ejercicio 
+Día 2 Pasada 4: DA 06, Usuario 2, Ejercicio 
+
+Día 5 Pasada 1: DA 06, Usuario 2, Ejercicio 16
+Día 5 Pasada 2: DA 06, Usuario 2, Ejercicio 16
+Día 5 Pasada 3: DA 06, Usuario 2, Ejercicio 16
+Día 5 Pasada 4: DA 06, Usuario 2, Ejercicio 16
+
+Día 6 Pasada 1: DA 06, Usuario 2, Ejercicio 17
+Día 6 Pasada 2: DA 06, Usuario 2, Ejercicio 17
+Día 6 Pasada 3: DA 06, Usuario 2, Ejercicio 17
+Día 6 Pasada 4: DA 06, Usuario 2, Ejercicio 17
+
+FASE BASICA
+-----------
+
+Día 1 Pasada 1: DA 10, Usuario 2, Ejercicio 19
+Día 1 Pasada 2: DA 10, Usuario 2, Ejercicio 20
+Día 1 Pasada 3: DA 10, Usuario 2, Ejercicio 21
+Día 1 Pasada 4: DA 10, Usuario 2, Ejercicio 22
+
+Día 2 Pasada 1: DA 10, Usuario 2, Ejercicio 19
+Día 2 Pasada 2: DA 10, Usuario 2, Ejercicio 20
+Día 2 Pasada 3: DA 10, Usuario 2, Ejercicio 21
+Día 2 Pasada 4: DA 10, Usuario 2, Ejercicio 22
+
+Día 3 Pasada 1: DA 10, Usuario 2, Ejercicio 27
+Día 3 Pasada 2: DA 10, Usuario 2, Ejercicio 28
+Día 3 Pasada 3: DA 10, Usuario 2, Ejercicio 29
+Día 3 Pasada 4: DA 10, Usuario 2, Ejercicio 30
