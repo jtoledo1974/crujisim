@@ -137,7 +137,11 @@ def load_routedb(dir):
     This function does not verify that the cache file is not stale, so
     a call to load_exercises should be done before calling this function"""
     cachefile = os.path.join(dir, '.cache')
-    cache = open(cachefile, 'rb')
+    try:
+        cache = open(cachefile, 'rb')
+    except IOError:
+        load_exercises(dir)
+        cache = open(cachefile, 'rb')
     version, le, routedb = cPickle.loads(zlib.decompress(cache.read()))
     return routedb
 
