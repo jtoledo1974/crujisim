@@ -504,9 +504,14 @@ class Aircraft:
         return odict
     
     def __str__(self):
-        return self.callsign
-        
-    def next(self,t):
+        s = "%s - %s" % (self.callsign, self.pof)
+        try:
+            s = "%s - %s" % (s, self.route[0])
+        except IndexError:
+            pass
+        return s
+
+    def next(self, t):
         """Advance simulation to time t"""
         global wind
 
