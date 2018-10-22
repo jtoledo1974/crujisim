@@ -184,7 +184,7 @@ class GTA:
         while self.cont:
             try:
                 self.timer()
-            except:
+            except Exception:
                 logging.error("Error in GTA.timer", exc_info=True)
             # Thus we make sure that the clock is always up to date.
             sleep(0.5)
