@@ -1,4 +1,4 @@
-# Datos del espacio aéreo de DGO x 6
+# Datos del espacio aÃ©reo de DGO x 6
 
 [datos]
 nombre:AppConv
@@ -78,13 +78,13 @@ _AIRP4:101.83,99.17
 1: BELEN,NORTA,CNA,MANTO,BAN
 2: PATEL,TACOS,CNA,TERRA,BOPAR,LURKO,DUMAS,PPN
 3: SNR,ROKIS,CNA,LURKO
-4: _AIRP1,_AIRP2,_AIRP4,_AIRP3,_AIRP1,_AIPR4,_AIRP2,_AIRP3
+4: _AIRP1,_AIRP2,_AIRP4,_AIRP3,_AIRP1,_AIRP4,_AIRP2,_AIRP3
 
 [rutas]
 1: BELEN,NORTA,CNA,MANTO,BAN
 2: PATEL,TACOS,CNA,TERRA,BOPAR,LURKO,DUMAS,PPN
 3: SNR,ROKIS,CNA,LURKO
-4: _AIRP1,_AIRP2,_AIRP4,_AIRP3,_AIRP1,_AIPR4,_AIRP2,_AIRP3
+4: _AIRP1,_AIRP2,_AIRP4,_AIRP3,_AIRP1,_AIRP4,_AIRP2,_AIRP3
 
 [aeropuertos] ; Debemos incluir los aeropuertos y los IAF
 1:LECE,TERRA,MARES
@@ -111,11 +111,11 @@ ROKIS1E = ROKIS,CNA,_CNATERRA,TERRA,_N1D10,_N1D11,TERRA
 TACOS1E = TACOS,CNA,_CNATERRA,TERRA,_N1D10,_N1D11,TERRA
 DUMAS1D = DUMAS,LURKO,BOPAR,TERRA
 
-[app_LECE30]; Procedimientos de aproximación (APP) y aproximación frustrada (MAP)
-TERRA = _APPT1,4400,LLZ,CNA,120,2.0,0.05,400,True,_COM1,5000,_COM2,5000,_COM3,5000,CNA,5000,TERRA,5000 ; Puntos anteriores hasta LLZ. Después viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorización aterrizaje y puntos MAP
+[app_LECE30]; Procedimientos de aproximaciÃ³n (APP) y aproximaciÃ³n frustrada (MAP)
+; Puntos anteriores hasta LLZ. DespuÃ©s viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaciÃ³n aterrizaje y puntos MAP
+TERRA = _APPT1,4400,LLZ,CNA,120,2.0,0.05,400,True,_COM1,5000,_COM2,5000,_COM3,5000,CNA,5000,TERRA,5000
 
 [sid_LECE12]
-NORTA1C = CNA,_COM1,_COM2,_COM3,_N1A1,_N1A2,_N1A3,_N1A4,_N1A5,NORTA
 NORTA1C = CNA,_COM1,_COM2,_COM3,_N1A1,_N1A2,_N1A3,_N1A4,_N1A5,NORTA
 MANTO1C = CNA,MANTO
 ROKIS1C = CNA,ROKIS
@@ -129,13 +129,14 @@ ROKIS1E = ROKIS,SISMA,MARES
 TACOS1E = TACOS,SISMA,MARES
 DUMAS1D = DUMAS,CNA,MARES
 
-[app_LECE12]; Procedimientos de aproximación (APP) y aproximación frustrada (MAP)
-MARES = _APPM1,3600,LLZ,CNA,300,0.0,0.05,400,True,CNA,4000,MARES,4000 ; Puntos anteriores,altitud  hasta LLZ. Después viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud THR
+[app_LECE12]; Procedimientos de aproximaciÃ³n (APP) y aproximaciÃ³n frustrada (MAP)
+; Puntos anteriores,altitud  hasta LLZ. DespuÃ©s viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud THR
+MARES = _APPM1,3600,LLZ,CNA,300,0.0,0.05,400,True,CNA,4000,MARES,4000
 
-[tmas] ; límites de los tma's que queremos que nos dibuje
+[tmas] ; lÃ­mites de los tma's que queremos que nos dibuje
 tma_bilbao: _TMA1,_TMA2,_TMA3,_TMA4,_TMA5,_TMA1
 
-[sector1]; importante que el nombre esté en mayúsculas
+[sector1]; importante que el nombre estÃ© en mayÃºsculas
 nombre:APPCONV
 min_sep = 0.1
 auto_departure = MANUAL

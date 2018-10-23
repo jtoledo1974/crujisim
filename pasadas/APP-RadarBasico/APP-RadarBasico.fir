@@ -1,4 +1,4 @@
-# App Radar fase b�ica
+# App Radar fase básica
 [datos]
 nombre: AppRadarBasico
 
@@ -69,7 +69,6 @@ DOVAN:430.79,-287.483
 LARDA:459.017,-297.471
 ZARKO:483.77,-306.591
 KUMAN:502.878,-313.973
-QUV:579.309,-339.16
 LEBL:584.309,-344.16
 ZZA:472.045,-327.435
 LEZG:477.045,-332.435
@@ -89,7 +88,6 @@ CRISA:301.91,-481.78
 LOGRO:332.212,-481.165
 HIJ:274.455,-506.352
 AXACA:228.857,-535.882
-BLN:340.897,-533.711
 PONEN:493.324,-346.543
 TOBAL:485.073,-373.902
 CLS:465.531,-444.252
@@ -151,7 +149,6 @@ APATEL:393.02,-102.84
 _ADPATEL:393.02,-102.84
 ABELEN:424.11,-122.34
 _ADBELEN:424.11,-122.34
-GRAUS:535.47,-310.25
 QUV:579.58,-338.32
 MLA:525.35,-360.93
 VLC:492.81,-459.17
@@ -186,8 +183,6 @@ _TAVS7:255.517,-179.536
 _TAVS8:264.63,-179.536
 _TSNR1:346.035,-193.316
 _TSNR2:366.69,-196.448
-_TSNR3:378.84,-205.217
-_TSNR4:377.017,-228.393
 _TSNR5:361.83,-237.788
 _TSNR6:345.427,-235.283
 _TSNR7:341.782,-218.997
@@ -400,8 +395,9 @@ NVS1A: NVS,GE,PARLA,_2DME
 TLD1A: TLD,PARLA,_2DME
 VTB1A: VTB,_VTB1A1,PARLA,_2DME
 
-[app_LEMD33]; Procedimientos de aproximaci� (APP) y aproximaci� frustrada (MAP)
-PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   ; Puntos anteriores hasta LLZ. Despu� viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorizaci� aterrizaje y puntos MAP
+[app_LEMD33]; Procedimientos de aproximación (APP) y aproximación frustrada (MAP)
+; Puntos anteriores hasta LLZ. Después viene radioayuda, RDL inbound, distancia THR - LLZ, pendiente y altitud thr, autorización aterrizaje y puntos MAP
+PDT = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000   
 _2DME = 12,4000,8,4000,LLZ,BRA,149,1.0,0.0524,2000,True,_BRA_ILS,5000,GE,5000
 [sector1]
 nombre:AppRadarBasico

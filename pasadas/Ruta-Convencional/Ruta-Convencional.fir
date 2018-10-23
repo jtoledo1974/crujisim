@@ -1,4 +1,4 @@
-# Datos del espacio aéreo de DGO x 6
+# Datos del espacio aÃ©reo de DGO x 6
 [datos]
 nombre:RutaConvencional
 [puntos]
@@ -54,7 +54,6 @@ _TMA3:116.25,75.00
 _TMA4:127.50,75.00
 _TMA5:132.75,72.00
 _TMA6:130.50,33.75
-_LEBB:113.00,185.00
 _LEBBSID30C1:110.03,185.53
 _LEBBSID30C2:104.75,188.38
 _LEBBSID30C3:105.13,193.28
