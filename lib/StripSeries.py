@@ -22,15 +22,21 @@
 #Constants
 
 
+import os.path
 import warnings
 warnings.filterwarnings('ignore','.*',DeprecationWarning)
+# Directory structure should probably be reorganized
+# and these hackish ways fixed
 import sys
 sys.path.insert(0, 'strips.zip')
 import logging
 
-try: import strips
-except:
-    sys.path.append('..')
+try:
+    import strips
+except ImportError:
+    this_dir = os.path.dirname(__file__)
+    parent_dir = os.path.join(this_dir, os.pardir)
+    sys.path.append(parent_dir)
     import strips
 import strips.stringformat
 from strips.colors import *

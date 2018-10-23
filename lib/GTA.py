@@ -67,7 +67,8 @@ class GTA:
         e = Exercise(exc_file)
 
         # Find the FIR mentioned by the exercise file
-        fir_list = FIR.load_firs(os.path.dirname(exc_file))
+        directory = os.path.dirname(os.path.abspath(exc_file))
+        fir_list = FIR.load_firs(directory)
         try:
             fir = [fir for fir in fir_list if fir.name == e.fir][0]
         except:

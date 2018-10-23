@@ -28,6 +28,7 @@ from ConfigParser import ConfigParser
 from MathUtil import *
 from math import pi, tan
 import sys
+import os.path
 import logging
 from datetime import timedelta
 import BADA
@@ -81,8 +82,10 @@ def load_callsigns():
     cf = ConfigParser()
     try:
         cf.readfp(open(CALLSIGN_FILE, "r"))
-    except:
-        cf.readfp(open("../" + CALLSIGN_FILE, "r"))
+    except (OSError, IOError):
+        this_dir = os.path.dirname(__file__)
+        callsign_file = os.path.join(this_dir, os.pardir, CALLSIGN_FILE)
+        cf.readfp(open(callsign_file, "r"))
     callsigns = {}
     for cs, rcs in cf.items('Callsigns'):
         callsigns[cs.upper()] = rcs.upper()

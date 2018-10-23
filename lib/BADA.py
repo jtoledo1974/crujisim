@@ -26,6 +26,7 @@ import re
 import logging
 from math import *
 import ConfigParser
+import os.path
 
 equiv = {}
 
@@ -80,8 +81,16 @@ class Performance:
         
         if not use_bada: return
         
-        try: f = open(bada_file,"r")
-        except: raise("Unable to open bada file while loading perfomance data")
+        try:
+            f = open(bada_file,"r")
+        except (OSError, IOError):
+            this_dir = os.path.dirname(__file__)
+            bada_file = os.path.join(this_dir, os.pardir, bada_file)
+            try:
+                f = open(bada_file, "r")
+            except (OSError, IOError):
+                logging.exception("Unable to open bada file while loading perfomance data")
+                return
 
         # This here just for reference of the attributes this class has        
         self.climb_cas_low = self.climb_cas_high = self.climb_mach = None
@@ -345,8 +354,12 @@ class Atmosphere:
 
 # Basic loading
 acft_cp = ConfigParser.ConfigParser()
-try: acft_cp.readfp(open(AIRCRAFT_FILE, "r"))
-except: acft_cp.readfp(open("../"+AIRCRAFT_FILE, "r"))
+try:
+    acft_cp.readfp(open(AIRCRAFT_FILE, "r"))
+except (OSError, IOError):
+    this_dir = os.path.dirname(__file__)
+    aircraft_file = os.path.join(this_dir, os.pardir, AIRCRAFT_FILE)
+    acft_cp.readfp(open(aircraft_file, "r"))
 load_equiv()
 
         
