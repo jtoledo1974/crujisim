@@ -38,10 +38,13 @@ except ImportError:
     parent_dir = os.path.join(this_dir, os.pardir)
     sys.path.append(parent_dir)
     import strips
-import strips.stringformat
-from strips.colors import *
-from strips.pid import Font
-from strips.PDF import PDFCanvas
+try:
+    import strips.stringformat
+    from strips.colors import *
+    from strips.pid import Font
+    from strips.PDF import PDFCanvas
+except Exception:
+    pass  # strips package is not python 3 compatible, but we don't need it anyways, for now
 
 STRIPS_PER_PAGE = 11
 
