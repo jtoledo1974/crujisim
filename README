@@ -3,4 +3,4 @@ Software Requirements
 
 Crujisim has been tested in Ubuntu 18.04, and 18.10. Run the following to install dependencies
 
-	sudo apt-get install python-twisted python-gtk2 python-glade2 python-tk tix
+	sudo apt-get install python-future python-twisted python-gtk2 python-glade2 python-tk tix
