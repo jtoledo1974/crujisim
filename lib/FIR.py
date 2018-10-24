@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#-*- coding:iso8859-15 -*-
+# -*- coding: utf-8 -*-
 # $Id$
 # (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
 #
@@ -208,7 +208,7 @@ class FIR:
         for pista in (ad.code_id+rwy.txt_desig
                         for ad in self.aerodromes.values()
                           for rwy in ad.rwy_direction_list):
-            # Procedimientos aproximaci髇
+            # Procedimientos aproximaci贸n
             procs_app=self._firdef.items('app_'+pista)
             for [fijo,lista] in procs_app:
                 lista = lista.split(',')
@@ -255,7 +255,7 @@ class FIR:
                         logging.warning ('Punto ' + dato + ' no encontrado en procedimiento app_'+pista+' MAP')
                         # Guardamos los procedimientos
                 self.iaps[fijo.upper()]=(points_app,llz_data,points_map)
-        #logging.debug ('Lista de procedimientos de aproximaci髇'+str(self.iaps)
+        #logging.debug ('Lista de procedimientos de aproximaci贸n'+str(self.iaps)
         
         # Deltas del FIR
         if self._firdef.has_section('deltas'):
@@ -281,7 +281,7 @@ class FIR:
         # Load data for each of the sectors
         for (sector,section) in self._sector_sections.items():
         
-            # L韒ites del sector
+            # L铆mites del sector
             aux2=self._firdef.get(section,'limites').split(',')
             for a in aux2:
                 auxi=True
@@ -290,17 +290,17 @@ class FIR:
                         self.boundaries[sector].append(q[1])
                         auxi=False
                 if auxi:
-                    logging.warning ('En l韒ite de sector no encontrado el self.points '+a)
+                    logging.warning ('En l铆mite de sector no encontrado el self.points '+a)
              
              #Build TWO LOCAL MAPS: One with sectors limits, and the other with the transparency
-                    # Separaci髇 m韓ima del sector
+                    # Separaci贸n m铆nima del sector
             if self._firdef.has_option(section,'min_sep'):
                 self.min_sep[sector]=float(self._firdef.get(section,'min_sep'))
             else:
-                logging.debug ('No encontrada separaci髇 en sector '+sector+'. Se asumen 8 NM de separaci髇 m韓ima.')
+                logging.debug ('No encontrada separaci贸n en sector '+sector+'. Se asumen 8 NM de separaci贸n m铆nima.')
                 self.min_sep[sector] = 8.0
                 
-            # Despegues autom醫icos o manuales
+            # Despegues autom谩ticos o manuales
             if self._firdef.has_option(section,'auto_departure'):
                 aux2=self._firdef.get(section,'auto_departure').upper()
                 if aux2 == 'AUTO':
@@ -308,13 +308,13 @@ class FIR:
                 elif aux2 == 'MANUAL':
                     self.auto_departures[sector] = False
                 else:
-                    logging.debug ('Valor para despegues manual/autom醫ico para sector '+sector+' debe ser "AUTO" o "MANUAL". Se asume autom醫ico')                    
+                    logging.debug ('Valor para despegues manual/autom谩tico para sector '+sector+' debe ser "AUTO" o "MANUAL". Se asume autom谩tico')                    
                     self.auto_departures[sector] = True
             else:
-                logging.debug ('Valor para despegues manual/autom醫ico para sector '+sector+' no encontrado. Se asume autom醫ico')
+                logging.debug ('Valor para despegues manual/autom谩tico para sector '+sector+' no encontrado. Se asume autom谩tico')
                 auto_departures[sector] = True
                 
-            # Fijos de impresi髇 primarios
+            # Fijos de impresi贸n primarios
             fijos_impresion=[]
             aux2=self._firdef.get(section,'fijos_de_impresion').split(',')
             for a in aux2:
@@ -324,8 +324,8 @@ class FIR:
                         self.fijos_impresion[sector].append(q[0])
                         auxi=False
                 if auxi:
-                    logging.warning ('No encontrado el fijo de impresi髇 '+a)
-            # Fijos de impresi髇 secundarios
+                    logging.warning ('No encontrado el fijo de impresi贸n '+a)
+            # Fijos de impresi贸n secundarios
             if self._firdef.has_option(section,'fijos_de_impresion_secundarios'):
                 aux2=self._firdef.get(section,'fijos_de_impresion_secundarios').split(',')
                 for a in aux2:
@@ -335,9 +335,9 @@ class FIR:
                             self.fijos_impresion_secundarios[sector].append(q[0])
                             auxi=False
                     if auxi:
-                        logging.warning ('No encontrado el fijo secundario de impresi髇 '+a)
+                        logging.warning ('No encontrado el fijo secundario de impresi贸n '+a)
             else:
-                logging.debug ('No hay fijos de impresi髇 secundarios (no hay problema)')
+                logging.debug ('No hay fijos de impresi贸n secundarios (no hay problema)')
                 
             # Local ADs
             try: ads=self._firdef.get(section,'local_ads').split(',')
