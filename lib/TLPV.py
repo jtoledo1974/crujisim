@@ -19,6 +19,9 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Tratamiento Local de Planes de Vuelo / Local Flight Plan Processing"""
+from past.builtins import cmp
+from builtins import range
+from builtins import object
 
 import logging
 import random
@@ -58,7 +61,7 @@ def sector_intersections(route):
                 xp.append(name)
             xpoints += xp_list
         # Sort according to distance to the first waypoint
-        xpoints.sort(lambda x, y: cmp(x[2], y[2]))
+        xpoints.sort(key=lambda x: x[2])
         for xp in xpoints:
             wp = Route.WayPoint("X%fY%f" %
                                 (xp[1][0], xp[1][1]), type=Route.TLPV)
@@ -86,7 +89,7 @@ def sector_intersections(route):
 def get_exit_ades(flight):
     """Given an Aircraft or a flight plan returns either a the first three letters of the last waypoint
     local to the FIR, or the last two letters of the adep local to the FIR"""
-    if flight.ades in fir.aerodromes.keys():
+    if flight.ades in fir.aerodromes:
         return flight.ades[2:]
     # Else
     fet = None
@@ -107,7 +110,7 @@ def get_exit_ades(flight):
         return flight.campo_eco
 
 
-class TLPV:
+class TLPV(object):
     """Keeps track of flight plans in the system"""
     # TODO in order to keep the implementation simple there cannot be two
     # flightplans sharing the same callsign
@@ -136,7 +139,7 @@ class TLPV:
 
         # Save sector entry times for each flight plan
         for wp in fp.route:
-            if wp.sector_entry and wp.sector_entry not in fp.sector_entry_t.keys():
+            if wp.sector_entry and wp.sector_entry not in fp.sector_entry_t:
                 fp.sector_entry_t[wp.sector_entry] = wp.eto
 
         # As there is not yet support for a proper FIR boundary in fir.py,
@@ -145,7 +148,7 @@ class TLPV:
             fp.fir_entry_t = min(fp.sector_entry_t.values())
         except:
             fp.fir_entry_t = None
-        if fp.ades not in fir.aerodromes.keys():
+        if fp.ades not in fir.aerodromes:
             try:
                 fp.fir_exit_t = max(
                     [wp.eto for wp in fp.route if wp.sector_exit])
@@ -164,8 +167,8 @@ class TLPV:
         # but should do by now considering how little flights we are dealing
         # with
         while True:
-            r = random.randint(0100, 06777)  # Between 0100 and 6777 octal
-            if r in self.squawks or r in range(02000, 02777):
+            r = random.randint(0o100, 0o6777)  # Between 0100 and 6777 octal
+            if r in self.squawks or r in range(0o2000, 0o2777):
                 continue
             else:
                 break
@@ -176,7 +179,7 @@ class TLPV:
         # Calculate flight strip print times
         pass
         for sector in fir.sectors:
-            fpl = [fp for fp in self.flightplans if sector in fp.sector_entry_t.keys()]
+            fpl = [fp for fp in self.flightplans if sector in fp.sector_entry_t]
             for fp in fpl:
                 fp.fs_print_t[sector] = fp.sector_entry_t[
                     sector] - datetime.timedelta(minutes=10)
@@ -188,7 +191,7 @@ class TLPV:
 
         fs_list = []
 
-        fpl = [fp for fp in self.flightplans if sector in fp.sector_entry_t.keys()]
+        fpl = [fp for fp in self.flightplans if sector in fp.sector_entry_t]
         fpl.sort(lambda p, q: cmp(p.fs_print_t[sector], q.fs_print_t[sector]))
         for a in fpl:
 
@@ -306,7 +309,7 @@ class TLPV:
         logging.debug("TLPV.__del__")
 
 
-class FlightPlan:
+class FlightPlan(object):
 
     def __init__(self, callsign, type, adep, ades, rfl, ecl, rte,
                  eobt=None, next_wp=None, next_wp_eto=None,
