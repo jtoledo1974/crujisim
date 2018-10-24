@@ -21,10 +21,14 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 """Classes dealing with routes and waypoints"""
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
 
 import logging
 import re
-import MathUtil
+from . import MathUtil
 
 # Restrictions
 AABV = 0  # At or above
@@ -40,7 +44,12 @@ TLPV = 2  # Added by the TLPV to calculate a sector entry time, for instance
 def get_waypoints(item):
     """Given a route either as a string, or a list of waypoints,
     or a list of fix strings, returns a list of waypoints"""
-    if isinstance(item, str):
+    try:
+        is_str = isinstance(item, str) or isinstance(item, unicode)
+    except NameError:
+        is_str = isinstance(item, str)  # Python 3 compatibility    
+
+    if is_str:  
         points = item.replace(",", " ").strip().split()
         return [WP(p) for p in points]
     elif isinstance(item, WP):
@@ -53,10 +62,10 @@ def get_waypoints(item):
             elif isinstance(wp, str):
                 rlist.append(WP(wp))
             else:
-                raise TypeError, 'get_waypoints: Unable to extract waypoint list from ' + str(item)
+                raise TypeError('get_waypoints: Unable to extract waypoint list from ' + str(item))
         return rlist
     else:
-        raise TypeError, 'get_waypoints: Unable to extract waypoint list from ' + str(item)
+        raise TypeError('get_waypoints: Unable to extract waypoint list from ' + str(item))
 
 
 class Route(list):
@@ -84,10 +93,12 @@ class Route(list):
 
     def __getitem__(self, key):
         try:
-            return list.__getitem__(self, key)
+            item = list.__getitem__(self, key)
+            return Route(item)
         except:
             pass
-        return list.__getitem__(self, self.get_waypoint_index(key))
+        item = list.__getitem__(self, self.get_waypoint_index(key))
+        return item
 
     def append(self, wp):
         if self.check_wp(wp):
@@ -158,7 +169,7 @@ class Route(list):
                 self.extend(after_route)
                 break
         if flag:
-            raise ("Waypoint " + str(wp) + " not found in " + str(self))
+            raise "Waypoint %s not found in %s" % (str(wp), str(self))
 
     def substitute_before(self, wp, list, save=None):
         """Substitutes the list of waypoints before the given waypoint
@@ -252,7 +263,7 @@ class Route(list):
             raise TypeError("Element " + str(wp) + " is not WayPoint instance")
         except:
             if self.raise_on_unknown:
-                raise RuntimeError, "Unknown coordinates for waypoint " + str(wp)
+                raise RuntimeError("Unknown coordinates for waypoint " + str(wp))
             else:
                 logging.warning("Unknown coordinates for waypoint " + str(wp))
                 if self.insert_on_unknown:
@@ -266,11 +277,17 @@ class Route(list):
         return the route index of the first wp that matches"""
         if isinstance(index, int):
             return index
-        if not isinstance(index, str) and not isinstance(index, WP):
+
+        try:
+            is_str = isinstance(index, str) or isinstance(index, unicode)
+        except NameError:
+            is_str = isinstance(index, str)  # For python 3
+
+        if (not is_str and not isinstance(index, WP)):
             raise TypeError(
                 "Unable to find route index for waypoint " + str(index))
         for i in range(len(self)):
-            if (isinstance(index, str) and index.upper() == self[i].fix) or \
+            if (is_str and index.upper() == self[i].fix) or \
                     (isinstance(index, WP) and index == self[i]):
                 return i
 
@@ -280,7 +297,7 @@ class Route(list):
             wp.outbd_track = None
 
 
-class WayPoint:
+class WayPoint(object):
 
     def __init__(self, fix, eto=None, xfl=None, xfl_type=None, type=WAYPOINT):
 
@@ -359,24 +376,26 @@ if __name__ == '__main__':
     random.seed(0)
     global fir
 
-    class FIR:
+    class FIR(object):
+        def get_point_coordinates(*arg):
+            return (random.random() * 100, random.random() * 100)
 
-        def pos(*arg): return (random.random() * 100, random.random() * 100)
     fir = FIR()
-    r = Route(get_waypoints("pdt parla canes pi pi pi pi"))
-    print r
+    wp_list = get_waypoints("pdt parla canes pi pi pi pi")
+    r = Route(wp_list)
+    print(r)
     r.substitute_after("parla", get_waypoints("laks aldkfj slkjf"))
     r.substitute_before("pdt", get_waypoints("x10.1y20 x10y0 tres"))
-    print "Route", r
-    print "Contains", "pdt", r[0] in r
-    print "index", r.get_waypoint_index("pdt"), r.get_waypoint_index(r[3])
-    print "p0, p1, inbd0, inbd1, outbnd0", r[0].pos(), r[1].pos(), \
-        r.get_inbd_track(0), r.get_inbd_track(1), r.get_outbd_track(0)
-    print type(r[2:4]), r[2:4]
-    print "r['pdt'] = ", r['pdt']
-    print "papiii"
-    print "REDUCE", str(Route(get_waypoints("pdt parla X10Y10 X10Y10 papa")).reduce())
+    print("Route", r)
+    print("Contains", "pdt", r[0] in r)
+    print("index", r.get_waypoint_index("pdt"), r.get_waypoint_index(r[3]))
+    print("p0, p1, inbd0, inbd1, outbnd0", r[0].pos(), r[1].pos(), \
+        r.get_inbd_track(0), r.get_inbd_track(1), r.get_outbd_track(0))
+    print(type(r[2:4]), r[2:4])
+    print("r['pdt'] = ", r['pdt'])
+    print("papiii")
+    print("REDUCE", str(Route(get_waypoints("pdt parla X10Y10 X10Y10 papa")).reduce()))
     r = Route(get_waypoints("logro vtb ge pdt kaka"))
     r.substitute_after('pdt', get_waypoints('rbo dgo'))
     r.substitute_before('pdt', get_waypoints('crisa logro'))
-    print "ROUTE", r
+    print("ROUTE", r)
