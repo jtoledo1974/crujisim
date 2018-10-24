@@ -60,15 +60,7 @@ class GTA(object):
         logging.info("Loading exercise " + exc_file)
         e = Exercise(exc_file)
 
-        # Find the FIR mentioned by the exercise file
-        directory = os.path.dirname(os.path.abspath(exc_file))
-        fir_list = FIR.load_firs(directory)
-        try:
-            fir = [fir for fir in fir_list if fir.name == e.fir][0]
-        except:
-            logging.critical("Unable to load FIR file for " + str(exc_file))
-            raise
-            return
+        fir = self.load_fir(e)
         self.fir = fir
         Aircraft.fir = fir  # Rather than passing globals
         Route.fir = fir
@@ -104,9 +96,28 @@ class GTA(object):
         self.paused = False
 
         self.tlpv = tlpv = TLPV.TLPV(exc_file)
+        self.load_aircraft(e)
+        tlpv.start()
 
+    def load_fir(self, exercise):
+        # Find the FIR mentioned by the exercise file
+        exc_file = exercise.file
+        directory = os.path.dirname(os.path.abspath(exc_file))
+        fir_list = FIR.load_firs(directory)
+
+        try:
+            fir = [fir for fir in fir_list if fir.name == exercise.fir][0]
+        except IndexError:
+            logging.exception("Unable to load FIR file for " + str(exc_file))
+
+        return fir
+
+    def load_aircraft(self, exercise):
         # Create the aircraft for each of the flights in the exercise
+        e = exercise
+        tlpv, fir = self.tlpv, self.fir
         self.flights = []
+
         logging.debug("Loading aircraft")
         for ef in e.flights.values():  # Exercise flights
 
@@ -157,8 +168,6 @@ class GTA(object):
             a.fs_print_t = fp.fs_print_t
             fp.wake = ef.wtc     # Keep the WTC in the exercise file, even if wrong
             fp.filed_tas = int(ef.tas)
-
-        tlpv.start()
 
     def start(self):
         while self.cont:
