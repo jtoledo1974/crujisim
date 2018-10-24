@@ -19,6 +19,9 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Vector algebra functions"""
+from __future__ import print_function
+from past.builtins import cmp
+from builtins import range
 from math import *
 import logging
 
@@ -63,7 +66,7 @@ def dp(a, b):
 
 
 def sgn(a):
-    if a <> 0.:
+    if a != 0.:
         return a / abs(a)
     else:
         return 0
@@ -265,7 +268,9 @@ def get_bounding_cuadrangle(poly):
     return ((x0, y0), (x1, y1))
 
 
-def could_intersect((s0x, s0y), (s1x, s1y), poly):
+def could_intersect(s0, s1, poly):
+    (s0x, s0y) = s0
+    (s1x, s1y) = s1
     (x0, y0), (x1, y1) = get_bounding_cuadrangle(poly)
     impossible = (s0x < x0 and s1x < x0) or (s0x > x1 and s1x > x1) \
         or (s0y < y0 and s1y < y0) or (s0y > y1 and s1y > y1)
@@ -314,7 +319,7 @@ def get_entry_exit_points(pA0, pA1, poly):
         return x_points
 
 if __name__ == '__main__':
-    print r((10, 10), (0, 10))
+    print(r((10, 10), (0, 10)))
     assert point_within_polygon((0.1, 0.1), ((0, 0), (0, 1), (1, 0))) == True
     assert point_within_polygon((0, 0), ((0, 0), (0, 1), (1, 0))) == True
     assert point_within_polygon((1, 1), ((0, 0), (0, 1), (1, 0))) == False
