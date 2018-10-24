@@ -20,12 +20,17 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Classes useful for dealing with Exercise files"""
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import range
+from builtins import object
 import logging
 import os
 from stat import *
-import cPickle
+import pickle
 import zlib
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 
 # CONSTANTS
 CACHE_VERSION = 9
@@ -63,7 +68,7 @@ def load_exercises(path, reload=False):
             and os.stat(cache)[ST_MTIME] > recent:
         try:
             c = open(cache, "rb")
-            version, le, routes = cPickle.loads(zlib.decompress(c.read()))
+            version, le, routes = pickle.loads(zlib.decompress(c.read()))
             if version == CACHE_VERSION:
                 exercises += le
                 return exercises
@@ -125,7 +130,7 @@ def load_exercises(path, reload=False):
     exercises += le
     # Cache used to be the file name, now the file object
     cache = open(cache, 'wb')
-    cache.write(zlib.compress(cPickle.dumps((CACHE_VERSION, le, routes))))
+    cache.write(zlib.compress(pickle.dumps((CACHE_VERSION, le, routes))))
     cache.close
 
     return exercises
@@ -142,11 +147,11 @@ def load_routedb(dir):
     except IOError:
         load_exercises(dir)
         cache = open(cachefile, 'rb')
-    version, le, routedb = cPickle.loads(zlib.decompress(cache.read()))
+    version, le, routedb = pickle.loads(zlib.decompress(cache.read()))
     return routedb
 
 
-class Exercise:
+class Exercise(object):
     """All data representing a single exercise"""
 
     def __init__(self, file=None):
@@ -365,7 +370,7 @@ class Exercise:
         e = Exercise()
         e.__dict__ = self.__dict__.copy()
         e.flights = self.flights.copy()
-        for f in e.flights.keys():
+        for f in e.flights:
             e.flights[f] = e.flights[f].copy()
         return e
 
@@ -462,7 +467,7 @@ class Flight(object):
         import re
         data = self._data.split(',')
         route = data[6:]
-        for fix, i in zip(route, range(len(route) - 1)):
+        for fix, i in zip(route, list(range(len(route) - 1))):
             m = re.match("H(\d+)F(\d+)V(\d+)", route[i + 1])
             if m:
                 break
@@ -536,7 +541,7 @@ class Flight(object):
             object.__setattr__(self, name, value + "00")
 
 
-class Mapping:
+class Mapping(object):
     """Deals with the relationship between the unique exercises and on which day they were scheduled"""
 
     def __init__(self, mapping_file, exercise_file=None):
@@ -570,7 +575,7 @@ class Mapping:
             logging.warning("Section Mappings not found in mapping file " + f)
 
 
-class RouteDB:
+class RouteDB(object):
     """A database of routes that are known for a specific FIR"""
 
     def __init__(self):
@@ -579,7 +584,7 @@ class RouteDB:
     def append(self, route, adep, ades):
         """Append a route together with the adep and ades to the DB of routes"""
         route = route.strip().replace(" ", ",")
-        if route not in self._routes.keys():
+        if route not in self._routes:
             # We add the route to the database, with a frequency of one, and
             # adding the first pair of adep and ades
             self._routes[route] = (1, [adep + ades])
@@ -603,7 +608,7 @@ class RouteDB:
         match_routes = self._routes.copy()
         potential_discards = []
         # Routes must contain the given fixes in the same order
-        for route in match_routes.keys():
+        for route in match_routes:
             i = 0
             rs = route.split(',')
             for f in rs:
