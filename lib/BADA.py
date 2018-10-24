@@ -21,11 +21,16 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 """This module handles aircraft data from Eurocontrol's BADA (Database of aircraft data)"""
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 
 import re
 import logging
 from math import *
-import ConfigParser
+import configparser
 import os.path
 
 equiv = {}
@@ -46,7 +51,7 @@ def load_equiv():
 # The equivalence list should be use for both, and the format of
 # AIRCRAFT_FILE should be cleaned up
 
-class Performance:
+class Performance(object):
     """Performance data for a specific aircraft type
     
     Data is loaded both from the AIRCRAFT_FILE file and
@@ -61,7 +66,7 @@ class Performance:
         type = type.lower()
         try: data=cp.get("performances", type)
         except:
-            raise(type.upper()+" not found in "+AIRCRAFT_FILE)
+            raise "%s not found in %s" % (type.upper(), AIRCRAFT_FILE)
             return
 
         self.type = type.upper()
@@ -123,7 +128,7 @@ class Performance:
                 return
             master = re.match(".*Type: ([^_ ]+)", h).group(1)
             # equiv is global
-            if type == master or (equiv.has_key(type) and equiv[type]==master):
+            if type == master or (type in equiv and equiv[type] == master):
                 self.type = type
                 break;
 
@@ -208,11 +213,14 @@ class Performance:
                 0)
 
     def interpolate(self, dict, level):
-        if level < min(dict.keys()): return dict[min(dict.keys())]
-        if level > max(dict.keys()): return dict[max(dict.keys())]
-        if level in dict.keys(): return dict[level]
-        m_level = max([l for l in dict.keys() if l<level])
-        M_level = min([l for l in dict.keys() if l>level])
+        if level < min(dict):
+            return dict[min(dict)]
+        if level > max(dict):
+            return dict[max(dict)]
+        if level in dict:
+            return dict[level]
+        m_level = max([l for l in dict if l < level])
+        M_level = min([l for l in dict if l > level])
         ratio = (float(level)-m_level)/(M_level-m_level)
         low, high = dict[m_level], dict[M_level]
         return low*(1-ratio)+high*ratio
@@ -254,7 +262,7 @@ def load_bada(filename=BADA_FILE):
 
     return bada
 
-class Atmosphere:
+class Atmosphere(object):
     def __init__(self, t0=288.15):
         self.t0 = t0  # Temperature at sea level in Kelvins
         self.t0_isa = 288.15  # Isa t0 in Kelvins
@@ -353,7 +361,7 @@ class Atmosphere:
         return mach
 
 # Basic loading
-acft_cp = ConfigParser.ConfigParser()
+acft_cp = configparser.ConfigParser()
 try:
     acft_cp.readfp(open(AIRCRAFT_FILE, "r"))
 except (OSError, IOError):
@@ -366,10 +374,10 @@ load_equiv()
 if __name__=='__main__':
     a = Atmosphere()
     for h in (0, 3000, 6000, a.get_tropopause(), a.get_tropopause()+3000):
-        print "Height", h
-        print "Density", a.get_density(h)
-        print "Pressure", a.get_pressure(h)
-        print "Sound speed", a.get_sound_speed(h)
-        print "TAS", a.get_tas_from_cas(200, h)
-        print "CAS", a.get_cas_from_tas(a.get_tas_from_cas(200, h), h)
-        print "MACH", a.get_mach_from_tas(a.get_tas_from_cas(200, h), h)
+        print("Height", h)
+        print("Density", a.get_density(h))
+        print("Pressure", a.get_pressure(h))
+        print("Sound speed", a.get_sound_speed(h))
+        print("TAS", a.get_tas_from_cas(200, h))
+        print("CAS", a.get_cas_from_tas(a.get_tas_from_cas(200, h), h))
+        print("MACH", a.get_mach_from_tas(a.get_tas_from_cas(200, h), h))
