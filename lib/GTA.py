@@ -22,13 +22,17 @@
 
 """GTA (Generador de Tráfico Aéreo - Air Traffic Generator)
 This is the main simulation engine to which clients connect"""
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 
 
 # System imports
 from time import time, sleep
 import logging
 import random
-import cPickle
+import pickle
 
 import os
 import datetime
@@ -117,7 +121,7 @@ class GTA(object):
         self.flights = []
 
         logging.debug("Loading aircraft")
-        for ef in e.flights.values():  # Exercise flights
+        for ef in list(e.flights.values()):  # Exercise flights
 
             # TODO Because the current exercise format cannot distiguish between
             # overflights and departures first we create them all as
@@ -143,7 +147,7 @@ class GTA(object):
             # the EOBT is the estimate to the first point in the route
             # We substitute the overflight (created using next_wp_eto) with a departure
             # (created using an EOBT)
-            if a.adep in fir.aerodromes.keys():
+            if a.adep in fir.aerodromes:
                 eobt = a.route[0].eto
                 a = Aircraft.Aircraft(a.callsign, a.type, a.adep, a.ades,
                                       a.cfl, a.rfl, a.route, eobt=eobt,
