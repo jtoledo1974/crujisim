@@ -22,6 +22,10 @@
 
 """Contains the Aircraft class, which models an aircraft flying a given route
 and following ATC commands"""
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 
 # Module imports
 from configparser import ConfigParser
@@ -116,12 +120,16 @@ def v(self):
                           self.callsign, exc_info=True)
             return 250.
     if self.perf.bada:
-        if self.lvl < self.cfl:
-            tas = self.perf.get_climb_perf(self.lvl)[0]
-        elif self.lvl > self.cfl:
-            tas = self.perf.get_descent_perf(self.lvl)[0]
+        if self.lvl is not None:
+            lvl = self.lvl  
         else:
-            tas = self.perf.get_cruise_perf(self.lvl)[0]
+            lvl = 0  # In python 2 None acts as 0 when compared. Not in python 3
+        if lvl < self.cfl: 
+            tas = self.perf.get_climb_perf(lvl)[0]
+        elif lvl > self.cfl:
+            tas = self.perf.get_descent_perf(lvl)[0]
+        else:
+            tas = self.perf.get_cruise_perf(lvl)[0]
         return tas
 
     # TODO we should delete all the following. We should simply have equivalents for
@@ -405,7 +413,7 @@ def get_hdg_obj(self, deriva, t):
                         return (rdl - deriva - 45.0 * sgn(ang_aux)) % 360.0
 
 
-class Aircraft:
+class Aircraft(object):
 
     # All aircraft are uniquely identified. We keep the maximum number used
     # here.
@@ -546,8 +554,7 @@ class Aircraft:
         self.calc_eto()
         if self.next_wp_eto:
             if self.next_wp not in [wp.fix for wp in self.route]:
-                raise("Unable to create flight. Estimate waypoint (%s) not in the route (%s)" % (
-                    self.next_wp, self.route))
+                raise "Unable to create flight. Estimate waypoint (%s) not in the route (%s)"
             delta = self.route[self.next_wp].eto - self.next_wp_eto
             for wp in self.route:
                 try:
@@ -579,7 +586,7 @@ class Aircraft:
     def next(self, t):
         """Advance simulation to time t"""
         global wind
-        logging.debug("%s: %s"% (self.callsign, t))
+        # logging.debug("%s: %s"% (self.callsign, t))
 
         try:
             if self.pof == GROUND and t > self.eobt and self.auto_depart:
@@ -674,6 +681,7 @@ class Aircraft:
             self.salto = (self.ground_spd) * dh
             # Ha pasado el punto al que se dirige
             if self.salto > self.vect[0] or self.waypoint_reached():
+                # logging.debug("%s: passed %s" % (self.callsign, self.route[0]))
                 if len(self.route) == 1:
                     if self.app_auth and fir.ad_has_ifr_rwys(self.ades):
                         self.to_do = 'app'
@@ -685,7 +693,7 @@ class Aircraft:
                         self.t = t
                     # Si el último punto está en la lista de aeropuertos,
                     # orbita sobre él
-                    elif self.route[0].fix in fir.aerodromes.keys():
+                    elif self.route[0].fix in fir.aerodromes:
                         if self.to_do == 'fpr':  # En caso de que llegue a ese punto en ruta
                             try:
                                 ph = [
@@ -843,7 +851,7 @@ class Aircraft:
                     self.callsign, type, std_type))
                 self.type = std_type
             except:
-                raise("Unable to load perfomance data for " + self.callsign)
+                raise "Unable to load perfomance data for "
         self.wake = self.perf.wtc.upper()
 
     def set_campo_eco(self):
@@ -934,7 +942,7 @@ class Aircraft:
     def set_app_fix(self):
         self.iaf = 'N/A'
         for i in range(len(self.route), 0, -1):
-            if self.route[i - 1].fix in fir.iaps.keys():
+            if self.route[i - 1].fix in fir.iaps:
                 self.iaf = self.route[i - 1].fix
                 break
 
@@ -1023,7 +1031,7 @@ class Aircraft:
         self.cancel_app_auth()
 
     def int_rdl(self, aux, track):
-        if self.to_do <> 'hdg':
+        if self.to_do != 'hdg':
             self.tgt_hdg = self.hdg
         self.to_do = 'int_rdl'
         self.to_do_aux = [aux, track]
@@ -1033,7 +1041,7 @@ class Aircraft:
         self._map = True
 
     def int_ils(self):
-        if self.to_do <> 'hdg':
+        if self.to_do != 'hdg':
             self.tgt_hdg = self.hdg
         # Se supone que ha sido autorizado previamente
         self.to_do = 'app'
@@ -1051,7 +1059,7 @@ class Aircraft:
         self.set_std_rate()
 
     def int_llz(self):
-        if self.to_do <> 'hdg':
+        if self.to_do != 'hdg':
             self.tgt_hdg = self.hdg
             # Se supone que ha sido autorizado previamente
         (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
@@ -1074,7 +1082,7 @@ class Aircraft:
         self._map = False
         self.iaf = ''
         for i in range(len(self.route), 0, -1):
-            if self.route[i - 1].fix in fir.iaps.keys():
+            if self.route[i - 1].fix in fir.iaps:
                 self.iaf = self.route[i - 1].fix
                 break
         if self.iaf == '':  # No encuentra procedimiento de aprox.
@@ -1189,7 +1197,7 @@ class Aircraft:
             reached = False
         if reached:
             self._prev_on_goal = None
-            logging.debug(self.callsign, self.route[0])
+            logging.debug("%s: %s" % (self.callsign, self.route[0]))
         else:
             self._prev_on_goal = on_goal_hemiplane
         return reached
