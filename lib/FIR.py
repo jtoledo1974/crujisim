@@ -86,15 +86,15 @@ class FIR(object):
         self.release_required_ads={}
         
         import configparser
-        self._firdef = configparser.ConfigParser(inline_comment_prefixes=(';',))
-        self._firdef.readfp(codecs.open(fir_file, 'r', 'utf8'))
+        firdef = configparser.ConfigParser(inline_comment_prefixes=(';',))
+        firdef.readfp(codecs.open(fir_file, 'r', 'utf8'))
 
         # FIR name
-        self.name = self._firdef.get('datos','nombre')
+        self.name = firdef.get('datos','nombre')
         
         # Puntos del FIR
         #logging.debug('Points')
-        lista=self._firdef.items('puntos')
+        lista=firdef.items('puntos')
         for (nombre,coord) in lista:
             coord_lista=coord.split(',')
             if len(coord_lista)==2:
@@ -131,7 +131,7 @@ class FIR(object):
                             scan_again = True
 
         # FIR Routes
-        lista=self._firdef.items('rutas')
+        lista=firdef.items('rutas')
         for (num,aux) in lista:
             linea=aux.split(',')
             aux2=()
@@ -142,24 +142,24 @@ class FIR(object):
             self.routes.append([aux2])
             
         #FIR Airways   
-        lista=self._firdef.items('aerovias')
+        lista=firdef.items('aerovias')
         for (num,aux) in lista:
             linea=aux.split(',')
             self.airways.append([self.coords[p] for p in linea])
         # FIR TMAs
-        if self._firdef.has_section('tmas'):
-            lista=self._firdef.items('tmas')
+        if firdef.has_section('tmas'):
+            lista=firdef.items('tmas')
             for (num,aux) in lista:
                 linea=aux.split(',')
                 self.tmas.append([self.coords[p] for p in linea])
         # Local maps
-        if self._firdef.has_section('mapas_locales'):
-            local_map_string = self._firdef.get('mapas_locales', 'mapas')
+        if firdef.has_section('mapas_locales'):
+            local_map_string = firdef.get('mapas_locales', 'mapas')
             local_map_sections = local_map_string.split(',')
             for map_section in local_map_sections:
-                if self._firdef.has_section(map_section):
-                    map_name = self._firdef.get(map_section, 'nombre')
-                    map_items = self._firdef.items(map_section)
+                if firdef.has_section(map_section):
+                    map_name = firdef.get(map_section, 'nombre')
+                    map_items = firdef.items(map_section)
                     self.local_maps_order.append(map_name)
                     # Store map name and graphical objects in local_maps
                     # dictionary (key: map name)
@@ -170,18 +170,18 @@ class FIR(object):
                             map_objects.append(item[1].split(','))
                     self.local_maps[map_name] = map_objects
         # FIR aerodromes
-        if self._firdef.has_section('aeropuertos'):
-            lista=self._firdef.items('aeropuertos')
+        if firdef.has_section('aeropuertos'):
+            lista=firdef.items('aeropuertos')
             for (num,aux) in lista:
                 for a in aux.split(','):
                     self.aerodromes[a] = AD_HP(a)
-        if self._firdef.has_section('elevaciones'):
-            elev_list=self._firdef.items('elevaciones')[0][1].split(",")
+        if firdef.has_section('elevaciones'):
+            elev_list=firdef.items('elevaciones')[0][1].split(",")
             for ad,elev in zip(list(self.aerodromes.keys()), elev_list):
                 self.aerodromes[ad].val_elev=int(elev)
         # Published holding patterns
-        if self._firdef.has_section('esperas_publicadas'):
-            lista=self._firdef.items('esperas_publicadas')
+        if firdef.has_section('esperas_publicadas'):
+            lista=firdef.items('esperas_publicadas')
             for (fijo,datos) in lista:
                 (rumbo,tiempo_alej,lado) = datos.split(',')
                 rumbo,tiempo_alej,lado = float(rumbo),float(tiempo_alej),lado.upper()
@@ -189,8 +189,8 @@ class FIR(object):
                 else: std_turns = False
                 self.holds.append(Hold(fijo.upper(),rumbo,tiempo_alej,std_turns))
         # IFR Runways
-        if self._firdef.has_section('aeropuertos_con_procedimientos'):
-            lista=self._firdef.items('aeropuertos_con_procedimientos')
+        if firdef.has_section('aeropuertos_con_procedimientos'):
+            lista=firdef.items('aeropuertos_con_procedimientos')
             for (airp,total_rwys) in lista:
                 ad = self.aerodromes[airp.upper()]
                 for rwy in total_rwys.split(','):
@@ -202,12 +202,12 @@ class FIR(object):
                                      for rwy in ad.rwy_direction_list):
             pista = ad.code_id+rwy_direction.txt_desig
             # SID
-            lista = self._firdef.items('sid_'+pista)
+            lista = firdef.items('sid_'+pista)
             for (sid_desig,sid_points) in lista:
                 sid_desig = sid_desig.upper()
                 rwy_direction.sid_dict[sid_desig] = SID(sid_desig, sid_points)
             # Procedimientos STAR
-            lista = self._firdef.items('star_'+pista)
+            lista = firdef.items('star_'+pista)
             for (star_desig,star_points) in lista:
                 star_desig = star_desig.upper()
                 rwy_direction.star_dict[star_desig] = STAR(star_desig, star_points)
@@ -217,7 +217,7 @@ class FIR(object):
                         for ad in self.aerodromes.values()
                           for rwy in ad.rwy_direction_list):
             # Procedimientos aproximación
-            procs_app=self._firdef.items('app_'+pista)
+            procs_app=firdef.items('app_'+pista)
             for [fijo,lista] in procs_app:
                 lista = lista.split(',')
                 #logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
@@ -266,8 +266,8 @@ class FIR(object):
         #logging.debug ('Lista de procedimientos de aproximación'+str(self.iaps)
         
         # Deltas del FIR
-        if self._firdef.has_section('deltas'):
-            lista=self._firdef.items('deltas')
+        if firdef.has_section('deltas'):
+            lista=firdef.items('deltas')
             for (num,aux) in lista:
                 #logging.debug ('Leyendo delta '+str(num))
                 linea=aux.split(',')
@@ -275,9 +275,9 @@ class FIR(object):
                 
         # Sector characteristics
                 
-        for section in self._firdef.sections():
+        for section in firdef.sections():
             if section[0:6]=='sector':
-                sector_name=self._firdef.get(section,'nombre')
+                sector_name=firdef.get(section,'nombre')
                 self.sectors.append(sector_name)
                 self._sector_sections[sector_name]=section
                 self.boundaries[sector_name]=[]
@@ -290,7 +290,7 @@ class FIR(object):
         for (sector,section) in self._sector_sections.items():
         
             # Límites del sector
-            aux2=self._firdef.get(section,'limites').split(',')
+            aux2=firdef.get(section,'limites').split(',')
             for a in aux2:
                 auxi=True
                 for q in self.points:
@@ -302,15 +302,15 @@ class FIR(object):
              
              #Build TWO LOCAL MAPS: One with sectors limits, and the other with the transparency
                     # Separación mínima del sector
-            if self._firdef.has_option(section,'min_sep'):
-                self.min_sep[sector]=float(self._firdef.get(section,'min_sep'))
+            if firdef.has_option(section,'min_sep'):
+                self.min_sep[sector]=float(firdef.get(section,'min_sep'))
             else:
                 logging.debug ('No encontrada separación en sector '+sector+'. Se asumen 8 NM de separación mínima.')
                 self.min_sep[sector] = 8.0
                 
             # Despegues automáticos o manuales
-            if self._firdef.has_option(section,'auto_departure'):
-                aux2=self._firdef.get(section,'auto_departure').upper()
+            if firdef.has_option(section,'auto_departure'):
+                aux2=firdef.get(section,'auto_departure').upper()
                 if aux2 == 'AUTO':
                     self.auto_departures[sector] = True
                 elif aux2 == 'MANUAL':
@@ -324,7 +324,7 @@ class FIR(object):
                 
             # Fijos de impresión primarios
             fijos_impresion=[]
-            aux2=self._firdef.get(section,'fijos_de_impresion').split(',')
+            aux2=firdef.get(section,'fijos_de_impresion').split(',')
             for a in aux2:
                 auxi=True
                 for q in self.points:
@@ -334,8 +334,8 @@ class FIR(object):
                 if auxi:
                     logging.warning ('No encontrado el fijo de impresión '+a)
             # Fijos de impresión secundarios
-            if self._firdef.has_option(section,'fijos_de_impresion_secundarios'):
-                aux2=self._firdef.get(section,'fijos_de_impresion_secundarios').split(',')
+            if firdef.has_option(section,'fijos_de_impresion_secundarios'):
+                aux2=firdef.get(section,'fijos_de_impresion_secundarios').split(',')
                 for a in aux2:
                     auxi=True
                     for q in self.points:
@@ -348,12 +348,12 @@ class FIR(object):
                 logging.debug ('No hay fijos de impresión secundarios (no hay problema)')
                 
             # Local ADs
-            try: ads=self._firdef.get(section,'local_ads').split(',')
+            try: ads=firdef.get(section,'local_ads').split(',')
             except: ads=[]
             self.local_ads[sector]=ads
         
             # Release required ADs
-            try: ads=self._firdef.get(section,'release_required_ads').split(',')
+            try: ads=firdef.get(section,'release_required_ads').split(',')
             except: ads=[]
             self.release_required_ads[sector]=ads
 
