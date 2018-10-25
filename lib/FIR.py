@@ -19,15 +19,23 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Information regarding a Flight Information Region"""
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import range
+from builtins import object
 
 import logging
 import os
 import re
+import codecs
 from stat import *
 
 # Application imports
-from MathUtil import *
-import Route
+from .MathUtil import *
+from . import Route
 
 # TODO the whole FIR object should be rewritten
 # The file format should probably be switched to an XML file that more closely follows
@@ -39,7 +47,7 @@ import Route
 
 # All fir elements should be turned into classes, just as the Hold is now
 
-class FIR:
+class FIR(object):
     """FIR information and processess"""
     def __init__(self, fir_file):
         """Create a FIR instance"""
@@ -77,9 +85,9 @@ class FIR:
         self.local_ads={}
         self.release_required_ads={}
         
-        import ConfigParser
-        self._firdef = ConfigParser.ConfigParser()
-        self._firdef.readfp(open(fir_file,'r'))
+        import configparser
+        self._firdef = configparser.ConfigParser(inline_comment_prefixes=(';',))
+        self._firdef.readfp(codecs.open(fir_file, 'r', 'utf8'))
 
         # FIR name
         self.name = self._firdef.get('datos','nombre')
@@ -169,7 +177,7 @@ class FIR:
                     self.aerodromes[a] = AD_HP(a)
         if self._firdef.has_section('elevaciones'):
             elev_list=self._firdef.items('elevaciones')[0][1].split(",")
-            for ad,elev in zip(self.aerodromes.keys(), elev_list):
+            for ad,elev in zip(list(self.aerodromes.keys()), elev_list):
                 self.aerodromes[ad].val_elev=int(elev)
         # Published holding patterns
         if self._firdef.has_section('esperas_publicadas'):
@@ -350,28 +358,28 @@ class FIR:
             self.release_required_ads[sector]=ads
 
         # Load the route database which correspond to this FIR
-        import Exercise
+        from . import Exercise
         try:
             self.routedb=Exercise.load_routedb(os.path.dirname(self.file))
         except:
             logging.warning("Unable to load route database from "+os.path.dirname(self.file)+". Using blank db")        
             
     def get_point_coordinates(self,point_name):
-        if point_name in self.coords.keys():
+        if point_name in self.coords:
             return self.coords[point_name]
         elif re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()):
             v = re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()).groups()
             return (float(v[0]), float(v[3]))
         else:
-            raise RuntimeError, 'Point %s not found in %s'%(point_name, self.file)
+            raise RuntimeError('Point %s not found in %s'%(point_name, self.file))
         
     def ad_has_ifr_rwys(self, code_id):
-        return code_id in self.aerodromes.keys() \
+        return code_id in self.aerodromes \
                         and len(self.aerodromes[code_id].rwy_direction_list)>0
             
 
 def load_firs(path):
-    import ConfigParser
+    import configparser
     
     firs = []
     
@@ -398,14 +406,14 @@ def load_firs(path):
 # the non-standard attribute 'pos' to store the cartesian coordinates of objects,
 # rather than the aicm standard geo_lat and geo_lon
 
-class Designated_Point:
+class Designated_Point(object):
     def __init__(self, code_id, pos):
         self.code_id    = code_id
         self.pos        = pos
         
 Point = Designated_Point  # Alias for the class
 
-class AD_HP: # Aerodrome / Heliport
+class AD_HP(object): # Aerodrome / Heliport
     def __init__(self, code_id, txt_name = '', pos = None, val_elev = 0):
         self.code_id                = code_id
         self.txt_name               = txt_name
@@ -420,7 +428,7 @@ class AD_HP: # Aerodrome / Heliport
                                if sid.txt_desig==txt_desig][0]
         
 
-class Hold:
+class Hold(object):
     # TODO this does not reflect AICM. We need to support the whole
     # procedure_leg in order to do this
     def __init__(self, fix, inbd_track=180, outbd_time=1, std_turns=True, min_FL=000, max_FL=999):
@@ -431,14 +439,14 @@ class Hold:
         self.min_FL     = min_FL        # minimun FL at the holding pattern
         self.max_FL     = max_FL        # maximun FL at the holding pattern
         
-class RWY_DIRECTION:
+class RWY_DIRECTION(object):
     def __init__(self, txt_desig):
         self.txt_desig  = txt_desig  # TXT_DESIG must have between 2 and 3 characters, of which the first 2 may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T, etc..
         self.sid_dict   = {}
         self.star_dict  = {}
         self.iap_dict   = {}
         
-class STAR:
+class STAR(object):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
@@ -449,7 +457,7 @@ class STAR:
 
     def __str__(self): return self.txt_desig
         
-class SID:
+class SID(object):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
@@ -462,4 +470,4 @@ class SID:
 
 if __name__ == "__main__":
     #FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
-    print [fir.file for fir in load_firs('..')]
+    print([fir.file for fir in load_firs('..')])
