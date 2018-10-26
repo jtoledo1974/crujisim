@@ -20,18 +20,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 # Sys imports
-from __future__ import print_function
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import object
 import sys
 sys.path.append("lib")
-import pickle
+import cPickle
+pickle = cPickle
 import logging
 import zlib
-from tkinter.tix import *
+from Tix import *
 
 # Twisted imports
 from twisted.internet import reactor, tksupport, defer
@@ -39,12 +34,12 @@ from twisted.internet.protocol import ClientCreator
 from twisted.protocols.basic import NetstringReceiver
 
 # Program imports
-from .Pseudopilot import PpDisplay
-from .UCS import UCS
-from .FIR import *
-from . import UI
-from .StripSeries import StripSeries
-from . import Route  # In order to set the fir object
+from Pseudopilot import PpDisplay
+from UCS import UCS
+from FIR import *
+import UI
+from StripSeries import StripSeries
+import Route  # In order to set the fir object
 
 # Constants
 PSEUDOPILOT = "pseudopilot"
@@ -107,7 +102,7 @@ class GTA_Client_Protocol(NetstringReceiver):
         logging.debug("GTA_Client_Protocol.__del__")
 
 
-class RemoteClient(object):
+class RemoteClient:
 
     def __init__(self, conf):
         self.conf = conf
@@ -255,11 +250,11 @@ def main():
     def ask_ip():
         try:
             (ip, port) = ConnectDialog(root, conf).result
-            print(ip, port)
+            print ip, port
         except:
             reactor.stop()
             return
-        print("Connecting " + ip + ", port " + str(port))
+        print "Connecting " + ip + ", port " + str(port)
         RemoteClient().connect(ip, port, ATC, connectionLost).addErrback(failed_connection)
 
     reactor.callWhenRunning(ask_ip)
