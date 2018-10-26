@@ -259,12 +259,19 @@ class Crujisim:
         ia = [(index, attr) for attr, index in self.ex_ls_cols.items()]
         ia.sort()
         for index, attr in ia:
+            try:
+                is_str = type(getattr(e, attr)) is str or type(getattr(e, attr)) is unicode
+            except NameError:
+                is_str = type(getattr(e, attr)) is str
+            except AttributeError:
+                pass
+
             if attr == "file":
                 row.append(e.file)
             elif attr == "exercise_id":
                 row.append(str(id(e)))
-            elif type(getattr(e, attr)) is str:
-                row.append(utf8conv(getattr(e, attr)))
+            elif is_str:
+                row.append(getattr(e, attr))
             elif type(getattr(e, attr)) is int:
                 row.append(getattr(e, attr))
             elif type(getattr(e, attr)) is NoneType:
