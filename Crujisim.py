@@ -85,12 +85,7 @@ except:
     logging.exception("Error loading program modules")
     sys.exit(1)
 
-# TODO this works as it is, but it's probably not the best way to do it.
-if sys.platform == "win32":
-    encoding = locale.getpreferredencoding()
-else:
-    encoding = "cp1252"
-utf8conv = lambda x: unicode(x, encoding).encode('utf8')
+# All data files are expected to be UTF-8 encoded
 
 # CONSTANTS
 EX_DIR = "pasadas"
@@ -142,7 +137,7 @@ class Crujisim:
         for l in j.split("|"):
             joke += l + "\n"
         joke = joke[:-1]
-        splash.get_widget('jokelabel').set_text(utf8conv(joke))
+        splash.get_widget('jokelabel').set_text(joke)
         splash_window = splash.get_widget("Splash")
         splash_window.set_position(gtk.WIN_POS_CENTER)
         splash_window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
@@ -215,7 +210,7 @@ class Crujisim:
         renderer.props.ypad = 0
 
         self.n_ex = len(els)
-        self.sb.push(0, utf8conv("Cargados " + str(self.n_ex) + " ejercicios"))
+        self.sb.push(0, "Cargados " + str(self.n_ex) + " ejercicios")
         self.set_filter()  # Load all combos with all options
         UI.set_active_text(self.fircombo, conf.fir_option)
         UI.set_active_text(self.sectorcombo, conf.sector_option)
@@ -302,8 +297,8 @@ class Crujisim:
         self.update_combo("phase", self.phasecombo, ("course",))
         ne = len(self.etf)
         self.sb.pop(0)
-        self.sb.push(0, utf8conv("Mostrando " + str(ne) +
-                                 " de " + str(self.n_ex) + " ejercicios"))
+        self.sb.push(0, "Mostrando " + str(ne) + \
+                                 " de " + str(self.n_ex) + " ejercicios")
 
     def update_combo(self, field, combo, childfields):
         self._updating_combos = True
@@ -327,7 +322,7 @@ class Crujisim:
         combo.set_active(0)
         i = 1
         for value in values.keys():
-            combo.append_text(utf8conv(str(value)))
+            combo.append_text(str(value))
             if str(value) == str(old_value):
                 combo.set_active(i)
             i += 1
@@ -354,8 +349,8 @@ class Crujisim:
             f = open("backup.eje", "rb")
             e = cPickle.loads(zlib.decompress(f.read()))
             f.close()
-            r = UI.alert(utf8conv("""Crujisim se cerró sin haber guardado un ejercicio.
-¿Desea editar la copia de seguridad?"""),
+            r = UI.alert("""Crujisim se cerró sin haber guardado un ejercicio.
+¿Desea editar la copia de seguridad?""",
                          parent=self.MainWindow,
                          type=gtk.MESSAGE_QUESTION,
                          buttons=gtk.BUTTONS_YES_NO)
@@ -469,7 +464,7 @@ class Crujisim:
 
         def failed(var=None):
             self.MainWindow.present()
-            UI.alert(utf8conv("Imposible conectar con " + host + ":" + str(port)),
+            UI.alert("Imposible conectar con " + host + ":" + str(port),
                      parent=self.MainWindow,
                      type=gtk.MESSAGE_WARNING)
 
@@ -550,7 +545,7 @@ class ExEditor:
         self.firs = firs  # Save firs list
         UI.blank_combo(self.fircombo)
         for fir in [fir.name for fir in self.firs]:
-            self.fircombo.append_text(utf8conv(str(fir)))
+            self.fircombo.append_text(str(fir))
         UI.set_active_text(self.fircombo, [fir.name for fir in self.firs][0])
 
         # Store types list
@@ -582,7 +577,7 @@ class ExEditor:
         UI.blank_combo(self.sectorcombo)
         first = True
         for sector in self.fir.sectors:
-            self.sectorcombo.append_text(utf8conv(str(sector)))
+            self.sectorcombo.append_text(str(sector))
             if first:
                 self.sectorcombo.set_active(0)
                 first = False
@@ -596,15 +591,14 @@ class ExEditor:
 
         ex_file = ex.file
 
-        self.ExEditor.set_title("Editor: " + utf8conv(ex_file))
+        self.ExEditor.set_title("Editor: " + ex_file)
         # Also sets the sector automatically
         UI.set_active_text(self.fircombo, ex.fir)
         for attrib in ("da", "usu", "ejer", "course", "phase", "day", "pass_no", "shift", "comment",
                        "wind_azimuth", "wind_knots", "start_time"):
             try:
                 if type(getattr(ex, attrib)) is str:
-                    getattr(self, attrib).props.text = utf8conv(
-                        getattr(ex, attrib))
+                    getattr(self, attrib).props.text = getattr(ex, attrib)
                 else:
                     getattr(self, attrib).props.text = getattr(ex, attrib)
             except:
@@ -632,7 +626,7 @@ class ExEditor:
         try:
             index = model.get_value(iter, 0)
         except:
-            UI.alert(utf8conv("No hay ningún vuelo seleccionado"),
+            UI.alert("No hay ningún vuelo seleccionado",
                      parent=self.ExEditor)
             return
         firname = UI.get_active_text(self.fircombo)
@@ -674,7 +668,7 @@ class ExEditor:
         try:
             index = model.get_value(iter, 0)
         except:
-            UI.alert(utf8conv("No hay ningún vuelo seleccionado"),
+            UI.alert("No hay ningún vuelo seleccionado",
                      parent=self.ExEditor)
             return
         del self.ex.flights[index]
@@ -698,13 +692,13 @@ class ExEditor:
         except:
             w.props.text = ""
         gtk.gdk.beep()
-        self.sb.push(0, utf8conv("Introduzca únicamente caracteres numéricos"))
+        self.sb.push(0, "Introduzca únicamente caracteres numéricos")
 
     def on_shift_changed(self, w):
         text = w.props.text = w.props.text.upper()
         if text not in ("T", "M", ""):
             gtk.gdk.beep()
-            self.sb.push(0, utf8conv("Introduzca T o M"))
+            self.sb.push(0, "Introduzca T o M")
             try:
                 w.props.text = w.previous_value
             except:
@@ -727,8 +721,7 @@ class ExEditor:
             except:
                 w.props.text = ""
             gtk.gdk.beep()
-            self.sb.push(0, utf8conv(
-                "Introduzca una hora en formato hhmm o hh:mm"))
+            self.sb.push(0, "Introduzca una hora en formato hhmm o hh:mm")
 
     def fill_ex(self, e):
         """Copies data from the dialog into the given exercise object"""
@@ -774,7 +767,7 @@ class ExEditor:
             return
         elif response == gtk.RESPONSE_CANCEL:
             if self.fill_ex(self.ex.copy()) != self.ex_copy:
-                r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
+                r = UI.alert("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?",
                              type=gtk.MESSAGE_WARNING,
                              buttons=gtk.BUTTONS_OK_CANCEL)
                 if r != gtk.RESPONSE_OK:
@@ -804,7 +797,7 @@ class ExEditor:
                 logging.debug(
                     "User clicked save but exercise was not modified")
             # Upload exercise file
-            r = UI.alert(utf8conv("""¿Desea subir el archivo a la Tortuga?"""),
+            r = UI.alert("""¿Desea subir el archivo a la Tortuga?""",
                          parent=self.ExEditor,
                          type=gtk.MESSAGE_QUESTION,
                          buttons=gtk.BUTTONS_YES_NO)
@@ -963,8 +956,7 @@ class FlightEditor:
         if wtc.upper() not in ("H", "M", "L", ""):
             self.wtc.props.text = ""
             gtk.gdk.beep()
-            self.sb.push(0, utf8conv(
-                "Categoría de estela turbulenta debe ser H, M o L"))
+            self.sb.push(0, "Categoría de estela turbulenta debe ser H, M o L")
             return
         self.sb.pop(0)
         if len(wtc) == 1:
@@ -1006,8 +998,7 @@ class FlightEditor:
             except:
                 w.props.text = ""
             gtk.gdk.beep()
-            self.sb.push(0, utf8conv(
-                "Formato incorrecto de aeródromo de origen"))
+            self.sb.push(0, "Formato incorrecto de aeródromo de origen")
             return
         w.previous_value = text
         self.sb.pop(0)
@@ -1055,7 +1046,7 @@ class FlightEditor:
                 w.props.text = w.previous_value
             except:
                 w.props.text = ""
-            self.sb.push(0, utf8conv(err))
+            self.sb.push(0, err)
             gtk.gdk.beep()
             w.grab_focus()
             return
@@ -1100,7 +1091,7 @@ class FlightEditor:
             except:
                 w.props.text = ""
             gtk.gdk.beep()
-            self.sb.push(0, utf8conv("El fijo debe pertenecer a la ruta"))
+            self.sb.push(0, "El fijo debe pertenecer a la ruta")
             return
         w.previous_value = text
         self.sb.pop(0)
@@ -1118,7 +1109,7 @@ class FlightEditor:
         except:
             w.props.text = ""
         gtk.gdk.beep()
-        self.sb.push(0, utf8conv("Introduzca únicamente caracteres numéricos"))
+        self.sb.push(0, "Introduzca únicamente caracteres numéricos")
 
     def check_alpha(self, w):
         text = w.props.text
@@ -1156,7 +1147,7 @@ class FlightEditor:
             except:
                 w.props.text = ""
             gtk.gdk.beep()
-            self.sb.push(0, utf8conv("Introduzca una hora en formato hhmm"))
+            self.sb.push(0, "Introduzca una hora en formato hhmm")
 
     def fill_flight(self, f):
         """Copies data from the dialog into the given flight object"""
@@ -1189,7 +1180,7 @@ class FlightEditor:
             return
         elif response == gtk.RESPONSE_CANCEL:
             if self.flight != self.fill_flight(self.flight.copy()):
-                r = UI.alert(utf8conv("Se ha modificado el vuelo. ¿Desea abandonar los cambios?"),
+                r = UI.alert("Se ha modificado el vuelo. ¿Desea abandonar los cambios?",
                              type=gtk.MESSAGE_WARNING,
                              buttons=gtk.BUTTONS_OK_CANCEL)
                 if r != gtk.RESPONSE_OK:
@@ -1223,7 +1214,7 @@ class FlightEditor:
             if fix not in route.split(" "):
                 culprit = self.fix
                 valid = False
-                self.sb.push(0, utf8conv("El fijo debe pertenecer a la ruta"))
+                self.sb.push(0, "El fijo debe pertenecer a la ruta")
         for (field, pattern) in checklist:
             widget = getattr(self, field)
             value = widget.props.text
