@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#-*- coding:iso8859-15 -*-
+# -*- coding:utf-8 -*-
 # $Id$
 # (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
 #
@@ -170,7 +170,7 @@ class Crujisim:
         # This is the mapping between actually displayed cols and the model
         # cols
         self.ex_tv_cols = (("FIR", "fir"), ("Sector", "sector"),
-                           ("Prom - Fase - Día - Pasada", "CPDP"),
+                           ("Prom - Fase - DÃ­a - Pasada", "CPDP"),
                            ("Ejer.", "ejer"), ("Vuelos", "n_flights"),
                            ("Viento", "wind_text"), ("Comentario", "comment"))
 
@@ -207,7 +207,7 @@ class Crujisim:
         etv.get_selection().set_mode(gtk.SELECTION_SINGLE)
         renderer = gtk.CellRendererText()
         for i, name in [(self.ex_ls_cols[ls_col], name) for (name, ls_col) in self.ex_tv_cols]:
-            column = gtk.TreeViewColumn(utf8conv(name), renderer, text=i)
+            column = gtk.TreeViewColumn(name, renderer, text=i)
             column.set_clickable(True)
             column.set_sort_column_id(i)
             column.set_resizable(True)
@@ -235,11 +235,11 @@ class Crujisim:
         els = self.els
         # Add columns to the exercise list suitable for display
         if (e.wind_azimuth, e.wind_knots) != (0, 0):
-            e.wind_text = "%03dº%02dkt" % (e.wind_azimuth, e.wind_knots)
+            e.wind_text = "%03dÂº%02dkt" % (e.wind_azimuth, e.wind_knots)
         else:
             e.wind_text = ""
         try:
-            e.PDP = "Fase %d - Día %02d - Pasada %d" % (
+            e.PDP = "Fase %d - DÃ­a %02d - Pasada %d" % (
                 e.phase, e.day, e.pass_no)
         except:
             e.PDP = ""
@@ -354,8 +354,8 @@ class Crujisim:
             f = open("backup.eje", "rb")
             e = cPickle.loads(zlib.decompress(f.read()))
             f.close()
-            r = UI.alert(utf8conv("""Crujisim se cerró sin haber guardado un ejercicio.
-¿Desea editar la copia de seguridad?"""),
+            r = UI.alert(utf8conv("""Crujisim se cerrÃ³ sin haber guardado un ejercicio.
+Â¿Desea editar la copia de seguridad?"""),
                          parent=self.MainWindow,
                          type=gtk.MESSAGE_QUESTION,
                          buttons=gtk.BUTTONS_YES_NO)
@@ -632,7 +632,7 @@ class ExEditor:
         try:
             index = model.get_value(iter, 0)
         except:
-            UI.alert(utf8conv("No hay ningún vuelo seleccionado"),
+            UI.alert(utf8conv("No hay ningÃºn vuelo seleccionado"),
                      parent=self.ExEditor)
             return
         firname = UI.get_active_text(self.fircombo)
@@ -674,7 +674,7 @@ class ExEditor:
         try:
             index = model.get_value(iter, 0)
         except:
-            UI.alert(utf8conv("No hay ningún vuelo seleccionado"),
+            UI.alert(utf8conv("No hay ningÃºn vuelo seleccionado"),
                      parent=self.ExEditor)
             return
         del self.ex.flights[index]
@@ -698,7 +698,7 @@ class ExEditor:
         except:
             w.props.text = ""
         gtk.gdk.beep()
-        self.sb.push(0, utf8conv("Introduzca únicamente caracteres numéricos"))
+        self.sb.push(0, utf8conv("Introduzca Ãºnicamente caracteres numÃ©ricos"))
 
     def on_shift_changed(self, w):
         text = w.props.text = w.props.text.upper()
@@ -774,7 +774,7 @@ class ExEditor:
             return
         elif response == gtk.RESPONSE_CANCEL:
             if self.fill_ex(self.ex.copy()) != self.ex_copy:
-                r = UI.alert(utf8conv("Se ha modificado el ejercicio. ¿Desea abandonar los cambios?"),
+                r = UI.alert(utf8conv("Se ha modificado el ejercicio. Â¿Desea abandonar los cambios?"),
                              type=gtk.MESSAGE_WARNING,
                              buttons=gtk.BUTTONS_OK_CANCEL)
                 if r != gtk.RESPONSE_OK:
@@ -804,7 +804,7 @@ class ExEditor:
                 logging.debug(
                     "User clicked save but exercise was not modified")
             # Upload exercise file
-            r = UI.alert(utf8conv("""¿Desea subir el archivo a la Tortuga?"""),
+            r = UI.alert(utf8conv("""Â¿Desea subir el archivo a la Tortuga?"""),
                          parent=self.ExEditor,
                          type=gtk.MESSAGE_QUESTION,
                          buttons=gtk.BUTTONS_YES_NO)
@@ -964,7 +964,7 @@ class FlightEditor:
             self.wtc.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, utf8conv(
-                "Categoría de estela turbulenta debe ser H, M o L"))
+                "CategorÃ­a de estela turbulenta debe ser H, M o L"))
             return
         self.sb.pop(0)
         if len(wtc) == 1:
@@ -1007,7 +1007,7 @@ class FlightEditor:
                 w.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, utf8conv(
-                "Formato incorrecto de aeródromo de origen"))
+                "Formato incorrecto de aerÃ³dromo de origen"))
             return
         w.previous_value = text
         self.sb.pop(0)
@@ -1045,7 +1045,7 @@ class FlightEditor:
             if c.isalnum() or c == "_" or c == " " or c == ",":
                 continue
             valid = False
-            err = "Caracter no válido en la ruta"
+            err = "Caracter no vÃ¡lido en la ruta"
             break
         if self.adep.props.text == text.split(" ")[0] and text != "" and self.adep.props.text != "":
             valid = False
@@ -1118,7 +1118,7 @@ class FlightEditor:
         except:
             w.props.text = ""
         gtk.gdk.beep()
-        self.sb.push(0, utf8conv("Introduzca únicamente caracteres numéricos"))
+        self.sb.push(0, utf8conv("Introduzca Ãºnicamente caracteres numÃ©ricos"))
 
     def check_alpha(self, w):
         text = w.props.text
@@ -1189,7 +1189,7 @@ class FlightEditor:
             return
         elif response == gtk.RESPONSE_CANCEL:
             if self.flight != self.fill_flight(self.flight.copy()):
-                r = UI.alert(utf8conv("Se ha modificado el vuelo. ¿Desea abandonar los cambios?"),
+                r = UI.alert(utf8conv("Se ha modificado el vuelo. Â¿Desea abandonar los cambios?"),
                              type=gtk.MESSAGE_WARNING,
                              buttons=gtk.BUTTONS_OK_CANCEL)
                 if r != gtk.RESPONSE_OK:
