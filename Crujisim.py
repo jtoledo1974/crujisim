@@ -45,6 +45,7 @@ sys.path.append("lib")
 import random
 import locale
 import os
+import codecs
 from stat import *
 
 # Import libraries
@@ -128,7 +129,7 @@ class Crujisim:
         self.MainPopup = popup.get_widget('MainPopup')
 
         # Place the joke
-        lines = open(JOKES, 'rt').readlines()
+        lines = codecs.open(JOKES, 'r', 'utf8').readlines()
         try:
             j = random.choice(lines)
         except:
