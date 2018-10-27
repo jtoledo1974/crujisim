@@ -76,11 +76,11 @@ try:
     from lib.Exercise import *
     from lib.FIR import *
     import lib.BADA as BADA  # To load aircraft types
-    import lib.UI
+    import lib.UI as UI
     import lib.ConfMgr
     conf = lib.ConfMgr.CrujiConfig()
     from lib.GTAnet import GTAnet
-    from lib.RemoteClient import *
+    from lib.RemoteClient import RemoteClient, ConnectDialog, PSEUDOPILOT, ATC
 except:
     logging.exception("Error loading program modules")
     sys.exit(1)
@@ -269,7 +269,7 @@ class Crujisim:
                 row.append(getattr(e, attr))
             elif type(getattr(e, attr)) is int:
                 row.append(getattr(e, attr))
-            elif type(getattr(e, attr)) is NoneType:
+            elif type(getattr(e, attr)) is type(None):
                 ct = els.get_column_type(index)
                 # I don't really know how to map GTypes to python types,
                 # so rather than doing "if ct is int", I have to
