@@ -62,6 +62,13 @@ INACTIVE = "INACTIVE"  # Prior to the aircraft entering the first route point
 # After the aircraft reached its final waypoint and it's coasting along
 COASTING = "COASTING"
 
+LEVELS_PER_HOUR_TO_FPM = 100. / 60.
+FPM_TO_LEVELS_PER_HOUR = 60. / 100.
+LEVELS_TO_FEET = 100.
+FEET_TO_LEVELS = 1/100.
+NM_TO_LEVELS = 6076 / 100.
+LEVELS_TO_NM = 100. / 6076
+
 # Globals
 
 a = BADA.Atmosphere()
@@ -348,28 +355,46 @@ def get_hdg_obj(self, deriva, t):
                 if abs(dist_thr) < 0.50:  # Avión aterrizado
                     # En caso de estar 200 ft por encima, hace MAP o si ya ha
                     # pasado el LLZ
-                    if (self.lvl - alt_pista / 100.) > 2.or abs(derrota - rdl) > 90.:
+                    height_over_field = self.lvl * 100 - alt_pista
+                    if height_over_field > 200. or abs(derrota - rdl) > 90.:
+                        logging.debug("%s: height over field is %d at %.1fnm. Executing MAP"
+                                       % (self.callsign, height_over_field, dist_thr))
                         self._map = True
+
                     if self._map:  # Procedimiento de frustrada asignado
                         self.set_std_spd()
                         self.set_std_rate()
                         self.route = Route.Route(
                             [Route.WayPoint(p[1]) for p in puntos_map])
                     else:
-                        logging.debug("Aterrizando el " + str(self.callsign))
+                        logging.debug("%s: Landing" % self.callsign)
                         return LANDED
-                if self.esta_en_llz:  # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = perf.app_tas
-                    fl_gp = (alt_pista / 100. + dist_thr * pdte_ayuda * 60.)
+
+                if self.esta_en_llz:  
+                    # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = perf.app_tas
+                    # fl_gp = Flight level of the glidepath at the current point
+                    fl_gp = (alt_pista * FEET_TO_LEVELS 
+                             + dist_thr * pdte_ayuda * NM_TO_LEVELS)
                     if fl_gp <= self.lvl:
+                        # If above the glidepath
                         self.set_ias(self.perf.app_tas /
                                      (1.0 + 0.002 * self.lvl))
-                        self.cfl = alt_pista / 100.
-                        rate = ((self.lvl - fl_gp) * 2.0 +
-                                self.ground_spd * pdte_ayuda)
+                        self.cfl = alt_pista * FEET_TO_LEVELS
+                        rate = ((self.lvl - fl_gp) * 1 +  # Additional vertical speed to capture
+                                self.ground_spd * pdte_ayuda) * NM_TO_LEVELS  # Vert speed to descend with the glide
                         # Unidades en ft/min
-                        self.set_rate_descend(rate * 100.)
+                        achievable, max_rate = self.set_vertical_rate(-rate)
+
+                        if not achievable:
+                            self.set_vertical_rate(-max_rate)
+                            rate *= LEVELS_PER_HOUR_TO_FPM
+                            max_rate *= LEVELS_PER_HOUR_TO_FPM
+                            logging.debug("%s: Distance to threshold: %.1fnm, altitude: %dft, glidepath altitude: %dft, gs: %dkts"
+                                           % (self.callsign, dist_thr, self.lvl * 100, fl_gp * 100., self.ground_spd))
+                            logging.debug("%s: Unable to set approach descent rate %dfpm. Max is %dfpm" 
+                                           % (self.callsign, rate, max_rate))
                     else:
-                        self.set_rate_descend(0.001)
+                        self.set_vertical_rate(0.001)
                         # Ahora el movimiento en planta
                 rdl_actual = rp((rx, ry))[1]
                 if rdl < 180.0 and rdl_actual > rdl + 180.0:
@@ -587,7 +612,6 @@ class Aircraft(object):
         """Advance simulation to time t"""
         global wind
         # logging.debug("%s: %s"% (self.callsign, t))
-
         try:
             if self.pof == GROUND and t > self.eobt and self.auto_depart:
                 self.pof = TAKEOFF
@@ -922,22 +946,29 @@ class Aircraft(object):
         self.calc_eto()
         self.set_campo_eco()
 
-    def set_rate_descend(self, rate, force=False):
+    def set_vertical_rate(self, rate, force=False):
+        """Given a rate in levels per hour, try to set it for the airplane.
+        If the given rate is beyond the capabilities of the aircraft then return
+        False and the maximum settable rate in levels per hour"""  
+        # import ipdb; ipdb.set_trace()
         self.std_rate = False
+        achievable = False
+        max_rate = None
+
         if self.cfl > self.lvl:
-            rate = rate / 100. * 60.
             if rate <= self.perf.max_roc * f_vert(self) or force == True:
                 self.rocd = rate
-                return (True, None)
+                achievable = True
             else:
-                return (False, self.perf.max_roc * f_vert(self) * 100. / 60)
+                max_rate = self.perf.max_roc * f_vert(self)
         else:
-            rate = -abs(rate / 100. * 60.)
             if abs(rate) <= self.perf.max_rod or force == True:
                 self.rocd = rate
-                return (True, None)
+                achievable = True
             else:
-                return (False, -self.perf.max_rod * 100. / 60)
+                max_rate = self.perf.max_rod
+
+        return (achievable, max_rate)
 
     def set_app_fix(self):
         self.iaf = 'N/A'
