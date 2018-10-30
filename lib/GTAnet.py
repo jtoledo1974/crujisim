@@ -37,10 +37,10 @@ from twisted.protocols.basic import NetstringReceiver
 from twisted.internet.error import CannotListenError
 
 # Application imports
-import Aircraft
-from GTA import GTA
-from GTA import QNH_STD_VAR
-from RemoteClient import PSEUDOPILOT, ATC
+from . import Aircraft
+from .GTA import GTA
+from .GTA import QNH_STD_VAR
+from .RemoteClient import PSEUDOPILOT, ATC
 
 pickle = cPickle
 

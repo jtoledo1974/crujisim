@@ -34,13 +34,11 @@ import os
 import datetime
 
 # Application imports
-import Aircraft
-import Route
-import FIR
-from Exercise import Exercise
-import TLPV
-
-pickle = cPickle
+from . import Aircraft
+from . import Route
+from . import FIR
+from .Exercise import Exercise
+from . import TLPV
 
 # Constants
 # QNH standard variation mB per second

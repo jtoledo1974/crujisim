@@ -24,10 +24,9 @@ import logging
 import random
 import datetime
 
-import Route
-import MathUtil
-import StripSeries
-import Aircraft  # To use the callsign database
+from . import Route
+from . import MathUtil
+from . import StripSeries
 
 # random.seed(0)  # So that we can replicate the squawks created
 
@@ -346,6 +345,7 @@ class FlightPlan:
         self.fir_exit_t = None  # Time it leaves the FIR (if ever)
 
     def set_callsign(self, cs):
+        from . import Aircraft  # Imported here to prevent a cyclic import
         self.callsign = cs = cs.strip().upper()
         self.radio_callsign = Aircraft.get_radio_callsign(cs)
 

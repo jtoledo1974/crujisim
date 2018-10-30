@@ -73,14 +73,14 @@ except:
 # Import program modules
 try:
     import Tix
-    from Exercise import *
-    from FIR import *
-    import BADA  # To load aircraft types
-    import UI
-    import ConfMgr
-    conf = ConfMgr.CrujiConfig()
-    from GTAnet import GTAnet
-    from RemoteClient import *
+    from lib.Exercise import *
+    from lib.FIR import *
+    import lib.BADA as BADA  # To load aircraft types
+    import lib.UI
+    import lib.ConfMgr
+    conf = lib.ConfMgr.CrujiConfig()
+    from lib.GTAnet import GTAnet
+    from lib.RemoteClient import *
 except:
     logging.exception("Error loading program modules")
     sys.exit(1)
