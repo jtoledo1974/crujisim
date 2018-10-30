@@ -29,7 +29,7 @@ import datetime
 import logging
 import os
 
-from GTA import GTA
+from .GTA import GTA
 
 
 class GTAoffline(GTA):
