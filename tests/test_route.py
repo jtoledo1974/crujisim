@@ -10,17 +10,19 @@ class FIR(object):
         return (random.random() * 100, random.random() * 100)
 
 
-fir = FIR()
-crujisim.lib.Route.fir = fir
+@pytest.fixture
+def fir():
+    fir = FIR()
+    crujisim.lib.Route.fir = fir
 
 
 @pytest.fixture
-def route():
+def route(fir):
     wp_list = get_waypoints("pdt parla canes pi pi pi pi")
     return Route(wp_list)
 
 
-def test_wp_list():
+def test_wp_list(fir):
     wp_list = get_waypoints("pdt parla canes pi pi pi pi")
     assert type(wp_list) is list
 
