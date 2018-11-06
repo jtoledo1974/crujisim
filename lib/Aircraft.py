@@ -93,11 +93,11 @@ def load_callsigns():
     global callsigns
     cf = ConfigParser()
     try:
-        cf.readfp(codecs.open(CALLSIGN_FILE, "r", "utf8"))
+        cf.read_file(codecs.open(CALLSIGN_FILE, "r", "utf8"))
     except (OSError, IOError):
         this_dir = os.path.dirname(__file__)
         callsign_file = os.path.join(this_dir, os.pardir, CALLSIGN_FILE)
-        cf.readfp(codecs.open(callsign_file, "r", "utf8"))
+        cf.read_file(codecs.open(callsign_file, "r", "utf8"))
     callsigns = {}
     for cs, rcs in cf.items('Callsigns'):
         callsigns[cs.upper()] = rcs.upper()

@@ -171,7 +171,7 @@ class Exercise(object):
 
         self.file = file
         exc = ConfigParser()
-        exc.readfp(open(file, "r"))
+        exc.read_file(open(file, "r"))
         self.fir = exc.get('datos', 'fir')
         self.sector = exc.get('datos', 'sector')
         self.start_time = exc.get('datos', 'hora_inicio')
@@ -320,7 +320,7 @@ class Exercise(object):
             pass
         try:
             exc = ConfigParser()
-            exc.readfp(open(self.file, "r"))
+            exc.read_file(open(self.file, "r"))
             self.load_flights(exc)
         except:
             self.flights = {}
@@ -340,7 +340,7 @@ class Exercise(object):
         self.file = file
         try:
             exc = ConfigParser()
-            exc.readfp(open(self.file, "r"))
+            exc.read_file(open(self.file, "r"))
         except:
             logging.info("Unable to open exercise for reading prior to saving")
 
@@ -550,7 +550,7 @@ class Mapping(object):
         # f=self.mapping_file=os.path.join(dir,)
         f = mapping_file
         try:
-            mapping.readfp(open(f))
+            mapping.read_file(open(f))
         except:
             logging.info("Mapping file " + f + " does not exist")
         self.exercises = {}
@@ -686,7 +686,7 @@ def export_callsigns(el, filename, reload=True):
     csl = [f.callsign.strip("*")[:3] for e in el for f in e.flights.values()]
     callsigns = {}
     cp = ConfigParser()
-    cp.readfp(open("Modelos_avo.txt"))
+    cp.read_file(open("Modelos_avo.txt"))
     for cs in cp.options("indicativos_de_compania"):
         callsigns[cs.upper()] = cp.get('indicativos_de_compania', cs)
 
