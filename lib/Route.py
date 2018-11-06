@@ -333,6 +333,7 @@ class WayPoint(object):
         if self._pos:
             return self._pos
         else:
+            # As it is now, fir is added as an attribute by a previously loaded module
             self._pos = fir.get_point_coordinates(self.fix)
             return self._pos
 
