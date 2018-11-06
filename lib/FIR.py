@@ -87,7 +87,8 @@ class FIR(object):
         
         import configparser
         firdef = configparser.ConfigParser(inline_comment_prefixes=(';',))
-        firdef.read_file(codecs.open(fir_file, 'r', 'utf8'))
+        with codecs.open(fir_file, 'r', 'utf8') as f:
+            firdef.read_file(f)
 
         # FIR name
         self.name = firdef.get('datos','nombre')

@@ -400,11 +400,13 @@ class Atmosphere(object):
 # Basic loading
 acft_cp = configparser.ConfigParser()
 try:
-    acft_cp.read_file(open(AIRCRAFT_FILE, "r"))
+    f = open(AIRCRAFT_FILE, "r")
 except (OSError, IOError):
     this_dir = os.path.dirname(__file__)
     aircraft_file = os.path.join(this_dir, os.pardir, AIRCRAFT_FILE)
-    acft_cp.read_file(open(aircraft_file, "r"))
+    f = open(aircraft_file, "r")
+acft_cp.read_file(f)
+f.close()
 load_equiv()
 
 

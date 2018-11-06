@@ -131,7 +131,7 @@ def load_exercises(path, reload=False):
     # Cache used to be the file name, now the file object
     cache = open(cache, 'wb')
     cache.write(zlib.compress(pickle.dumps((CACHE_VERSION, le, routes))))
-    cache.close
+    cache.close()
 
     return exercises
 
@@ -148,6 +148,7 @@ def load_routedb(dir):
         load_exercises(dir)
         cache = open(cachefile, 'rb')
     version, le, routedb = pickle.loads(zlib.decompress(cache.read()))
+    cache.close()
     return routedb
 
 
@@ -171,7 +172,8 @@ class Exercise(object):
 
         self.file = file
         exc = ConfigParser()
-        exc.read_file(open(file, "r"))
+        with open(file, "r") as f:
+            exc.read_file(f)
         self.fir = exc.get('datos', 'fir')
         self.sector = exc.get('datos', 'sector')
         self.start_time = exc.get('datos', 'hora_inicio')
