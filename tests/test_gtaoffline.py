@@ -10,10 +10,9 @@ IAF = "TERRA"
 
 
 @pytest.fixture
-def gta_with_args(exc_directory):
+def gta_with_args(exc_file):
     def _gta(file="sample.exc", stop_after_minutes=15, step_callback=None):
-        file = exc_directory / file
-        gta = GTAoffline(exc_file=str(file), stop_after_minutes=15, step_callback=step_callback)
+        gta = GTAoffline(exc_file=str(exc_file), stop_after_minutes=15, step_callback=step_callback)
         return gta
 
     return _gta
