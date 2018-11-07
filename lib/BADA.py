@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:iso8859-15 -*-
+# -*- coding:iso8859-15 -*-
 # $Id$
 
 # (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
@@ -396,6 +396,7 @@ class Atmosphere(object):
         tas = tas * 0.514444444  # Turn into m/s
         mach = tas / sqrt(1.4 * 287.04 * T)
         return mach
+
 
 # Basic loading
 acft_cp = configparser.ConfigParser()
