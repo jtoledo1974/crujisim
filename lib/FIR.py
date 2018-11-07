@@ -471,6 +471,13 @@ class AD_HP(object):  # Aerodrome / Heliport
                 for sid in rwy.sid_dict.values()
                 if sid.txt_desig == txt_desig][0]
 
+    def __repr__(self):
+        s = "AD_HP(id: %r, txt_name:%r, pos:%r, val_elev:%r, %r, %r)" % (
+            self.code_id, self.txt_name, self.pos,
+            self.val_elev, self.rwy_direction_list,
+            self.rwy_in_use)
+        return s
+
 
 class Hold(object):
     # TODO this does not reflect AICM. We need to support the whole
@@ -496,6 +503,11 @@ class RWY_DIRECTION(object):
         self.star_dict = {}
         self.iap_dict = {}
 
+    def __repr__(self):
+        s = "RWY_DIRECTION(%r, %r, %r, %r" % (
+            self.txt_desig, self.sid_dict, self.star_dict, self.iap_dict)
+        return s
+
 
 class STAR(object):
     # TODO this only covers basic AICM attributes.
@@ -507,7 +519,13 @@ class STAR(object):
         self.rte = Route.Route(Route.get_waypoints(rte))
         self.start_fix = txt_desig[:-2]
 
-    def __str__(self): return self.txt_desig
+    def __str__(self):
+        return self.txt_desig
+
+    def __repr__(self):
+        s = "STAR(%r, %s, end_fix: %s)" % (
+            self.txt_desig, self.rte, self.start_fix)
+        return s
 
 
 class SID(object):
@@ -520,7 +538,14 @@ class SID(object):
         self.rte = Route.Route(Route.get_waypoints(rte))
         self.end_fix = txt_desig[:-2]
 
-    def __str__(self): return self.txt_desig
+    def __str__(self):
+        return self.txt_desig
+
+    def __repr__(self):
+        s = "SID(%r, %s, end_fix: %s)" % (
+            self.txt_desig, self.rte, self.end_fix)
+        return s
+
 
 if __name__ == "__main__":
     # FIR('/temp/radisplay/pasadas/Ruta-Convencional/Ruta-Convencional.fir')
