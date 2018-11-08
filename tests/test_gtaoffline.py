@@ -12,7 +12,8 @@ IAF = "TERRA"
 @pytest.fixture
 def gta_with_args(exc_file):
     def _gta(file="sample.exc", stop_after_minutes=15, step_callback=None):
-        gta = GTAoffline(exc_file=str(exc_file), stop_after_minutes=15, step_callback=step_callback)
+        gta = GTAoffline(exc_file=str(exc_file),
+                         stop_after_minutes=stop_after_minutes, step_callback=step_callback)
         return gta
 
     return _gta
@@ -29,8 +30,8 @@ def flight(gta):
     f = gta.get_flight(CALLSIGN)
     return f
 
-
 # TESTS
+
 
 def test_full_run(gta):
     gta.start()
