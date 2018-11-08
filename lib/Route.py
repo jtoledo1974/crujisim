@@ -320,11 +320,12 @@ class WayPoint(object):
 
         # If given in the appropriate format, store the position
         try:
-            v = re.match(
-                "X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", fix.upper()).groups()
-            self._pos = (float(v[0]), float(v[3]))
-            self.fix = "X%.1fY%.1f" % self._pos
-            self.is_geo = True
+            if fix[0].upper() == "X":
+                v = re.match(
+                    "X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", fix.upper()).groups()
+                self._pos = (float(v[0]), float(v[3]))
+                self.fix = "X%.1fY%.1f" % self._pos
+                self.is_geo = True
         except:
             pass
 
