@@ -893,19 +893,19 @@ class Aircraft(object):
         self.campo_eco = TLPV.get_exit_ades(self)
 
     def set_ias(self, ias, force=False):
-        self.std_speed = False
-
         # TODO This is a very poor approximation to the max ias
         # we are just taking the maximum cruise TAS and trying to guess
         # the maximum IAS from there.
         ias_max = min(cas_from_tas(self.perf.max_tas,
                                    self.lvl * 100), self.perf.tma_tas * 1.1)
         tas_max = self.perf.max_tas
-        if (ias < ias_max) or (force == True):
-            self.tgt_ias = float(ias)
-            return (True, None)
-        else:
+
+        if ias > ias_max and force is False:
             return (False, ias_max)
+
+        self.tgt_ias = float(ias)
+        self.std_speed = False
+        return (True, None)
 
     def set_mach(self, mach, force=False):
         lvl = self.lvl * 100
