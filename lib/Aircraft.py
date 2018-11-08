@@ -307,7 +307,11 @@ def get_hdg_obj(self, deriva, t):
             return (self.tgt_hdg - deriva) % 360.0
             # return (self.to_do_aux[1] - deriva - 45.0 * sgn(ang_aux))%360.0
     elif self.to_do == 'app':
-        (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        try:
+            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        except KeyError:
+            logging.warning("No IAF found when trying to set course for approach. Keeping current heading")
+            return self.hdg
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         if len(self.route) == 0:  # Es el primer acceso a app desde la espera. Se añaden los puntos
             for [a, b, c, h] in puntos_alt:
@@ -1074,12 +1078,16 @@ class Aircraft(object):
         self._map = True
 
     def int_ils(self):
+        # Se supone que ha sido autorizado previamente
+        try:
+            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        except KeyError:
+            logging.warning("No IAF when trying to intercept ILS")
+            return
         if self.to_do != 'hdg':
             self.tgt_hdg = self.hdg
-        # Se supone que ha sido autorizado previamente
         self.to_do = 'app'
         self.app_auth = True
-        (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         wp = Route.WP('_LLZ')
         wp._pos = xy_llz
@@ -1092,10 +1100,14 @@ class Aircraft(object):
         self.set_std_rate()
 
     def int_llz(self):
+        # Se supone que ha sido autorizado previamente
+        try:
+            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        except KeyError:
+            logging.warning("No IAF when trying to intercept LLZ")
+            return
         if self.to_do != 'hdg':
             self.tgt_hdg = self.hdg
-            # Se supone que ha sido autorizado previamente
-        (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         self.to_do = 'int_rdl'
         self.to_do_aux = ["X%fY%f" % xy_llz, rdl]
@@ -1111,16 +1123,21 @@ class Aircraft(object):
         # TODO Currently we are not checking which destination the
         # user asked for, and just clear for approach to the current
         # destination
-        self.app_auth = True
-        self._map = False
+        old_iaf = self.iaf
         self.iaf = ''
         for i in range(len(self.route), 0, -1):
             if self.route[i - 1].fix in fir.iaps:
                 self.iaf = self.route[i - 1].fix
                 break
-        if self.iaf == '':  # No encuentra procedimiento de aprox.
-            pass
-        (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        try:
+            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        except KeyError:
+            logging.warning("No IAF when trying to execute approach")
+            self.iaf = old_iaf
+            return
+        
+        self.app_auth = True
+        self._map = False
         # En este paso se desciende el tráfico y se añaden los puntos
         logging.debug('Altitud: ' + str(puntos_alt[0][3]))
         self.set_cfl(puntos_alt[0][3] / 100.)
