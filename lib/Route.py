@@ -76,27 +76,27 @@ class Route(list):
     # We need to add methods to make sure that inbd and outbound tracks
     # are deleted in the waypoints whenever the route is modified
 
-    def __init__(self, inlist=[], raise_on_unknown=False, insert_on_unknown=False):
+    def __init__(self, inlist=[], raise_on_unknown=False, insert_on_unknown=False, check=True):
         # Whether or not an exception is raised
         # when a waypoint is added with coords unknown
         self.raise_on_unknown = raise_on_unknown
         # Whether or not a waypoint whose coordinates are unknown
         # is added to the route
         self.insert_on_unknown = insert_on_unknown
-        for wp in inlist[:]:
-            if not self.check_wp(wp):
-                inlist.remove(wp)
+        if check:
+            for wp in inlist:
+                if not self.check_wp(wp):
+                    inlist.remove(wp)
         list.__init__(self, inlist)
 
     def __getslice__(self, i, j):
         return Route(list.__getslice__(self, i, j))
 
     def __getitem__(self, key):
-        try:
+        if isinstance(key, slice):
             item = list.__getitem__(self, key)
-            return Route(item)
-        except:
-            pass
+            return Route(item, check=False)
+
         item = list.__getitem__(self, self.get_waypoint_index(key))
         return item
 
@@ -193,25 +193,37 @@ class Route(list):
     def get_inbd_track(self, wp):
         """Returns the inbound track to the given waypoint"""
         i = self.get_waypoint_index(wp)
-        if i >= 0 and i < len(self) and self[i].inbd_track:
-            return self[i].inbd_track
+        length = len(self)
+
+        if i >= 0 and i < length:
+            wp = self[i]
+            if wp.inbd_track:
+                return wp.inbd_track
         # else
+
         if i < 1:
-            i = 1
-        if i > (len(self) - 1):
-            i = len(self) - 1
+            wp_to = self[1]
+            wp_from = wp
+        elif i > length - 1:  # When calculating the outbound track of the last point
+            wp_to = self[length - 1]
+            wp_from = self[length - 2]
+        else:
+            wp_to = wp
+            wp_from = self[i - 1]
+
         (distance, bearing) = MathUtil.rp(
-            MathUtil.r(self[i].pos(), self[i - 1].pos()))
-        self[i].inbd_track = bearing
+            MathUtil.r(wp_to.pos(), wp_from.pos()))
+        wp_to.inbd_track = bearing
         return bearing
 
     def get_outbd_track(self, wp):
         """Returns the outbound track after the given waypoint"""
         i = self.get_waypoint_index(wp)
-        if i >= 0 and i < len(self) and self[i].outbd_track:
-            return self[i].outbd_track
+        wp = self[i]
+        if i >= 0 and i < len(self) and wp.outbd_track:
+            return wp.outbd_track
         # else
-        self[i].outbd_track = ot = self.get_inbd_track(i + 1)
+        wp.outbd_track = ot = self.get_inbd_track(i + 1)
         return ot
 
     def legs(self):
@@ -283,13 +295,19 @@ class Route(list):
         except NameError:
             is_str = isinstance(index, str)  # For python 3
 
-        if (not is_str and not isinstance(index, WP)):
-            raise TypeError(
-                "Unable to find route index for waypoint " + str(index))
-        for i in range(len(self)):
-            if (is_str and index.upper() == self[i].fix) or \
-                    (isinstance(index, WP) and index == self[i]):
-                return i
+        if is_str:
+            index = index.upper()
+            for pos, item in enumerate(self):
+                if index == item.fix:
+                    return pos
+
+        if isinstance(index, WP):
+            for pos, item in enumerate(self):
+                if index == item:
+                    return pos
+
+        raise TypeError(
+            "Unable to find route index for waypoint " + str(index))
 
     def clear_tracks(self):
         for wp in self:
