@@ -6,7 +6,7 @@ salida1 = A320,H,LECE,EGKK,290,070,CNA,H100100F000V330,NORTA,BELEN
 ibe418 = A320,M,LEMD,LECE,280,160,BAN,MANTO,H100000F160V350
 
 [datos]
-fir = AppConv
+fir = sample
 sector = APPCONV
 hora_inicio = 10:00
 comentario = ejemplo appconv(5)
