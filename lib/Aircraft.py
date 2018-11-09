@@ -190,9 +190,7 @@ def f_vert(self):
 def get_hdg_obj(self, deriva, t):
   # Da el rumbo objetivo en función de la demanda
     if self.to_do == 'fpr':  # Mantener plan de vuelo
-        # Punto al que se dirige con corrección de deriva
-        self.pto = self.route[0].pos()
-        self.vect = rp(r(self.pto, self.pos))
+        self.vect = self.get_bearing_to_next()
         # Correción de deriva
         return self.vect[1] - deriva
     elif self.to_do == 'hdg':  # Mantener rumbo
@@ -581,6 +579,7 @@ class Aircraft(object):
         self.pos = self.route[0].pos()
         self.set_app_fix()
         self.track = self.hdg = self.route.get_outbd_track(0)
+        self.vect = self.get_bearing_to_next()  # Actually (distance, angle)
 
         self.calc_eto()
         if self.next_wp_eto:
@@ -1019,6 +1018,12 @@ class Aircraft(object):
             return ''
         else:
             return self.sector_entry_fix
+
+    def get_bearing_to_next(self):
+        # Punto al que se dirige con corrección de deriva
+        self.coords = self.route[0].pos()
+        vect = rp(r(self.coords, self.pos))
+        return vect
 
     def set_sector_entry_fix(self, fix):
         self.sector_entry_fix = fix
