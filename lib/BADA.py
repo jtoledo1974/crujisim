@@ -127,6 +127,8 @@ class Performance(object):
         self.descent_rod_table = {}
         self.descent_ff_table = {}
 
+        self.min_max_table_dicts = {}  # To be used by interpolate
+
         # Check whether the type exists in the database
         type = type.upper()
         while (True):
@@ -242,14 +244,45 @@ class Performance(object):
                 0)
 
     def interpolate(self, dict, level):
-        if level < min(dict):
-            return dict[min(dict)]
-        if level > max(dict):
-            return dict[max(dict)]
         if level in dict:
             return dict[level]
-        m_level = max([l for l in dict if l < level])
-        M_level = min([l for l in dict if l > level])
+
+        try:
+            mMd = self.min_max_table_dicts[id(dict)]
+        except KeyError:
+            mMd = {}  # minMaxdictionary
+            self.min_max_table_dicts[id(dict)] = mMd
+
+        try:
+            dict_min_level = mMd["min"]
+        except KeyError:
+            dict_min_level = min(dict)
+            mMd["min"] = dict_min_level
+
+        if level < dict_min_level:
+            return dict[dict_min_level]
+
+        try:
+            dict_max_level = mMd["max"]
+        except KeyError:
+            dict_max_level = max(dict)
+            mMd["max"] = dict_max_level
+        if level > dict_max_level:
+            return dict[dict_max_level]
+
+        try:
+            sorted_keys = mMd["sorted_keys"]
+        except KeyError:
+            sorted_keys = sorted(dict.keys())
+            mMd["sorted_keys"] = sorted_keys
+
+        for dict_level in sorted_keys:
+            if dict_level < level:
+                m_level = dict_level
+            elif dict_level > level:
+                M_level = dict_level
+                break
+
         ratio = (float(level) - m_level) / (M_level - m_level)
         low, high = dict[m_level], dict[M_level]
         return low * (1 - ratio) + high * ratio
