@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:iso8859-15 -*-
+# -*- coding:utf-8 -*-
 # $Id: banner.py 1145 2006-01-06 16:50:03Z toledo $
 
 # (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
@@ -22,61 +22,64 @@
 
 """Miscelaneuous GUI helper functions and classes"""
 
+
 class Dialog:
     """Standard dialog to be used with Tkinter"""
     import Tkinter
     import logging
 
-    def __init__(self,master,type,transient=True):
+    def __init__(self, master, type, transient=True):
         import Tkinter
-        import logging
-        
+
         if not master:
-            dlg=self.dlg=Tkinter.Tk()   
-            master=dlg
+            dlg = self.dlg = Tkinter.Tk()
+            master = dlg
         else:
-            dlg=self.dlg=Tkinter.Toplevel()
-            
-        if transient: dlg.transient(master)
-        content=Tkinter.Frame(dlg)
-        buttonbar=Tkinter.Frame(dlg)
-        
+            dlg = self.dlg = Tkinter.Toplevel()
+
+        if transient:
+            dlg.transient(master)
+        content = Tkinter.Frame(dlg)
+        buttonbar = Tkinter.Frame(dlg)
+
         content.grid()
         buttonbar.grid(padx=5, pady=5)
 
-        if type=='retry-cancel':
-            butretry=Tkinter.Button(buttonbar, text='     Reintentar    ', command=self.retry)
-            butcancel=Tkinter.Button(buttonbar,text='      Cancelar      ', command=self.cancel)
-            butretry.grid(row=0,column=0, padx=10)
-            butcancel.grid(row=0,column=1, padx=10)
-        elif type=='accept':
-            butaccept=Tkinter.Button(buttonbar, text='     Aceptar    ', command=self.accept, default="active")
-            butaccept.grid(row=0,column=0, padx=10)
+        if type == 'retry-cancel':
+            butretry = Tkinter.Button(
+                buttonbar, text='     Reintentar    ', command=self.retry)
+            butcancel = Tkinter.Button(
+                buttonbar, text='      Cancelar      ', command=self.cancel)
+            butretry.grid(row=0, column=0, padx=10)
+            butcancel.grid(row=0, column=1, padx=10)
+        elif type == 'accept':
+            butaccept = Tkinter.Button(
+                buttonbar, text='     Aceptar    ', command=self.accept, default="active")
+            butaccept.grid(row=0, column=0, padx=10)
             dlg.bind("<Return>", lambda event: self.accept())
-                
-        
-        self.dlg=dlg
-        self.content=content
-        self.master=master
-        
+
+        self.dlg = dlg
+        self.content = content
+        self.master = master
+
     def run(self):
 
-        dlg = self.dlg        
+        dlg = self.dlg
         dlg.protocol("WM_DELETE_WINDOW", self.cancel)
         dlg.focus_set()
         dlg.after_idle(self.set_window_size)
-        
-        if self.master==self.dlg:
+
+        if self.master == self.dlg:
             self.dlg.mainloop()
-    
+
     def accept(self):
         self.dlg.destroy()
         self.result = 'accept'
-        
+
     def retry(self):
         self.dlg.destroy()
         self.result = 'retry'
-        
+
     def cancel(self):
         self.dlg.destroy()
         self.result = 'cancel'
@@ -88,12 +91,14 @@ class Dialog:
         screen_height = self.master.winfo_screenheight()
         px = (screen_width - window_width) / 2
         py = (screen_height - window_height) / 2
-        self.dlg.wm_geometry("+%d+%d" % (px,py))
+        self.dlg.wm_geometry("+%d+%d" % (px, py))
+
 
 def blank_combo(combo):
     """Remove all items of a GTK combo with a list store model"""
-    while len(combo.get_model())>0:
+    while len(combo.get_model()) > 0:
         combo.remove_text(0)
+
 
 def get_active_text(combobox):
     """Get the current selected text from a GTK combo with a list store model"""
@@ -103,6 +108,7 @@ def get_active_text(combobox):
         return None
     return model[active][0]
 
+
 def set_active_text(combobox, text):
     """Set the option of a combobox to the given text if the option exists"""
     model = combobox.get_model()
@@ -111,54 +117,62 @@ def set_active_text(combobox, text):
             combobox.set_active(i)
             break
 
+
 def alert(text, parent=None, type=None, buttons=None):
     """Display a GTK dialog with user defined text"""
     import gtk
-    if type == None : type=gtk.MESSAGE_INFO
-    if buttons == None : buttons=gtk.BUTTONS_CLOSE
-    dlg=gtk.MessageDialog(parent=parent,
-                          flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=type,
-                          buttons=buttons,
-                          message_format=text)
+    if type is None:
+        type = gtk.MESSAGE_INFO
+    if buttons is None:
+        buttons = gtk.BUTTONS_CLOSE
+    dlg = gtk.MessageDialog(parent=parent,
+                            flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            type=type,
+                            buttons=buttons,
+                            message_format=text)
     dlg.set_position(gtk.WIN_POS_CENTER)
     r = dlg.run()
     dlg.destroy()
     return r
-    
+
+
 def focus_next(w):
     """Sends a tab keypress to the widget to force it to cycle the focus"""
-    import gtk
+    # import gtk
     cont = w.parent
     fc = cont.get_focus_chain()
     next = {}
-    for (widget,nextwidget) in zip(fc,fc[1:]+[fc[0]]):
-        next[widget]=nextwidget
+    for (widget, nextwidget) in zip(fc, fc[1:] + [fc[0]]):
+        next[widget] = nextwidget
     n = next[w]
-    while not n.props.can_focus or (hasattr(n.props,"editable") and  not n.props.editable) \
-        or not n.props.sensitive:
+    while not n.props.can_focus or (hasattr(n.props, "editable") and not n.props.editable) \
+            or not n.props.sensitive:
         n = next[n]
     n.grab_focus()
-    
+
+
 def flash_red(w):
     import gtk
     import gobject
     w.flash_count = 0
-    w.flash_color="white"
+    w.flash_color = "white"
+
     def flash(w):
-        if w.flash_color=="white": w.flash_color="red"
+        if w.flash_color == "white":
+            w.flash_color = "red"
         else:
-            w.flash_color="white"
+            w.flash_color = "white"
             w.flash_count += 1
         w.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse(w.flash_color))
         while gtk.events_pending():  # I'm not sure this makes any difference
             gtk.main_iteration()
-        if w.flash_count==3:
+        if w.flash_count == 3:
             return False
         else:
             return True
-    gobject.timeout_add(100,flash,w)
+    gobject.timeout_add(100, flash, w)
 
-if __name__=='__main__':
-    #alert("testing")
+
+if __name__ == '__main__':
+    # alert("testing")
     pass
