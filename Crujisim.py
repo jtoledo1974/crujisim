@@ -29,12 +29,13 @@ def setup_logging():
                         format='%(asctime)s %(levelname)s %(message)s',
                         filename='crujisim.log',
                         filemode='w')
-    l = logging.getLogger()
+    logger = logging.getLogger()
     # Important log messeges go to the console as well
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(levelname)-6s %(message)s'))
-    l.addHandler(console)
+    logger.addHandler(console)
+
 
 if __name__ == "__main__":
     setup_logging()
@@ -56,18 +57,17 @@ try:
     # The label separation code is run within it's own thread
     from twisted.python import threadable
     threadable.init()
-except:
+except ImportError:
     logging.exception("Unable to load Twisted library")
 try:
     import pygtk
     pygtk.require("2.0")
-except:
+except ImportError:
     logging.exception("Unable to load pygtk")
 try:
     import gtk
     import gtk.glade
-    import gobject
-except:
+except ImportError:
     logging.exception("Unable to load gtk")
     sys.exit(1)
 
@@ -81,8 +81,8 @@ try:
     import lib.ConfMgr
     conf = lib.ConfMgr.CrujiConfig()
     from lib.GTAnet import GTAnet
-    from lib.RemoteClient import RemoteClient, ConnectDialog, PSEUDOPILOT, ATC
-except:
+    from lib.RemoteClient import RemoteClient, PSEUDOPILOT, ATC
+except ImportError:
     logging.exception("Error loading program modules")
     sys.exit(1)
 
@@ -132,7 +132,7 @@ class Crujisim:
         lines = codecs.open(JOKES, 'r', 'utf8').readlines()
         try:
             j = random.choice(lines)
-        except:
+        except Exception:
             j = ''
         joke = ""
         for l in j.split("|"):
@@ -149,7 +149,7 @@ class Crujisim:
         self.check_backup()
 
     def load(self):
-        splash, gui = self.splash, self.gui
+        splash = self.splash
 
         # Create the model for the exercise list (cols == columns)
         self.ex_ls_cols = {"file": 0, "fir": 1, "sector": 2, "comment": 3,
@@ -177,8 +177,8 @@ class Crujisim:
         # Find possible directories containing exercices
         pb = splash.get_widget("progressbar")
         pb.set_text('Cargando ejercicios')
-        dirs = [dir for dir in os.listdir(EX_DIR) if dir[-4:] != ".svn"
-                and S_ISDIR(os.stat(os.path.join(EX_DIR, dir))[ST_MODE])]
+        dirs = [dir for dir in os.listdir(EX_DIR) if dir[-4:] != ".svn" and
+                S_ISDIR(os.stat(os.path.join(EX_DIR, dir))[ST_MODE])]
         n_dirs = len(dirs)
         i = 0.
 
@@ -237,11 +237,11 @@ class Crujisim:
         try:
             e.PDP = "Fase %d - Día %02d - Pasada %d" % (
                 e.phase, e.day, e.pass_no)
-        except:
+        except Exception:
             e.PDP = ""
         try:
             e.course_text = "Prom. %02d" % (e.course)
-        except:
+        except Exception:
             e.course_text = ""
         if e.PDP == "" or e.course_text == "":
             e.CPDP = ""
@@ -270,7 +270,7 @@ class Crujisim:
                 row.append(getattr(e, attr))
             elif type(getattr(e, attr)) is int:
                 row.append(getattr(e, attr))
-            elif type(getattr(e, attr)) is type(None):
+            elif isinstance(getattr(e, attr), type(None)):
                 ct = els.get_column_type(index)
                 # I don't really know how to map GTypes to python types,
                 # so rather than doing "if ct is int", I have to
@@ -290,7 +290,7 @@ class Crujisim:
         try:
             if self._updating_combos:
                 return
-        except:
+        except Exception:
             pass
         self.update_combo("fir", self.fircombo, ("sector", "course", "phase"))
         self.update_combo("sector", self.sectorcombo, ("course", "phase"))
@@ -298,8 +298,7 @@ class Crujisim:
         self.update_combo("phase", self.phasecombo, ("course",))
         ne = len(self.etf)
         self.sb.pop(0)
-        self.sb.push(0, "Mostrando " + str(ne) + \
-                                 " de " + str(self.n_ex) + " ejercicios")
+        self.sb.push(0, "Mostrando %s de %s ejercicios" % (ne, self.n_ex))
 
     def update_combo(self, field, combo, childfields):
         self._updating_combos = True
@@ -363,10 +362,10 @@ class Crujisim:
             else:
                 try:
                     os.remove("backup.eje")
-                except:
+                except Exception:
                     logging.info("Unable to delete backup file")
             self.MainWindow.present()
-        except:
+        except Exception:
             pass
 
     def gtk_main_quit(self, w=None, e=None):
@@ -400,7 +399,7 @@ class Crujisim:
 
         try:
             exercise_id = model.get_value(iter, self.ex_ls_cols["exercise_id"])
-        except:
+        except Exception:
             UI.alert("No hay ninguna pasada seleccionada",
                      parent=self.MainWindow)
             return
@@ -445,11 +444,11 @@ class Crujisim:
             return
         try:
             s = output["host"].strip()
-        except:
+        except Exception:
             s = ""
         try:
             (host, port) = s.split(":")
-        except:
+        except Exception:
             host, port = s, 20123
 
         # Save MRU
@@ -472,7 +471,7 @@ class Crujisim:
         self.MainWindow.hide()
         try:
             defer = RemoteClient(conf).connect(host, int(port), output["type"])
-        except:
+        except Exception:
             failed()
         defer.addCallback(exit).addErrback(failed)
 
@@ -482,7 +481,7 @@ class Crujisim:
 
         try:
             exc_file = model.get_value(iter, self.ex_ls_cols["file"])
-        except:
+        except Exception:
             UI.alert("No hay ninguna pasada seleccionada",
                      parent=self.MainWindow)
             return
@@ -494,7 +493,7 @@ class Crujisim:
         logging.debug("Creating GTA object")
         gta = GTAnet(conf, exc_file)
         logging.debug("Starting GTA thread")
-        #reactor.callInThread(lambda : gta.start().addCallback(exit))
+        # reactor.callInThread(lambda : gta.start().addCallback(exit))
         # gta.start().addCallback(exit)
         threads.deferToThread(gta.start).addCallback(exit)
 
@@ -510,7 +509,6 @@ class ExEditor:
 
     def __init__(self, exercise=None, parent=None, firs=None, types=None):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ExEditor")
-        gui.signal_autoconnect(self)
 
         # Automatically make every widget in the window an attribute of this
         # class
@@ -519,9 +517,11 @@ class ExEditor:
             # make sure we don't clobber existing attributes
             try:
                 assert not hasattr(self, name)
-            except:
+            except Exception:
                 logging.error("Failed with attr " + name)
             setattr(self, name, w)
+
+        gui.signal_autoconnect(self)
 
         self.ExEditor.connect("response", self.on_exeditor_response)
 
@@ -545,9 +545,10 @@ class ExEditor:
         # self.fir is the combobox showing fir options
         self.firs = firs  # Save firs list
         UI.blank_combo(self.fircombo)
-        for fir in [fir.name for fir in self.firs]:
+        fir_name_list = list([fir.name for fir in self.firs])
+        for fir in fir_name_list:
             self.fircombo.append_text(str(fir))
-        UI.set_active_text(self.fircombo, [fir.name for fir in self.firs][0])
+        UI.set_active_text(self.fircombo, fir_name_list[0])
 
         # Store types list
         self.types = types
@@ -563,9 +564,11 @@ class ExEditor:
         self.ExEditor.set_position(gtk.WIN_POS_CENTER)
         self.ExEditor.present()
 
-    def run(self): return self.ExEditor.run()
+    def run(self):
+        return self.ExEditor.run()
 
-    def destroy(self): self.ExEditor.destroy()
+    def destroy(self):
+        self.ExEditor.destroy()
 
     def update_sectors(self, combo=None):
 
@@ -574,6 +577,9 @@ class ExEditor:
             if firname == sel_fir:
                 self.fir = fir
                 break
+
+        if not hasattr(self, 'fir'):  # Just to remove a warning. Not sure when this happens
+            return
 
         UI.blank_combo(self.sectorcombo)
         first = True
@@ -585,7 +591,7 @@ class ExEditor:
 
         try:
             UI.set_active_text(self.sectorcombo, self.ex.sector)
-        except:
+        except Exception:
             pass
 
     def populate(self, ex):
@@ -598,14 +604,17 @@ class ExEditor:
         for attrib in ("da", "usu", "ejer", "course", "phase", "day", "pass_no", "shift", "comment",
                        "wind_azimuth", "wind_knots", "start_time"):
             try:
-                if type(getattr(ex, attrib)) is str:
-                    getattr(self, attrib).props.text = getattr(ex, attrib)
-                else:
-                    getattr(self, attrib).props.text = getattr(ex, attrib)
-            except:
-                logging.debug("Unable to populate field " +
-                              attrib + ". Using blank")
-                getattr(self, attrib).props.text = ""
+                widget_props = getattr(self, attrib).props
+                value = getattr(ex, attrib)
+                if value is None:
+                    widget_props.text = ""
+                if type(value) is str:
+                    widget_props.text = value
+                else:  # I think this is in case of unicode
+                    widget_props.text = value
+            except Exception:
+                logging.debug("Unable to populate field %s. Using blank" % attrib)
+                widget_props.text = ""
         self.flights = ex.flights
 
         self.populate_flights()
@@ -626,7 +635,7 @@ class ExEditor:
         (model, iter) = sel.get_selected()
         try:
             index = model.get_value(iter, 0)
-        except:
+        except Exception:
             UI.alert("No hay ningún vuelo seleccionado",
                      parent=self.ExEditor)
             return
@@ -668,7 +677,7 @@ class ExEditor:
         (model, iter) = sel.get_selected()
         try:
             index = model.get_value(iter, 0)
-        except:
+        except Exception:
             UI.alert("No hay ningún vuelo seleccionado",
                      parent=self.ExEditor)
             return
@@ -690,7 +699,7 @@ class ExEditor:
             return
         try:
             w.props.text = w.previous_value
-        except:
+        except Exception:
             w.props.text = ""
         gtk.gdk.beep()
         self.sb.push(0, "Introduzca únicamente caracteres numéricos")
@@ -702,7 +711,7 @@ class ExEditor:
             self.sb.push(0, "Introduzca T o M")
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             return
         self.sb.pop(0)
@@ -716,10 +725,10 @@ class ExEditor:
             if time.strftime("%H%M", time.strptime(t.ljust(4, "0"), "%H%M")) == t.ljust(4, "0"):
                 w.previous_value = text
                 self.sb.pop(0)
-        except:
+        except Exception:
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, "Introduzca una hora en formato hhmm o hh:mm")
@@ -743,13 +752,13 @@ class ExEditor:
             value = getattr(self, field).props.text
             try:
                 setattr(e, field, int(value))
-            except:
+            except Exception:
                 setattr(e, field, None)
         for field in ("wind_azimuth", "wind_knots"):
             value = getattr(self, field).props.text
             try:
                 setattr(e, field, int(value))
-            except:
+            except Exception:
                 setattr(e, field, 0)
         return e
 
@@ -790,7 +799,7 @@ class ExEditor:
                 ex.n_flights = len(ex.flights.keys())
                 try:
                     ex.save(ex.file)
-                except:
+                except Exception:
                     logging.exception("Unable to save exercise" + ex.file)
                     UI.alert("Imposible guardar ejercicio en archivo " + ex.file)
                     return
@@ -809,7 +818,7 @@ class ExEditor:
         # Remove backup file
         try:
             os.remove("backup.eje")
-        except:
+        except Exception:
             pass
 
     def validate(self):
@@ -817,7 +826,7 @@ class ExEditor:
         valid = True
         self.sb.pop(0)
         checklist = [
-            #("da","^\d{1,3}$"),("usu","^\d{1,3}$"),("ejer","^\d{1,3}$"),
+            # ("da","^\d{1,3}$"),("usu","^\d{1,3}$"),("ejer","^\d{1,3}$"),
             ("course", "^\d{2}$"), ("phase", "^\d{1}$"), ("day", "^\d{1,2}$"),
             ("pass_no", "^\d{1,2}$"), ("shift", "^[MT]$"),
             ("wind_azimuth", "^\d{1,3}$"), ("wind_knots", "^\d{1,3}$"),
@@ -859,8 +868,8 @@ class FlightEditor:
             # make sure we don't clobber existing attributes
             try:
                 assert not hasattr(self, name)
-            except:
-                logging.error("Failed with attr " + name)
+            except Exception:
+                logging.error("Failed with attr %s" % name)
             setattr(self, name, w)
 
         if parent:
@@ -900,7 +909,7 @@ class FlightEditor:
             getattr(self, attr).props.text = getattr(flight, attr)
         try:
             self.eto.props.text = hhmmss_to_hhmm(flight.eto)
-        except:
+        except Exception:
             self.eto.props.text = flight.eto
         self.firstfix.props.label = self.flight.route.split(",")[0]
 
@@ -911,9 +920,11 @@ class FlightEditor:
         # Saves a copy of the flight to check for modifications later
         self.flightcopy = self.flight.copy()
 
-    def run(self): return self.FlightEditor.run()
+    def run(self):
+        return self.FlightEditor.run()
 
-    def destroy(self): self.FlightEditor.destroy()
+    def destroy(self):
+        self.FlightEditor.destroy()
 
     def on_callsign_changed(self, w):
         w.props.text = w.props.text.upper()
@@ -932,7 +943,7 @@ class FlightEditor:
                 w.grab_focus()
                 self.sb.push(0, "Vuelo ya introducido")
                 return
-        except:
+        except Exception:
             logging.debug("Unable to check for repeated callsign")
             pass
 
@@ -947,7 +958,7 @@ class FlightEditor:
             (wtc, tas) = self.types[type].wtc, self.types[type].cruise_tas
             self.wtc.props.text = wtc
             self.wtc.props.sensitive = self.wtc.props.editable = False
-            #self.tas.props.text = tas
+            # self.tas.props.text = tas
         if len(self.type.props.text) >= 4:
             UI.focus_next(w)
 
@@ -968,7 +979,7 @@ class FlightEditor:
         if not tas.isdigit() and not tas == "":
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, "Introduzca TAS en nudos")
@@ -983,7 +994,7 @@ class FlightEditor:
             else:
                 UI.focus_next(w)
                 return
-        except:
+        except Exception:
             pass
         # If we don't have any info on the standard tas, focus next after four
         # digits
@@ -996,7 +1007,7 @@ class FlightEditor:
         if not text.isalpha() and text != "":
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, "Formato incorrecto de aeródromo de origen")
@@ -1045,7 +1056,7 @@ class FlightEditor:
         if not valid:
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             self.sb.push(0, err)
             gtk.gdk.beep()
@@ -1055,8 +1066,8 @@ class FlightEditor:
         w.props.text = text
         w.previous_value = text
         # Refill matches after we have finished writing a fix
-        l = len(text.split(" ")[-1])
-        if l in (2, 3, 5):  # eg, GE PDT DOBAN
+        length = len(text.split(" ")[-1])
+        if length in (2, 3, 5):  # eg, GE PDT DOBAN
             self.fill_completion()
         self.firstfix.props.label = text.split(" ")[0]
         if self.fix.props.text not in text.split(" ") and text != "":
@@ -1089,7 +1100,7 @@ class FlightEditor:
         if not valid and text != "":
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, "El fijo debe pertenecer a la ruta")
@@ -1107,7 +1118,7 @@ class FlightEditor:
             return
         try:
             w.props.text = w.previous_value
-        except:
+        except Exception:
             w.props.text = ""
         gtk.gdk.beep()
         self.sb.push(0, "Introduzca únicamente caracteres numéricos")
@@ -1123,7 +1134,7 @@ class FlightEditor:
         if not valid:
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             gtk.gdk.beep()
             return
@@ -1142,10 +1153,10 @@ class FlightEditor:
                 self.sb.pop(0)
                 if len(t) == 4:
                     UI.focus_next(w)
-        except:
+        except Exception:
             try:
                 w.props.text = w.previous_value
-            except:
+            except Exception:
                 w.props.text = ""
             gtk.gdk.beep()
             self.sb.push(0, "Introduzca una hora en formato hhmm")
@@ -1159,7 +1170,7 @@ class FlightEditor:
             eto, fix = self.eobt.props.text, f.route.split(",")[0]
             try:
                 firstlevel = "%03d" % self.fir.ad_elevations[f.adep]
-            except:
+            except Exception:
                 firstlevel = "000"
         else:
             eto, firstlevel, fix = self.eto.props.text, self.firstlevel.props.text, self.fix.props.text
@@ -1253,7 +1264,7 @@ def tsvn_add_commit(file):
         if not os.path.exists(svncopy):
             os.system('"' + addcommand + '"')
         os.system('"' + commitcommand + '"')
-    except:
+    except Exception:
         pass
 
 
@@ -1271,7 +1282,7 @@ class ConnectDialog:
             # make sure we don't clobber existing attributes
             try:
                 assert not hasattr(self, name)
-            except:
+            except Exception:
                 logging.error("Failed with attr " + name)
             setattr(self, name, w)
 
@@ -1289,9 +1300,11 @@ class ConnectDialog:
                 continue
             self.hostcombo.append_text(l)
 
-    def run(self): return self.ConnectDialog.run()
+    def run(self):
+        return self.ConnectDialog.run()
 
-    def destroy(self): self.ConnectDialog.destroy()
+    def destroy(self):
+        self.ConnectDialog.destroy()
 
     def on_connectdialog_delete_event(self, w, e):
         # Since we are dealing with the delete event from the response handler
@@ -1316,10 +1329,11 @@ class ConnectDialog:
                 type = PSEUDOPILOT
             self.output["type"] = type
 
+
 if __name__ == "__main__":
     logging.info("Arrancando crujisim")
     try:
         Crujisim()
         reactor.run()
-    except:
+    except Exception:
         logging.exception("An error occurred")
