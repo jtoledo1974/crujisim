@@ -610,7 +610,7 @@ class RouteDB(object):
         match_routes = self._routes.copy()
         potential_discards = []
         # Routes must contain the given fixes in the same order
-        for route in match_routes:
+        for route in self._routes:
             i = 0
             rs = route.split(',')
             for f in rs:
