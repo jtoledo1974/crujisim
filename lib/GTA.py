@@ -244,6 +244,16 @@ class GTA(object):
         for flight in (f for f in self.flights if not f.pp_pos):
             flight.complete_flight_plan()
 
+    def get_flight(self, callsign):
+        """Returns the aircraft object associated with callsign string"""
+        f = [f for f in self.flights if f.callsign.lower() == callsign.lower()]
+        try:
+            f = f[0]
+        except IndexError:
+            logging.warning("No flight with callsign %s found" % callsign)
+            return None
+        return f
+
     def kill_flight(self, f):
         self.flights.remove(f)
 
