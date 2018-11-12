@@ -929,7 +929,7 @@ class Aircraft(object):
         # TODO This should be handled in TLPV, not here.
         self.ecl = ecl
 
-    def set_heading(self, hdg, opt):
+    def set_heading(self, hdg, opt='ECON'):
         self.tgt_hdg = hdg
         self.to_do = 'hdg'
         self.to_do_aux = [hdg, opt]
