@@ -41,7 +41,7 @@ from . import Route
 from . import TLPV  # This is used as an optimization in set_route. Could be removed
 
 # Constants
-CALLSIGN_FILE = "Callsigns.txt"
+from crujisim import CALLSIGN_FILE
 LEFT = "LEFT"
 RIGHT = "RIGHT"
 
@@ -92,12 +92,7 @@ callsigns = {}  # Callsign database
 def load_callsigns():
     global callsigns
     cf = ConfigParser()
-    try:
-        f = codecs.open(CALLSIGN_FILE, "r", "utf8")
-    except (OSError, IOError):
-        this_dir = os.path.dirname(__file__)
-        callsign_file = os.path.join(this_dir, os.pardir, CALLSIGN_FILE)
-        f = codecs.open(callsign_file, "r", "utf8")
+    f = codecs.open(CALLSIGN_FILE, "r", "utf8")
     cf.read_file(f)
     f.close()
     callsigns = {}

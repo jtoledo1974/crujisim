@@ -23,7 +23,6 @@
 """This module handles aircraft data from Eurocontrol's BADA (Database of aircraft data)"""
 from __future__ import print_function
 from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 
@@ -33,12 +32,16 @@ from math import *
 import configparser
 import os.path
 
+from crujisim import BADA_FILE
+from crujisim import AIRCRAFT_FILE
+
+# future
+standard_library.install_aliases()
+
 equiv = {}
 
 # Constants
 # It's loaded in the global config parser acft_cp
-AIRCRAFT_FILE = "Modelos_avo.txt"
-BADA_FILE = "bada.txt"
 
 
 def load_equiv():
@@ -96,14 +99,8 @@ class Performance(object):
         try:
             f = open(bada_file, "r")
         except (OSError, IOError):
-            this_dir = os.path.dirname(__file__)
-            bada_file = os.path.join(this_dir, os.pardir, bada_file)
-            try:
-                f = open(bada_file, "r")
-            except (OSError, IOError):
-                logging.exception(
-                    "Unable to open bada file while loading perfomance data")
-                return
+            logging.exception(
+                "Unable to open bada file while loading perfomance data")
 
         # This here just for reference of the attributes this class has
         self.climb_cas_low = self.climb_cas_high = self.climb_mach = None
