@@ -14,6 +14,11 @@ def aircraft(gta):
                  next_wp="NORTA", next_wp_eto=eto, wake_hint="M")
     return a
 
+
+@pytest.fixture
+def td_1m():
+    return timedelta(seconds=60)
+
 # Tests
 
 
@@ -53,38 +58,36 @@ def test_set_heading(flight):
     assert flight.tgt_hdg == 185
 
 
-def test_set_heading_right(gta, flight):
-    flight.set_heading(100)
-    flight.hdg = 100
-    gta.timer()
-    flight.set_heading(95, 'DCHA')
+@pytest.mark.parametrize("start_hdg, end_hdg, dir, expected", [
+    (350, 10, 'IZDA', True),
+    (10, 350, 'DCHA', False)])
+def test_set_heading(flight, td_1m, start_hdg, end_hdg, dir, expected):
+    flight.hdg = 360
+    flight.set_heading(start_hdg)
+    flight.next(flight.t + td_1m)
+    assert flight.hdg == start_hdg
+
+    flight.set_heading(end_hdg, dir)
     hdg_0 = flight.hdg
-    gta.t += timedelta(seconds=5)
-    gta.timer()
+    flight.next(flight.t + td_1m)
     hdg_1 = flight.hdg
-    assert hdg_1 > hdg_0
+    assert (hdg_1 < hdg_0) == expected
 
 
-def test_set_heading_left(gta, flight):
-    flight.set_heading(100)
-    gta.timer()
-    flight.set_heading(200, 'IZDA')
-    hdg_0 = flight.hdg
-    gta.t += timedelta(seconds=5)
-    gta.timer()
-    hdg_1 = flight.hdg
-    assert hdg_1 < hdg_0
-
-
-def test_set_vertical_rate(gta, flight):
-    flight.cfl = 200
+def test_set_vertical_rate_climb(flight, td_1m):
     flight.lvl = 100
+    flight.cfl = 200
     flight.set_vertical_rate(1000 * FPM_TO_LEVELS_PER_HOUR)
     assert flight.rocd == 600
-    flight.cfl = 100
+    flight.next(flight.t + td_1m)
+    assert flight.lvl == 110
+
     flight.lvl = 200
+    flight.cfl = 100
     flight.set_vertical_rate(1000 * FPM_TO_LEVELS_PER_HOUR)
     assert flight.rocd == -600
+    flight.next(flight.t + td_1m)
+    assert flight.lvl == 190
 
 
 @pytest.mark.parametrize("ias,expected", [
