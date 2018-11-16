@@ -327,7 +327,7 @@ class GTAnet(GTA):
                     f.set_std_rate()
                     p.sendReply(True)
                 else:
-                    p.sendReply(f.set_rate_descend(
+                    p.sendReply(f.set_vertical_rate(
                         int(m["rate"]), force=m["force"]))
             except:
                 logging.warning("Error while setting rate",

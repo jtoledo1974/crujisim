@@ -1,6 +1,7 @@
 import pytest
-from crujisim.lib.Aircraft import Aircraft
+from crujisim.lib.Aircraft import Aircraft, FPM_TO_LEVELS_PER_HOUR
 from datetime import datetime, timedelta
+
 
 # Fixtures
 
@@ -73,6 +74,17 @@ def test_set_heading_left(gta, flight):
     gta.timer()
     hdg_1 = flight.hdg
     assert hdg_1 < hdg_0
+
+
+def test_set_vertical_rate(gta, flight):
+    flight.cfl = 200
+    flight.lvl = 100
+    flight.set_vertical_rate(1000 * FPM_TO_LEVELS_PER_HOUR)
+    assert flight.rocd == 600
+    flight.cfl = 100
+    flight.lvl = 200
+    flight.set_vertical_rate(1000 * FPM_TO_LEVELS_PER_HOUR)
+    assert flight.rocd == -600
 
 
 @pytest.mark.parametrize("ias,expected", [

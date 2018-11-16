@@ -722,9 +722,9 @@ class Aircraft(object):
                 achievable = True
             else:
                 max_rate = self.perf.max_roc * f_vert(self)
-        else:
+        else:  # CFL <= LVL
             if abs(rate) <= self.perf.max_rod or force == True:
-                self.rocd = rate
+                self.rocd = -rate
                 achievable = True
             else:
                 max_rate = self.perf.max_rod
@@ -1171,7 +1171,7 @@ class Aircraft(object):
                         rate = ((self.lvl - fl_gp) * 1 +  # Additional vertical speed to capture
                                 self.ground_spd * pdte_ayuda) * NM_TO_LEVELS  # Vert speed to descend with the glide
                         # Unidades en ft/min
-                        achievable, max_rate = self.set_vertical_rate(-rate)
+                        achievable, max_rate = self.set_vertical_rate(rate)
 
                         if not achievable:
                             self.set_vertical_rate(-max_rate)
