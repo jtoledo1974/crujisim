@@ -354,6 +354,41 @@ class Aircraft(object):
             pass
         return s
 
+    def get_vertical_speed(self):
+        """Returns current vertical speed in levels per hour"""
+        if self.std_rate and self.pof == FLYING:
+            if self.cfl > self.lvl:
+                vs = self.perf.std_roc * f_vert(self)
+                if self.perf.bada:
+                    vs = self.perf.get_climb_perf(self.lvl)[
+                        2] * 60. / 100
+            elif self.cfl < self.lvl:
+                vs = -min(self.tas / 0.2 / 100. * 60.,
+                                 self.perf.max_rod * f_vert(self))
+                if self.perf.bada:
+                    vs = - \
+                        self.perf.get_descent_perf(self.lvl)[1] * 60. / 100
+            else:   # CFL == LVL
+                vs = 0.
+            return vs                
+
+        # Vertical speed is not according to model, but fixed. Keep the one we have.
+        return self.rocd
+
+    def get_altitude(self, delta_hours):
+        """Returns current altitude"""
+
+        self.rocd = self.get_vertical_speed()  # Levels per hour
+
+        delta_levels = self.rocd * delta_hours
+        if abs(self.lvl - self.cfl) < abs(delta_levels):
+            self.rocd = 0.
+            self.std_rate = True
+            return self.cfl
+        else:
+            return self.lvl + delta_levels
+
+
     def next(self, t):
         """Advance simulation to time t"""
         global wind
@@ -387,29 +422,9 @@ class Aircraft(object):
         dh = (t - self.t).seconds / 3600. + \
             (t - self.t).microseconds / 3600. / 1000000
 
-        # Cálculo de la altitud
-        if self.cfl > self.lvl and self.pof == FLYING:
-            if self.std_rate:
-                self.rocd = self.perf.std_roc * f_vert(self)
-                if self.perf.bada:
-                    self.rocd = self.perf.get_climb_perf(self.lvl)[
-                        2] * 60. / 100
-        elif self.cfl < self.lvl and self.pof == FLYING:
-            if self.std_rate:
-                self.rocd = -min(self.tas / 0.2 / 100. * 60.,
-                                 self.perf.max_rod * f_vert(self))
-                if self.perf.bada:
-                    self.rocd = - \
-                        self.perf.get_descent_perf(self.lvl)[1] * 60. / 100
-        else:
-            self.rocd = 0.
-        inch = self.rocd * dh
-        if abs(self.lvl - self.cfl) < abs(inch):
-            self.lvl = self.cfl
-            self.rocd = 0.
-            self.std_rate = True
-        else:
-            self.lvl = self.lvl + inch
+        # New altitude
+        self.lvl = self.get_altitude(dh)
+
         # Iteración para encontrar la posición
         while t >= self.t + timedelta(seconds=1):
             aux_v = v(self)
@@ -420,6 +435,7 @@ class Aircraft(object):
                 self.tas = self.tas + inc_v_max * sgn(aux_v - self.tas)
             if self.tas >= aux_v * .8 and self.pof == TAKEOFF:
                 self.pof = FLYING
+
             self.ias = cas_from_tas(self.tas, self.lvl * 100)
             (vx, vy) = pr((1.0, self.track))
             (wx, wy) = pr(wind)
@@ -427,28 +443,25 @@ class Aircraft(object):
             wind_paral = wx * vx + wy * vy
             self.ground_spd = self.tas + wind_paral
 
-            try:
-                deriva = degrees(asin(wind_perp / self.tas))
-            except ZeroDivisionError:
-                deriva = 0
-            except ValueError:
-                deriva = 0  # TODO check what the hell is thiss
-            r_obj = self.get_hdg_obj(deriva, t)
+            wind_drift = degrees(asin(wind_perp / self.tas)) if self.tas > 0 else 0
+            target_hdg = self.get_target_heading(wind_drift, t)
 
-            if r_obj == LANDED:
+            if target_hdg == LANDED:
                 self.pof = LANDED
                 return
-            if self.hdg < 180.0 and r_obj > self.hdg + 180.0:
-                r_obj = r_obj - 360.0
-            elif self.hdg > 180.0 and r_obj < self.hdg - 180.0:
-                r_obj = r_obj + 360.0
-            aux = r_obj - self.hdg
+
+            if self.hdg < 180.0 and target_hdg > self.hdg + 180.0:
+                target_hdg = target_hdg - 360.0
+            elif self.hdg > 180.0 and target_hdg < self.hdg - 180.0:
+                target_hdg = target_hdg + 360.0
+
+            aux = target_hdg - self.hdg
             rot = self.get_rot() * 60 * 60  # Rate of turn in degrees per hour
             if abs(aux) < rot * dh:
-                self.hdg = r_obj % 360
+                self.hdg = target_hdg % 360
             else:
                 self.hdg = (self.hdg + dh * rot * sgn(aux)) % 360
-            self.track = (self.hdg + deriva) % 360
+            self.track = (self.hdg + wind_drift) % 360
             # Distancia recorrida en este inc. de t incluyendo viento
             self.salto = (self.ground_spd) * dh
             # Ha pasado el punto al que se dirige
@@ -763,7 +776,7 @@ class Aircraft(object):
             return self.sector_entry_fix
 
     def get_bearing_to_next(self):
-        # Punto al que se dirige con corrección de deriva
+        # Punto al que se dirige con corrección de wind_drift
         self.coords = self.route[0].pos()
         vect = rp(r(self.coords, self.pos))
         return vect
@@ -949,13 +962,13 @@ class Aircraft(object):
         wp.ato = self.t
         self.log.append(wp)
 
-    def get_tgt_hdg_fpr(self, deriva, t):
+    def get_tgt_hdg_fpr(self, wind_drift, t):
         """Follow flight plan route"""
         self.vect = self.get_bearing_to_next()
-        # Correción de deriva
-        return self.vect[1] - deriva
+        # Correción de wind_drift
+        return self.vect[1] - wind_drift
 
-    def get_tgt_hdg_hdg(self, deriva, t):
+    def get_tgt_hdg_hdg(self, wind_drift, t):
         """Fly heading"""
         hdg_obj = self.to_do_aux[0]
         if self.hdg < 180.0 and hdg_obj > self.hdg + 180.0:
@@ -977,22 +990,22 @@ class Aircraft(object):
         else:
             return self.to_do_aux[0]
 
-    def get_tgt_hdg_orbit(self, deriva, t):
+    def get_tgt_hdg_orbit(self, wind_drift, t):
         """Orbit on present position"""
         if self.to_do_aux[0] == 'DCHA':
             return (self.hdg + 90.0) % 360.0
         else:
             return (self.hdg - 90.0) % 360.0
 
-    def get_tgt_hdg_hold(self, deriva, t):
+    def get_tgt_hdg_hold(self, wind_drift, t):
         """Fly published holding pattern"""
         if not self.to_do_aux[4] and self.to_do_aux[0] in self.route:
             # Aún no ha llegado a la espera, sigue volando en ruta
-            # Punto al que se dirige con corrección de deriva
+            # Punto al que se dirige con corrección de wind_drift
             self.pto = self.route[0].pos()
             self.vect = rp(r(self.pto, self.pos))
-            # Correción de deriva
-            return self.vect[1] - deriva
+            # Correción de wind_drift
+            return self.vect[1] - wind_drift
         else:  # Está dentro de la espera, entramos bucle de la espera
             self.to_do_aux[4] = True
             # El fijo principal debe estar en la ruta. Si no está se pone
@@ -1001,30 +1014,30 @@ class Aircraft(object):
             # Con esta operación no nos borra el punto de la espera
             self.vect = rp((2.0 * self.ground_spd, self.track))
             if len(self.to_do_aux) == 6:  # Vamos a definir el rumbo objetivo, añadiéndolo al final
-                r_acerc = (self.to_do_aux[1] - deriva) % 360.0
+                r_acerc = (self.to_do_aux[1] - wind_drift) % 360.0
                 if self.hdg < 180.0 and r_acerc > self.hdg + 180.0:
                     r_acerc -= 360.0
                 elif self.hdg > 180.0 and r_acerc < self.hdg - 180.0:
                     r_acerc += 360.0
                 aux = r_acerc - self.hdg
                 if aux > -60.0 and aux < 120.0:  # Entrada directa
-                    r_obj = (self.to_do_aux[
-                             1] + 180.0 - deriva) % 360.  # Rumbo de alejamiento (con corrección de deriva)
+                    target_hdg = (self.to_do_aux[
+                             1] + 180.0 - wind_drift) % 360.  # Rumbo de alejamiento (con corrección de wind_drift)
                 else:
-                    # Rumbo de alejamiento (con corrección de deriva)
-                    r_obj = - \
+                    # Rumbo de alejamiento (con corrección de wind_drift)
+                    target_hdg = - \
                         ((self.to_do_aux[1] + 180.0 - 30.0 *
-                          self.to_do_aux[5] - deriva) % 360.)
-                self.to_do_aux.append(r_obj)
-            r_obj = self.to_do_aux[6]
-            if r_obj < 0.0:
-                r_obj = -r_obj
+                          self.to_do_aux[5] - wind_drift) % 360.)
+                self.to_do_aux.append(target_hdg)
+            target_hdg = self.to_do_aux[6]
+            if target_hdg < 0.0:
+                target_hdg = -target_hdg
             else:
-                if abs(r_obj - self.hdg) > 60.0:
-                    r_obj = (self.hdg + 90.0 * self.to_do_aux[5]) % 360.0
+                if abs(target_hdg - self.hdg) > 60.0:
+                    target_hdg = (self.hdg + 90.0 * self.to_do_aux[5]) % 360.0
             # Está en el viraje hacia el tramo de alejamiento
             if self.to_do_aux[3] == 0.0 or self.to_do_aux[3] == -10.0:
-                if abs(r_obj - self.hdg) < 1.:  # Ha terminado el viraje
+                if abs(target_hdg - self.hdg) < 1.:  # Ha terminado el viraje
                     if self.to_do_aux[3] == -10.0:
                         self.to_do_aux[4] = False
                         self.to_do_aux[3] = 0.0
@@ -1036,21 +1049,21 @@ class Aircraft(object):
             elif (t > self.to_do_aux[2] + self.to_do_aux[3]):
                 self.to_do_aux[3] = -10.0
                 self.to_do_aux[6] = self.to_do_aux[1]
-        return r_obj
+        return target_hdg
 
-    def get_tgt_hdg_hdgfix(self, deriva, t):
+    def get_tgt_hdg_hdgfix(self, wind_drift, t):
         """Fly a heading after passing a fix"""
         if self.to_do_aux[0] in self.route:
-            # Punto al que se dirige con corrección de deriva
+            # Punto al que se dirige con corrección de wind_drift
             self.pto = self.route[0].pos()
             self.vect = rp(r(self.pto, self.pos))
-            # Correción de deriva
-            return self.vect[1] - deriva
+            # Correción de wind_drift
+            return self.vect[1] - wind_drift
         else:
             self.vect = rp((2.0 * self.ground_spd, self.track))
             return self.to_do_aux[1]
 
-    def get_tgt_hdg_intercept_radial(self, deriva, t):
+    def get_tgt_hdg_intercept_radial(self, wind_drift, t):
         """Intercept and follow radial from a point"""
         (rx, ry) = r(Route.WP(self.to_do_aux[0]).pos(), self.pos)
         rdl_actual = rp((rx, ry))[1]
@@ -1065,17 +1078,17 @@ class Aircraft(object):
         if dist_perp < 0.1:  # Consideramos que estáen el radial
             self.vect = rp((2.0 * self.ground_spd, self.track))
             self.tgt_hdg = self.to_do_aux[1]
-            return self.to_do_aux[1] - deriva
+            return self.to_do_aux[1] - wind_drift
         elif dist_perp < 0.8:
             self.vect = rp((2.0 * self.ground_spd, self.track))
             self.tgt_hdg = (self.to_do_aux[1] - 20.0 * sgn(ang_aux)) % 360.0
-            return (self.to_do_aux[1] - deriva - 20.0 * sgn(ang_aux)) % 360.0
+            return (self.to_do_aux[1] - wind_drift - 20.0 * sgn(ang_aux)) % 360.0
         else:
             self.vect = rp((2.0 * self.ground_spd, self.track))
-            return (self.tgt_hdg - deriva) % 360.0
-            # return (self.to_do_aux[1] - deriva - 45.0 * sgn(ang_aux))%360.0
+            return (self.tgt_hdg - wind_drift) % 360.0
+            # return (self.to_do_aux[1] - wind_drift - 45.0 * sgn(ang_aux))%360.0
 
-    def get_tgt_hdg_app(self, deriva, t):
+    def get_tgt_hdg_app(self, wind_drift, t):
         try:
             (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
         except KeyError:
@@ -1102,11 +1115,11 @@ class Aircraft(object):
                     if b == self.route[0].fix:
                         self.cfl = h / 100.
                         break
-            # Punto al que se dirige con corrección de deriva
+            # Punto al que se dirige con corrección de wind_drift
             self.pto = self.route[0].pos()
             self.vect = rp(r(self.pto, self.pos))
-            # Correción de deriva
-            return self.vect[1] - deriva
+            # Correción de wind_drift
+            return self.vect[1] - wind_drift
         if len(self.route) == 1:  # Interceptar localizador y senda de planeo
             # Ya estáfrustrando hacia el ltimo punto, asimilamos a plan de
             # vuelo normal
@@ -1115,11 +1128,11 @@ class Aircraft(object):
                 self.app_auth = False
                 self.app_fix = ''
                 self._map = False
-                # Punto al que se dirige con corrección de deriva
+                # Punto al que se dirige con corrección de wind_drift
                 self.pto = self.route[0].pos()
                 self.vect = rp(r(self.pto, self.pos))
-                # Correción de deriva
-                return self.vect[1] - deriva
+                # Correción de wind_drift
+                return self.vect[1] - wind_drift
             else:
                 # Coordenadas relativas a la radioayuda
                 (rx, ry) = r(xy_llz, self.pos)
@@ -1184,13 +1197,13 @@ class Aircraft(object):
                         self.esta_en_llz = True
                     self.int_loc = False
                     self.vect = rp((2.0 * self.ground_spd, self.track))
-                    return rdl - deriva
+                    return rdl - wind_drift
                 elif dist_perp < 0.8:
                     if abs(self.lvl - self.cfl) < 002.0:
                         self.esta_en_llz = True
                     self.int_loc = False
                     self.vect = rp((2.0 * self.ground_spd, self.track))
-                    return (rdl - deriva - 20.0 * sgn(ang_aux)) % 360.0
+                    return (rdl - wind_drift - 20.0 * sgn(ang_aux)) % 360.0
                 else:
                     if self.int_loc:
                         rdl_actual = self.hdg
@@ -1202,18 +1215,18 @@ class Aircraft(object):
                         # actual
                         ang_aux2 = rdl - rdl_actual
                         if ang_aux * ang_aux2 > 0.:
-                            return self.tgt_hdg - deriva
+                            return self.tgt_hdg - wind_drift
                         else:
                             self.int_loc = False
                             self.vect = rp((2.0 * self.ground_spd, self.track))
                             self.tgt_hdg = rdl - 45.0 * sgn(ang_aux)
-                            return (rdl - deriva - 45.0 * sgn(ang_aux)) % 360.0
+                            return (rdl - wind_drift - 45.0 * sgn(ang_aux)) % 360.0
                     else:
                         self.vect = rp((2.0 * self.ground_spd, self.track))
-                        return (rdl - deriva - 45.0 * sgn(ang_aux)) % 360.0
+                        return (rdl - wind_drift - 45.0 * sgn(ang_aux)) % 360.0
 
 
-    def get_hdg_obj(self, deriva, t):
+    def get_target_heading(self, wind_drift, t):
         """Return target heading for current flight phase"""
 
         tgt_hdg_functions = {
@@ -1227,7 +1240,7 @@ class Aircraft(object):
         }
 
         if self.to_do in tgt_hdg_functions:
-            return tgt_hdg_functions[self.to_do](deriva, t)
+            return tgt_hdg_functions[self.to_do](wind_drift, t)
 
     def copy(self):
         s = self
