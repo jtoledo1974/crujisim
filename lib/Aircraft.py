@@ -50,12 +50,19 @@ PREACTIVE = "PREACTIVE"
 READY = "READY"
 
 # Phases of flight
-LOADING = "LOADING"  # Internal status before the aircraft is 'ready to fly'
-GROUND = "GROUND"   #
-TAKEOFF = "TAKEOFF"
-FLYING = "FLYING"   #
-LANDED = "LANDED"
-INACTIVE = "INACTIVE"  # Prior to the aircraft entering the first route point
+
+# Currently only using CRUISE to mean FLYING. The others will be of use when we implement
+# a proper VNAV and BADA performance calculations
+LOADING = "0-LOADING"  # Internal status before the aircraft is 'ready to fly'
+INACTIVE = "0b-INACTIVE"  # Prior to the aircraft entering the first route point
+GROUND = "1-GROUND"   #
+TAKEOFF = "2-TAKEOFF"
+INITIAL_CLIMB = "3-INITIAL_CLIMB"
+CLIMB = "4-CLIMB"
+CRUISE = "5-CRUISE"
+DESCENT = "6-DESCENT"
+APPROACH = "7-APPROACH"
+LANDED = "8-LANDED"
 
 # Subphases of flight
 # Flying
@@ -300,9 +307,9 @@ class Aircraft(object):
         if not self.next_wp:
             self.pof = GROUND
         else:
-            self.pof = FLYING
+            self.pof = CRUISE
 
-        if self.pof == FLYING:
+        if self.pof == CRUISE:
             self.ground_spd = self.tas = v(self)
             self.lvl = self.cfl
         else:  # GROUND
@@ -354,7 +361,7 @@ class Aircraft(object):
 
     def get_vertical_speed(self):
         """Returns current vertical speed in levels per hour"""
-        if self.std_rate and self.pof == FLYING:
+        if self.std_rate and self.pof == CRUISE:
             if self.cfl > self.lvl:
                 vs = self.perf.std_roc * f_vert(self)
                 if self.perf.bada:
@@ -400,12 +407,13 @@ class Aircraft(object):
             logging.error(
                 "Type error when checking phase of flight of %s, assuming departure" % self.callsign)
             self.pof = TAKEOFF
-        if t < self.t or self.pof == GROUND:
-            if self.pof == FLYING:
-                self.pof = INACTIVE
+
+        if t < self.t and self.pof == CRUISE:
+            self.pof = INACTIVE
             return
+
         if t > self.t and self.pof == INACTIVE:
-            self.pof = FLYING
+            self.pof = CRUISE
 
         # With this we make sure that the simulation doesn't advance
         # in steps bigger than 15 seconds
@@ -434,7 +442,7 @@ class Aircraft(object):
             else:
                 self.tas = self.tas + inc_v_max * sgn(aux_v - self.tas)
             if self.tas >= aux_v * .8 and self.pof == TAKEOFF:
-                self.pof = FLYING
+                self.pof = CRUISE
 
             self.ias = cas_from_tas(self.tas, self.lvl * 100)
             (vx, vy) = pr((1.0, self.track))

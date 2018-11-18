@@ -316,7 +316,7 @@ class UCS(RaDisplay):
         vt.track=f.track
         vt.rate=f.get_rate_descend()
         vt.ias=f.ias
-        vt.visible = f.pof in (Aircraft.FLYING, Aircraft.TAKEOFF)
+        vt.visible = f.pof >= Aircraft.TAKEOFF
         vt.adep = f.adep
         vt.ades = f.ades
         vt.type = f.type

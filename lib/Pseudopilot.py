@@ -329,7 +329,7 @@ class PpDisplay(RaDisplay):
         vt.rate=f.get_rate_descend()
         vt.ias=f.ias
 #        vt.ias_max=f.get_ias_max()
-        vt.visible = f.pof in (Aircraft.FLYING, Aircraft.TAKEOFF)
+        vt.visible = f.pof >= Aircraft.TAKEOFF
         vt.adep = f.adep
         vt.ades = f.ades
         vt.type = f.type
