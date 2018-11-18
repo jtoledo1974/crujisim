@@ -180,7 +180,7 @@ def app(f, wind_drift):
             "No IAF found when trying to set course for approach. Keeping current heading")
         return f.hdg
 
-    [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
+    [xy_llz, llz_radial, dist_ayuda, pdte_ayuda, alt_pista] = llz
     if len(f.route) == 0:  # Es el primer acceso a app desde la espera. Se añaden los puntos
         for [a, b, c, h] in puntos_alt:
             f.route.append(WayPoint(b))
@@ -232,7 +232,7 @@ def app(f, wind_drift):
                 # En caso de estar 200 ft por encima, hace MAP o si ya ha
                 # pasado el LLZ
                 height_over_field = f.lvl * 100 - alt_pista
-                if height_over_field > 200. or abs(derrota - rdl) > 90.:
+                if height_over_field > 200. or abs(derrota - llz_radial) > 90.:
                     logging.debug("%s: height over field is %d at %.1fnm. Executing MAP"
                                   % (f.callsign, height_over_field, dist_thr))
                     f._map = True
@@ -275,14 +275,10 @@ def app(f, wind_drift):
                     f.set_vertical_rate(0.001)
                     # Ahora el movimiento en planta
 
-            rdl_actual = rp((rx, ry))[1]
-            if rdl < 180.0 and rdl_actual > rdl + 180.0:
-                rdl_actual = rdl_actual - 360.0
-            elif rdl > 180.0 and rdl_actual < rdl - 180.0:
-                rdl_actual = rdl_actual + 360.0
+            current_radial = rp((rx, ry))[1]
+            ang_aux = relative_angle(current_radial, llz_radial)
 
-            ang_aux = rdl - rdl_actual  # Positivo, el radial estáa la izquierda de posición actual
-            (rdlx, rdly) = pr((1.0, rdl))
+            (rdlx, rdly) = pr((1.0, llz_radial))
             dist_perp = abs(rx * rdly - ry * rdlx)
 
             if dist_perp < 0.1:  # Consideramos que estáen el radial
@@ -290,37 +286,37 @@ def app(f, wind_drift):
                     f.esta_en_llz = True
                 f.int_loc = False
                 f.vect = rp((2.0 * f.ground_spd, f.track))
-                return rdl - wind_drift
+                return llz_radial - wind_drift
 
             elif dist_perp < 0.8:
                 if abs(f.lvl - f.cfl) < 002.0:
                     f.esta_en_llz = True
                 f.int_loc = False
                 f.vect = rp((2.0 * f.ground_spd, f.track))
-                return (rdl - wind_drift - 20.0 * sgn(ang_aux)) % 360.0
+                return (llz_radial - wind_drift - 20.0 * sgn(ang_aux)) % 360.0
 
             else:
                 if f.int_loc:
-                    rdl_actual = f.hdg
-                    if rdl < 180.0 and rdl_actual > rdl + 180.0:
-                        rdl_actual = rdl_actual - 360.0
-                    elif rdl > 180.0 and rdl_actual < rdl - 180.0:
-                        rdl_actual = rdl_actual + 360.0
+                    current_radial = f.hdg
+                    if llz_radial < 180.0 and current_radial > llz_radial + 180.0:
+                        current_radial = current_radial - 360.0
+                    elif llz_radial > 180.0 and current_radial < llz_radial - 180.0:
+                        current_radial = current_radial + 360.0
 
                     # Positivo, el radial estáa la izquierda de posición
                     # actual
-                    ang_aux2 = rdl - rdl_actual
+                    ang_aux2 = llz_radial - current_radial
                     if ang_aux * ang_aux2 > 0.:
                         return f.tgt_hdg - wind_drift
                     else:
                         f.int_loc = False
                         f.vect = rp((2.0 * f.ground_spd, f.track))
-                        f.tgt_hdg = rdl - 45.0 * sgn(ang_aux)
-                        return (rdl - wind_drift - 45.0 * sgn(ang_aux)) % 360.0
+                        f.tgt_hdg = llz_radial - 45.0 * sgn(ang_aux)
+                        return (llz_radial - wind_drift - 45.0 * sgn(ang_aux)) % 360.0
 
                 else:
                     f.vect = rp((2.0 * f.ground_spd, f.track))
-                    return (rdl - wind_drift - 45.0 * sgn(ang_aux)) % 360.0
+                    return (llz_radial - wind_drift - 45.0 * sgn(ang_aux)) % 360.0
 
 
 def get_target_heading(f, wind_drift, t):
