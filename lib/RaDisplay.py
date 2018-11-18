@@ -33,6 +33,7 @@ from FIR import *
 from MathUtil import *
 from RaElements import *
 
+REFRESH_PERCENTAGE = 0.2
 
 class RaDisplay(object):
     """Generic radar display in which tracks and lads are shown
@@ -72,6 +73,10 @@ class RaDisplay(object):
         self.c = c = Canvas(tl,bg='gray3')
         c.pack(expand=1,fill=BOTH)
         ra_bind(self, c, '<Configure>', self.change_size)
+
+        # Some timing information to be used to limit stca and label separation
+        self.last_update = time()
+        self.refresh_period = 5  # Time between updates. Will be recalculated
 
         # Used to prevent the label separation code to be run nested
         self.separating_labels = False
@@ -203,10 +208,15 @@ class RaDisplay(object):
             lad.delete()
 
     def update(self):
+        # Limit refresh_period to five to prevent problems with paused simulations
+        self.refresh_period = max(time() - self.last_update, 5)
+        self.last_update = time()
+
         # Tracks are updated by the superclass when it gives them the new coords
         self.update_lads()
         reactor.callInThread(self.update_stca)
         reactor.callInThread(self.separate_labels)
+
     
     def toggle_auto_separation(self):
         self.auto_separation = not self.auto_separation
@@ -247,7 +257,7 @@ class RaDisplay(object):
         #print [t.cs for t in sep_list]
         # Find intersecting labels
         for i in range (len(sep_list)):
-            if time()-crono > 3:
+            if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
                 break
             ti = sep_list[i]  # Track i
             # Find vertices of track label i
@@ -311,7 +321,7 @@ class RaDisplay(object):
             #    logging.debug("Conflict among "+str([t.cs for t in conflict_list]))
             while (intersectan_girado > 0) and (cuenta[conflict_list[0]] < rotating_steps) and rotating_labels and (time()-crono)<4.:
                 #canvas.update()
-                if self.stop_separating:
+                if self.stop_separating or time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
                     logging.debug("Cancelling label separation after "+str(time()-crono2)+" seconds")
                     self.separating_labels = False
                     return  # Set, for instance, when moving the display
@@ -474,7 +484,12 @@ class RaDisplay(object):
         PAC  = 2
         VAC  = 4
         
+        crono = time()
+
         for track in self.tracks:
+            if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
+                # Too many conflicts. Probably just an artifact of a simulation
+                break
             if not track.visible: continue
             track.future_pos = []
             t_alerts[track] = NONE
@@ -500,7 +515,15 @@ class RaDisplay(object):
         vfilter = max([ad.val_elev for ad in self.fir.aerodromes.values()]) + 1  # 1000 feet over the highest AD
                 
         for i in range(len(self.tracks)):
+            if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
+                # Too many conflicts. Probably just an artifact of a simulation
+                break
             for j in range(i+1,len(self.tracks)):
+
+                if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
+                    # Too many conflicts. Probably just an artifact of a simulation
+                    break
+
                 ti = self.tracks[i]
                 tj = self.tracks[j]
                 if not ti.visible or not tj.visible: continue
@@ -518,6 +541,9 @@ class RaDisplay(object):
                 if not self.pac: continue
                 
                 for ((ix,iy,ialt),(jx,jy,jalt)) in zip(ti.future_pos,tj.future_pos):
+                    if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
+                        # Too many conflicts. Probably just an artifact of a simulation
+                        break
                     dist=sqrt((ix-jx)**2+(iy-jy)**2)
                     if ialt < vfilter or jalt < vfilter: continue
                     if dist<min_sep and abs(ialt-jalt)<minvert:
