@@ -1,5 +1,5 @@
 import pytest
-from crujisim.lib.Aircraft import Aircraft, FPM_TO_LEVELS_PER_HOUR
+from crujisim.lib.Aircraft import Aircraft, FPM_TO_LEVELS_PER_HOUR, LANDED
 from datetime import datetime, timedelta
 
 
@@ -108,7 +108,16 @@ def test_execute_app(gta, flight):
         gta.timer()
     assert flight.pof == LANDED
 
+
 def test_set_std_spd(flight):
     flight.set_std_spd()
 
 
+def test_target_hdg_after_ils(flight, td_1m):
+    # Found this bug for a different aircraft. This position triggers the bug
+    flight.pos = (150.54, 59.67)
+    flight.set_heading(200)
+    flight.next(flight.t + 2 * td_1m)
+    assert flight.hdg == 200
+    flight.int_ils()
+    assert flight.get_target_heading(0, flight.t) == 200
