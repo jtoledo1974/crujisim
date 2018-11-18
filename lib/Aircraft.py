@@ -93,6 +93,7 @@ def load_callsigns():
     for cs, rcs in cf.items('Callsigns'):
         callsigns[cs.upper()] = rcs.upper()
 
+
 load_callsigns()
 
 
@@ -100,7 +101,7 @@ def get_radio_callsign(cs):
     global callsigns
     try:
         rc = callsigns[cs.strip("*")[:3]]
-    except:
+    except Exception:
         rc = ''
         logging.debug("No radio callsign for " + cs)
         callsigns[cs.strip("*")[:3]] = ''
@@ -113,13 +114,13 @@ def v(self):
     if not self.std_speed:  # Velocidad mínima manteniedo IAS
         try:
             return tas_from_cas(self.tgt_ias, self.lvl * 100)
-        except:
+        except Exception:
             logging.error("Error setting standard TAS for %s" %
                           self.callsign, exc_info=True)
             return 250.
     if self.perf.bada:
         if self.lvl is not None:
-            lvl = self.lvl  
+            lvl = self.lvl
         else:
             lvl = 0  # In python 2 None acts as 0 when compared. Not in python 3
         if lvl < self.cfl: 
@@ -804,25 +805,24 @@ class Aircraft(object):
 
     # Commands
 
-
     def hold(self, fix, inbd_track=None, outbd_time=None, std_turns=None):
         # If there is a published hold on the fix, use its defaults
         try:
             ph = [hold for hold in fir.holds if hold.fix == fix][0]
-            if inbd_track == None:
+            if inbd_track is None:
                 inbd_track = ph.inbd_track
-            if outbd_time == None:
+            if outbd_time is None:
                 outbd_time = ph.outbd_time
-            if std_turns == None:
+            if std_turns is None:
                 std_turns = ph.std_turns
         except:
             logging.debug("No published hold over " + str(fix))
         # Otherwise fill the blanks with defaults
-        if inbd_track == None:
+        if inbd_track is None:
             inbd_track = self.route.get_inbd_track(fix)
-        if outbd_time == None:
+        if outbd_time is None:
             outbd_time = 1  # One minute legs
-        if std_turns == None:
+        if std_turns is None:
             std_turns = True
 
         if std_turns:
