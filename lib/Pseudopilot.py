@@ -1044,7 +1044,7 @@ class ventana_auxiliar:
             self.but_int_rdl.grid(column=0,row=2,sticky=E+W)
             self.but_chg_rwy = Button(ventana_procs, text = 'Cambio RWY', command = b_rwy_change)
             self.but_chg_rwy.grid(column=0,row=3,sticky=E+W)
-            self.but_orbit = Button(ventana_procs, text = 'Orbitar aquí', command = b_orbitar)
+            self.but_orbit = Button(ventana_procs, text = 'Orbitar', command = b_orbitar)
             self.but_orbit.grid(column=0,row=4,sticky=E+W)
             self.but_wind = Button(ventana_procs, text = 'Cambiar viento', command = cambiar_viento)
             self.but_wind.grid(column=0,row=5,sticky=E+W)
