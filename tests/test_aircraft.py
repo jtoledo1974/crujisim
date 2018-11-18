@@ -1,5 +1,6 @@
 import pytest
-from crujisim.lib.Aircraft import Aircraft, FPM_TO_LEVELS_PER_HOUR, LANDED
+from crujisim.lib.Aircraft import Aircraft
+from crujisim.lib import FPM_TO_LEVELS_PER_HOUR, LANDED
 from datetime import datetime, timedelta
 
 
