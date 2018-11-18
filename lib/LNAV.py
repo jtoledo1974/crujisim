@@ -25,7 +25,7 @@ import logging
 from .MathUtil import pr, rp, r, sgn, relative_angle
 
 from . import LEVELS_PER_HOUR_TO_FPM, FEET_TO_LEVELS, NM_TO_LEVELS
-from .Route import WayPoint
+from .Route import WayPoint, Route
 
 fir = None   # Set by GTA.__init__
 
@@ -240,8 +240,7 @@ def app(f, wind_drift):
                 if f._map:  # Procedimiento de frustrada asignado
                     f.set_std_spd()
                     f.set_std_rate()
-                    f.route = Route.Route(
-                        [Route.WayPoint(p[1]) for p in puntos_map])
+                    f.route = Route([WayPoint(p[1]) for p in puntos_map])
                 else:
                     logging.debug("%s: Landing" % f.callsign)
                     # Prevents cyclic imports
