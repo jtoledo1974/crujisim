@@ -794,6 +794,10 @@ class Aircraft(object):
                     self.route = self.route[:i]
                     break
 
+
+    # Commands
+
+
     def hold(self, fix, inbd_track=None, outbd_time=None, std_turns=None):
         # If there is a published hold on the fix, use its defaults
         try:
@@ -885,11 +889,8 @@ class Aircraft(object):
         # user asked for, and just clear for approach to the current
         # destination
         old_iaf = self.iaf
-        self.iaf = ''
-        for i in range(len(self.route), 0, -1):
-            if self.route[i - 1].fix in fir.iaps:
-                self.iaf = self.route[i - 1].fix
-                break
+
+        self.set_app_fix()
         try:
             (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
         except KeyError:
@@ -957,10 +958,9 @@ class Aircraft(object):
         self.next(t)
         self.calc_eto()
 
-    def log_waypoint(self):
-        wp = self.route.pop(0)
-        wp.ato = self.t
-        self.log.append(wp)
+
+    # Heading calculations
+
 
     def get_tgt_hdg_fpr(self, wind_drift, t):
         """Follow flight plan route"""
@@ -1242,6 +1242,14 @@ class Aircraft(object):
         if self.to_do in tgt_hdg_functions:
             return tgt_hdg_functions[self.to_do](wind_drift, t)
 
+    # Utility
+
+    def log_waypoint(self):
+        wp = self.route.pop(0)
+        wp.ato = self.t
+        self.log.append(wp)
+
+
     def copy(self):
         s = self
         acft = Aircraft(s.callsign, s.type, s.adep, s.ades, s.cfl, s.rfl, s.route,
@@ -1280,8 +1288,7 @@ class Aircraft(object):
         # hemiplane
         on_goal_hemiplane = dp(v1, v2) > 0
         dist = rp(v2)[0]
-        turn_radius = self.tas / \
-            (62.8318 * self.get_rot())  # In nautical miles
+        turn_radius = self.tas / (62.8318 * self.get_rot())  # In nautical miles
         try:
             reached = not self._prev_on_goal and on_goal_hemiplane and dist < turn_radius * 1.5
         except:
