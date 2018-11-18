@@ -318,6 +318,12 @@ def get_entry_exit_points(pA0, pA1, poly):
             type = not type
         return x_points
 
+
+def relative_angle(angle, ref):
+    """Given two angles, return the minimum angle between them"""
+    return (ref - angle + 180) % 360 - 180
+
+
 if __name__ == '__main__':
     print(r((10, 10), (0, 10)))
     assert point_within_polygon((0.1, 0.1), ((0, 0), (0, 1), (1, 0))) == True
