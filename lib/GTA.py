@@ -37,6 +37,7 @@ import datetime
 
 # Application imports
 from . import Aircraft
+from . import LNAV
 from . import Route
 from . import FIR
 from .Exercise import Exercise
@@ -48,6 +49,9 @@ standard_library.install_aliases()
 # Constants
 # QNH standard variation mB per second
 QNH_STD_VAR = 0.0005
+
+# Future
+standard_library.install_aliases()
 
 
 class GTA(object):
@@ -70,9 +74,8 @@ class GTA(object):
 
         fir = self.load_fir(e)
         self.fir = fir
-        Aircraft.fir = fir  # Rather than passing globals
-        Route.fir = fir
-        TLPV.fir = fir
+        for module in (Aircraft, Route, TLPV, LNAV):
+            module.fir = fir  # Rather than passing globals
 
         self.sector = e.sector
         # TODO wind and qnh should be properties of the atmosphere object

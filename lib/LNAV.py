@@ -25,9 +25,9 @@ import logging
 from .MathUtil import pr, rp, r, sgn, relative_angle
 
 from . import LEVELS_PER_HOUR_TO_FPM, FEET_TO_LEVELS, NM_TO_LEVELS
-from .Aircraft import LANDED
-from Route import WayPoint
+from .Route import WayPoint
 
+fir = None   # Set by GTA.__init__
 
 # JTC 2018-10 This is still all spaghetti code. I moved LNAV methods here, but it still has
 # to be properly compartmentalized. Way too many obscure vect, to_do_aux,
@@ -244,6 +244,8 @@ def app(f, wind_drift):
                         [Route.WayPoint(p[1]) for p in puntos_map])
                 else:
                     logging.debug("%s: Landing" % f.callsign)
+                    # Prevents cyclic imports
+                    from .Aircraft import LANDED
                     return LANDED
 
             # TODO THIS IS ALL VNAV, REALLY ##########
@@ -337,5 +339,5 @@ def get_target_heading(f, wind_drift, t):
 
     if f.to_do in tgt_hdg_functions:
         function = tgt_hdg_functions[f.to_do][0]
-        args = [f] + list(tgt_hdg_functions[f.todo][1:])
+        args = [f] + list(tgt_hdg_functions[f.to_do][1:])
         return function(*args)

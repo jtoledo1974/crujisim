@@ -37,6 +37,7 @@ from datetime import timedelta
 from . import BADA
 from . import Route
 from . import TLPV  # This is used as an optimization in set_route. Could be removed
+from . import LNAV
 
 # Constants
 from crujisim import CALLSIGN_FILE
@@ -442,7 +443,7 @@ class Aircraft(object):
             self.ground_spd = self.tas + wind_paral
 
             wind_drift = degrees(asin(wind_perp / self.tas)) if self.tas > 0 else 0
-            target_hdg = self.get_target_heading(wind_drift, t)
+            target_hdg = LNAV.get_target_heading(self, wind_drift, t)
 
             if target_hdg == LANDED:
                 self.pof = LANDED
