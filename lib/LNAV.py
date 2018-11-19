@@ -29,6 +29,23 @@ from .Route import WayPoint, Route
 
 fir = None   # Set by GTA.__init__
 
+# LNAV MODES (somewhat modeled after airbus guidance managed and selected modes)
+# See http://www.aviaddicts.com/wiki/a330:flight_guidance_modes, for example
+
+# Managed
+NAV = "NAV"
+APP = "APP NAV"  # Not used yet
+RWY = "RWY"  # Not used yet
+LOC = "LOC"  # LOC AND LOC* are implemented using int_rdl functionality
+LOC_CAPTURE = "LOC*"
+
+# Selected
+HDG = "HDG"
+TRK = "TRK"  # Not used
+HDG_FIX = "HDG<FIX"  # Follow heading after fix. Probably never used
+INT_RDL = "INT_RDL"  # Intercept a radial
+
+
 # JTC 2018-10 This is still all spaghetti code. I moved LNAV methods here, but it still has
 # to be properly compartmentalized. Way too many obscure vect, to_do_aux,
 # etc. references, and wind_drift corrections should probably be done outside of this

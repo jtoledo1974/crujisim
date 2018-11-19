@@ -69,6 +69,8 @@ LANDED = "8-LANDED"
 # After the aircraft reached its final waypoint and it's coasting along
 COASTING = "COASTING"
 
+# LNAV and VNAV
+from .LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL
 
 # Globals
 
@@ -271,9 +273,11 @@ class Aircraft(object):
         # (knots)
         self.ias = 0.0
         self.tgt_ias = None  # Target IAS to acquire (knots)
+
         self.to_do = 'fpr'
         self.to_do_aux = ''
         self.squawk = None  # Mode A transpoder code the aircraft is squawking
+
         # TLPV calculated fields to support using the Pseudopilot display as a
         # controller
         self.fs_print_t = None
