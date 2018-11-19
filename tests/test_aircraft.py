@@ -1,7 +1,7 @@
 import pytest
 
-from crujisim.lib.Aircraft import Aircraft
-from crujisim.lib import FPM_TO_LEVELS_PER_HOUR, LANDED
+from crujisim.lib.Aircraft import Aircraft, LANDED
+from crujisim.lib import FPM_TO_LEVELS_PER_HOUR
 from crujisim.lib.LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL
 from crujisim.lib.LNAV import get_target_heading
 
