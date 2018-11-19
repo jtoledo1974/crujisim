@@ -104,8 +104,13 @@ def test_element_in_route(route):
         2 in route
 
 
+def test_reverse_index(route):
+    route = Route(list((WayPoint(i) for i in ['a', 'b', 'b', 'd', 'e'])))
+    assert route.reverse_index('b') == 2
+    assert route.reverse_index('e') == 4
+    assert route.reverse_index('a') == 0
+
+
 def test_delete_from(route):
-    with pytest.raises(ValueError):
-        route.delete_from('PEPE')
     route.delete_from('PARLA')
     assert str(route) == "PDT"

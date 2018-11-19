@@ -201,12 +201,9 @@ class Route(list):
             self.append(wp)
 
     def delete_from(self, wp):
-        """Delete all waypoints after and including wp"""
+        """Delete all waypoints after and including wp. Silently return if not present"""
         if type(wp) != WayPoint:
             wp = WayPoint(wp)
-
-        if wp not in self:
-            raise ValueError("Waypoint %s not in route %s" % (wp, self))
 
         for i, e in reversed(list(enumerate(self))):
             if e == wp:
@@ -327,6 +324,13 @@ class Route(list):
 
         raise TypeError(
             "Unable to find route index for waypoint " + str(index))
+
+    def reverse_index(self, index):
+        """Given a waypoint either as an index, a WP instance, or a fix name,
+        return the route index of the last wp that matches"""
+
+        i_prime = self[::-1].index(index)
+        return len(self) - 1 - i_prime
 
     def clear_tracks(self):
         for wp in self:
