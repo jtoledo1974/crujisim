@@ -1119,7 +1119,7 @@ class Aircraft(object):
         else:
             self.to_do_aux = ['DCHA']
 
-    def execute_app(self, ades, iaf):
+    def execute_app(self, ades='', iaf=''):
         # TODO Currently we are not checking which destination the
         # user asked for, and just clear for approach to the current
         # destination

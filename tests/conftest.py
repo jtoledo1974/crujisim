@@ -35,7 +35,7 @@ def fir_file(exc_directory):
 
 @pytest.fixture
 def gta(exc_file):
-    gta = GTA(exc_file=str(exc_file))
+    gta = GTA(exc_file=str(exc_file), offline=True, stop_after_minutes=30)
     return gta
 
 
