@@ -86,5 +86,14 @@ def test_set_ias(flight, ias, expected):
         assert flight.tgt_ias == ias
 
 
+def test_execute_app(gta, flight):
+    flight.execute_app()
+    assert flight.app_auth is True
+    for i in range(250):
+        gta.timer()
+    assert flight.pof == LANDED
+
 def test_set_std_spd(flight):
     flight.set_std_spd()
+
+
