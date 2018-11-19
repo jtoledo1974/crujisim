@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#-*- coding:iso8859-15 -*-
+# -*- coding:iso8859-15 -*-
 # $Id$
 
 # (c) 2006 CrujiMaster (crujisim@crujisim.cable.nu)
@@ -23,7 +23,6 @@
 """GTA (Generador de Tráfico Aéreo - Air Traffic Generator)
 This is the main simulation engine to which clients connect"""
 from future import standard_library
-standard_library.install_aliases()
 from builtins import str
 from builtins import object
 
@@ -32,7 +31,6 @@ from builtins import object
 from time import time, sleep
 import logging
 import random
-import pickle
 
 import os
 import datetime
@@ -43,6 +41,9 @@ from . import Route
 from . import FIR
 from .Exercise import Exercise
 from . import TLPV
+
+# Future
+standard_library.install_aliases()
 
 # Constants
 # QNH standard variation mB per second
@@ -136,7 +137,7 @@ class GTA(object):
                                       float(ef.cfl), float(ef.rfl), ef.route,
                                       next_wp=ef.fix, next_wp_eto=eto,
                                       wake_hint=ef.wtc)
-            except:
+            except Exception:
                 logging.warning("Unable to load " + ef.callsign, exc_info=True)
                 continue
 
@@ -237,7 +238,7 @@ class GTA(object):
             ad = self.fir.aerodromes[ad_code_id]
             rwy_direction = [rwy for rwy in ad.rwy_direction_list
                              if rwy.txt_desig == rwy_direction_desig][0]
-        except:
+        except Exception:
             logging.error("No runway direction %s defined for airport %s" % (ad_code_id, rwy_direction_desig),
                           exc_info=True)
         ad.rwy_in_use = rwy_direction
