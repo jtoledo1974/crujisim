@@ -255,8 +255,7 @@ def app(f, wind_drift):
                          dist_thr * pdte_ayuda * NM_TO_LEVELS)
                 if fl_gp <= f.lvl:
                     # If above the glidepath
-                    f.set_ias(f.perf.app_tas /
-                                 (1.0 + 0.002 * f.lvl))
+                    f.set_ias(f.perf.app_tas / (1.0 + 0.002 * f.lvl))
                     f.cfl = alt_pista * FEET_TO_LEVELS
                     rate = ((f.lvl - fl_gp) * 1 +  # Additional vertical speed to capture
                             f.ground_spd * pdte_ayuda) * NM_TO_LEVELS  # Vert speed to descend with the glide
