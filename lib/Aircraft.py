@@ -747,9 +747,9 @@ class Aircraft(object):
 
     def set_app_fix(self):
         self.iaf = 'N/A'
-        for i in range(len(self.route), 0, -1):
-            if self.route[i - 1].fix in fir.iaps:
-                self.iaf = self.route[i - 1].fix
+        for wp in reversed(self.route):
+            if wp.fix in (iaf.upper() for iaf in fir.iaps):
+                self.iaf = wp.fix
                 break
 
     def set_std_rate(self):
@@ -803,10 +803,7 @@ class Aircraft(object):
 
     def cancel_app_auth(self):
         if self.app_auth:
-            for i in range(len(self.route), 0, -1):
-                if self.route[i - 1].fix == self.iaf:
-                    self.route = self.route[:i]
-                    break
+            self.route = self.route.delete_from(self.iaf)
 
     # Commands
 
@@ -861,15 +858,20 @@ class Aircraft(object):
         except KeyError:
             logging.warning("No IAF when trying to intercept ILS")
             return
+
         if self.lnav_mode not in (HDG, TRK):
             self.tgt_hdg = self.hdg
+
         self.lnav_mode = LOC_CAPTURE
         self.app_auth = True
+
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         wp = Route.WP('_LLZ')
         wp._pos = xy_llz
+
         self.route = Route.Route([wp])
         self.int_loc = True
+
         (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
         # En este paso se desciende el tráfico y se añaden los puntos
         logging.debug('Altitud: ' + str(puntos_alt[0][3]))
@@ -920,10 +922,7 @@ class Aircraft(object):
             pass
         else:
             self.lnav_mode = LOC_CAPTURE  # TODO This is more to do with VNAV at first
-            for i in range(len(self.route), 0, -1):
-                if self.route[i - 1].fix == self.iaf:
-                    self.route = self.route[:i]
-                    break
+            self.route.delete_from(self.iaf)
             self.route.extend([Route.WayPoint(p[1]) for p in puntos_alt])
             wp = Route.WayPoint("_LLZ")
             wp._pos = llz[0]
