@@ -196,15 +196,15 @@ def intercept_radial(a, wind_drift):
 
 def app(a, wind_drift):
     try:
-        (puntos_alt, llz, puntos_map) = fir.iaps[a.iaf]
+        (transition_points, ILS_info, MAP_points) = fir.iaps[a.iaf]
     except KeyError:
         logging.warning("No IAF found when trying to set course for approach. Keeping current heading")
         return a.hdg
 
-    [xy_llz, llz_radial, dist_ayuda, pdte_ayuda, alt_pista] = llz
+    [xy_llz, llz_radial, llz_gs_distance, gs_angle, rwy_elevation] = ILS_info
     if len(a.route) == 0:  # Es el primer acceso a app desde la espera. Se añaden los puntos
-        for [a, b, c, h] in puntos_alt:
-            a.route.append(WayPoint(b))
+        for [point_pos, point_name, void, vertical_constraint] in transition_points:
+            a.route.append(WayPoint(point_name))
         wp = WayPoint("_LLZ")
         wp._pos = xy_llz
         a.route.append(wp)
@@ -212,20 +212,19 @@ def app(a, wind_drift):
     # An no está en el localizador, tocamos solamente la altitud y como plan
     # de vuelo
     if len(a.route) > 1:
-        if a._map and '_LLZ' not in a.route:  # Ya estáfrustrando
-            for [a, b, c, h] in puntos_map:
-                if b == a.route[0].fix:
-                    a.cfl = h / 100.
+        if a._map and '_LLZ' not in a.route:  # Already executing Missed Approach
+            for [point_pos, point_name, void, vertical_constraint] in MAP_points:
+                if point_name == a.route[0].fix:
+                    a.cfl = vertical_constraint / 100.
                     a.set_std_rate()
                     break
         else:
-            for [a, b, c, h] in puntos_alt:
-                if b == a.route[0].fix:
-                    a.cfl = h / 100.
+            for [point_pos, point_name, void, vertical_constraint] in transition_points:
+                if point_name == a.route[0].fix:
+                    a.cfl = vertical_constraint / 100.
                     break
-        # Punto al que se dirige con corrección de wind_drift
-        a.pto = a.route[0].pos()
-        a.vect = rp(r(a.pto, a.pos))
+        # Point towards it is flying, with wind drift correction
+        a.vect = rp(r(a.route[0].pos(), a.pos))
         # Correción de wind_drift
         return a.vect[1] - wind_drift
 
@@ -247,12 +246,12 @@ def app(a, wind_drift):
             (rx, ry) = r(xy_llz, a.pos)
             # Primero intersecta la senda de planeo cuando es inferior.
             # Solamente tocamos el rate de descenso
-            dist_thr = rp((rx, ry))[0] - dist_ayuda
+            dist_thr = rp((rx, ry))[0] - llz_gs_distance
             derrota = rp((rx, ry))[1]
             if abs(dist_thr) < 0.50:  # Avión aterrizado
                 # En caso de estar 200 ft por encima, hace MAP o si ya ha
                 # pasado el LLZ
-                height_over_field = a.lvl * 100 - alt_pista
+                height_over_field = a.lvl * 100 - rwy_elevation
                 if height_over_field > 200. or abs(derrota - llz_radial) > 90.:
                     logging.debug("%s: height over field is %d at %.1fnm. Executing MAP"
                                   % (a.callsign, height_over_field, dist_thr))
@@ -261,7 +260,7 @@ def app(a, wind_drift):
                 if a._map:  # Procedimiento de frustrada asignado
                     a.set_std_spd()
                     a.set_std_rate()
-                    a.route = Route([WayPoint(p[1]) for p in puntos_map])
+                    a.route = Route([WayPoint(point_pos[1]) for point_pos in MAP_points])
                 else:
                     logging.debug("%s: Landing" % a.callsign)
                     # Prevents cyclic imports
@@ -272,14 +271,14 @@ def app(a, wind_drift):
             if a.esta_en_llz:
                 # Interceptación de la senda de planeo. Se ajusta rate descenso y ajuste ias = perf.app_tas
                 # fl_gp = Flight level of the glidepath at the current point
-                fl_gp = (alt_pista * FEET_TO_LEVELS +
-                         dist_thr * pdte_ayuda * NM_TO_LEVELS)
+                fl_gp = (rwy_elevation * FEET_TO_LEVELS +
+                         dist_thr * gs_angle * NM_TO_LEVELS)
                 if fl_gp <= a.lvl:
                     # If above the glidepath
                     a.set_ias(a.perf.app_tas / (1.0 + 0.002 * a.lvl))
-                    a.cfl = alt_pista * FEET_TO_LEVELS
+                    a.cfl = rwy_elevation * FEET_TO_LEVELS
                     rate = ((a.lvl - fl_gp) * 1 +  # Additional vertical speed to capture
-                            a.ground_spd * pdte_ayuda) * NM_TO_LEVELS  # Vert speed to descend with the glide
+                            a.ground_spd * gs_angle) * NM_TO_LEVELS  # Vert speed to descend with the glide
                     # Unidades en ft/min
                     achievable, max_rate = a.set_vertical_rate(rate)
 
