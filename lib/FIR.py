@@ -62,7 +62,8 @@ class FIR(object):
 
         Route.fir = self
 
-        self.points = []  # List of geo coordinates of points
+        # List of geo coordinates of points [ POINT_NAME, (X, Y)]
+        self.points = []
         self.coords = {}  # Dictionary with point coordinates
         # Dictionary of points relative to another. Format: [RELATIVE_POINT
         # NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
@@ -74,7 +75,15 @@ class FIR(object):
         self.aerodromes = {}  # Dictionary of AD_HP objects
         self.holds = []  # List of published holds (See Hold class)
         self.procedimientos = {}  # Standard procedures (SIDs and STARs)
-        self.iaps = {}  # Instrument Approach Procedures
+
+        # Definition of the approach procedure is extremely confusing. Looking forward to substituting it for the
+        # proper AIXM structure
+        # iaps = {'IAF_NAME': (initial_app_points, ILS_info, MAP_points)}
+        # initial_app_points = [((x, y), POINT_NAME, '', altitude), ]  # List of points that connect IAF to IF
+        # ILS_info = [(x_llz_antenna, y_llz_antenna), (llz_radial + 180.) % 360., antena_rwy_thresh_dist, gs_angle, rwy_elevation]
+        # MAP_points = [(x, y), POINT_NAME, '', altitude), ]
+        self.iaps = {}
+
         self.deltas = []
         self.sectors = []  # List of sector names
         self._sector_sections = {}  # Section name of each sector
@@ -177,7 +186,7 @@ class FIR(object):
                     # dictionary (key: map name)
                     map_objects = []
                     for item in map_items:
-                        #logging.debug (item[0].lower())
+                        # logging.debug (item[0].lower())
                         if item[0].lower() != 'nombre':
                             map_objects.append(item[1].split(','))
                     self.local_maps[map_name] = map_objects
@@ -211,7 +220,7 @@ class FIR(object):
                 ad = self.aerodromes[airp.upper()]
                 for rwy in total_rwys.split(','):
                     ad.rwy_direction_list.append(
-                        RWY_DIRECTION(rwy.upper()[4:]))
+                        RWY_DIRECTION(rwy.upper()[4: ]))
                 # First runway if the preferential
                 ad.rwy_in_use = ad.rwy_direction_list[0]
         # SID and STAR procedures
@@ -238,7 +247,8 @@ class FIR(object):
             procs_app = firdef.items('app_' + pista)
             for [fijo, lista] in procs_app:
                 lista = lista.split(',')
-                #logging.debug (str(pista)+'Datos APP '+str(fijo)+' son '+str(lista))
+                # logging.debug (str(pista)+'Datos APP '+str(fijo)+' son
+                # '+str(lista))
                 points_app = []
                 for i in range(0, len(lista), 2):
                     dato = lista[i]
@@ -271,8 +281,8 @@ class FIR(object):
                         'Localizador no encontrado en procedimiento app_' + pista + ' APP')
                     # Ahora vamos a por los puntos de la frustrada
                 points_map = []
-                lista = lista[i + 7:]
-                #logging.debug ('Resto para MAp: '+str(lista))
+                lista = lista[i + 7: ]
+                # logging.debug ('Resto para MAp: '+str(lista))
                 for i in range(0, len(lista), 2):
                     dato = lista[i]
                     altitud = lista[i + 1]
@@ -293,14 +303,14 @@ class FIR(object):
         if firdef.has_section('deltas'):
             lista = firdef.items('deltas')
             for (num, aux) in lista:
-                #logging.debug ('Leyendo delta '+str(num))
+                # logging.debug ('Leyendo delta '+str(num))
                 linea = aux.split(',')
                 self.deltas.append([self.coords[p] for p in linea])
 
         # Sector characteristics
 
         for section in firdef.sections():
-            if section[0:6] == 'sector':
+            if section[0: 6] == 'sector':
                 sector_name = firdef.get(section, 'nombre')
                 self.sectors.append(sector_name)
                 self._sector_sections[sector_name] = section
@@ -425,11 +435,11 @@ def load_firs(path):
     for d in os.listdir(path):
         d = os.path.join(path, d)
         mode = os.stat(d)[ST_MODE]
-        if not S_ISDIR(mode) or d[-4:] == ".svn":
+        if not S_ISDIR(mode) or d[-4: ] == ".svn":
             continue
         firs += load_firs(d)
 
-    for f in [f for f in os.listdir(path) if f[-4:] == ".fir"]:
+    for f in [f for f in os.listdir(path) if f[-4: ] == ".fir"]:
         f = os.path.join(path, f)
         try:
             fir = FIR(f)
@@ -517,7 +527,7 @@ class STAR(object):
     def __init__(self, txt_desig, rte):
         self.txt_desig = txt_desig
         self.rte = Route.Route(Route.get_waypoints(rte))
-        self.start_fix = txt_desig[:-2]
+        self.start_fix = txt_desig[: -2]
 
     def __str__(self):
         return self.txt_desig
@@ -536,7 +546,7 @@ class SID(object):
     def __init__(self, txt_desig, rte):
         self.txt_desig = txt_desig
         self.rte = Route.Route(Route.get_waypoints(rte))
-        self.end_fix = txt_desig[:-2]
+        self.end_fix = txt_desig[: -2]
 
     def __str__(self):
         return self.txt_desig
