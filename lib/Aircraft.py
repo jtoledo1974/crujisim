@@ -70,7 +70,7 @@ LANDED = "8-LANDED"
 COASTING = "COASTING"
 
 # LNAV and VNAV
-from .LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL
+from .LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HOLD, HDG, TRK, HDG_FIX, INT_RDL, ORBIT
 
 # Globals
 
@@ -274,7 +274,7 @@ class Aircraft(object):
         self.ias = 0.0
         self.tgt_ias = None  # Target IAS to acquire (knots)
 
-        self.to_do = 'fpr'
+        self.lnav_mode = NAV
         self.to_do_aux = ''
         self.squawk = None  # Mode A transpoder code the aircraft is squawking
 
@@ -483,7 +483,7 @@ class Aircraft(object):
                 # logging.debug("%s: passed %s" % (self.callsign, self.route[0]))
                 if len(self.route) == 1:
                     if self.app_auth and fir.ad_has_ifr_rwys(self.ades):
-                        self.to_do = 'app'
+                        self.lnav_mode in  (LOC_CAPTURE, LOC)
                         #             (puntos_alt,llz,puntos_map) = iaps[sel.iaf]
                         #             self.to_do_aux = app
                         self.salto = self.tas * dh  # Distancia recorrida en este inc.de t sin viento
@@ -494,11 +494,11 @@ class Aircraft(object):
                     # Si el último punto está en la lista de aeropuertos,
                     # orbita sobre él
                     elif self.route[0].fix in fir.aerodromes:
-                        if self.to_do == 'fpr':  # En caso de que llegue a ese punto en ruta
+                        if self.lnav_mode == NAV:  # En caso de que llegue a ese punto en ruta
                             try:
                                 ph = [
                                     hold for hold in fir.holds if hold.fix == self.route[0].fix][0]
-                                self.to_do = 'hld'
+                                self.lnav_mode = HOLD
                                 if ph.std_turns is True:
                                     turn = 1.0
                                 else:
@@ -510,7 +510,7 @@ class Aircraft(object):
                             except Exception:
                                 pass
                             if len(self.route) == 1:  # En caso contrario, hace una espera de 1 min
-                                self.to_do = 'hld'
+                                self.lnav_mode = HOLD
                                 self.to_do_aux = [self.route[0], self.hdg, timedelta(
                                     minutes=1), 0.0, True, 1.0]
 
@@ -523,7 +523,7 @@ class Aircraft(object):
                     else:
                         # Aircraft has reached its final waypoint, and its not known
                         # airport, so we just coast along
-                        self.to_do = 'hdg'
+                        self.lnav_mode = HDG
                         self.to_do_aux = [self.hdg, 'ECON']
                         self.tgt_hdg = self.hdg
                         self.salto = self.tas * dh  # Distancia recorrida en este inc.de t sin viento
@@ -564,7 +564,7 @@ class Aircraft(object):
         while not last_point:
             t = sim.t + inc_t
             sim.next(t)
-            if not sim.to_do == 'fpr':
+            if not sim.lnav_mode == NAV:
                 last_point = True
 
         # Copy the ATOs of the simulated aircraft as our estimates
@@ -712,15 +712,15 @@ class Aircraft(object):
 
     def set_heading(self, hdg, opt='ECON'):
         self.tgt_hdg = hdg
-        self.to_do = 'hdg'
+        self.lnav_mode = HDG
         self.to_do_aux = [hdg, opt]
-        logging.debug(str((self.to_do, self.to_do_aux)))
+        logging.debug(str((self.lnav_mode, self.to_do_aux)))
 
     def fly_route(self, route):
         """Introduces a new route, and changes the flight mode to FPR"""
         self.cancel_app_auth()
         self.route = Route.Route(Route.get_waypoints(route))
-        self.to_do = 'fpr'
+        self.lnav_mode = NAV
         self.to_do_aux = []
         self.route = TLPV.sector_intersections(self.route)
         self.set_app_fix()
@@ -841,20 +841,20 @@ class Aircraft(object):
             turn = 1.0
         else:
             turn = -1.0
-        self.to_do = 'hld'
+        self.lnav_mode = HOLD
         self.to_do_aux = [fix, inbd_track, timedelta(
             minutes=outbd_time), 0.0, False, turn]
         self.cancel_app_auth()
 
     def hdg_after_fix(self, aux, hdg):
-        self.to_do = 'hdg<fix'
+        self.lnav_mode = HDG_FIX
         self.to_do_aux = [aux, hdg]
         self.cancel_app_auth()
 
     def int_rdl(self, aux, track):
-        if self.to_do != 'hdg':
+        if self.lnav_mode not in  (HDG, TRK):
             self.tgt_hdg = self.hdg
-        self.to_do = 'int_rdl'
+        self.lnav_mode = INT_RDL
         self.to_do_aux = [aux, track]
         self.cancel_app_auth()
 
@@ -868,9 +868,9 @@ class Aircraft(object):
         except KeyError:
             logging.warning("No IAF when trying to intercept ILS")
             return
-        if self.to_do != 'hdg':
+        if self.lnav_mode not in (HDG, TRK):
             self.tgt_hdg = self.hdg
-        self.to_do = 'app'
+        self.lnav_mode = LOC_CAPTURE
         self.app_auth = True
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         wp = Route.WP('_LLZ')
@@ -890,14 +890,14 @@ class Aircraft(object):
         except KeyError:
             logging.warning("No IAF when trying to intercept LLZ")
             return
-        if self.to_do != 'hdg':
+        if self.lnav_mode not in (HDG, TRK):
             self.tgt_hdg = self.hdg
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
-        self.to_do = 'int_rdl'
+        self.lnav_mode = LOC_CAPTURE
         self.to_do_aux = ["X%fY%f" % xy_llz, rdl]
 
     def orbit(self, turn_direction):
-        self.to_do = 'orbit'
+        self.lnav_mode = ORBIT
         if turn_direction == LEFT:
             self.to_do_aux = ['IZDA']
         else:
@@ -923,10 +923,10 @@ class Aircraft(object):
         logging.debug('Altitud: ' + str(puntos_alt[0][3]))
         self.set_cfl(puntos_alt[0][3] / 100.)
         self.set_std_rate()
-        if self.to_do == 'hld':
+        if self.lnav_mode == HOLD:
             pass
         else:
-            self.to_do = 'app'
+            self.lnav_mode = LOC_CAPTURE  # TODO This is more to do with VNAV at first
             for i in range(len(self.route), 0, -1):
                 if self.route[i - 1].fix == self.iaf:
                     self.route = self.route[:i]

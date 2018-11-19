@@ -1,6 +1,10 @@
 import pytest
+
 from crujisim.lib.Aircraft import Aircraft
 from crujisim.lib import FPM_TO_LEVELS_PER_HOUR, LANDED
+from crujisim.lib.LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL
+from crujisim.lib.LNAV import get_target_heading
+
 from datetime import datetime, timedelta
 
 
@@ -40,7 +44,7 @@ def test_int_ils(aircraft):
     d = timedelta(seconds=5)
     aircraft.next(aircraft.t + d)
     assert aircraft.app_auth is True
-    assert aircraft.to_do == "app"
+    assert aircraft.lnav_mode == LOC_CAPTURE
 
 
 @pytest.mark.parametrize("cfl,expected", [
@@ -121,4 +125,4 @@ def test_target_hdg_after_ils(flight, td_1m):
     flight.next(flight.t + 2 * td_1m)
     assert flight.hdg == 200
     flight.int_ils()
-    assert flight.get_target_heading(0, flight.t) == 200
+    assert get_target_heading(flight, 0, flight.t) == 200

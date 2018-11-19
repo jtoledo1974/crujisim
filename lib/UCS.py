@@ -25,6 +25,7 @@ from time import time, sleep
 
 from RaDisplay import *  # This also imports all RaElements classes
 import Aircraft
+import LNAV
 import Route
 from Pseudopilot import DepTabular
 
@@ -154,7 +155,7 @@ class UCS(RaDisplay):
         canvas=self.c
         line=()
         # TODO This must be changed now that UCS will not have direct info from the Aircraft
-        if track.to_do=='fpr':
+        if track.lnav_mode == LNAV.NAV:
             line=line+self.do_scale(track.pos)
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             try: pto=self.do_scale(a.pos())
@@ -186,7 +187,7 @@ class UCS(RaDisplay):
         canvas.delete(track.callsign+'wp')
         line=()
         # TODO must be changed now that UCS will not have info from the actual aircraft
-        if track.to_do=='fpr':
+        if track.lnav_mode == LNAV.NAV:
             line=line+do_scale(track.pos)
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             try: pto=do_scale(a.pos())

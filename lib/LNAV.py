@@ -34,16 +34,18 @@ fir = None   # Set by GTA.__init__
 
 # Managed
 NAV = "NAV"
-APP = "APP NAV"  # Not used yet
+APP = "APP NAV"  # Not used yet, for navigation from IAF to IF
 RWY = "RWY"  # Not used yet
 LOC = "LOC"  # LOC AND LOC* are implemented using int_rdl functionality
 LOC_CAPTURE = "LOC*"
+HOLD = "HOLD"
 
 # Selected
 HDG = "HDG"
 TRK = "TRK"  # Not used
 HDG_FIX = "HDG<FIX"  # Follow heading after fix. Probably never used
 INT_RDL = "INT_RDL"  # Intercept a radial
+ORBIT = "ORBIT"
 
 
 # JTC 2018-10 This is still all spaghetti code. I moved LNAV methods here, but it still has
@@ -229,7 +231,7 @@ def app(f, wind_drift):
         # Ya estáfrustrando hacia el último punto, asimilamos a plan de
         # vuelo normal
         if f._map and '_LLZ' not in f.route:
-            f.to_do = 'fpr'
+            f.lnav_mode = NAV
             f.app_auth = False
             f.app_fix = ''
             f._map = False
@@ -339,16 +341,17 @@ def get_target_heading(f, wind_drift, t):
     """Return target heading for current flight phase"""
 
     tgt_hdg_functions = {
-        "fpr": (fpr, wind_drift),
-        "hdg": (hdg,),
-        "orbit": (orbit,),
-        "hld": (hold, wind_drift, t),
-        "hdg<fix": (hdgfix, wind_drift),
-        "int_rdl": (intercept_radial, wind_drift),
-        "app": (app, wind_drift)
+        NAV: (fpr, wind_drift),
+        HDG: (hdg,),
+        ORBIT: (orbit,),
+        HOLD: (hold, wind_drift, t),
+        HDG_FIX: (hdgfix, wind_drift),
+        INT_RDL: (intercept_radial, wind_drift),
+        LOC_CAPTURE: (app, wind_drift)
     }
 
-    if f.to_do in tgt_hdg_functions:
-        function = tgt_hdg_functions[f.to_do][0]
-        args = [f] + list(tgt_hdg_functions[f.to_do][1:])
-        return function(*args)
+    assert f.lnav_mode in tgt_hdg_functions, "Unknown lnav_mode %s" % f.lnav_mode
+
+    function = tgt_hdg_functions[f.lnav_mode][0]
+    args = [f] + list(tgt_hdg_functions[f.lnav_mode][1:])
+    return function(*args)
