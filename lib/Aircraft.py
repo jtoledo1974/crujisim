@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#-*- coding:iso8859-15 -*-
+# -*- coding:utf-8 -*-
 # $Id$
 #
 # (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
@@ -132,7 +132,7 @@ def v(self):
             lvl = self.lvl
         else:
             lvl = 0  # In python 2 None acts as 0 when compared. Not in python 3
-        if lvl < self.cfl: 
+        if lvl < self.cfl:
             tas = self.perf.get_climb_perf(lvl)[0]
         elif lvl > self.cfl:
             tas = self.perf.get_descent_perf(lvl)[0]
@@ -175,7 +175,7 @@ def v(self):
 
 
 def f_vert(self):
-  # Devuelve factor corrección de velocidad vertical
+    # Devuelve factor corrección de velocidad vertical
     # TODO Probably this is unneeded now that we have a the BADA summary table
     q = self.lvl / self.perf.max_fl
     if q < .75:
@@ -184,7 +184,6 @@ def f_vert(self):
         return 0.80
     else:
         return 0.60
-
 
 
 class Aircraft(object):
@@ -300,7 +299,7 @@ class Aircraft(object):
         # Set tu TRUE when ACFT is being transferred by a ATC position
         self.trans_atc_pos = False
 
-        if init == True:
+        if init is True:
             self.initialize()
 
         Aircraft.max_uid = self.uid = Aircraft.max_uid + 1
@@ -351,7 +350,7 @@ class Aircraft(object):
         odict = self.__dict__.copy()
         try:
             del odict['perf']
-        except:
+        except Exception:
             pass
         return odict
 
@@ -373,13 +372,13 @@ class Aircraft(object):
                         2] * 60. / 100
             elif self.cfl < self.lvl:
                 vs = -min(self.tas / 0.2 / 100. * 60.,
-                                 self.perf.max_rod * f_vert(self))
+                          self.perf.max_rod * f_vert(self))
                 if self.perf.bada:
                     vs = - \
                         self.perf.get_descent_perf(self.lvl)[1] * 60. / 100
             else:   # CFL == LVL
                 vs = 0.
-            return vs                
+            return vs     
 
         # Vertical speed is not according to model, but fixed. Keep the one we have.
         return self.rocd
@@ -396,7 +395,6 @@ class Aircraft(object):
             return self.cfl
         else:
             return self.lvl + delta_levels
-
 
     def next(self, t):
         """Advance simulation to time t"""
@@ -483,9 +481,7 @@ class Aircraft(object):
                 # logging.debug("%s: passed %s" % (self.callsign, self.route[0]))
                 if len(self.route) == 1:
                     if self.app_auth and fir.ad_has_ifr_rwys(self.ades):
-                        self.lnav_mode in  (LOC_CAPTURE, LOC)
-                        #             (puntos_alt,llz,puntos_map) = iaps[sel.iaf]
-                        #             self.to_do_aux = app
+                        self.lnav_mode in (LOC_CAPTURE, LOC)
                         self.salto = self.tas * dh  # Distancia recorrida en este inc.de t sin viento
                         # Deriva por el viento
                         efecto_viento = (wx * dh, wy * dh)
@@ -554,7 +550,6 @@ class Aircraft(object):
         if self.no_estimates:
             return
 
-        estimadas = [0.0]
         last_point = False
         sim = self.copy()
         sim.no_estimates = True
@@ -645,7 +640,7 @@ class Aircraft(object):
         self.type = type
         try:
             self.perf = BADA.Performance(type)
-        except:
+        except Exception:
             # The previous call only fails if there is no old style performance
             # info for the type
             try:
@@ -655,13 +650,13 @@ class Aircraft(object):
                 logging.warning("No old style performance info for %s (%s). Using %s instead" % (
                     self.callsign, type, std_type))
                 self.type = std_type
-            except:
+            except Exception:
                 raise "Unable to load perfomance data for "
         self.wake = self.perf.wtc.upper()
 
     def set_campo_eco(self):
         # TODO This should be part of TLPV.py, and maybe duplicated here for the benefit of the pseudopilot
-        #self.campo_eco = self.route[-1].fix[0:3]
+        # self.campo_eco = self.route[-1].fix[0:3]
         # for ades in fir.aerodromes:
         #    if self.ades==ades:
         #        self.campo_eco=ades[2:4]
@@ -673,7 +668,6 @@ class Aircraft(object):
         # the maximum IAS from there.
         ias_max = min(cas_from_tas(self.perf.max_tas,
                                    self.lvl * 100), self.perf.tma_tas * 1.1)
-        tas_max = self.perf.max_tas
 
         if ias > ias_max and force is False:
             return (False, ias_max)
@@ -730,20 +724,20 @@ class Aircraft(object):
     def set_vertical_rate(self, rate, force=False):
         """Given a rate in levels per hour, try to set it for the airplane.
         If the given rate is beyond the capabilities of the aircraft then return
-        False and the maximum settable rate in levels per hour"""  
+        False and the maximum settable rate in levels per hour"""
         # import ipdb; ipdb.set_trace()
         self.std_rate = False
         achievable = False
         max_rate = None
 
         if self.cfl > self.lvl:
-            if rate <= self.perf.max_roc * f_vert(self) or force == True:
+            if rate <= self.perf.max_roc * f_vert(self) or force is True:
                 self.rocd = rate
                 achievable = True
             else:
                 max_rate = self.perf.max_roc * f_vert(self)
         else:  # CFL <= LVL
-            if abs(rate) <= self.perf.max_rod or force == True:
+            if abs(rate) <= self.perf.max_rod or force is True:
                 self.rocd = -rate
                 achievable = True
             else:
@@ -790,7 +784,7 @@ class Aircraft(object):
         return self.perf.max_tas / (1.0 + 0.002 * self.perf.max_fl)
 
     def get_sector_entry_fix(self):
-        if self.sector_entry_fix == None:
+        if self.sector_entry_fix is None:
             return ''
         else:
             return self.sector_entry_fix
@@ -814,7 +808,6 @@ class Aircraft(object):
                     self.route = self.route[:i]
                     break
 
-
     # Commands
 
     def hold(self, fix, inbd_track=None, outbd_time=None, std_turns=None):
@@ -827,7 +820,7 @@ class Aircraft(object):
                 outbd_time = ph.outbd_time
             if std_turns is None:
                 std_turns = ph.std_turns
-        except:
+        except Exception:
             logging.debug("No published hold over " + str(fix))
         # Otherwise fill the blanks with defaults
         if inbd_track is None:
@@ -852,7 +845,7 @@ class Aircraft(object):
         self.cancel_app_auth()
 
     def int_rdl(self, aux, track):
-        if self.lnav_mode not in  (HDG, TRK):
+        if self.lnav_mode not in (HDG, TRK):
             self.tgt_hdg = self.hdg
         self.lnav_mode = INT_RDL
         self.to_do_aux = [aux, track]
@@ -916,7 +909,7 @@ class Aircraft(object):
             logging.warning("No IAF when trying to execute approach")
             self.iaf = old_iaf
             return
-        
+
         self.app_auth = True
         self._map = False
         # En este paso se desciende el tráfico y se añaden los puntos
@@ -944,13 +937,13 @@ class Aircraft(object):
             if self.route[i].fix == fix.upper():
                 aux = self.route[i:]
         # Si no estáen la ruta, insertamos el punto como n 1
-        if aux == None:
+        if aux is None:
             for [nombre, coord] in self.fir.points:
                 if nombre == fix.upper():
                     aux = [[coord, nombre, '']]
                     for a in self.route:
                         aux.append(a)
-        if aux == None:
+        if aux is None:
             # TODO we need to deal with exceptions here the same
             # we do with set_cfl, for instance
             logging.warning('Punto ' + fix.upper() +
@@ -977,14 +970,12 @@ class Aircraft(object):
         self.next(t)
         self.calc_eto()
 
-
     # Utility
 
     def log_waypoint(self):
         wp = self.route.pop(0)
         wp.ato = self.t
         self.log.append(wp)
-
 
     def copy(self):
         s = self
