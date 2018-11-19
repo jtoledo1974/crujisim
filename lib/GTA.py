@@ -52,13 +52,18 @@ QNH_STD_VAR = 0.0005
 
 class GTA(object):
 
-    def __init__(self, conf=None, exc_file="", refresh_time=5.):
+    def __init__(self, conf=None, exc_file="", refresh_time=5., offline=False,
+                 stop_after_minutes=0, step_callback=None):
 
         self.conf = conf
         self.exercise_file = exc_file
         # I don't remember why, but I believe it was important that
         # the refresh time was a float and not int - JTC
         self.refresh_time = float(refresh_time)
+
+        # When running offline time is not dependent on wall clock,
+        # only simulation and full speed ahead.
+        self.offline = offline
 
         logging.info("Loading exercise " + exc_file)
         e = Exercise(exc_file)
@@ -97,6 +102,12 @@ class GTA(object):
 
         self.fact_t = 1.0  # Time multiplier
         self.paused = False
+
+        # stopping_time and step_callback are only relevant for offline mode
+        self.stopping_time = self.t +\
+            datetime.timedelta(minutes=stop_after_minutes)
+        if step_callback:
+            self.step_callback = step_callback
 
         self.tlpv = tlpv = TLPV.TLPV(exc_file)
         self.load_aircraft(e)
@@ -172,6 +183,10 @@ class GTA(object):
             fp.wake = ef.wtc     # Keep the WTC in the exercise file, even if wrong
             fp.filed_tas = int(ef.tas)
 
+    def step_callback(self, gta):
+        """This method is substituted by a user defined one if specified at GTA creation time"""
+        pass
+
     def start(self):
         while self.cont:
             try:
@@ -179,25 +194,39 @@ class GTA(object):
             except Exception:
                 logging.error("Error in GTA.timer", exc_info=True)
 
-            # Thus we make sure that the clock is always up to date.
+        if self.offline is False:
+            # Run every .5 seconds to make sure the radar clock is always updated
             sleep(0.5)
 
     def set_vel_reloj(self, k):
         self.fact_t = k
 
     def advance_time(self):
-        try:
-            delta = time() - self.last_timer
-        except AttributeError:
-            delta = 0
-        self.last_timer = time()
+        """Advances time. Return the number of seconds that passed"""
+        if self.offline is False:  # Standard wall clock time mode
+            try:
+                delta = time() - self.last_timer
+            except AttributeError:
+                delta = 0
+            self.last_timer = time()
 
-        # Si el reloj no está pausado avanzamos el tiempo
-        if not self.paused:
-            td = datetime.timedelta(seconds=delta * self.fact_t)
-            self.t += td
+            # Si el reloj no está pausado avanzamos el tiempo
+            if not self.paused:
+                td = datetime.timedelta(seconds=delta * self.fact_t)
+                self.t += td
 
-        return delta
+        else:  # Running in offline mode
+            # If there was a timelimit, stop
+            if self.stopping_time < self.t:
+                self.cont = False
+
+            self.t += datetime.timedelta(seconds=self.refresh_time)
+
+            self.step_callback(self)  # Function set by the holder of the GTA instance
+
+            delta = self.refresh_time
+
+        return delta  # The delta is used by calculte_qnh
 
     def calculate_qnh(self, delta):
         # Calculate new QNH
@@ -259,6 +288,7 @@ class GTA(object):
         self.flights.remove(f)
 
     def exit(self):
+        self.cont = False
         self.tlpv.exit()
 
     def __del__(self):

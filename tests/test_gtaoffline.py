@@ -1,6 +1,4 @@
-from crujisim.lib.GTAoffline import GTAoffline
-from crujisim.lib.Aircraft import Aircraft
-from crujisim.lib.GTAoffline import RIGHT, LEFT
+from crujisim.lib.GTA import GTA
 import pytest
 
 CALLSIGN = "jkk7148"
@@ -12,8 +10,8 @@ IAF = "TERRA"
 @pytest.fixture
 def gta_with_args(exc_file):
     def _gta(file="sample.exc", stop_after_minutes=15, step_callback=None):
-        gta = GTAoffline(exc_file=str(exc_file),
-                         stop_after_minutes=stop_after_minutes, step_callback=step_callback)
+        gta = GTA(exc_file=str(exc_file), offline=True,
+                  stop_after_minutes=stop_after_minutes, step_callback=step_callback)
         return gta
 
     return _gta
