@@ -46,7 +46,7 @@ fir = None  # The proper fir is added by GTA initialization
 def is_str(item):
     """Check for str type in a python2 / python 3 compatible way"""
     try:
-        res = isinstance(item, str) or instance(item, unicode)
+        res = isinstance(item, str) or isinstance(item, unicode)
     except NameError:
         res = isinstance(item, str)
     return res
