@@ -130,6 +130,7 @@ class FIR(object):
                 x = float(x)
                 y = float(y)
                 self.rel_points[nombre.upper()] = [nombre_base.upper(), (x, y)]
+
         if len(self.rel_points) > 0:
             # If at least one relative point has been read we should try to convert it to
             # cartessian coordinates
@@ -174,12 +175,14 @@ class FIR(object):
         for (num, aux) in lista:
             linea = aux.split(',')
             self.airways.append([self.coords[p] for p in linea])
+
         # FIR TMAs
         if firdef.has_section('tmas'):
             lista = firdef.items('tmas')
             for (num, aux) in lista:
                 linea = aux.split(',')
                 self.tmas.append([self.coords[p] for p in linea])
+
         # Local maps
         if firdef.has_section('mapas_locales'):
             local_map_string = firdef.get('mapas_locales', 'mapas')
@@ -197,6 +200,7 @@ class FIR(object):
                         if item[0].lower() != 'nombre':
                             map_objects.append(item[1].split(','))
                     self.local_maps[map_name] = map_objects
+
         # FIR aerodromes
         if firdef.has_section('aeropuertos'):
             lista = firdef.items('aeropuertos')
@@ -207,6 +211,7 @@ class FIR(object):
             elev_list = firdef.items('elevaciones')[0][1].split(",")
             for ad, elev in zip(list(self.aerodromes.keys()), elev_list):
                 self.aerodromes[ad].val_elev = int(elev)
+
         # Published holding patterns
         if firdef.has_section('esperas_publicadas'):
             lista = firdef.items('esperas_publicadas')
@@ -220,6 +225,7 @@ class FIR(object):
                     std_turns = False
                 self.holds.append(
                     Hold(fijo.upper(), rumbo, tiempo_alej, std_turns))
+
         # IFR Runways
         if firdef.has_section('aeropuertos_con_procedimientos'):
             lista = firdef.items('aeropuertos_con_procedimientos')
@@ -230,6 +236,7 @@ class FIR(object):
                         RWY_DIRECTION(rwy.upper()[4: ]))
                 # First runway if the preferential
                 ad.rwy_in_use = ad.rwy_direction_list[0]
+
         # SID and STAR procedures
         for ad, rwy_direction in ((ad, rwy) for ad in self.aerodromes.values()
                                   for rwy in ad.rwy_direction_list):
@@ -250,6 +257,7 @@ class FIR(object):
         for pista in (ad.designator + rwy.txt_desig
                       for ad in self.aerodromes.values()
                       for rwy in ad.rwy_direction_list):
+
             # Procedimientos aproximación
             procs_app = firdef.items('app_' + pista)
             for [fijo, lista] in procs_app:
