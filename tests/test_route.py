@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 import pytest
 
 import crujisim.lib.Route
@@ -23,6 +24,9 @@ def fir():
 @pytest.fixture
 def route(fir):
     wp_list = get_waypoints("pdt parla canes pi pi pi pi")
+    now, td = datetime.now(), timedelta(seconds=300)
+    for i, wp in enumerate(wp_list):
+        wp.eto = now + i * td
     return Route(wp_list)
 
 

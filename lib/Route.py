@@ -146,15 +146,15 @@ class Route(list):
         else:
             raise TypeError("%s is not type str nor WayPoint" % item)
 
-    def __str__(self):
+    def __repr__(self):
         s = ''
         for wp in self:
             s += str(wp) + ", "
         s = s[:-2]
         return s
 
-    def __repr__(self):
-        return str(self)
+    def __str__(self):
+        return ', '.join((str(wp) for wp in self))
 
     # Methods specific to the Route object, meant to be used by external users
 
@@ -346,18 +346,18 @@ class WayPoint(object):
         if isinstance(fix, WayPoint):
             fix = fix.fix
 
-        self.fix = fix.upper()
-        self.type = type
-        self.eto = eto
-        self.xfl = xfl
-        self.xfl_type = xfl_type  # Use one of the restriction constants AABV, ABLW, LVL
-        self.ato = None      # Actual time over the waypoint
-        self._pos = None      # Store position if available
-        self.is_geo = False     # Whether the waypoint was created using coordinates
-        self.inbd_track = None
-        self.outbd_track = None
-        self.sector_entry = None    # Sector this waypoint marks the entry to
-        self.sector_exit = None      # Sector this waypoint marks the exit of
+        self.fix          = fix.upper()
+        self.type         = type
+        self.eto          = eto       # Estimated time overhead. Datetime object.
+        self.xfl          = xfl
+        self.xfl_type     = xfl_type  # Use one of the restriction constants AABV, ABLW, LVL
+        self.ato          = None      # Actual time over the waypoint
+        self._pos         = None      # Store position if available
+        self.is_geo       = False     # Whether the waypoint was created using coordinates
+        self.inbd_track   = None
+        self.outbd_track  = None
+        self.sector_entry = None      # Sector this waypoint marks the entry to
+        self.sector_exit  = None      # Sector this waypoint marks the exit of
 
         # If given in the appropriate format, store the position
         try:
@@ -383,7 +383,7 @@ class WayPoint(object):
         wp.__dict__ = self.__dict__.copy()
         return wp
 
-    def __str__(self):
+    def __repr__(self):
         s = self.fix
         if self.ato:
             t = self.ato
@@ -395,8 +395,8 @@ class WayPoint(object):
             pass
         return s
 
-    def __repr__(self):
-        return self.__str__()
+    def __str__(self):
+        return self.fix
 
     def __eq__(self, other):
         """Check whether two waypoints may be considered the same (within 0.1 nm)"""
