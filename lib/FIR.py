@@ -22,7 +22,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from future import standard_library
-standard_library.install_aliases()
 from builtins import zip
 from builtins import range
 from builtins import object
@@ -36,6 +35,9 @@ from stat import *
 # Application imports
 from .MathUtil import *
 from . import Route
+from .AIXM import AirportHeliport
+
+standard_library.install_aliases()
 
 # TODO the whole FIR object should be rewritten
 # The file format should probably be switched to an XML file that more closely follows
@@ -72,7 +74,7 @@ class FIR(object):
         self.airways = []  # List of airways... just for displaying on map
         self.tmas = []  # List of points defining TMAs
         self.local_maps = {}  # Dictionary of local maps
-        self.aerodromes = {}  # Dictionary of AD_HP objects
+        self.aerodromes = {}  # Dictionary of AirportHeliport features
         self.holds = []  # List of published holds (See Hold class)
         self.procedimientos = {}  # Standard procedures (SIDs and STARs)
 
@@ -195,7 +197,7 @@ class FIR(object):
             lista = firdef.items('aeropuertos')
             for (num, aux) in lista:
                 for a in aux.split(','):
-                    self.aerodromes[a] = AD_HP(a)
+                    self.aerodromes[a] = AirportHeliport(a)
         if firdef.has_section('elevaciones'):
             elev_list = firdef.items('elevaciones')[0][1].split(",")
             for ad, elev in zip(list(self.aerodromes.keys()), elev_list):
@@ -464,29 +466,6 @@ class Designated_Point(object):
         self.pos = pos
 
 Point = Designated_Point  # Alias for the class
-
-
-class AD_HP(object):  # Aerodrome / Heliport
-
-    def __init__(self, code_id, txt_name='', pos=None, val_elev=0):
-        self.code_id = code_id
-        self.txt_name = txt_name
-        self.pos = pos
-        self.val_elev = val_elev
-        self.rwy_direction_list = []
-        self.rwy_in_use = None
-
-    def get_sid(self, txt_desig):
-        return [sid for rwy in self.rwy_direction_list
-                for sid in rwy.sid_dict.values()
-                if sid.txt_desig == txt_desig][0]
-
-    def __repr__(self):
-        s = "AD_HP(id: %r, txt_name:%r, pos:%r, val_elev:%r, %r, %r)" % (
-            self.code_id, self.txt_name, self.pos,
-            self.val_elev, self.rwy_direction_list,
-            self.rwy_in_use)
-        return s
 
 
 class Hold(object):

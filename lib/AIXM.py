@@ -34,11 +34,11 @@ import logging
 standard_library.install_aliases()
 
 
-class AD_HP(object):  # Aerodrome / Heliport
+class AirportHeliport(object):  # Aerodrome / Heliport
 
-    def __init__(self, code_id, txt_name='', pos=None, val_elev=0):
+    def __init__(self, code_id, designator='', pos=None, val_elev=0):
         self.code_id = code_id
-        self.txt_name = txt_name
+        self.designator = designator
         self.pos = pos
         self.val_elev = val_elev
         self.rwy_direction_list = []
@@ -50,8 +50,8 @@ class AD_HP(object):  # Aerodrome / Heliport
                 if sid.txt_desig == txt_desig][0]
 
     def __repr__(self):
-        s = "AD_HP(id: %r, txt_name:%r, pos:%r, val_elev:%r, %r, %r)" % (
-            self.code_id, self.txt_name, self.pos,
+        s = "AD_HP(id: %r, designator:%r, pos:%r, val_elev:%r, %r, %r)" % (
+            self.code_id, self.designator, self.pos,
             self.val_elev, self.rwy_direction_list,
             self.rwy_in_use)
         return s
