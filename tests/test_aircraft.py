@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 
 @pytest.fixture
-def aircraft(gta):
+def aircraft(gta):  # We only need a GTA object loaded so that a FIR attribute is added to the module
     eto = datetime.today()
     a = Aircraft("test_callsign", "A320", "LEMD", "LECE",
                  320., 340., "BELEN,NORTA",
@@ -126,3 +126,15 @@ def test_target_hdg_after_ils(flight, td_1m):
     assert flight.hdg == 200
     flight.int_ils()
     assert get_target_heading(flight, 0, flight.t) == 200
+
+
+def test_complete_flightplan(gta):
+    eto = datetime.today()
+    a = Aircraft("test_callsign", "A320", "LEMD", "LECE",
+                 320., 340., "BELEN,NORTA",
+                 next_wp="NORTA", next_wp_eto=eto, wake_hint="M")
+    assert str(a.route) == 'BELEN, NORTA, _N1D01, _N1D02, _N1D03, _N1D04, _N1D05, _N1D06, _N1D07, _N1D08, _N1D09, _N1D10, _N1D11, TERRA'
+    a.route.delete_from('_N1D01')
+    assert str(a.route) == 'BELEN, NORTA'
+    a.complete_flight_plan()
+    assert str(a.route) == 'BELEN, NORTA, _N1D01, _N1D02, _N1D03, _N1D04, _N1D05, _N1D06, _N1D07, _N1D08, _N1D09, _N1D10, _N1D11, TERRA'
