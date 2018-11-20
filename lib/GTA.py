@@ -197,9 +197,9 @@ class GTA(object):
             except Exception:
                 logging.error("Error in GTA.timer", exc_info=True)
 
-        if self.offline is False:
-            # Run every .5 seconds to make sure the radar clock is always updated
-            sleep(0.5)
+            if self.offline is False:
+                # Run every .5 seconds to make sure the radar clock is always updated
+                sleep(0.5)
 
     def set_vel_reloj(self, k):
         self.fact_t = k
