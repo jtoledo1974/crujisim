@@ -147,11 +147,7 @@ class Route(list):
             raise TypeError("%s is not type str nor WayPoint" % item)
 
     def __repr__(self):
-        s = ''
-        for wp in self:
-            s += str(wp) + ", "
-        s = s[:-2]
-        return s
+        return ', '.join(repr(wp) for wp in self)
 
     def __str__(self):
         return ', '.join((str(wp) for wp in self))
