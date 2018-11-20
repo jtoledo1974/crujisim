@@ -34,10 +34,17 @@ import logging
 standard_library.install_aliases()
 
 
+class Association(object):
+    """Holds a number of other AIXM objects"""
+    def __init__(self, role, max, min):
+        self.role = role
+        self.max = max
+        self.min = min
+
+
 class AirportHeliport(object):  # Aerodrome / Heliport
 
-    def __init__(self, code_id, designator='', pos=None, val_elev=0):
-        self.code_id = code_id
+    def __init__(self, designator, pos=None, val_elev=0):
         self.designator = designator
         self.pos = pos
         self.val_elev = val_elev
@@ -51,18 +58,10 @@ class AirportHeliport(object):  # Aerodrome / Heliport
 
     def __repr__(self):
         s = "AD_HP(id: %r, designator:%r, pos:%r, val_elev:%r, %r, %r)" % (
-            self.code_id, self.designator, self.pos,
+            self.designator, self.pos,
             self.val_elev, self.rwy_direction_list,
             self.rwy_in_use)
         return s
-
-
-class Association(object):
-    """Holds a number of other AIXM objects"""
-    def __init__(self, role, max, min):
-        self.role = role
-        self.max = max
-        self.min = min
 
 
 class RunwayDirection(object):

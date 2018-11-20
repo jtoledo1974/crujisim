@@ -930,13 +930,13 @@ class ventana_auxiliar:
             
             def close_rwy_chg(e=None,entries=None):
                 for ad in ad_list:
-                    if entries[ad.code_id]['value']!=ad.rwy_in_use.txt_desig:
-                        master.sendMessage({"message":"rwy_in_use", "ad":ad.code_id,
-                                            "rwy":entries[ad.code_id]['value']})
+                    if entries[ad.designator]['value']!=ad.rwy_in_use.txt_desig:
+                        master.sendMessage({"message":"rwy_in_use", "ad":ad.designator,
+                                            "rwy":entries[ad.designator]['value']})
             
             entries=[]
             for ad in ad_list:
-                entries.append({'label':ad.code_id,
+                entries.append({'label':ad.designator,
                             'values':[rwy.txt_desig for rwy in ad.rwy_direction_list],
                             'def_value':ad.rwy_in_use.txt_desig})
             RaDialog(w,label='Cambiar pistas en uso',

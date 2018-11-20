@@ -429,7 +429,7 @@ class GTAnet(GTA):
         ad = self.fir.aerodromes[ad_code_id]
 
         for c in self.pseudopilots:
-            m = {"message": "rwy_in_use", "ad": ad.code_id,
+            m = {"message": "rwy_in_use", "ad": ad.designator,
                  "rwy": ad.rwy_in_use.txt_desig}
             c.protocol.sendMessage(m)
 

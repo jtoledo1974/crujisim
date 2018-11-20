@@ -18,7 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-"""Information regarding a Flight Information Region"""
+
+"""Contains all aeronautical information: Airports, routes, points, procedures, etc."""
+
+# Should really be renamed AIS, but I don't feel like going through that. FIR is
+# all over the place!
+
 from __future__ import print_function
 from __future__ import absolute_import
 from future import standard_library
@@ -228,7 +233,7 @@ class FIR(object):
         # SID and STAR procedures
         for ad, rwy_direction in ((ad, rwy) for ad in self.aerodromes.values()
                                   for rwy in ad.rwy_direction_list):
-            pista = ad.code_id + rwy_direction.txt_desig
+            pista = ad.designator + rwy_direction.txt_desig
             # SID
             lista = firdef.items('sid_' + pista)
             for (sid_desig, sid_points) in lista:
@@ -242,7 +247,7 @@ class FIR(object):
                     star_desig, star_points)
 
         # Instrument Approach Procedures
-        for pista in (ad.code_id + rwy.txt_desig
+        for pista in (ad.designator + rwy.txt_desig
                       for ad in self.aerodromes.values()
                       for rwy in ad.rwy_direction_list):
             # Procedimientos aproximación
@@ -424,9 +429,9 @@ class FIR(object):
             raise RuntimeError('Point %s not found in %s' %
                                (point_name, self.file))
 
-    def ad_has_ifr_rwys(self, code_id):
-        return code_id in self.aerodromes \
-            and len(self.aerodromes[code_id].rwy_direction_list) > 0
+    def ad_has_ifr_rwys(self, designator):
+        return designator in self.aerodromes \
+            and len(self.aerodromes[designator].rwy_direction_list) > 0
 
 
 def load_firs(path):
@@ -461,8 +466,8 @@ def load_firs(path):
 
 class Designated_Point(object):
 
-    def __init__(self, code_id, pos):
-        self.code_id = code_id
+    def __init__(self, designator, pos):
+        self.designator = designator
         self.pos = pos
 
 Point = Designated_Point  # Alias for the class
