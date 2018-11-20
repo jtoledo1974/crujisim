@@ -34,6 +34,8 @@ from math import pi, tan
 import codecs
 import logging
 from datetime import timedelta
+
+from . import AIS
 from . import BADA
 from . import Route
 from . import TLPV  # This is used as an optimization in set_route. Could be removed
@@ -316,7 +318,7 @@ class Aircraft(object):
             self.ground_spd = self.tas = v(self)
             self.lvl = self.cfl
         else:  # GROUND
-            self.lvl = fir.aerodromes[self.adep].val_elev
+            self.lvl = AIS.aerodromes[self.adep].val_elev
             # We need to start up with an initial speed because the
             # accelaration code is not realistic
             self.ground_spd = self.tas = 60.
@@ -480,7 +482,7 @@ class Aircraft(object):
             if self.salto > self.vect[0] or self.waypoint_reached():
                 # logging.debug("%s: passed %s" % (self.callsign, self.route[0]))
                 if len(self.route) == 1:
-                    if self.app_auth and fir.ad_has_ifr_rwys(self.ades):
+                    if self.app_auth and AIS.ad_has_ifr_rwys(self.ades):
                         self.lnav_mode in (LOC_CAPTURE, LOC)
                         self.salto = self.tas * dh  # Distancia recorrida en este inc.de t sin viento
                         # Deriva por el viento
@@ -489,11 +491,11 @@ class Aircraft(object):
 
                     # Si el último punto está en la lista de aeropuertos,
                     # orbita sobre él
-                    elif self.route[0].fix in fir.aerodromes:
+                    elif self.route[0].fix in AIS.aerodromes:
                         if self.lnav_mode == NAV:  # En caso de que llegue a ese punto en ruta
                             try:
                                 ph = [
-                                    hold for hold in fir.holds if hold.fix == self.route[0].fix][0]
+                                    hold for hold in AIS.holds if hold.fix == self.route[0].fix][0]
                                 self.lnav_mode = HOLD
                                 if ph.std_turns is True:
                                     turn = 1.0
@@ -596,8 +598,8 @@ class Aircraft(object):
 
         # TODO should this function be really an Aircraft method?
         # or rather a Route method, or even a FIR method?
-        if fir.ad_has_ifr_rwys(self.ades):  # aplico la STAR que toque
-            ad = fir.aerodromes[self.ades]
+        if AIS.ad_has_ifr_rwys(self.ades):  # aplico la STAR que toque
+            ad = AIS.aerodromes[self.ades]
             star_list = [star for star in ad.rwy_in_use.star_dict.values()
                          if star.start_fix in self.route]
             if len(star_list) > 0:
@@ -613,8 +615,8 @@ class Aircraft(object):
                 self.star = star
 
         # aplico la SID que toque
-        if fir.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING):
-            ad = fir.aerodromes[self.adep]
+        if AIS.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING):
+            ad = AIS.aerodromes[self.adep]
             sid_list = [sid for sid in ad.rwy_in_use.sid_dict.values()
                         if sid.end_fix in self.route]
             if len(sid_list) > 0:
@@ -657,7 +659,7 @@ class Aircraft(object):
     def set_campo_eco(self):
         # TODO This should be part of TLPV.py, and maybe duplicated here for the benefit of the pseudopilot
         # self.campo_eco = self.route[-1].fix[0:3]
-        # for ades in fir.aerodromes:
+        # for ades in AIS.aerodromes:
         #    if self.ades==ades:
         #        self.campo_eco=ades[2:4]
         self.campo_eco = TLPV.get_exit_ades(self)
@@ -748,7 +750,7 @@ class Aircraft(object):
     def set_app_fix(self):
         self.iaf = 'N/A'
         for wp in reversed(self.route):
-            if wp.fix in (iaf.upper() for iaf in fir.iaps):
+            if wp.fix in (iaf.upper() for iaf in AIS.iaps):
                 self.iaf = wp.fix
                 break
 
@@ -810,7 +812,7 @@ class Aircraft(object):
     def hold(self, fix, inbd_track=None, outbd_time=None, std_turns=None):
         # If there is a published hold on the fix, use its defaults
         try:
-            ph = [hold for hold in fir.holds if hold.fix == fix][0]
+            ph = [hold for hold in AIS.holds if hold.fix == fix][0]
             if inbd_track is None:
                 inbd_track = ph.inbd_track
             if outbd_time is None:
@@ -854,7 +856,7 @@ class Aircraft(object):
     def int_ils(self):
         # Se supone que ha sido autorizado previamente
         try:
-            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+            (puntos_alt, llz, puntos_map) = AIS.iaps[self.iaf]
         except KeyError:
             logging.warning("No IAF when trying to intercept ILS")
             return
@@ -872,7 +874,7 @@ class Aircraft(object):
         self.route = Route.Route([wp])
         self.int_loc = True
 
-        (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+        (puntos_alt, llz, puntos_map) = AIS.iaps[self.iaf]
         # En este paso se desciende el tráfico y se añaden los puntos
         logging.debug('Altitud: ' + str(puntos_alt[0][3]))
         self.set_cfl(puntos_alt[0][3] / 100.)
@@ -881,7 +883,7 @@ class Aircraft(object):
     def int_llz(self):
         # Se supone que ha sido autorizado previamente
         try:
-            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+            (puntos_alt, llz, puntos_map) = AIS.iaps[self.iaf]
         except KeyError:
             logging.warning("No IAF when trying to intercept LLZ")
             return
@@ -906,7 +908,7 @@ class Aircraft(object):
 
         self.set_app_fix()
         try:
-            (puntos_alt, llz, puntos_map) = fir.iaps[self.iaf]
+            (puntos_alt, llz, puntos_map) = AIS.iaps[self.iaf]
         except KeyError:
             logging.warning("No IAF when trying to execute approach")
             self.iaf = old_iaf
@@ -937,7 +939,7 @@ class Aircraft(object):
                 aux = self.route[i:]
         # Si no estáen la ruta, insertamos el punto como n 1
         if aux is None:
-            for [nombre, coord] in self.fir.points:
+            for [nombre, coord] in AIS.points:
                 if nombre == fix.upper():
                     aux = [[coord, nombre, '']]
                     for a in self.route:
@@ -958,7 +960,7 @@ class Aircraft(object):
         # Get the actual sid object, but only if a SID has been given,
         # and we had a previous SID
         if not sid == '' and self.sid:
-            sid = fir.aerodromes[self.adep].get_sid(sid)
+            sid = AIS.aerodromes[self.adep].get_sid(sid)
             if self.sid:
                 self.route.substitute_before(
                     Route.WP(self.sid.end_fix), sid.rte)

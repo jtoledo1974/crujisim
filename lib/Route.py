@@ -29,6 +29,7 @@ from builtins import object
 import logging
 import re
 from . import MathUtil
+from . import AIS
 
 # Restrictions
 AABV = 0  # At or above
@@ -39,8 +40,6 @@ LVL = 3  # Cross established
 WAYPOINT = 0
 FMS = 1  # FMS added to implement a IAP, for instance
 TLPV = 2  # Added by the TLPV to calculate a sector entry time, for instance
-
-fir = None  # The proper fir is added by GTA initialization
 
 
 def is_str(item):
@@ -371,7 +370,7 @@ class WayPoint(object):
             return self._pos
         else:
             # As it is now, fir is added as an attribute by a previously loaded module
-            self._pos = fir.get_point_coordinates(self.fix)
+            self._pos = AIS.get_point_coordinates(self.fix)
             return self._pos
 
     def copy(self):

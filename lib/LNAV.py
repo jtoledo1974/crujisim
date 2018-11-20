@@ -25,12 +25,11 @@ All functions are passed the aircraft instance a
 import logging
 
 # Module imports
+from . import AIS
 from .MathUtil import pr, rp, r, sgn, relative_angle
 
 from . import LEVELS_PER_HOUR_TO_FPM, FEET_TO_LEVELS, NM_TO_LEVELS
 from .Route import WayPoint, Route
-
-fir = None   # Set by GTA.__init__
 
 # LNAV MODES (somewhat modeled after airbus guidance managed and selected modes)
 # See http://www.aviaddicts.com/wiki/a330:flight_guidance_modes, for example
@@ -196,7 +195,7 @@ def intercept_radial(a, wind_drift):
 
 def app(a, wind_drift):
     try:
-        (transition_points, ILS_info, MAP_points) = fir.iaps[a.iaf]
+        (transition_points, ILS_info, MAP_points) = AIS.iaps[a.iaf]
     except KeyError:
         logging.warning("No IAF found when trying to set course for approach. Keeping current heading")
         return a.hdg
