@@ -42,7 +42,7 @@ from . import TLPV  # This is used as an optimization in set_route. Could be rem
 from . import LNAV
 
 # Constants
-from crujisim import CALLSIGN_FILE
+from . import CALLSIGN_FILE
 
 LEFT = "LEFT"
 RIGHT = "RIGHT"
