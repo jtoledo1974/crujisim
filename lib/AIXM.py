@@ -58,7 +58,7 @@ class AirportHeliport(object):  # Aerodrome / Heliport
                 if sid.txt_desig == txt_desig][0]
 
     def __repr__(self):
-        s = "AD_HP(id: %r, designator:%r, pos:%r, val_elev:%r, %r, %r)" % (
+        s = "AD_HP(designator:%r, pos:%r, val_elev:%r, %r, %r)" % (
             self.designator, self.pos,
             self.val_elev, self.rwy_direction_list,
             self.rwy_in_use)
