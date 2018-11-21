@@ -29,7 +29,7 @@ from twisted.internet import reactor, threads
 from Tix import *
 import tkFont
 
-from FIR import *
+from . import AIS
 from MathUtil import *
 from RaElements import *
 
@@ -40,7 +40,7 @@ class RaDisplay(object):
     
     This class requires that a Tk session is already active
     """
-    def __init__(self,conf,title,icon_path,fir,sector,toolbar_height):
+    def __init__(self, conf, title, icon_path, sector, toolbar_height):
         """Instantiate a generic Radar Display
         
         title - window title
@@ -49,7 +49,6 @@ class RaDisplay(object):
         sector -- name of the sector to work with
         """
         
-        self.fir=fir
         self.sector=sector
         self.conf=conf
         
@@ -504,7 +503,7 @@ class RaDisplay(object):
                 nalt = alt + track.rate*t
                 track.future_pos.append((nx,ny,nalt))
         
-        try: min_sep = self.fir.min_sep[self.sector]
+        try: min_sep = AIS.min_sep[self.sector]
         except:
             min_sep = 8.0  # 8 nautical miles
             logging.warning("Sector minimum separation not found. Using 8nm")
@@ -512,7 +511,7 @@ class RaDisplay(object):
         minvert = 9.5  # 950 feet minimum vertical distance
                 
         # Vertical filter
-        vfilter = max([ad.val_elev for ad in self.fir.aerodromes.values()]) + 1  # 1000 feet over the highest AD
+        vfilter = max([ad.val_elev for ad in AIS.aerodromes.values()]) + 1  # 1000 feet over the highest AD
                 
         for i in range(len(self.tracks)):
             if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:
@@ -576,7 +575,7 @@ class RaDisplay(object):
         xmin=1.e8
         ymax=-1.e8
         ymin=1.e8
-        for a in self.fir.boundaries[self.sector]:
+        for a in AIS.boundaries[self.sector]:
             if a[0]>xmax:
                 xmax=a[0]
             if a[0]<xmin:
@@ -594,7 +593,6 @@ class RaDisplay(object):
     def redraw_maps(self):
         
         c = self.c  # Canvas
-        fir = self.fir
         sector = self.sector
         do_scale = self.do_scale
         
@@ -610,7 +608,7 @@ class RaDisplay(object):
         # Currect sector background
         sectormap = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'black'}
-        sectormap.add_polygon(*fir.boundaries[self.sector], **kw)
+        sectormap.add_polygon(*AIS.boundaries[self.sector], **kw)
         self.maps['sector'] = sectormap
         if not self.draw_sector: sectormap.hide()
         
@@ -618,7 +616,7 @@ class RaDisplay(object):
         # TMAs
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'gray30'}
-        for tma in fir.tmas:
+        for tma in AIS.tmas:
             map.add_polyline(*tma, **kw)
         self.maps['tmas'] = map
         if not self.draw_tmas: map.hide()
@@ -626,7 +624,7 @@ class RaDisplay(object):
         # Airways
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'gray25'}
-        for airway in fir.airways:
+        for airway in AIS.airways:
             map.add_polyline(*airway, **kw)
         self.maps['airways'] = map
         if not self.draw_routes: map.hide()
@@ -634,14 +632,14 @@ class RaDisplay(object):
         # Special Use Areas
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'gray40'}
-        for delta in fir.deltas:
+        for delta in AIS.deltas:
             map.add_polyline(*delta, **kw)
         self.maps['SUA'] = map
         if not self.draw_deltas: map.hide()
 
         # Fixes (VORs, NDBs, FIXes)
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        for p in [p for p in fir.points if p[0][0]<>'_']:
+        for p in [p for p in AIS.points if p[0][0]<>'_']:
             if len(p[0]) == 3:
                 map.add_symbol(VOR, p[1], color='gray25')
             elif len(p[0]) == 2:
@@ -654,13 +652,13 @@ class RaDisplay(object):
         # Sector border
         seclimitmap = RaMap(self.c, self.do_scale, intensity = map_intensity)
         kw = {'color': 'blue'}
-        seclimitmap.add_polyline(*fir.boundaries[self.sector], **kw)
+        seclimitmap.add_polyline(*AIS.boundaries[self.sector], **kw)
         self.maps['sector_limit'] = seclimitmap
         if not self.draw_lim_sector: seclimitmap.hide()
 
         # Fix names
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        for p in [p for p in fir.points if p[0][0]<>'_']:
+        for p in [p for p in AIS.points if p[0][0]<>'_']:
             map.add_text(p[0], p[1], color='gray40')
         self.maps['point_names'] = map
         if not self.draw_point_names: map.hide()
@@ -683,7 +681,7 @@ class RaDisplay(object):
             else:  color = 'white'
 
             try:            
-                ad = self.fir.aerodromes[sid_star_rwy[:4]]
+                ad = AIS.aerodromes[sid_star_rwy[:4]]
                 rwy_desig = sid_star_rwy[4:]
                 rwy = [rwy for rwy in ad.rwy_direction_list if rwy.txt_desig == rwy_desig][0]
             except:
@@ -696,9 +694,9 @@ class RaDisplay(object):
                 draw_single_SID_STAR(proc, True)
               
         # Local Maps
-        for map_name in fir.local_maps.keys():
+        for map_name in AIS.local_maps.keys():
             map = RaMap(self.c, self.do_scale, intensity = map_intensity)
-            objects = fir.local_maps[map_name]
+            objects = AIS.local_maps[map_name]
             for ob in objects:
                 if ob[0] == 'linea':
                     cx0 = float(ob[1])
@@ -749,7 +747,7 @@ class RaDisplay(object):
                         color = 'gray'
                     coords = []
                     for p in object[2:]:
-                        coords.append(self.fir.get_point_coordinates(p))
+                        coords.append(AIS.get_point_coordinates(p))
                     kw = {'color': color}
                     map.add_polyline(*coords, **kw)
             self.maps[map_name] = map

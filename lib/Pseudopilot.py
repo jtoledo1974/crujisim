@@ -33,7 +33,7 @@ SNDDIR='./snd/'
 class PpDisplay(RaDisplay):
     """Radar display with a pseudopilot interface"""
     
-    def __init__(self,conf,title,icon_path,fir,sector,mode='pp'):
+    def __init__(self, conf, title, icon_path, sector, mode='pp'):
         """Instantiate a Pseudopilot Radar Display
         
         title - window title
@@ -45,7 +45,7 @@ class PpDisplay(RaDisplay):
         self.toolbar_height = 60  # Pseudopilot display toolbar height
         self._flights_tracks = {}
         self._tracks_flights = {}
-        RaDisplay.__init__(self,self.conf,title,icon_path,fir,sector,self.toolbar_height)
+        RaDisplay.__init__(self, self.conf, title, icon_path, sector, self.toolbar_height)
         self.flights = []
         self.mode = mode
         self.t = datetime.datetime.today()
@@ -75,7 +75,7 @@ class PpDisplay(RaDisplay):
         posy = int(self.conf.read_option(self.sector, "PosDepTabulary", "580"))
         self.PosDepTabular = [posx, posy]
         
-        self.giw = PPGeneralInformationWindow(self, fir.sectors, (self.sector), position=self.PosGI)
+        self.giw = PPGeneralInformationWindow(self, AIS.sectors, (self.sector), position=self.PosGI)
 
         self.clock=RaClock(self.c,position=self.PosClock)
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
@@ -88,7 +88,7 @@ class PpDisplay(RaDisplay):
         self.dep_tabular.adjust(0,32,0,0)
 
         #Get stored values to show/hide the local maps
-        for map_name in self.fir.local_maps:
+        for map_name in AIS.local_maps:
             self.toolbar.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
     
         #Get stored values to show/hide the auxiliary tabs (Departures and Printed Strips)
@@ -160,7 +160,7 @@ class PpDisplay(RaDisplay):
         if m['message'] == 'rwy_in_use':
             ad_code_id, rwy_direction_desig = m['ad'], m['rwy']
             try:
-                ad = self.fir.aerodromes[ad_code_id]
+                ad = AIS.aerodromes[ad_code_id]
                 rwy_direction = [rwy for rwy in ad.rwy_direction_list
                                          if rwy.txt_desig == rwy_direction_desig][0]
             except:
@@ -205,7 +205,7 @@ class PpDisplay(RaDisplay):
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             try: pto=self.do_scale(a.pos())
             except: continue
-            if a.fix[0] <> '_' or a.fix in self.fir.iaps.keys():
+            if a.fix[0] <> '_' or a.fix in AIS.iaps.keys():
                 try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
                 except: eto = ''
                 canvas.create_text(pto,text=a.fix,fill='orange',tag=track.callsign+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
@@ -424,7 +424,7 @@ class PpDisplay(RaDisplay):
         self.conf.write_option("Aux_Tabs", "Dep_tabular", bool(self.dep_tabular.showed))
         self.conf.write_option("Aux_Tabs", "Print_tabular", bool(self.print_tabular.showed))
         
-        for map_name in self.fir.local_maps:
+        for map_name in AIS.local_maps:
             self.conf.write_option("Aux_Maps",map_name,bool(self.toolbar.var_ver_localmap[map_name].get()))
       
         # Avoid memory leaks due to circular references preventing
@@ -462,7 +462,7 @@ class ventana_auxiliar:
         self.var_ver_localmap = {}
         self.var_ver_desp_tab = IntVar()
         self.var_ver_fichas_tab = IntVar()
-        for map_name in master.fir.local_maps:
+        for map_name in AIS.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
         self.auto_sep = IntVar()
         self.auto_sep.set(self.master.auto_separation)
@@ -576,7 +576,7 @@ class ventana_auxiliar:
                         
         def b_show_hide_localmaps():
             master.local_maps_shown = []
-            for map_name in master.fir.local_maps:
+            for map_name in AIS.local_maps:
                 try:
                     if self.var_ver_localmap[map_name].get() != 0:
                         master.local_maps_shown.append(map_name)
@@ -793,7 +793,7 @@ class ventana_auxiliar:
                 fijo = ent_fix.get().upper()
                 rdl = ent_rdl.get().upper()
                 d_h = ent_d_h.get().upper()
-                for [nombre,coord] in master.fir.points:
+                for [nombre,coord] in AIS.points:
                     if nombre == fijo:
                         auxiliar = coord
                         error = False
@@ -836,7 +836,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Ejectuar MAP')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if not master.fir.ad_has_ifr_rwys(sel.ades):
+            if not AIS.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label='Ejecutar MAP',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return                
@@ -850,7 +850,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Interceptar ILS')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if not master.fir.ad_has_ifr_rwys(sel.ades):
+            if not AIS.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label=sel.callsign+': Interceptar ILS',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
@@ -870,7 +870,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Interceptar LLZ')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if not master.fir.ad_has_ifr_rwys(sel.ades):
+            if not AIS.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label=sel.callsign+': Interceptar LLZ',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
@@ -921,7 +921,7 @@ class ventana_auxiliar:
             # Needs to be retested and probably rethought
             self.close_windows()
             # Find airports with several runways
-            ad_list = [ad for ad in master.fir.aerodromes.values()
+            ad_list = [ad for ad in AIS.aerodromes.values()
                         if len(ad.rwy_direction_list)>1]
 
             if len(ad_list) == 0:
@@ -946,7 +946,7 @@ class ventana_auxiliar:
             self.close_windows()
             if (get_selected('Autorizar a Aproximación')==None): return
             sel = master._tracks_flights[master.selected_track]
-            if not master.fir.ad_has_ifr_rwys(sel.ades):
+            if not AIS.ad_has_ifr_rwys(sel.ades):
                 RaDialog(w, label=sel.callsign+': Autorizar a aproximación',
                          text='Aeropuerto de destino sin procedimientos de APP')
                 return
@@ -958,7 +958,7 @@ class ventana_auxiliar:
             # Build entries
             # TODO We should be able of cleanly finding what's the current IAF
             for i in range(len(sel.route),0,-1):
-                if sel.route[i-1].fix in master.fir.iaps.keys():
+                if sel.route[i-1].fix in AIS.iaps.keys():
                     iaf = sel.route[i-1].fix
                     break
             entries=[]
@@ -1103,10 +1103,10 @@ class ventana_auxiliar:
             self.but_ver_deltas.grid(column=0,row=myrow,sticky=W)
             
             myrow += 1
-            #map_name_list = master.fir.local_maps.keys()
+            #map_name_list = AIS.local_maps.keys()
             #map_name_list.sort()
             
-            for map_name in self.master.fir.local_maps_order:#map_name_list:
+            for map_name in self.AIS.local_maps_order:#map_name_list:
                 self.but_ver_local_map = Checkbutton(ventana_mapas, text = map_name, variable = self.var_ver_localmap[map_name], command=b_show_hide_localmaps)
                 self.but_ver_local_map.grid(column=0,row=myrow,sticky=W)
                 myrow += 1
@@ -1208,7 +1208,6 @@ class DepTabular(RaTabular):
     def update(self):
         """Update the tabular using the given departure list"""
         self.list.delete(0,self.list.size())
-        fir = self.master.fir
 
         self.deps=[f for f in self.master.flights
                      if f.pof == Aircraft.GROUND 
@@ -1273,7 +1272,7 @@ class DepTabular(RaTabular):
         entries=[]
         try:
             sids = [sid.txt_desig
-                    for sid in self.master.fir.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
+                    for sid in self.AIS.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
             dep_sid = dep.sid.txt_desig
         except:
             logging.warning("No SIDs found for %s departing from %s"%(dep.callsign,dep.adep))
