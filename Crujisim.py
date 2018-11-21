@@ -1354,8 +1354,9 @@ def load_firs(path):
         try:
             AIS.init(f)
             fir = FIR()
-            for attrib, value in AIS.get_AIS_data().iteritems():
-                fir.attrib = value
+            data = AIS.get_AIS_data().iteritems()
+            for attrib, value in data:
+                setattr(fir, attrib, value)
         except Exception:
             logging.exception("Unable to read FIR file %s" % f)
             continue

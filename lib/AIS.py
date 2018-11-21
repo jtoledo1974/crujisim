@@ -92,17 +92,20 @@ local_maps_order = []
 local_ads = {}
 release_required_ads = {}
 
+routedb = None
+
 mod_lists = ['points', 'routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_maps_order']
 mod_dicts = ['rel_points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
              'boundaries', 'min_sep', 'auto_departures', 'fijos_impresion', 'fijos_impresion_secundarios',
              'local_ads', 'release_required_ads']
+mod_other = ['name', 'routedb']
 
 
 def get_AIS_data():
     """Returns all the data held by the module. It's used to pass it on to clients, and for editing exercises"""
     res = {}
-    for item in mod_lists + mod_dicts:
-        res[item] = globals()[item].copy()
+    for item in mod_lists + mod_dicts + mod_other:
+        res[item] = globals()[item]
     return res
 
 
@@ -116,6 +119,10 @@ def clear_variables():
     for item in mod_dicts:
         assert item in globals()
         globals()[item] = {}
+
+    for item in mod_other:
+        assert item in globals()
+        globals()[item] = None
 
 
 def init(fir_file):
@@ -437,6 +444,7 @@ def init(fir_file):
         release_required_ads[sector] = ads
 
     # Load the route database which correspond to this FIR
+    global routedb
     from . import Exercise
     try:
         routedb = Exercise.load_routedb(os.path.dirname(file))
