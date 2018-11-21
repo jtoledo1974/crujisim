@@ -38,7 +38,6 @@ from stat import *
 
 # Application imports
 from .MathUtil import *
-from . import Route
 from .AIXM import AirportHeliport, Hold, RWY_DIRECTION, SID, STAR
 
 standard_library.install_aliases()

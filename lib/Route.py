@@ -29,7 +29,6 @@ from builtins import object
 import logging
 import re
 from . import MathUtil
-from . import AIS
 
 # Restrictions
 AABV = 0  # At or above
@@ -369,7 +368,8 @@ class WayPoint(object):
         if self._pos:
             return self._pos
         else:
-            # As it is now, fir is added as an attribute by a previously loaded module
+            # Lazy importing to avoid cyclic imports
+            from . import AIS
             self._pos = AIS.get_point_coordinates(self.fix)
             return self._pos
 
