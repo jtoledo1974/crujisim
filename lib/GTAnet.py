@@ -426,7 +426,7 @@ class GTAnet(GTA):
         changes the SID and STAR procedures for the relevant aircraft"""
 
         super(GTAnet, self).change_rwy_in_use(ad_code_id, rwy_direction_desig)
-        ad = self.fir.aerodromes[ad_code_id]
+        ad = AIS.aerodromes[ad_code_id]
 
         for c in self.pseudopilots:
             m = {"message": "rwy_in_use", "ad": ad.designator,
