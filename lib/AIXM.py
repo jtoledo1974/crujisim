@@ -46,9 +46,12 @@ class Association(object):
 class AirportHeliport(object):  # Aerodrome / Heliport
 
     def __init__(self, designator, pos=None, val_elev=0):
+        # Descriptive
         self.designator = designator
         self.pos = pos
         self.val_elev = val_elev
+
+        # Operating
         self.rwy_direction_list = []
         self.rwy_in_use = None
 
