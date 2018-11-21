@@ -29,17 +29,6 @@ import os
 import codecs
 from stat import *
 
-# Import program modules
-
-import Tix
-from lib.Exercise import *
-import lib.BADA as BADA  # To load aircraft types
-import lib.UI as UI
-import lib.AIS as AIS
-import lib.ConfMgr
-from lib.GTAnet import GTAnet
-from lib.RemoteClient import RemoteClient, PSEUDOPILOT, ATC
-
 # Import libraries
 
 try:
@@ -65,6 +54,18 @@ try:
 except ImportError:
     logging.exception("Unable to load gtk")
     sys.exit(1)
+
+
+# Import program modules
+
+import Tix
+from lib.Exercise import *
+import lib.BADA as BADA  # To load aircraft types
+import lib.UI as UI
+import lib.AIS as AIS
+import lib.ConfMgr
+from lib.GTAnet import GTAnet
+from lib.RemoteClient import RemoteClient, PSEUDOPILOT, ATC
 
 
 conf = lib.ConfMgr.CrujiConfig()
