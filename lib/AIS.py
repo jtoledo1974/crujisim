@@ -93,18 +93,22 @@ local_maps_order = []
 local_ads = {}
 release_required_ads = {}
 
+mod_lists = ['points', 'routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_maps_order']
+mod_dicts = ['rel_points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
+             'boundaries', 'min_sep', 'auto_departures', 'fijos_impresion', 'fijos_impresion_secundarios',
+             'local_ads', 'release_required_ads']
 
-def pos(p):                   # TODO Used to be a method alias, but object couldn't be pickled
-    # Need to find a better way of doing this.
-    get_point_coordinates(p)
+
+def get_AIS_data():
+    """Returns all the data held by the module. It's used to pass it on to clients, and for editing exercises"""
+    res = {}
+    for item in mod_lists + mod_dicts:
+        res[item] = globals()[item].copy()
+    return res
 
 
 def clear_variables():
     # Testing uses initializes AIS more than once. Variables have to be reset.
-    mod_lists = ['points', 'routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_maps_order']
-    mod_dicts = ['rel_points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
-                 'boundaries', 'min_sep', 'auto_departures', 'fijos_impresion', 'fijos_impresion_secundarios',
-                 'local_ads', 'release_required_ads']
 
     for item in mod_lists:
         assert item in globals()
@@ -475,4 +479,7 @@ def init_by_name(path, name):
             if firdef.get('datos', 'nombre') == name:
                 init(fir_file)
                 assert len(aerodromes) > 1
+
+
+pos = get_point_coordinates
 

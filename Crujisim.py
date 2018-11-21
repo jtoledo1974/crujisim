@@ -22,6 +22,60 @@
 # Setup logging
 import logging
 
+# Import system modules
+
+import random
+import os
+import codecs
+from stat import *
+
+# Import program modules
+
+import Tix
+from lib.Exercise import *
+import lib.BADA as BADA  # To load aircraft types
+import lib.UI as UI
+import lib.AIS as AIS
+import lib.ConfMgr
+from lib.GTAnet import GTAnet
+from lib.RemoteClient import RemoteClient, PSEUDOPILOT, ATC
+
+# Import libraries
+
+try:
+    from twisted.internet import gtk2reactor  # for gtk-2.0
+    gtk2reactor.install()
+    from twisted.internet import reactor, tksupport, threads
+
+    # The label separation code is run within it's own thread
+    from twisted.python import threadable
+    threadable.init()
+except ImportError:
+    logging.exception("Unable to load Twisted library")
+
+try:
+    import pygtk
+    pygtk.require("2.0")
+except ImportError:
+    logging.exception("Unable to load pygtk")
+
+try:
+    import gtk
+    import gtk.glade
+except ImportError:
+    logging.exception("Unable to load gtk")
+    sys.exit(1)
+
+
+conf = lib.ConfMgr.CrujiConfig()
+
+# All data files are expected to be UTF-8 encoded
+
+# CONSTANTS
+EX_DIR = "pasadas"
+GLADE_FILE = "glade/crujisim.glade"
+JOKES = "jokes.txt"
+
 
 def setup_logging():
     # Full logging goes to 'crujisim.log'
@@ -37,61 +91,7 @@ def setup_logging():
     logger.addHandler(console)
 
 
-if __name__ == "__main__":
-    setup_logging()
-
-# Import system modules
-import sys
-sys.path.append("lib")
-import random
-import locale
-import os
-import codecs
-from stat import *
-
-# Import libraries
-try:
-    from twisted.internet import gtk2reactor  # for gtk-2.0
-    gtk2reactor.install()
-    from twisted.internet import reactor, tksupport, threads
-    # The label separation code is run within it's own thread
-    from twisted.python import threadable
-    threadable.init()
-except ImportError:
-    logging.exception("Unable to load Twisted library")
-try:
-    import pygtk
-    pygtk.require("2.0")
-except ImportError:
-    logging.exception("Unable to load pygtk")
-try:
-    import gtk
-    import gtk.glade
-except ImportError:
-    logging.exception("Unable to load gtk")
-    sys.exit(1)
-
-# Import program modules
-try:
-    import Tix
-    from lib.Exercise import *
-    from lib.FIR import *
-    import lib.BADA as BADA  # To load aircraft types
-    import lib.UI as UI
-    import lib.ConfMgr
-    conf = lib.ConfMgr.CrujiConfig()
-    from lib.GTAnet import GTAnet
-    from lib.RemoteClient import RemoteClient, PSEUDOPILOT, ATC
-except ImportError:
-    logging.exception("Error loading program modules")
-    sys.exit(1)
-
-# All data files are expected to be UTF-8 encoded
-
-# CONSTANTS
-EX_DIR = "pasadas"
-GLADE_FILE = "glade/crujisim.glade"
-JOKES = "jokes.txt"
+setup_logging()
 
 
 class Crujisim:
@@ -1328,6 +1328,40 @@ class ConnectDialog:
             else:
                 type = PSEUDOPILOT
             self.output["type"] = type
+
+
+# This is an ugly hack. An artifact of having renamed FIR to AIS and turned it from
+# class into a module before realising that Crujisim.py makes extensive use of it.
+
+class FIR(object):
+    pass
+
+
+def load_firs(path):
+
+    firs = []
+
+    for d in os.listdir(path):
+        d = os.path.join(path, d)
+        mode = os.stat(d)[ST_MODE]
+        if not S_ISDIR(mode) or d[-4:] == ".svn":
+            continue
+        firs += load_firs(d)
+
+    for f in [f for f in os.listdir(path) if f[-4:] == ".fir"]:
+        f = os.path.join(path, f)
+        try:
+            AIS.init(f)
+            fir = FIR()
+            for attrib, value in AIS.get_AIS_data().iteritems():
+                fir.attrib = value
+        except Exception:
+            logging.exception("Unable to read FIR file %s" % f)
+            continue
+
+        firs.append(fir)
+
+    return firs
 
 
 if __name__ == "__main__":
