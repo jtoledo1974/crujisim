@@ -2,23 +2,25 @@ import random
 from datetime import datetime, timedelta
 import pytest
 
+from crujisim.lib import AIS
 import crujisim.lib.Route
 from crujisim.lib.Route import Route, WayPoint, get_waypoints
 
 
-class FIR(object):
-    def get_point_coordinates(*arg):
-        if arg[1] == 'PARLA':
+@pytest.fixture
+def fir():
+    def phony_get_point_coordinates(*arg):
+        if arg[0] == 'PARLA':
             pos = (100, 200)  # Fixed position for equality tests
         else:
             pos = (random.random() * 100, random.random() * 100)
         return pos
 
-
-@pytest.fixture
-def fir():
-    fir = FIR()
-    crujisim.lib.Route.fir = fir
+    backup = AIS.get_point_coordinates
+    AIS.get_point_coordinates = phony_get_point_coordinates
+    yield True  # Any value will do. fir is not used directly
+    # Teardown
+    AIS.get_point_coordinates = backup
 
 
 @pytest.fixture

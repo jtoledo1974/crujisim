@@ -27,6 +27,7 @@ import logging
 import random
 import datetime
 
+from . import AIS
 from . import Route
 from . import MathUtil
 from . import StripSeries
@@ -38,8 +39,6 @@ PENDING = 0  # Pending
 COORDINATED = 1  # Coordinated
 PREACTIVE = 2  # Preactive
 ACTIVE = 3  # Active
-
-fir = None  # GTA will set the proper FIR data
 
 
 def sector_intersections(route):
@@ -54,7 +53,7 @@ def sector_intersections(route):
     n_added = 0  # Number of added intersections
     for i in range(len(rte_orig) - 1):
         xpoints = []
-        for name, boundary in fir.boundaries.items():
+        for name, boundary in AIS.boundaries.items():
             xp_list = MathUtil.get_entry_exit_points(
                 rte_orig[i].pos(), rte_orig[i + 1].pos(), boundary)
             for xp in xp_list:
@@ -75,7 +74,7 @@ def sector_intersections(route):
 
     # If the first point in the route is within a known sector, make sure we
     # note it.
-    for sector, boundary in fir.boundaries.items():
+    for sector, boundary in AIS.boundaries.items():
         if MathUtil.point_within_polygon(route[0].pos(), boundary):
             route[0].sector_entry = sector
             n_added += 1
@@ -89,7 +88,7 @@ def sector_intersections(route):
 def get_exit_ades(flight):
     """Given an Aircraft or a flight plan returns either a the first three letters of the last waypoint
     local to the FIR, or the last two letters of the adep local to the FIR"""
-    if flight.ades in fir.aerodromes:
+    if flight.ades in AIS.aerodromes:
         return flight.ades[2:]
     # Else
     fet = None
@@ -142,13 +141,13 @@ class TLPV(object):
             if wp.sector_entry and wp.sector_entry not in fp.sector_entry_t:
                 fp.sector_entry_t[wp.sector_entry] = wp.eto
 
-        # As there is not yet support for a proper FIR boundary in fir.py,
+        # As there is not yet support for a proper FIR boundary in AIS.py,
         # we define the first sector entry time as the FIR entry time
         try:
             fp.fir_entry_t = min(fp.sector_entry_t.values())
         except:
             fp.fir_entry_t = None
-        if fp.ades not in fir.aerodromes:
+        if fp.ades not in AIS.aerodromes:
             try:
                 fp.fir_exit_t = max(
                     [wp.eto for wp in fp.route if wp.sector_exit])
@@ -178,7 +177,7 @@ class TLPV(object):
         """Initialize TLPV"""
         # Calculate flight strip print times
         pass
-        for sector in fir.sectors:
+        for sector in AIS.sectors:
             fpl = [fp for fp in self.flightplans if sector in fp.sector_entry_t]
             for fp in fpl:
                 fp.fs_print_t[sector] = fp.sector_entry_t[
@@ -200,12 +199,12 @@ class TLPV(object):
             # First we determine whether this flight will pass any of the
             # primary flight strip printing points. If it doesn't, then
             # it will use the secondary flight strip printing points instead
-            current_printing_fixes = fir.fijos_impresion_secundarios[sector]
+            current_printing_fixes = AIS.fijos_impresion_secundarios[sector]
             at_least_one_strip_printed = False
             for i in range(len(a.route)):
-                for fix in fir.fijos_impresion[sector]:
+                for fix in AIS.fijos_impresion[sector]:
                     if a.route[i].fix == fix:
-                        current_printing_fixes = fir.fijos_impresion[sector]
+                        current_printing_fixes = AIS.fijos_impresion[sector]
 
             route = ''
             for wp in [wp for wp in a.route if wp.type == Route.WAYPOINT]:
@@ -226,7 +225,7 @@ class TLPV(object):
             cfd.destination = a.ades
             cfd.fl = "%d" % a.rfl
             # If the plane departs from a local airport, cfl is not printed
-            if a.adep in fir.local_ads[sector]:
+            if a.adep in AIS.local_ads[sector]:
                 cfd.cfl = ""
             else:
                 cfd.cfl = "%d" % a.ecl
@@ -242,7 +241,7 @@ class TLPV(object):
 
             # Print a coord flight strip if it's a departure from an AD we have
             # to release
-            if a.adep in fir.local_ads[sector]:
+            if a.adep in AIS.local_ads[sector]:
                 fd = cfd.copy()
                 fd.fs_type = "coord"
                 fs_list.append(fd)
@@ -250,7 +249,7 @@ class TLPV(object):
             # Print a flight strip for every route point which is any of the
             # current_printing_fixes
 
-            if a.adep in fir.local_ads[sector]:
+            if a.adep in AIS.local_ads[sector]:
                 prev = a.adep
                 prev_t = format_t(a.eobt)
             else:
@@ -280,7 +279,7 @@ class TLPV(object):
                     except:
                         next = ''
                         next_t = ''
-                    if next == '' and a.ades in fir.local_ads[sector]:
+                    if next == '' and a.ades in AIS.local_ads[sector]:
                         # Printing fix is last route point and adep is local
                         next = a.ades
                         next_t = ''

@@ -32,8 +32,8 @@ from math import *
 import configparser
 import os.path
 
-from crujisim import BADA_FILE
-from crujisim import AIRCRAFT_FILE
+from . import BADA_FILE
+from . import AIRCRAFT_FILE
 
 # future
 standard_library.install_aliases()

@@ -39,6 +39,7 @@ from twisted.internet.protocol import ClientCreator
 from twisted.protocols.basic import NetstringReceiver
 
 # Program imports
+from . import AIS
 from .Pseudopilot import PpDisplay
 from .UCS import UCS
 from .FIR import *
@@ -64,7 +65,7 @@ class GTA_Client_Protocol(NetstringReceiver):
         line = zlib.decompress(line)
         try:
             m = pickle.loads(line)
-        except:
+        except Exception:
             logging.critical("Unable to unpickle")
             return
 
@@ -76,9 +77,8 @@ class GTA_Client_Protocol(NetstringReceiver):
 
         try:
             self.client.process_message(m)
-        except:
-            logging.error("Unable to process server message %s" %
-                          m, exc_info=True)
+        except Exception:
+            logging.exception("Unable to process server message %s" % m)
 
     def sendMessage(self, object):
         object = {"command_no": self.command_no, "data": object}
@@ -100,7 +100,7 @@ class GTA_Client_Protocol(NetstringReceiver):
         logging.debug(reason)
         try:
             self.connectionLostCB()
-        except:
+        except Exception:
             pass
 
     def __del__(self):
@@ -140,8 +140,8 @@ class RemoteClient(object):
             return
         elif m['message'] == 'init':
             logging.debug("Init message received")
-            fir = m['fir']
-            Route.fir = fir
+            AIS_data = m['AIS_data']
+            AIS.set_AIS_data(AIS_data)
             sector = m['sector']
 
             exc_file = self.exc_file = m['exercise_file']
@@ -149,11 +149,11 @@ class RemoteClient(object):
             if self.type == PSEUDOPILOT:
                 logging.debug("Creating PpDisplay object")
                 d = self.display = PpDisplay(
-                    self.conf, window_name, './img/crujisim.ico', fir, sector, mode='pp')
+                    self.conf, window_name, './img/crujisim.ico', sector, mode='pp')
             elif self.type == ATC:
                 logging.debug("Creating UCS object")
                 d = self.display = UCS(
-                    self.conf, window_name, './img/crujisim.ico', fir, sector, mode='atc')
+                    self.conf, window_name, './img/crujisim.ico', sector, mode='atc')
             d.sendMessage = self.protocol.sendMessage
             try:
                 d.pos_number = m['pos_number']

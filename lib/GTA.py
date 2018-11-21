@@ -36,10 +36,10 @@ import os
 import datetime
 
 # Application imports
+from . import AIS
 from . import Aircraft
 from . import LNAV
 from . import Route
-from . import FIR
 from .Exercise import Exercise
 from . import TLPV
 
@@ -72,10 +72,7 @@ class GTA(object):
         logging.info("Loading exercise " + exc_file)
         e = Exercise(exc_file)
 
-        fir = self.load_fir(e)
-        self.fir = fir
-        for module in (Aircraft, Route, TLPV, LNAV):
-            module.fir = fir  # Rather than passing globals
+        self.init_AIS(e)
 
         self.sector = e.sector
         # TODO wind and qnh should be properties of the atmosphere object
@@ -116,23 +113,17 @@ class GTA(object):
         self.load_aircraft(e)
         tlpv.start()
 
-    def load_fir(self, exercise):
+    def init_AIS(self, exercise):
         # Find the FIR mentioned by the exercise file
         exc_file = exercise.file
         directory = os.path.dirname(os.path.abspath(exc_file))
-        fir_list = FIR.load_firs(directory)
 
-        try:
-            fir = [fir for fir in fir_list if fir.name == exercise.fir][0]
-        except IndexError:
-            logging.exception("Unable to load FIR file for " + str(exc_file))
-
-        return fir
+        AIS.init_by_name(directory, exercise.fir)
 
     def load_aircraft(self, exercise):
         # Create the aircraft for each of the flights in the exercise
         e = exercise
-        tlpv, fir = self.tlpv, self.fir
+        tlpv = self.tlpv
         self.flights = []
 
         logging.debug("Loading aircraft")
@@ -162,13 +153,13 @@ class GTA(object):
             # the EOBT is the estimate to the first point in the route
             # We substitute the overflight (created using next_wp_eto) with a departure
             # (created using an EOBT)
-            if a.adep in fir.aerodromes:
+            if a.adep in AIS.aerodromes:
                 eobt = a.route[0].eto
                 a = Aircraft.Aircraft(a.callsign, a.type, a.adep, a.ades,
                                       a.cfl, a.rfl, a.route, eobt=eobt,
                                       wake_hint=a.wake_hint)
-                if not fir.auto_departures[self.sector] \
-                        and a.adep in fir.release_required_ads[self.sector]:
+                if not AIS.auto_departures[self.sector] \
+                        and a.adep in AIS.release_required_ads[self.sector]:
                     a.auto_depart = False
 
             self.flights.append(a)
@@ -267,7 +258,7 @@ class GTA(object):
         """Modifies the rwy in use in for the given airport, and
         changes the SID and STAR procedures for the relevant aircraft"""
         try:
-            ad = self.fir.aerodromes[ad_code_id]
+            ad = AIS.aerodromes[ad_code_id]
             rwy_direction = [rwy for rwy in ad.rwy_direction_list
                              if rwy.txt_desig == rwy_direction_desig][0]
         except Exception:
