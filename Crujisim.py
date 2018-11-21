@@ -68,8 +68,6 @@ from lib.GTAnet import GTAnet
 from lib.RemoteClient import RemoteClient, PSEUDOPILOT, ATC
 
 
-conf = lib.ConfMgr.CrujiConfig()
-
 # All data files are expected to be UTF-8 encoded
 
 # CONSTANTS
@@ -93,6 +91,7 @@ def setup_logging():
 
 
 setup_logging()
+conf = lib.ConfMgr.CrujiConfig()
 
 
 class Crujisim:
