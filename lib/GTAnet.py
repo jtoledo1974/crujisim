@@ -37,6 +37,7 @@ from twisted.protocols.basic import NetstringReceiver
 from twisted.internet.error import CannotListenError
 
 # Application imports
+from . import AIS
 from . import Aircraft
 from .GTA import GTA
 from .GTA import QNH_STD_VAR
@@ -61,8 +62,7 @@ class GTAnet(GTA):
         else:
             self.server_port = SERVER_PORT
 
-        self.protocol_factory = GTA_Protocol_Factory(
-            self, self.fir.file, self.sector, self.flights)
+        self.protocol_factory = GTA_Protocol_Factory(self)
 
         self.pseudopilots = []  # List of connected pseudopilot clients
         self.controllers = []  # List of connected controller clients
@@ -149,7 +149,7 @@ class GTAnet(GTA):
 
             # Send the client initialization data
             m = {'message': 'init',
-                 'fir': self.fir,
+                 'AIS_data': AIS.get_AIS_data(),
                  'sector': self.sector,
                  'pos_number': number,
                  'exercise_file': self.exercise_file}
@@ -554,11 +554,8 @@ class GTA_Protocol_Factory(Factory):
     protocol = GTA_Protocol  # Magic assignment necessary for twisted protocol factories
     protocols = []  # Internal variable used by GTA
 
-    def __init__(self, gta, fir_file, sector, flights):
+    def __init__(self, gta):
         self.gta = gta
-        self.fir_file = fir_file
-        self.sector = sector
-        self.flights = flights
 
     # TODO The Protocol Factory doesn't seem to be garbage collected
     def __del__(self):
