@@ -23,6 +23,7 @@
 import datetime
 from time import time, sleep
 
+from . import AIS
 from RaDisplay import *  # This also imports all RaElements classes
 import Aircraft
 import LNAV
@@ -35,7 +36,7 @@ SNDDIR='./snd/'
 class UCS(RaDisplay):
     """Air Traffic Controllers' radar display and user interface"""
     
-    def __init__(self,conf,title,icon_path,fir,sector,mode='atc'):
+    def __init__(self, conf, title, icon_path, sector, mode='atc'):
         """Instantiate a Pseudopilot Radar Display
         
         title - window title
@@ -47,7 +48,7 @@ class UCS(RaDisplay):
         self._flights_tracks = {}
         self._tracks_flights = {}
         self.conf = conf
-        RaDisplay.__init__(self,self.conf,title,icon_path,fir,sector,self.toolbar_height)
+        RaDisplay.__init__(self, self.conf, title, icon_path, sector, self.toolbar_height)
         self.flights = []
         self.mode = mode
         self.t = datetime.datetime.today()
@@ -66,7 +67,7 @@ class UCS(RaDisplay):
         offset=0
         delta=30
         
-        self.giw = GeneralInformationWindow(self, fir.sectors, (self.sector), position=(offset, offset))
+        self.giw = GeneralInformationWindow(self, AIS.sectors, (self.sector), position=(offset, offset))
         offset += delta
         self.clock=RaClock(self.c,position=[offset, offset])
         self.clock.configure(time='%02d:%02d:%02d' % (self.t.hour, self.t.minute, self.t.second))
@@ -80,7 +81,7 @@ class UCS(RaDisplay):
         # self.dep_tabular.hide()
         
         #Get stored values to show/hide the local maps
-        for map_name in self.fir.local_maps:
+        for map_name in AIS.local_maps:
             self.toolbar.var_ver_localmap[map_name].set(self.conf.read_option("Aux_Maps",map_name,False,"bool"))
     
         #Get stored values to show/hide the auxiliary tabs (Departures)
@@ -160,7 +161,7 @@ class UCS(RaDisplay):
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             try: pto=self.do_scale(a.pos())
             except: continue
-            if a.fix[0] <> '_' or a.fix in self.fir.iaps.keys():
+            if a.fix[0] <> '_' or a.fix in AIS.iaps.keys():
                 try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
                 except: eto = ''
                 canvas.create_text(pto,text=a.fix,fill='orange',tag=track.callsign+'fpr',anchor=SE,font='-*-Helvetica-*--*-10-*-')
@@ -241,7 +242,7 @@ class UCS(RaDisplay):
                                 aux = track.route[i:]
                                 # Si no estáen la ruta, insertamos el punto como n 1
                         if aux == None:
-                            for [nombre,coord] in self.fir.points:
+                            for [nombre,coord] in AIS.points:
                                 if nombre == pto.upper():
                                     aux = [[coord,nombre,'']]
                                     print "Selected plane should fly direct to point", nombre,coord
@@ -380,7 +381,7 @@ class UCS(RaDisplay):
         self.clock.close()
         del (self.clock)
         #Save local map options
-        for map_name in self.fir.local_maps:
+        for map_name in AIS.local_maps:
             self.conf.write_option("Aux_Maps",map_name,bool(self.toolbar.var_ver_localmap[map_name].get()))
         #Save Departure tabular status (showed or not)
         self.conf.write_option("Aux_Tabs", "Dep_tabular", bool(self.dep_tabular.showed))
@@ -415,7 +416,7 @@ class ventana_auxiliar:
         self.var_ver_desp_tab = IntVar()
         self.var_ver_fichas_tab = IntVar()
         
-        for map_name in master.fir.local_maps:
+        for map_name in AIS.local_maps:
             self.var_ver_localmap[map_name] = IntVar()
         
         self.auto_sep = IntVar()
@@ -521,7 +522,7 @@ class ventana_auxiliar:
                         
         def b_show_hide_localmaps():
             master.local_maps_shown = []
-            for map_name in master.fir.local_maps:
+            for map_name in AIS.local_maps:
                 try:
                     if self.var_ver_localmap[map_name].get() != 0:
                         master.local_maps_shown.append(map_name)
@@ -673,9 +674,9 @@ class ventana_auxiliar:
             self.but_ver_deltas.grid(column=0,row=myrow,sticky=W)
             
             myrow += 1
-            #map_name_list = master.fir.local_maps.keys()
+            #map_name_list = AIS.local_maps.keys()
             #map_name_list.sort()
-            for map_name in master.fir.local_maps_order:
+            for map_name in AIS.local_maps_order:
                 self.but_ver_local_map = Checkbutton(ventana_mapas, text = map_name, variable = self.var_ver_localmap[map_name], command=b_show_hide_localmaps)
                 self.but_ver_local_map.grid(column=0,row=myrow,sticky=W)
                 myrow += 1
