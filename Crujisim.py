@@ -437,7 +437,7 @@ class Crujisim:
 
     def connect(self, button=None, event=None):
         output = {"host": "", "type": ""}
-        cd = ConnectDialog(e, parent=self.MainWindow, output=output)
+        cd = ConnectDialog(parent=self.MainWindow, output=output)
         r = cd.run()
         cd.destroy()
         if r == cd.CANCEL:
@@ -1271,7 +1271,7 @@ def tsvn_add_commit(file):
 class ConnectDialog:
     CANCEL = gtk.RESPONSE_CANCEL
 
-    def __init__(self, exercise=None, parent=None, output={}):
+    def __init__(self, parent=None, output={}):
         gui = self.gui = gtk.glade.XML(GLADE_FILE, "ConnectDialog")
         gui.signal_autoconnect(self)
 
