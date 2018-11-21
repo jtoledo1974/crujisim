@@ -1106,7 +1106,7 @@ class ventana_auxiliar:
             #map_name_list = AIS.local_maps.keys()
             #map_name_list.sort()
             
-            for map_name in self.AIS.local_maps_order:#map_name_list:
+            for map_name in AIS.local_maps_order:  #map_name_list:
                 self.but_ver_local_map = Checkbutton(ventana_mapas, text = map_name, variable = self.var_ver_localmap[map_name], command=b_show_hide_localmaps)
                 self.but_ver_local_map.grid(column=0,row=myrow,sticky=W)
                 myrow += 1
@@ -1272,7 +1272,7 @@ class DepTabular(RaTabular):
         entries=[]
         try:
             sids = [sid.txt_desig
-                    for sid in self.AIS.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
+                    for sid in AIS.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
             dep_sid = dep.sid.txt_desig
         except:
             logging.warning("No SIDs found for %s departing from %s"%(dep.callsign,dep.adep))
