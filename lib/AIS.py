@@ -109,6 +109,13 @@ def get_AIS_data():
     return res
 
 
+def set_AIS_data(AIS_data):
+    """Returns all the data held by the module. It's used to pass it on to clients, and for editing exercises"""
+    all_globals = globals()
+    for item, value in AIS_data.iteritems():
+        all_globals[item] = value
+
+
 def clear_variables():
     # Testing uses initializes AIS more than once. Variables have to be reset.
 
