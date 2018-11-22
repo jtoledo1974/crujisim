@@ -334,19 +334,19 @@ class Route(list):
 
 class WayPoint(object):
 
-    def __init__(self, fix, eto=None, xfl=None, xfl_type=None, type=WAYPOINT):
+    def __init__(self, fix, pos=None, eto=None, xfl=None, xfl_type=None, type=WAYPOINT):
 
         # If we get a WayPoint passed as the init parameter
         if isinstance(fix, WayPoint):
             fix = fix.fix
 
         self.fix          = fix.upper()
+        self.pos          = pos
         self.type         = type
         self.eto          = eto       # Estimated time overhead. Datetime object.
         self.xfl          = xfl
         self.xfl_type     = xfl_type  # Use one of the restriction constants AABV, ABLW, LVL
         self.ato          = None      # Actual time over the waypoint
-        self._pos         = None      # Store position if available
         self.is_geo       = False     # Whether the waypoint was created using coordinates
         self.inbd_track   = None
         self.outbd_track  = None
@@ -364,14 +364,12 @@ class WayPoint(object):
         except Exception:
             pass
 
-    def pos(self):
-        if self._pos:
-            return self._pos
-        else:
-            # Lazy importing to avoid cyclic imports
+        if self.pos is None:
             from . import AIS
-            self._pos = AIS.points[self.fix]
-            return self._pos
+            self.pos = AIS.points[self.fix].pos
+
+    def pos(self):
+        return self.pos
 
     def copy(self):
         wp = WayPoint(self.fix)

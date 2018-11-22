@@ -205,7 +205,7 @@ def app(a, wind_drift):
         for [point_pos, point_name, void, vertical_constraint] in transition_points:
             a.route.append(WayPoint(point_name))
         wp = WayPoint("_LLZ")
-        wp._pos = xy_llz
+        wp.pos = xy_llz
         a.route.append(wp)
 
     # An no está en el localizador, tocamos solamente la altitud y como plan

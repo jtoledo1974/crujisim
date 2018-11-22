@@ -869,7 +869,7 @@ class Aircraft(object):
 
         [xy_llz, rdl, dist_ayuda, pdte_ayuda, alt_pista] = llz
         wp = Route.WP('_LLZ')
-        wp._pos = xy_llz
+        wp.pos = xy_llz
 
         self.route = Route.Route([wp])
         self.int_loc = True
@@ -927,7 +927,7 @@ class Aircraft(object):
             self.route.delete_from(self.iaf)
             self.route.extend([Route.WayPoint(p[1]) for p in puntos_alt])
             wp = Route.WayPoint("_LLZ")
-            wp._pos = llz[0]
+            wp.pos = llz[0]
             self.route.append(wp)
         logging.debug("Autorizado aproximación: " + str(self.route))
 

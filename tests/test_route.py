@@ -2,22 +2,31 @@ import random
 from datetime import datetime, timedelta
 import pytest
 
-from crujisim.lib import AIS
+from crujisim.lib import AIS, AIXM
 import crujisim.lib.Route
 from crujisim.lib.Route import Route, WayPoint, get_waypoints
 
 
 @pytest.fixture
 def fir():
-    def phony_get_point_coordinates(*arg):
-        if arg[0] == 'PARLA':
-            pos = (100, 200)  # Fixed position for equality tests
-        else:
-            pos = (random.random() * 100, random.random() * 100)
-        return pos
+    # def phony_get_point_coordinates(*arg):
+    #     if arg[0] == 'PARLA':
+    #         pos = (100, 200)  # Fixed position for equality tests
+    #     else:
+    #         pos = (random.random() * 100, random.random() * 100)
+    #     return pos
+    class phony_dict():
+        def __getitem__(*arg):
+            if arg[1] == 'PARLA':
+                pos = (100, 200)  # Fixed position for equality tests
+            else:
+                pos = (random.random() * 100, random.random() * 100)
+            p = AIXM.Point(arg[0], pos)
+            return p
 
     backup = AIS.get_point_coordinates
-    AIS.get_point_coordinates = phony_get_point_coordinates
+    d = phony_dict()
+    AIS.points = d
     yield True  # Any value will do. fir is not used directly
     # Teardown
     AIS.get_point_coordinates = backup
@@ -34,6 +43,9 @@ def route(fir):
 
 def test_wp_list(fir):
     wp_list = get_waypoints("pdt parla canes pi pi pi pi")
+    for wp in wp_list:
+        assert isinstance(wp.fix, str)
+        assert isinstance(wp.pos(), tuple)
     assert type(wp_list) is list
 
 
