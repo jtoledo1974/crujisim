@@ -21,3 +21,7 @@ def test_load_all_firs():
 
     for f in fir_files:
         AIS.init(str(f))
+        for p in AIS.points.values():
+            assert isinstance(p.designator, str)
+            x, y = p.pos
+            assert isinstance(x, float) and isinstance(y, float)

@@ -158,7 +158,7 @@ def init(fir_file):
         if len(coord_lista) == 2:
             (x, y) = coord.split(',')
             x, y = float(x), float(y)
-            points[pointName] = Point(pointName, coord)
+            points[pointName] = Point(pointName, (x, y))
 
         elif len(coord_lista) == 3:  # if len coord is 3, the point is defined referenced to another
             (baseName, x, y) = coord.split(',')
@@ -173,22 +173,18 @@ def init(fir_file):
             scan_again = False
             for relative_point_name in rel_points:
                 # First check if the new relative point already exists
-                dummy = [p[0]
-                         for p in points if p[0] == relative_point_name]
-                if len(dummy) == 0:
+                if relative_point_name not in points:
                     # The point does not exist, lets try if I can ad it
                     # To do so I have to check if the base points exists
-                    base_point_name = rel_points[
-                        relative_point_name][0]
-                    base_point_coordinates = [
-                        p[1] for p in points if p[0] == base_point_name]
+                    base_point_name = rel_points[relative_point_name][0]
+                    base_point_coordinates = points[base_point_name].pos
                     if len(base_point_coordinates) > 0:
                         # Exists, so lets make the conversion to
                         # cartesian's and add the point to the list
                         (x, y) = pr(rel_points[
                             relative_point_name][1])
                         (x, y) = (
-                            x + base_point_coordinates[0][0], y + base_point_coordinates[0][1])
+                            x + base_point_coordinates[0], y + base_point_coordinates[1])
 
                         points[relative_point_name] = Point(relative_point_name, (x, y))
                         scan_again = True
