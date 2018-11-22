@@ -370,7 +370,7 @@ class WayPoint(object):
         else:
             # Lazy importing to avoid cyclic imports
             from . import AIS
-            self._pos = AIS.get_point_coordinates(self.fix)
+            self._pos = AIS.points[self.fix]
             return self._pos
 
     def copy(self):

@@ -74,19 +74,19 @@ class AirportHeliport(object):  # Aerodrome / Heliport
         self.fieldElev = fieldElev
 
         # Operating
-        self.rwy_direction_list = []
-        self.rwy_in_use = None
+        self.runwayDirections = []
+        self.rwyInUse = None
 
-    def get_sid(self, txt_desig):
-        return [sid for rwy in self.rwy_direction_list
+    def get_sid(self, designator):
+        return [sid for rwy in self.runwayDirections
                 for sid in rwy.sid_dict.values()
-                if sid.txt_desig == txt_desig][0]
+                if sid.designator == designator][0]
 
     def __repr__(self):
         s = "AirportHeliport(designator:%r, pos:%r, fieldElev:%r, %r, %r)" % (
             self.designator, self.pos,
-            self.fieldElev, self.rwy_direction_list,
-            self.rwy_in_use)
+            self.fieldElev, self.runwayDirections,
+            self.rwyInUse)
         return s
 
 
@@ -95,9 +95,9 @@ class RunwayDirection(object):
     def __init__(
             self,
             designator,         # AIXM
-            trueBearing,        # AIXM
-            elevationTDZ,       # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
-            usedRunway=None     # Pointer to Runway instance 
+            trueBearing=None,   # AIXM
+            elevationTDZ=None,  # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
+            usedRunway=None     # Pointer to Runway instance
     ):
         # designator must have between 2 and 3 characters, of which the first 2
         # may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T,
@@ -106,6 +106,10 @@ class RunwayDirection(object):
         self.trueBearing = trueBearing
         self.elevationTDZ = elevationTDZ
         self.usedRunway = usedRunway
+
+        self.sid_dict = {}
+        self.star_dict = {}
+        self.iap_dict = {}
 
     def __str__(self):
         return self.designator
@@ -146,16 +150,16 @@ class SID(object):
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
 
-    def __init__(self, txt_desig, rte):
-        self.txt_desig = txt_desig
-        self.end_fix = txt_desig[: -2]
+    def __init__(self, designator, rte):
+        self.designator = designator
+        self.end_fix = designator[: -2]
 
     def __str__(self):
-        return self.txt_desig
+        return self.designator
 
     def __repr__(self):
         s = "SID(%r, %s, end_fix: %s)" % (
-            self.txt_desig, self.rte, self.end_fix)
+            self.designator, self.rte, self.end_fix)
         return s
 
 
@@ -187,39 +191,22 @@ class Hold(object):
         self.max_FL = max_FL        # maximun FL at the holding pattern
 
 
-class RWY_DIRECTION(object):
-
-    def __init__(self, txt_desig):
-        # TXT_DESIG must have between 2 and 3 characters, of which the first 2
-        # may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T,
-        # etc..
-        self.txt_desig = txt_desig
-        self.sid_dict = {}
-        self.star_dict = {}
-        self.iap_dict = {}
-
-    def __repr__(self):
-        s = "RWY_DIRECTION(%r, %r, %r, %r" % (
-            self.txt_desig, self.sid_dict, self.star_dict, self.iap_dict)
-        return s
-
-
 class STAR(object):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
 
-    def __init__(self, txt_desig, rte):
-        self.txt_desig = txt_desig
+    def __init__(self, designator, rte):
+        self.designator = designator
         self.rte = Route.Route(Route.get_waypoints(rte))
-        self.start_fix = txt_desig[: -2]
+        self.start_fix = designator[: -2]
 
     def __str__(self):
-        return self.txt_desig
+        return self.designator
 
     def __repr__(self):
         s = "STAR(%r, %s, end_fix: %s)" % (
-            self.txt_desig, self.rte, self.start_fix)
+            self.designator, self.rte, self.start_fix)
         return s
 
 
@@ -228,16 +215,16 @@ class SID(object):
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
 
-    def __init__(self, txt_desig, rte):
-        self.txt_desig = txt_desig
+    def __init__(self, designator, rte):
+        self.designator = designator
         self.rte = Route.Route(Route.get_waypoints(rte))
-        self.end_fix = txt_desig[: -2]
+        self.end_fix = designator[: -2]
 
     def __str__(self):
-        return self.txt_desig
+        return self.designator
 
     def __repr__(self):
         s = "SID(%r, %s, end_fix: %s)" % (
-            self.txt_desig, self.rte, self.end_fix)
+            self.designator, self.rte, self.end_fix)
         return s
 

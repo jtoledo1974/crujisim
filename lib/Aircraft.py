@@ -600,7 +600,7 @@ class Aircraft(object):
         # or rather a Route method, or even a FIR method?
         if AIS.ad_has_ifr_rwys(self.ades):  # aplico la STAR que toque
             ad = AIS.aerodromes[self.ades]
-            star_list = [star for star in ad.rwy_in_use.star_dict.values()
+            star_list = [star for star in ad.rwyInUse.star_dict.values()
                          if star.start_fix in self.route]
             if len(star_list) > 0:
                 # TODO Currrently if there are more than one STARs beggining at an IAF,
@@ -617,7 +617,7 @@ class Aircraft(object):
         # aplico la SID que toque
         if AIS.ad_has_ifr_rwys(self.adep) and self.pof in (GROUND, LOADING):
             ad = AIS.aerodromes[self.adep]
-            sid_list = [sid for sid in ad.rwy_in_use.sid_dict.values()
+            sid_list = [sid for sid in ad.rwyInUse.sid_dict.values()
                         if sid.end_fix in self.route]
             if len(sid_list) > 0:
                 sid = sid_list[0]

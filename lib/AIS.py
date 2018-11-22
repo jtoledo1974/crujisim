@@ -38,7 +38,7 @@ from stat import *
 
 # Application imports
 from .MathUtil import *
-from .AIXM import Point, AirportHeliport, Hold, RWY_DIRECTION, SID, STAR
+from .AIXM import Point, AirportHeliport, Hold, RunwayDirection, SID, STAR
 
 standard_library.install_aliases()
 
@@ -259,15 +259,15 @@ def init(fir_file):
         for (airp, total_rwys) in lista:
             ad = aerodromes[airp.upper()]
             for rwy in total_rwys.split(','):
-                ad.rwy_direction_list.append(
-                    RWY_DIRECTION(rwy.upper()[4:]))
+                ad.runwayDirections.append(
+                    RunwayDirection(rwy.upper()[4:]))  # Other information comes from IAP
             # First runway if the preferential
-            ad.rwy_in_use = ad.rwy_direction_list[0]
+            ad.rwyInUse = ad.runwayDirections[0]
 
     # SID and STAR procedures
     for ad, rwy_direction in ((ad, rwy) for ad in aerodromes.values()
-                              for rwy in ad.rwy_direction_list):
-        pista = ad.designator + rwy_direction.txt_desig
+                              for rwy in ad.runwayDirections):
+        pista = ad.designator + rwy_direction.designator
         # SID
         lista = firdef.items('sid_' + pista)
         for (sid_desig, sid_points) in lista:
@@ -281,9 +281,9 @@ def init(fir_file):
                 star_desig, star_points)
 
     # Instrument Approach Procedures
-    for pista in (ad.designator + rwy.txt_desig
+    for pista in (ad.designator + rwy.designator
                   for ad in aerodromes.values()
-                  for rwy in ad.rwy_direction_list):
+                  for rwy in ad.runwayDirections):
 
         # Procedimientos aproximación
         procs_app = firdef.items('app_' + pista)
@@ -467,7 +467,7 @@ def get_point_coordinates(point_name):
 
 def ad_has_ifr_rwys(designator):
     return designator in aerodromes \
-        and len(aerodromes[designator].rwy_direction_list) > 0
+        and len(aerodromes[designator].runwayDirections) > 0
 
 
 def init_by_name(path, name):

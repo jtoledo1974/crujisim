@@ -157,16 +157,15 @@ class PpDisplay(RaDisplay):
             f = update_flight(m['flight'])  # Returns the updated flight
             self.update_track(f)
             
-        if m['message'] == 'rwy_in_use':
+        if m['message'] == 'rwyInUse':
             ad_code_id, rwy_direction_desig = m['ad'], m['rwy']
             try:
                 ad = AIS.aerodromes[ad_code_id]
-                rwy_direction = [rwy for rwy in ad.rwy_direction_list
-                                         if rwy.txt_desig == rwy_direction_desig][0]
+                rwy_direction = [rwy for rwy in ad.runwayDirections if rwy.designator == rwy_direction_desig][0]
             except:
                 logging.error("No runway direction %s defined for airport %s"%(ad_code_id,rwy_direction_desig),
                               exc_info=True)
-            ad.rwy_in_use = rwy_direction            
+            ad.rwyInUse = rwy_direction            
             
         if m['message'] == 'kill_flight':
             try: f = [f for f in self.flights if f.uid == m['uid']][0]
@@ -922,7 +921,7 @@ class ventana_auxiliar:
             self.close_windows()
             # Find airports with several runways
             ad_list = [ad for ad in AIS.aerodromes.values()
-                        if len(ad.rwy_direction_list)>1]
+                        if len(ad.runwayDirections)>1]
 
             if len(ad_list) == 0:
                 RaDialog(w,label='Cambio de pista', text='No hay aeropuertos con más de una pista IFR')
@@ -930,15 +929,15 @@ class ventana_auxiliar:
             
             def close_rwy_chg(e=None,entries=None):
                 for ad in ad_list:
-                    if entries[ad.designator]['value']!=ad.rwy_in_use.txt_desig:
-                        master.sendMessage({"message":"rwy_in_use", "ad":ad.designator,
+                    if entries[ad.designator]['value']!=ad.rwyInUse.designator:
+                        master.sendMessage({"message":"rwyInUse", "ad":ad.designator,
                                             "rwy":entries[ad.designator]['value']})
             
             entries=[]
             for ad in ad_list:
                 entries.append({'label':ad.designator,
-                            'values':[rwy.txt_desig for rwy in ad.rwy_direction_list],
-                            'def_value':ad.rwy_in_use.txt_desig})
+                            'values':[rwy.designator for rwy in ad.runwayDirections],
+                            'def_value':ad.rwyInUse.designator})
             RaDialog(w,label='Cambiar pistas en uso',
                      ok_callback=close_rwy_chg, entries=entries)      
             
@@ -1217,7 +1216,7 @@ class DepTabular(RaTabular):
         i=0
         for f in self.deps:
             eobt = '%02d:%02d'%(f.eobt.hour, f.eobt.minute)
-            try: sid = f.sid.txt_desig
+            try: sid = f.sid.designator
             except: sid = ''
             t = f.callsign.ljust(9)+' '+f.adep.ljust(4)+' '+\
                 f.ades.ljust(4)+' '+eobt+' '+f.type.ljust(5)+' '+sid
@@ -1271,9 +1270,9 @@ class DepTabular(RaTabular):
         # Build the GUI Dialog
         entries=[]
         try:
-            sids = [sid.txt_desig
-                    for sid in AIS.aerodromes[dep.adep].rwy_in_use.sid_dict.values()]
-            dep_sid = dep.sid.txt_desig
+            sids = [sid.designator
+                    for sid in AIS.aerodromes[dep.adep].rwyInUse.sid_dict.values()]
+            dep_sid = dep.sid.designator
         except:
             logging.warning("No SIDs found for %s departing from %s"%(dep.callsign,dep.adep))
             sids = ''

@@ -209,10 +209,10 @@ class GTAnet(GTA):
                     var = dir * abs(random.gauss(0, QNH_STD_VAR))
                 self.qnh_var = var
 
-        elif m['message'] == 'rwy_in_use':
+        elif m['message'] == 'rwyInUse':
             ad, rwy = m['ad'], m['rwy']
             try:
-                self.change_rwy_in_use(ad, rwy)
+                self.change_rwyInUse(ad, rwy)
             except:
                 logging.warning("Error while changing rwy %s %s" %
                                 (ad, rwy), exc_info=True)
@@ -421,16 +421,16 @@ class GTAnet(GTA):
             if p.client.type == ATC:
                 self.send_flight(f, self.controllers)
 
-    def change_rwy_in_use(self, ad_code_id, rwy_direction_desig):
+    def change_rwyInUse(self, ad_code_id, rwy_direction_desig):
         """Modifies the rwy in use in for the given airport, and
         changes the SID and STAR procedures for the relevant aircraft"""
 
-        super(GTAnet, self).change_rwy_in_use(ad_code_id, rwy_direction_desig)
+        super(GTAnet, self).change_rwyInUse(ad_code_id, rwy_direction_desig)
         ad = AIS.aerodromes[ad_code_id]
 
         for c in self.pseudopilots:
-            m = {"message": "rwy_in_use", "ad": ad.designator,
-                 "rwy": ad.rwy_in_use.txt_desig}
+            m = {"message": "rwyInUse", "ad": ad.designator,
+                 "rwy": ad.rwyInUse.designator}
             c.protocol.sendMessage(m)
 
     def kill_flight(self, f):
