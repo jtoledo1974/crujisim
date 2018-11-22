@@ -55,7 +55,7 @@ def sector_intersections(route):
         xpoints = []
         for name, boundary in AIS.boundaries.items():
             xp_list = MathUtil.get_entry_exit_points(
-                rte_orig[i].pos(), rte_orig[i + 1].pos(), boundary)
+                rte_orig[i].pos, rte_orig[i + 1].pos, boundary)
             for xp in xp_list:
                 xp.append(name)
             xpoints += xp_list
@@ -75,7 +75,7 @@ def sector_intersections(route):
     # If the first point in the route is within a known sector, make sure we
     # note it.
     for sector, boundary in AIS.boundaries.items():
-        if MathUtil.point_within_polygon(route[0].pos(), boundary):
+        if MathUtil.point_within_polygon(route[0].pos, boundary):
             route[0].sector_entry = sector
             n_added += 1
 

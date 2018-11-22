@@ -324,7 +324,7 @@ class Aircraft(object):
             self.ground_spd = self.tas = 60.
         self.ias = cas_from_tas(self.tas, self.lvl * 100)
 
-        self.pos = self.route[0].pos()
+        self.pos = self.route[0].pos
         self.set_app_fix()
         self.track = self.hdg = self.route.get_outbd_track(0)
 
@@ -793,7 +793,7 @@ class Aircraft(object):
 
     def get_bearing_to_next(self):
         # Punto al que se dirige con corrección de wind_drift
-        self.coords = self.route[0].pos()
+        self.coords = self.route[0].pos
         vect = rp(r(self.coords, self.pos))
         return vect
 
@@ -1011,7 +1011,7 @@ class Aircraft(object):
         # Vector defining the hemiplane
         v1 = pr((1, self.route.get_outbd_track(0)))
         # Vector joining the wp and the aircraft
-        v2 = r(self.pos, self.route[0].pos())
+        v2 = r(self.pos, self.route[0].pos)
         # When the dot product is positive, the aircraft is on the goal
         # hemiplane
         on_goal_hemiplane = dp(v1, v2) > 0

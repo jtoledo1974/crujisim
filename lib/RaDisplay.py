@@ -672,7 +672,7 @@ class RaDisplay(object):
                 for i in range(1, len(rte)):
                     wp1 = rte[i]
                     if wp1.fix[0] == '_' and remove_underscored: continue
-                    map.add_polyline(wp0.pos(), wp1.pos(), color=color)
+                    map.add_polyline(wp0.pos, wp1.pos, color=color)
                     wp0 = wp1
                     
             sid_star_rwy = object[1]

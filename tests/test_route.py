@@ -45,7 +45,7 @@ def test_wp_list(fir):
     wp_list = get_waypoints("pdt parla canes pi pi pi pi")
     for wp in wp_list:
         assert isinstance(wp.fix, str)
-        assert isinstance(wp.pos(), tuple)
+        assert isinstance(wp.pos, tuple)
     assert type(wp_list) is list
 
 
@@ -77,8 +77,8 @@ def test_route_get_waypoint_index(route):
 def test_route_get_inbd_track(route):
     r = route
     r.substitute_before("pdt", get_waypoints("x10.1y20 x10y0 tres"))
-    assert r[0].pos() == (10.1, 20.0)
-    assert r[1].pos() == (10.0, 0.0)
+    assert r[0].pos == (10.1, 20.0)
+    assert r[1].pos == (10.0, 0.0)
     assert r.get_inbd_track(0) == pytest.approx(180.28647)
     assert r.get_inbd_track(1) == pytest.approx(180.28647)
     assert r.get_outbd_track(0) == pytest.approx(180.28647)
@@ -108,7 +108,7 @@ def test_wp_equality(fir):
     wp = WayPoint('PARLA')
     wp2 = wp.copy()
     wp3 = WayPoint('PARLA')
-    assert wp.pos() == wp2.pos()
+    assert wp.pos == wp2.pos
     assert wp == wp3
     assert wp == wp2
 

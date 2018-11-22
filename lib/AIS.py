@@ -299,10 +299,10 @@ def init(fir_file):
                     break
                 else:
                     punto_esta = False
-                    for q in points:
-                        if dato == points[q].designator:
+                    for q in points.values():
+                        if dato == q.designator:
                             points_app.append(
-                                [points[q].pos, points[q].designator, '', float(altitud)])
+                                [q.pos, q.designator, '', float(altitud)])
                             punto_esta = True
                     if not punto_esta:
                         logging.warning(
@@ -313,9 +313,9 @@ def init(fir_file):
             dist_ayuda = float(lista[i + 3])
             pdte_ayuda = float(lista[i + 4])
             alt_pista = float(lista[i + 5])
-            for q in points:
-                if lista[i + 1] == q[0]:
-                    llz_data = [q[1], (rdl_ayuda + 180.) %
+            for q in points.values():
+                if lista[i + 1] == q.designator:
+                    llz_data = [q.pos, (rdl_ayuda + 180.) %
                                 360., dist_ayuda, pdte_ayuda, alt_pista]
                     break
             if llz_data == []:
@@ -329,9 +329,9 @@ def init(fir_file):
                 dato = lista[i]
                 altitud = lista[i + 1]
                 punto_esta = False
-                for q in points:
-                    if dato == q[0]:
-                        points_map.append([q[1], q[0], '', float(altitud)])
+                for q in points.values():
+                    if dato == q.designator:
+                        points_map.append([q.pos, q.designator, '', float(altitud)])
                         punto_esta = True
                 if not punto_esta:
                     logging.warning(
@@ -368,9 +368,9 @@ def init(fir_file):
         aux2 = firdef.get(section, 'limites').split(',')
         for a in aux2:
             auxi = True
-            for q in points:
-                if a == q[0]:
-                    boundaries[sector].append(q[1])
+            for q in points.values():
+                if a == q.designator:
+                    boundaries[sector].append(q.pos)
                     auxi = False
             if auxi:
                 logging.warning(
@@ -406,8 +406,8 @@ def init(fir_file):
         for a in aux2:
             auxi = True
             for q in points:
-                if a == q[0]:
-                    fijos_impresion[sector].append(q[0])
+                if a == q:
+                    fijos_impresion[sector].append(q)
                     auxi = False
             if auxi:
                 logging.warning('No encontrado el fijo de impresión ' + a)
@@ -418,9 +418,9 @@ def init(fir_file):
             for a in aux2:
                 auxi = True
                 for q in points:
-                    if a == q[0]:
+                    if a == q:
                         fijos_impresion_secundarios[
-                            sector].append(q[0])
+                            sector].append(q)
                         auxi = False
                 if auxi:
                     logging.warning(

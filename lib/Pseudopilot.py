@@ -202,7 +202,7 @@ class PpDisplay(RaDisplay):
         if track.lnav_mode == LNAV.NAV:
             line=line+self.do_scale(track.pos)
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
-            try: pto=self.do_scale(a.pos())
+            try: pto=self.do_scale(a.pos)
             except: continue
             if a.fix[0] <> '_' or a.fix in AIS.iaps.keys():
                 try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
@@ -233,7 +233,7 @@ class PpDisplay(RaDisplay):
         if track.lnav_mode == LNAV.NAV:
             line=line+do_scale(track.pos)
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
-            try: pto=do_scale(a.pos())
+            try: pto=do_scale(a.pos)
             except: continue
             if a.fix[0] <> '_':
                 try: eto = '%02d:%02d'%(a.eto.hour, a.eto.minute)
@@ -244,9 +244,9 @@ class PpDisplay(RaDisplay):
         if len(line)>3: canvas.create_line(line,fill='yellow',tags=track.callsign+'wp')
         size=2
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
-            (rect_x, rect_y) = do_scale(a.pos())
+            (rect_x, rect_y) = do_scale(a.pos)
             point_ident = canvas.create_rectangle(rect_x-size, rect_y-size, rect_x+size, rect_y+size,fill='yellow',outline='yellow',tags=track.callsign+'wp')
-            def clicked_on_waypoint(e, point_coord=a.pos(),point_name=a.fix):
+            def clicked_on_waypoint(e, point_coord=a.pos,point_name=a.fix):
                 # Display window offering "Direct to..." and "Cancel" options.
                 track.last_lad = e.serial
                 win = Frame(canvas)

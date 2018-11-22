@@ -100,7 +100,7 @@ def hold(a, wind_drift, t):
     if not a.to_do_aux[4] and a.to_do_aux[0] in a.route:
         # Aún no ha llegado a la espera, sigue volando en ruta
         # Punto al que se dirige con corrección de wind_drift
-        pos = a.route[0].pos()
+        pos = a.route[0].pos
         a.vect = rp(r(pos, a.pos))
         # Correción de wind_drift
         return a.vect[1] - wind_drift
@@ -159,7 +159,7 @@ def hdgfix(a, wind_drift):
     """Fly a heading after passing a fix"""
     if a.to_do_aux[0] in a.route:
         # Punto al que se dirige con corrección de wind_drift
-        a.vect = rp(r(a.route[0].pos(), a.pos))
+        a.vect = rp(r(a.route[0].pos, a.pos))
         # Correción de wind_drift
         return a.vect[1] - wind_drift
     else:
@@ -169,7 +169,7 @@ def hdgfix(a, wind_drift):
 
 def intercept_radial(a, wind_drift):
     """Intercept and follow radial from a point"""
-    (rx, ry) = r(WayPoint(a.to_do_aux[0]).pos(), a.pos)
+    (rx, ry) = r(WayPoint(a.to_do_aux[0]).pos, a.pos)
     current_radial = rp((rx, ry))[1]
     tgt_radial = a.to_do_aux[1]
 
@@ -223,7 +223,7 @@ def app(a, wind_drift):
                     a.cfl = vertical_constraint / 100.
                     break
         # Point towards it is flying, with wind drift correction
-        a.vect = rp(r(a.route[0].pos(), a.pos))
+        a.vect = rp(r(a.route[0].pos, a.pos))
         # Correción de wind_drift
         return a.vect[1] - wind_drift
 
@@ -236,7 +236,7 @@ def app(a, wind_drift):
             a.app_fix = ''
             a._map = False
             # Punto al que se dirige con corrección de wind_drift
-            a.pto = a.route[0].pos()
+            a.pto = a.route[0].pos
             a.vect = rp(r(a.pto, a.pos))
             # Correción de wind_drift
             return a.vect[1] - wind_drift

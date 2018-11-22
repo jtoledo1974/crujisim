@@ -228,7 +228,7 @@ class Route(list):
             wp_from = self[i - 1]
 
         (distance, bearing) = MathUtil.rp(
-            MathUtil.r(wp_to.pos(), wp_from.pos()))
+            MathUtil.r(wp_to.pos, wp_from.pos))
         wp_to.inbd_track = bearing
         return bearing
 
@@ -286,7 +286,7 @@ class Route(list):
         """Checks whether a given waypoint is of the right class, and verifies
         the existence or not of wp coordinates against this route's rules"""
         try:
-            wp.pos()
+            wp.pos
         except AttributeError:
             raise TypeError("Element " + str(wp) + " is not WayPoint instance")
         except Exception:
@@ -358,8 +358,8 @@ class WayPoint(object):
             if fix[0].upper() == "X":
                 v = re.match(
                     "X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", fix.upper()).groups()
-                self._pos = (float(v[0]), float(v[3]))
-                self.fix = "X%.1fY%.1f" % self._pos
+                self.pos = (float(v[0]), float(v[3]))
+                self.fix = "X%.1fY%.1f" % self.pos
                 self.is_geo = True
         except Exception:
             pass
@@ -396,7 +396,7 @@ class WayPoint(object):
         if not isinstance(other, WayPoint):
             return False
         try:
-            if MathUtil.get_distance(self.pos(), other.pos()) < 0.1:
+            if MathUtil.get_distance(self.pos, other.pos) < 0.1:
                 return True
             else:
                 return False
