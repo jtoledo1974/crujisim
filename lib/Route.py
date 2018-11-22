@@ -366,7 +366,12 @@ class WayPoint(object):
 
         if self.pos is None:
             from . import AIS
-            self.pos = AIS.points[self.fix].pos
+            try:
+                self.pos = AIS.points[self.fix].pos
+            except KeyError:
+                # TODO With AIXM this shouldn't happen
+                logging.warning("Adding waypoint %s with no available position", self.fix)
+                self.pos = (0, 0)
 
     def pos(self):
         return self.pos
