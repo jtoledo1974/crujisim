@@ -511,7 +511,7 @@ class RaDisplay(object):
         minvert = 9.5  # 950 feet minimum vertical distance
                 
         # Vertical filter
-        vfilter = max([ad.val_elev for ad in AIS.aerodromes.values()]) + 1  # 1000 feet over the highest AD
+        vfilter = max([ad.fieldElev for ad in AIS.aerodromes.values()]) + 1  # 1000 feet over the highest AD
                 
         for i in range(len(self.tracks)):
             if time() - crono > self.refresh_period * REFRESH_PERCENTAGE:

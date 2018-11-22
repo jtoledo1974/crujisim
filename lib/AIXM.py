@@ -59,11 +59,16 @@ class Point(object):
 
 class AirportHeliport(object):  # Aerodrome / Heliport
 
-    def __init__(self, designator, pos=None, val_elev=0):
+    def __init__(
+            self,
+            designator,       # ICAO. AIXM allows others. Insignia ICAO_TXT
+            pos=None,         # Old crujisim fir files didn't have airport positions
+            fieldElev=0       # Feet. AIXM name. Insignia ELEV_VAL in meters
+    ):
         # Descriptive
         self.designator = designator
         self.pos = pos
-        self.val_elev = val_elev
+        self.fieldElev = fieldElev
 
         # Operating
         self.rwy_direction_list = []
@@ -75,9 +80,9 @@ class AirportHeliport(object):  # Aerodrome / Heliport
                 if sid.txt_desig == txt_desig][0]
 
     def __repr__(self):
-        s = "AD_HP(designator:%r, pos:%r, val_elev:%r, %r, %r)" % (
+        s = "AD_HP(designator:%r, pos:%r, fieldElev:%r, %r, %r)" % (
             self.designator, self.pos,
-            self.val_elev, self.rwy_direction_list,
+            self.fieldElev, self.rwy_direction_list,
             self.rwy_in_use)
         return s
 

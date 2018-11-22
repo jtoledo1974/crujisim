@@ -318,7 +318,7 @@ class Aircraft(object):
             self.ground_spd = self.tas = v(self)
             self.lvl = self.cfl
         else:  # GROUND
-            self.lvl = AIS.aerodromes[self.adep].val_elev
+            self.lvl = AIS.aerodromes[self.adep].fieldElev
             # We need to start up with an initial speed because the
             # accelaration code is not realistic
             self.ground_spd = self.tas = 60.

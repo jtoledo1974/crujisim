@@ -244,7 +244,7 @@ def init(fir_file):
     if firdef.has_section('elevaciones'):
         elev_list = firdef.items('elevaciones')[0][1].split(",")
         for ad, elev in zip(list(aerodromes.keys()), elev_list):
-            aerodromes[ad].val_elev = int(elev)
+            aerodromes[ad].fieldElev = int(elev)
 
     # Published holding patterns
     if firdef.has_section('esperas_publicadas'):
