@@ -19,7 +19,16 @@
 # along with CrujiSim; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-"""Classes implementing a limited subset of AIXM"""
+"""These classes hold information gathered from AIS sources"""
+
+# Initially I intended to model AIXM whole, but it is way
+# too cumbersome, and far exceeds the needs of this simulation
+# Furthermore, the main source of data will be Insignia,
+# the GIS solution of Enaire, which share some attributes with
+# AIXM but is way more sparse.
+# So the final result is a mixture of the two adapted to our needs
+# There will have to be special code to input data from each source
+# to these structures
 
 from __future__ import print_function
 from __future__ import absolute_import
@@ -35,12 +44,17 @@ from . import Route
 standard_library.install_aliases()
 
 
-class Association(object):
-    """Holds a number of other AIXM objects"""
-    def __init__(self, role, max, min):
-        self.role = role
-        self.max = max
-        self.min = min
+# There are all kind of points defined both in AIXM and Insignia
+# This is the bare minimum needed
+class Point(object):
+    def __init__(
+            self,
+            pos,              # Coordinates
+            designator,       # AIXM DesignatedPoint. Insignia DESIGNATEDPOINT_NAME
+            flyOver=False):   # AIXM SegmentPoint. Insignia DP Procedimiento FLYOVER. Unused
+        self.pos = pos
+        self.designator = designator
+        self.flyOVer = flyOver
 
 
 class AirportHeliport(object):  # Aerodrome / Heliport
@@ -70,7 +84,12 @@ class AirportHeliport(object):  # Aerodrome / Heliport
 
 class RunwayDirection(object):
 
-    def __init__(self, designator, trueBearing, elevationTDZ, usedRunway):
+    def __init__(
+            self,
+            designator,     # AIXM
+            trueBearing,    # AIXM
+            elevationTDZ,   # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
+            usedRunway):
         # designator must have between 2 and 3 characters, of which the first 2
         # may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T,
         # etc..
@@ -92,6 +111,9 @@ class Runway(object):
     def __init__(self, designator, associatedAirportHeliport):
         self.associatedAirportHeliport = associatedAirportHeliport
 
+
+# AIX can have a STAR point at multiple RWY directions
+# Insignia has duplicate entries, I believe
 
 class StandarInstrumentArrival(object):
     # TODO this only covers basic AICM attributes.
