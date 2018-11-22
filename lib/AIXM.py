@@ -44,7 +44,7 @@ from . import Route
 standard_library.install_aliases()
 
 
-def extra_repr(instance, attr_list):
+def attr_repr(instance, attr_list):
     """Get representation string for attributes that may be null"""
     extra = ''
     for attrib in attr_list:
@@ -84,10 +84,10 @@ class Point(object):
         self.speedInterpretation = speedInterpretation
 
     def __repr__(self):
-        extra = extra_repr(self, ('flyOver', 'upperLimitAltitude', 'lowerLimitAltitude',
-                                  'upperLimitReference', 'lowerLimitReference',
-                                  'altitudeInterpretation', 'speedLimit',
-                                  'speedReference', 'speedInterpretation'))
+        extra = attr_repr(self, ('flyOver', 'upperLimitAltitude', 'lowerLimitAltitude',
+                                 'upperLimitReference', 'lowerLimitReference',
+                                 'altitudeInterpretation', 'speedLimit',
+                                 'speedReference', 'speedInterpretation'))
         return "Point(%r, %r%s)" % (self.designator, self.pos, extra)
 
 
@@ -114,10 +114,9 @@ class AirportHeliport(object):  # Aerodrome / Heliport
                 if sid.designator == designator][0]
 
     def __repr__(self):
-        s = "AirportHeliport(designator:%r, pos:%r, fieldElev:%r, %r, %r)" % (
-            self.designator, self.pos,
-            self.fieldElev, self.runwayDirections,
-            self.rwyInUse)
+        extra = attr_repr(self, ('pos', 'fieldElev', 'runwayDirections', 'rwyInUse'))
+        s = "AirportHeliport(designator:%r%s)" % (
+            self.designator, extra)
         return s
 
 
@@ -146,12 +145,11 @@ class RunwayDirection(object):
         return self.designator
 
     def __repr__(self):
-        s = ("RunwayDirection(designator=%r, trueBearing=%r, elevationTDZ=%r, "
-             "usedRunway=%r, StandarInstrumentArrival=%r, "
-             "standardInstrumentDepartures=%r, iap_dict=%r)" % (
-                 self.designator, self.trueBearing, self.elevationTDZ, self.usedRunway,
-                 self.standardInstrumentArrivals, self.standardInstrumentDepartures,
-                 self.iap_dict))
+        s = ("RunwayDirection(designator=%r%s)" % (
+            self.designator,
+            attr_repr(self, ('trueBearing', 'elevationTDZ', 'usedRunway',
+                             'standardInstrumentArrivals', 'standardInstrumentDepartures',
+                             'iap_dict'))))
         return s
 
 
