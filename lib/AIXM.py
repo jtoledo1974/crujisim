@@ -161,7 +161,7 @@ class Runway(object):
 # AIX can have a STAR point at multiple RWY directions
 # Insignia has duplicate entries, I believe
 
-class StandarInstrumentArrival(object):
+class StandardInstrumentArrival(object):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
@@ -202,13 +202,6 @@ class SID(object):
 # There is currently no support for lat/lon coordinates, so we are using
 # the non-standard attribute 'pos' to store the cartesian coordinates of objects,
 # rather than the aicm standard geo_lat and geo_lon
-
-
-class Designated_Point(object):
-
-    def __init__(self, designator, pos):
-        self.designator = designator
-        self.pos = pos
 
 
 class Hold(object):
