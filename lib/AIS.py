@@ -97,7 +97,7 @@ mod_lists = ['routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_m
 mod_dicts = ['points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
              'boundaries', 'min_sep', 'auto_departures', 'fijos_impresion', 'fijos_impresion_secundarios',
              'local_ads', 'release_required_ads']
-mod_other = ['name', 'routedb']
+mod_other = ['name', 'routedb', 'file']
 
 
 def get_AIS_data():
