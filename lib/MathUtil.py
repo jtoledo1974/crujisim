@@ -106,20 +106,8 @@ def point_within_polygon(point, pointsList):
     return c
 
 
-def pfloat(a0):
-    """promotes all elements of a0 to float"""
-    try:
-        a = [float(elements) for elements in a0]
-        return a
-    except:
-        return None
-
-
 def get_line_equation(pa0, pa1):
     """calculates the line equation m,b from two points"""
-    # promotes to float
-    #a0 = pfloat(pa0)
-    #a1 = pfloat(pa1)
     a0, a1 = pa0, pa1
     d = a1[0] - a0[0]
     try:
@@ -133,11 +121,6 @@ def get_line_equation(pa0, pa1):
 def get_cross_point(pa0, pa1, pb0, pb1):
     """calculates crossing point's coordinates given the coordinates of four points
     if both segments are equivalent the method returns de point on segment b closest to pa0"""
-    # Promotes to float
-    # a0=pfloat(pa0)
-    # a1=pfloat(pa1)
-    # b0=pfloat(pb0)
-    # b1=pfloat(pb1)
     a0, a1, b0, b1 = pa0, pa1, pb0, pb1
 
     # Test for same points
@@ -197,51 +180,6 @@ def get_cross_point(pa0, pa1, pb0, pb1):
         # We should have covered all cases previously
         logging.error("get_cross_point: Imposible scenario")
         return None
-
-
-def calculates_intersection(pA0, pA1, pB0, pB1, use_given_coordinates=True):
-    """calculates intersection between line defined by pA0,pA1 and line defined by pB0,pB1"""
-    # returns a point which name is pA0's name + "#" + pA1's name + "@" +
-    # pB0's name + "#" + pB1's name
-    xP = ["A", [0.0, 0, 0]]
-    if use_given_coordinates:
-        # Tuples of points' names and coordinates are passed
-        try:
-            xP[0] = pA0[0] + "#" + pA1[0] + "@" + pB0[0] + "#" + pB1[0]
-            xP[1] = get_cross_point(pA0[1], pA1[1], pB0[1], pB1[1])
-            return xP
-        except:
-            return None
-    else:
-        # In this case, only points' names are passed
-        try:
-            xP[0] = pA0 + "#" + pA1 + "@" + pB0 + "#" + pB1
-            pList = [pA0, pA1, pB0, pB1]
-            pListC = [get_point_coordinates(elements) for elements in pList]
-            xP[1] = get_cross_point(pListC[0], pListC[1], pListC[2], pListC[3])
-            return xP
-        except:
-            return None
-
-# def point_within_segment(pA,sA0,sA1):
-#    """Returns true if pA lies within the segment sA0-sA1. Coordinates Tuples are passed
-#        if pA == sA0 or sA1 also returns true"""
-#    if sA0[0] == sA1[0]:
-#        # vertical segment, check y coordinates.
-#        min_sA_Y = min(sA0[1],sA1[1])
-#        max_sA_Y = max(sA0[1],sA1[1])
-#        if (pA[1] >= min_sA_Y) and (pA[1] <= max_sA_Y):
-#            return True
-#        else:
-#            return False
-#    else:
-#        # horizontal segment or generic segment, check x coordinates.
-#        min_sA_X = min(sA0[0],sA1[0])
-#        max_sA_X = max(sA0[0],sA1[0])
-#        if (pA[0] >= min_sA_X) and (pA[0] <= max_sA_X):
-#            return True
-#        else:
-#            return False
 
 
 def point_within_segment(pA, sA0, sA1):
@@ -323,9 +261,3 @@ def relative_angle(angle, ref):
     """Given two angles, return the minimum angle between them"""
     return (ref - angle + 180) % 360 - 180
 
-
-if __name__ == '__main__':
-    print(r((10, 10), (0, 10)))
-    assert point_within_polygon((0.1, 0.1), ((0, 0), (0, 1), (1, 0))) == True
-    assert point_within_polygon((0, 0), ((0, 0), (0, 1), (1, 0))) == True
-    assert point_within_polygon((1, 1), ((0, 0), (0, 1), (1, 0))) == False
