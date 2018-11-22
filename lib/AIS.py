@@ -38,7 +38,7 @@ from stat import *
 
 # Application imports
 from .MathUtil import *
-from .AIXM import AirportHeliport, Hold, RWY_DIRECTION, SID, STAR
+from .AIXM import Point, AirportHeliport, Hold, RWY_DIRECTION, SID, STAR
 
 standard_library.install_aliases()
 
@@ -52,22 +52,22 @@ standard_library.install_aliases()
 
 # All fir elements should be turned into classes, just as the Hold is now
 
-# Name is used to verify that it matches an exercise file
-name = ""
 
-# List of geo coordinates of points [ POINT_NAME, (X, Y)]
-points = []
-coords = {}  # Dictionary with point coordinates
+name = ""       # Name is used to verify that it matches an exercise file
+file = ""       # Filename from which information is loaded
+
+points = {}     # All points known
+
 # Dictionary of points relative to another. Format: [RELATIVE_POINT
 # NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
 rel_points = {}
-routes = []  # List of points defining standard routes within the FIR
-airways = []  # List of airways... just for displaying on map
-tmas = []  # List of points defining TMAs
-local_maps = {}  # Dictionary of local maps
-aerodromes = {}  # Dictionary of AirportHeliport features
-holds = []  # List of published holds (See Hold class)
-procedimientos = {}  # Standard procedures (SIDs and STARs)
+routes = []             # List of points defining standard routes within the FIR
+airways = []            # List of airways... just for displaying on map
+tmas = []               # List of points defining TMAs
+local_maps = {}         # Dictionary of local maps
+aerodromes = {}         # Dictionary of AirportHeliport features
+holds = []              # List of published holds (See Hold class)
+procedimientos = {}     # Standard procedures (SIDs and STARs)
 
 # Definition of the approach procedure is extremely confusing. Looking forward to substituting it for the
 # proper AIXM structure
@@ -137,6 +137,7 @@ def init(fir_file):
 
     clear_variables()
 
+    global file
     file = fir_file
 
     firdef = configparser.ConfigParser(inline_comment_prefixes=(';',))
@@ -151,19 +152,20 @@ def init(fir_file):
     # logging.debug('Points')
     # TODO Why is there different points and coords?? It should just be a dictionary!!
     lista = firdef.items('puntos')
-    for (nombre, coord) in lista:
+    for (pointName, coord) in lista:
         coord_lista = coord.split(',')
+
         if len(coord_lista) == 2:
             (x, y) = coord.split(',')
             x = float(x)
             y = float(y)
-            points.append([nombre.upper(), (x, y)])
-            coords[nombre.upper()] = (x, y)
+            points[pointName] = Point(pointName, coord)
+
         elif len(coord_lista) == 3:  # if len coord is 3, the point is defined referenced to another
-            (nombre_base, x, y) = coord.split(',')
+            (baseName, x, y) = coord.split(',')
             x = float(x)
             y = float(y)
-            rel_points[nombre.upper()] = [nombre_base.upper(), (x, y)]
+            rel_points[pointName.upper()] = [baseName.upper(), (x, y)]
 
     if len(rel_points) > 0:
         # If at least one relative point has been read we should try to convert it to

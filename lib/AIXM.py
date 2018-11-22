@@ -49,8 +49,8 @@ standard_library.install_aliases()
 class Point(object):
     def __init__(
             self,
-            pos,              # Coordinates
             designator,       # AIXM DesignatedPoint. Insignia DESIGNATEDPOINT_NAME
+            pos,              # Coordinates
             flyOver=False):   # AIXM SegmentPoint. Insignia DP Procedimiento FLYOVER. Unused
         self.pos = pos
         self.designator = designator
