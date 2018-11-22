@@ -10,4 +10,4 @@ def ais(fir_file):
 def test_load_fir(fir_file):
     AIS.init(str(fir_file))
 
-    assert len(AIS.points) == 68
+    assert len(AIS.points) == 69
