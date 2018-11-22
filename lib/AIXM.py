@@ -94,10 +94,11 @@ class RunwayDirection(object):
 
     def __init__(
             self,
-            designator,     # AIXM
-            trueBearing,    # AIXM
-            elevationTDZ,   # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
-            usedRunway):
+            designator,         # AIXM
+            trueBearing,        # AIXM
+            elevationTDZ,       # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
+            usedRunway=None     # Pointer to Runway instance 
+    ):
         # designator must have between 2 and 3 characters, of which the first 2
         # may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T,
         # etc..

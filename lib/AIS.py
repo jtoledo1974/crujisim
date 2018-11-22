@@ -66,7 +66,9 @@ tmas = []               # List of points defining TMAs
 local_maps = {}         # Dictionary of local maps
 aerodromes = {}         # Dictionary of AirportHeliport features
 holds = []              # List of published holds (See Hold class)
-procedimientos = {}     # Standard procedures (SIDs and STARs)
+standardInstrumentDepartures = {}
+standardInstrumentArrivals = {}
+standardInstrumentProcedures = {}
 
 # Definition of the approach procedure is extremely confusing. Looking forward to substituting it for the
 # proper AIXM structure
@@ -94,7 +96,7 @@ release_required_ads = {}
 routedb = None
 
 mod_lists = ['routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_maps_order']
-mod_dicts = ['points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
+mod_dicts = ['points', 'local_maps', 'aerodromes', 'iaps', '_sector_sections',
              'boundaries', 'min_sep', 'auto_departures', 'fijos_impresion', 'fijos_impresion_secundarios',
              'local_ads', 'release_required_ads']
 mod_other = ['name', 'routedb', 'file']
@@ -258,7 +260,7 @@ def init(fir_file):
             ad = aerodromes[airp.upper()]
             for rwy in total_rwys.split(','):
                 ad.rwy_direction_list.append(
-                    RWY_DIRECTION(rwy.upper()[4: ]))
+                    RWY_DIRECTION(rwy.upper()[4:]))
             # First runway if the preferential
             ad.rwy_in_use = ad.rwy_direction_list[0]
 
