@@ -44,20 +44,51 @@ from . import Route
 standard_library.install_aliases()
 
 
+def extra_repr(instance, attr_list):
+    """Get representation string for attributes that may be null"""
+    extra = ''
+    for attrib in attr_list:
+        value = getattr(instance, attrib)
+        if value:
+            extra += ", %r=%r" % (attrib, value)
+    return extra
+
+
 # There are all kind of points defined both in AIXM and Insignia
 # This is the bare minimum needed
 class Point(object):
     def __init__(
-            self,
-            designator,       # AIXM DesignatedPoint. Insignia DESIGNATEDPOINT_NAME
-            pos,              # Coordinates
-            flyOver=False):   # AIXM SegmentPoint. Insignia DP Procedimiento FLYOVER. Unused
+        self,
+        designator,                 # AIXM DesignatedPoint. Insignia DESIGNATEDPOINT_NAME
+        pos,                        # Coordinates
+        flyOver=False,              # AIXM SegmentPoint. Insignia DP Procedimiento FLYOVER. Unused
+        upperLimitAltitude=None,    # AIXM SegmentLeg. We use this and the following on the point starting the leg
+        upperLimitReference=None,
+        lowerLimitAltitude=None,
+        lowerLimitReference=None,
+        altitudeInterpretation=None,
+        speedLimit=None,
+        speedReference=None,
+        speedInterpretation=None
+    ):
         self.designator = designator
         self.pos = pos
-        self.flyOVer = flyOver
+        self.flyOver = flyOver
+        self.upperLimitAltitude = upperLimitAltitude
+        self.upperLimitReference = upperLimitReference
+        self.lowerLimitAltitude = lowerLimitAltitude
+        self.lowerLimitReference = lowerLimitReference
+        self.altitudeInterpretation = altitudeInterpretation
+        self.speedLimit = speedLimit
+        self.speedReference = speedReference
+        self.speedInterpretation = speedInterpretation
 
     def __repr__(self):
-        return "Point(%r, (%r), %r)" % (self.designator, self.pos, self.flyOVer)
+        extra = extra_repr(self, ('flyOver', 'upperLimitAltitude', 'lowerLimitAltitude',
+                                  'upperLimitReference', 'lowerLimitReference',
+                                  'altitudeInterpretation', 'speedLimit',
+                                  'speedReference', 'speedInterpretation'))
+        return "Point(%r, %r%s)" % (self.designator, self.pos, extra)
 
 
 class AirportHeliport(object):  # Aerodrome / Heliport

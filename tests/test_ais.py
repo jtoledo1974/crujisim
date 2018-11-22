@@ -22,6 +22,7 @@ def ais(request):
 
 def test_load_fir(ais_sample):
     assert len(AIS.points) == 69
+    assert repr(next(iter(AIS.points.values()))) == "Point('_TMA1', (80.77, 123.0))"
 
 
 def test_points(ais):
