@@ -193,12 +193,7 @@ def init(fir_file):
     lista = firdef.items('rutas')
     for (num, aux) in lista:
         linea = aux.split(',')
-        aux2 = ()
-        for p in linea:
-            for q in points:
-                if p == q[0]:
-                    aux2 = aux2 + q[1]
-        routes.append([aux2])
+        routes.append([points[p].pos for p in linea])
 
     # FIR Airways
     lista = firdef.items('aerovias')
