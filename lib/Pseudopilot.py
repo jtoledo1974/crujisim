@@ -1271,7 +1271,7 @@ class DepTabular(RaTabular):
         entries=[]
         try:
             sids = [sid.designator
-                    for sid in AIS.aerodromes[dep.adep].rwyInUse.sid_dict.values()]
+                    for sid in AIS.aerodromes[dep.adep].rwyInUse.standardInstrumentDepartures.values()]
             dep_sid = dep.sid.designator
         except:
             logging.warning("No SIDs found for %s departing from %s"%(dep.callsign,dep.adep))

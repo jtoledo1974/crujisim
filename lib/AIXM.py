@@ -57,7 +57,7 @@ class Point(object):
         self.flyOVer = flyOver
 
     def __repr__(self):
-        return "Point(%s, (%s), %s)" % (self.designator, self.pos, self.flyOVer)
+        return "Point(%r, (%r), %r)" % (self.designator, self.pos, self.flyOVer)
 
 
 class AirportHeliport(object):  # Aerodrome / Heliport
@@ -79,7 +79,7 @@ class AirportHeliport(object):  # Aerodrome / Heliport
 
     def get_sid(self, designator):
         return [sid for rwy in self.runwayDirections
-                for sid in rwy.sid_dict.values()
+                for sid in rwy.standardInstrumentDepartures.values()
                 if sid.designator == designator][0]
 
     def __repr__(self):
@@ -107,16 +107,20 @@ class RunwayDirection(object):
         self.elevationTDZ = elevationTDZ
         self.usedRunway = usedRunway
 
-        self.sid_dict = {}
-        self.star_dict = {}
+        self.standardInstrumentDepartures = {}
+        self.standardInstrumentArrivals = {}
         self.iap_dict = {}
 
     def __str__(self):
         return self.designator
 
     def __repr__(self):
-        s = "RWY_DIRECTION(%r, %r, %r, %r" % (
-            self.designator, self.trueBearing, self.elevationTDZ, self.usedRunway)
+        s = ("RunwayDirection(designator=%r, trueBearing=%r, elevationTDZ=%r, "
+             "usedRunway=%r, StandarInstrumentArrival=%r, "
+             "standardInstrumentDepartures=%r, iap_dict=%r)" % (
+                 self.designator, self.trueBearing, self.elevationTDZ, self.usedRunway,
+                 self.standardInstrumentArrivals, self.standardInstrumentDepartures,
+                 self.iap_dict))
         return s
 
 
