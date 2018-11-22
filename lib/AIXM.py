@@ -52,9 +52,12 @@ class Point(object):
             designator,       # AIXM DesignatedPoint. Insignia DESIGNATEDPOINT_NAME
             pos,              # Coordinates
             flyOver=False):   # AIXM SegmentPoint. Insignia DP Procedimiento FLYOVER. Unused
-        self.pos = pos
         self.designator = designator
+        self.pos = pos
         self.flyOVer = flyOver
+
+    def __repr__(self):
+        return "Point(%s, (%s), %s)" % (self.designator, self.pos, self.flyOVer)
 
 
 class AirportHeliport(object):  # Aerodrome / Heliport
@@ -80,7 +83,7 @@ class AirportHeliport(object):  # Aerodrome / Heliport
                 if sid.txt_desig == txt_desig][0]
 
     def __repr__(self):
-        s = "AD_HP(designator:%r, pos:%r, fieldElev:%r, %r, %r)" % (
+        s = "AirportHeliport(designator:%r, pos:%r, fieldElev:%r, %r, %r)" % (
             self.designator, self.pos,
             self.fieldElev, self.rwy_direction_list,
             self.rwy_in_use)
@@ -168,9 +171,6 @@ class Designated_Point(object):
     def __init__(self, designator, pos):
         self.designator = designator
         self.pos = pos
-
-
-Point = Designated_Point  # Alias for the class
 
 
 class Hold(object):

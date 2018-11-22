@@ -60,7 +60,6 @@ points = {}     # All points known
 
 # Dictionary of points relative to another. Format: [RELATIVE_POINT
 # NAME]:[POINT_NAME],[RADIAL],[DISTANCE]
-rel_points = {}
 routes = []             # List of points defining standard routes within the FIR
 airways = []            # List of airways... just for displaying on map
 tmas = []               # List of points defining TMAs
@@ -94,8 +93,8 @@ release_required_ads = {}
 
 routedb = None
 
-mod_lists = ['points', 'routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_maps_order']
-mod_dicts = ['rel_points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
+mod_lists = ['routes', 'airways', 'tmas', 'holds', 'deltas', 'sectors', 'local_maps_order']
+mod_dicts = ['points', 'local_maps', 'aerodromes', 'procedimientos', 'iaps', '_sector_sections',
              'boundaries', 'min_sep', 'auto_departures', 'fijos_impresion', 'fijos_impresion_secundarios',
              'local_ads', 'release_required_ads']
 mod_other = ['name', 'routedb']
@@ -150,21 +149,20 @@ def init(fir_file):
 
     # Puntos del FIR
     # logging.debug('Points')
-    # TODO Why is there different points and coords?? It should just be a dictionary!!
     lista = firdef.items('puntos')
+    rel_points = {}
     for (pointName, coord) in lista:
+        pointName = pointName.upper()
         coord_lista = coord.split(',')
 
         if len(coord_lista) == 2:
             (x, y) = coord.split(',')
-            x = float(x)
-            y = float(y)
+            x, y = float(x), float(y)
             points[pointName] = Point(pointName, coord)
 
         elif len(coord_lista) == 3:  # if len coord is 3, the point is defined referenced to another
             (baseName, x, y) = coord.split(',')
-            x = float(x)
-            y = float(y)
+            x, y = float(x), float(y)
             rel_points[pointName.upper()] = [baseName.upper(), (x, y)]
 
     if len(rel_points) > 0:
@@ -191,8 +189,8 @@ def init(fir_file):
                             relative_point_name][1])
                         (x, y) = (
                             x + base_point_coordinates[0][0], y + base_point_coordinates[0][1])
-                        points.append([relative_point_name, (x, y)])
-                        coords[relative_point_name] = (x, y)
+
+                        points[relative_point_name] = Point(relative_point_name, (x, y))
                         scan_again = True
 
     # FIR Routes
@@ -210,14 +208,14 @@ def init(fir_file):
     lista = firdef.items('aerovias')
     for (num, aux) in lista:
         linea = aux.split(',')
-        airways.append([coords[p] for p in linea])
+        airways.append([points[p].pos for p in linea])
 
     # FIR TMAs
     if firdef.has_section('tmas'):
         lista = firdef.items('tmas')
         for (num, aux) in lista:
             linea = aux.split(',')
-            tmas.append([coords[p] for p in linea])
+            tmas.append([points[p].pos for p in linea])
 
     # Local maps
     if firdef.has_section('mapas_locales'):
@@ -309,9 +307,9 @@ def init(fir_file):
                 else:
                     punto_esta = False
                     for q in points:
-                        if dato == q[0]:
+                        if dato == points[q].designator:
                             points_app.append(
-                                [q[1], q[0], '', float(altitud)])
+                                [points[q].pos, points[q].designator, '', float(altitud)])
                             punto_esta = True
                     if not punto_esta:
                         logging.warning(
@@ -356,7 +354,7 @@ def init(fir_file):
         for (num, aux) in lista:
             # logging.debug ('Leyendo delta '+str(num))
             linea = aux.split(',')
-            deltas.append([coords[p] for p in linea])
+            deltas.append([points[p].pos for p in linea])
 
     # Sector characteristics
     for section in firdef.sections():
