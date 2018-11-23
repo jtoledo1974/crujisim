@@ -3,19 +3,12 @@ from datetime import datetime, timedelta
 import pytest
 
 from crujisim.lib import AIS, AIXM
-import crujisim.lib.Route
 from crujisim.lib.Route import Route, WayPoint, get_waypoints
 
 
 @pytest.fixture
 def fir():
-    # def phony_get_point_coordinates(*arg):
-    #     if arg[0] == 'PARLA':
-    #         pos = (100, 200)  # Fixed position for equality tests
-    #     else:
-    #         pos = (random.random() * 100, random.random() * 100)
-    #     return pos
-    class phony_dict():
+    class PhonyDict():
         def __getitem__(*arg):
             if arg[1] == 'PARLA':
                 pos = (100, 200)  # Fixed position for equality tests
@@ -24,12 +17,12 @@ def fir():
             p = AIXM.Point(arg[0], pos)
             return p
 
-    backup = AIS.get_point_coordinates
-    d = phony_dict()
+    backup, d = AIS.points, PhonyDict()
     AIS.points = d
-    yield True  # Any value will do. fir is not used directly
+    yield "Using phony points dict"  # Any value will do. fir is not used directly
+
     # Teardown
-    AIS.get_point_coordinates = backup
+    AIS.points = backup
 
 
 @pytest.fixture

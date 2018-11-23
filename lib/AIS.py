@@ -453,18 +453,6 @@ def init(fir_file):
                         os.path.dirname(file) + ". Using blank db")
 
 
-def get_point_coordinates(point_name):
-    if point_name in coords:
-        return coords[point_name]
-    elif re.match("X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()):
-        v = re.match(
-            "X([-+]?(\d+(\.\d*)?|\d*\.\d+))Y([-+]?(\d+(\.\d*)?|\d*\.\d+))", point_name.upper()).groups()
-        return (float(v[0]), float(v[3]))
-    else:
-        raise RuntimeError('Point %s not found in %s' %
-                           (point_name, file))
-
-
 def ad_has_ifr_rwys(designator):
     return designator in aerodromes \
         and len(aerodromes[designator].runwayDirections) > 0
@@ -486,7 +474,3 @@ def init_by_name(path, name):
             if firdef.get('datos', 'nombre') == name:
                 init(fir_file)
                 assert len(aerodromes) > 1
-
-
-pos = get_point_coordinates
-
