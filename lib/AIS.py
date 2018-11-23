@@ -66,8 +66,8 @@ tmas = []               # List of points defining TMAs
 local_maps = {}         # Dictionary of local maps
 aerodromes = {}         # Dictionary of AirportHeliport features
 holds = []              # List of published holds (See Hold class)
-standardInstrumentDepartures = {}
-standardInstrumentDepartures = {}
+stdInstDepartures = {}
+stdInstArrivals = {}
 standardInstrumentProcedures = {}
 
 # Definition of the approach procedure is extremely confusing. Looking forward to substituting it for the
@@ -268,16 +268,18 @@ def init(fir_file):
     for ad, rwy_direction in ((ad, rwy) for ad in aerodromes.values()
                               for rwy in ad.runwayDirections):
         pista = ad.designator + rwy_direction.designator
+
         # SID
         lista = firdef.items('sid_' + pista)
         for (sid_desig, sid_points) in lista:
             sid_desig = sid_desig.upper()
-            rwy_direction.standardInstrumentDepartures[sid_desig] = SID(sid_desig, sid_points)
+            rwy_direction.stdInstDepartures[sid_desig] = SID(sid_desig, sid_points)
+
         # Procedimientos STAR
         lista = firdef.items('star_' + pista)
         for (star_desig, star_points) in lista:
             star_desig = star_desig.upper()
-            rwy_direction.standardInstrumentArrivals[star_desig] = STAR(
+            rwy_direction.stdInstArrivals[star_desig] = STAR(
                 star_desig, star_points)
 
     # Instrument Approach Procedures

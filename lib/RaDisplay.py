@@ -686,8 +686,8 @@ class RaDisplay(object):
                 rwy = [rwy for rwy in ad.runwayDirections if rwy.designator == rwy_desig][0]
             except:
                 logging.error("Unable to draw procedure for %s"%sid_star_rwy, exc_info=True)
-            if object[0] == 'draw_sid':     dict = rwy.standardInstrumentDepartures
-            elif object[0] == 'draw_star':  dict = rwy.standardInstrumentArrivals
+            if object[0] == 'draw_sid':     dict = rwy.stdInstDepartures
+            elif object[0] == 'draw_star':  dict = rwy.stdInstArrivals
             
             for proc in (proc for proc in dict.values()
                                 if sid_star_name=='' or sid_star_name == proc.designator):

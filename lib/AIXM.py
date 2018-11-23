@@ -110,7 +110,7 @@ class AirportHeliport(object):  # Aerodrome / Heliport
 
     def get_sid(self, designator):
         return [sid for rwy in self.runwayDirections
-                for sid in rwy.standardInstrumentDepartures.values()
+                for sid in rwy.stdInstDepartures.values()
                 if sid.designator == designator][0]
 
     def __repr__(self):
@@ -137,8 +137,8 @@ class RunwayDirection(object):
         self.elevationTDZ = elevationTDZ
         self.usedRunway = usedRunway
 
-        self.standardInstrumentDepartures = {}
-        self.standardInstrumentArrivals = {}
+        self.stdInstDepartures = {}
+        self.stdInstArrivals = {}
         self.iap_dict = {}
 
     def __str__(self):
@@ -148,7 +148,7 @@ class RunwayDirection(object):
         s = ("RunwayDirection(designator=%r%s)" % (
             self.designator,
             attr_repr(self, ('trueBearing', 'elevationTDZ', 'usedRunway',
-                             'standardInstrumentArrivals', 'standardInstrumentDepartures',
+                             'stdInstArrivals', 'stdInstDepartures',
                              'iap_dict'))))
         return s
 
