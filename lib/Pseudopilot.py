@@ -792,9 +792,9 @@ class ventana_auxiliar:
                 fijo = ent_fix.get().upper()
                 rdl = ent_rdl.get().upper()
                 d_h = ent_d_h.get().upper()
-                for [nombre,coord] in AIS.points:
-                    if nombre == fijo:
-                        auxiliar = coord
+                for point in AIS.points.values():
+                    if point.designator == fijo:
+                        auxiliar = point.pos
                         error = False
                         break
                 if error:

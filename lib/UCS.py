@@ -242,7 +242,8 @@ class UCS(RaDisplay):
                                 aux = track.route[i:]
                                 # Si no estáen la ruta, insertamos el punto como n 1
                         if aux == None:
-                            for [nombre,coord] in AIS.points:
+                            for point in AIS.points:
+                                nombre, coord = point.designator, point.pos
                                 if nombre == pto.upper():
                                     aux = [[coord,nombre,'']]
                                     print "Selected plane should fly direct to point", nombre,coord

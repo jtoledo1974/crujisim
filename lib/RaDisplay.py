@@ -639,13 +639,13 @@ class RaDisplay(object):
 
         # Fixes (VORs, NDBs, FIXes)
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        for p in [p for p in AIS.points if p[0][0]<>'_']:
-            if len(p[0]) == 3:
-                map.add_symbol(VOR, p[1], color='gray25')
-            elif len(p[0]) == 2:
-                map.add_symbol(NDB, p[1], color='gray25')
+        for p in [p for p in AIS.points.values() if p.designator[0] != '_']:
+            if len(p.designator) == 3:
+                map.add_symbol(VOR, p.pos, color='gray25')
+            elif len(p.designator) == 2:
+                map.add_symbol(NDB, p.pos, color='gray25')
             else:
-                map.add_symbol(FIX, p[1], color='gray25')
+                map.add_symbol(FIX, p.pos, color='gray25')
         self.maps['points'] = map
         if not self.draw_point: map.hide()
 
@@ -658,8 +658,8 @@ class RaDisplay(object):
 
         # Fix names
         map = RaMap(self.c, self.do_scale, intensity = map_intensity)
-        for p in [p for p in AIS.points if p[0][0]<>'_']:
-            map.add_text(p[0], p[1], color='gray40')
+        for p in [p for p in AIS.points.values() if p.designator[0] != '_']:
+            map.add_text(p.designator, p.pos, color='gray40')
         self.maps['point_names'] = map
         if not self.draw_point_names: map.hide()
 
@@ -747,7 +747,7 @@ class RaDisplay(object):
                         color = 'gray'
                     coords = []
                     for p in object[2:]:
-                        coords.append(AIS.get_point_coordinates(p))
+                        coords.append(AIS.points[p].pos)
                     kw = {'color': color}
                     map.add_polyline(*coords, **kw)
             self.maps[map_name] = map
