@@ -178,6 +178,25 @@ class StandardInstrumentArrival(object):
         return s
 
 
+class STAR(object):
+    # TODO this only covers basic AICM attributes.
+    # We need to support the whole procuedure_leg object in order to
+    # to support things like SLP and vertical limitations
+
+    def __init__(self, designator, rte):
+        self.designator = designator
+        self.rte = Route.Route(Route.get_waypoints(rte))
+        self.start_fix = designator[: -2]
+
+    def __str__(self):
+        return self.designator
+
+    def __repr__(self):
+        s = "STAR(%r, %s, end_fix: %s)" % (
+            self.designator, self.rte, self.start_fix)
+        return s
+
+
 class SID(object):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
@@ -215,25 +234,6 @@ class Hold(object):
         self.std_turns = std_turns   # Standard turns are to the right
         self.min_FL = min_FL        # minimun FL at the holding pattern
         self.max_FL = max_FL        # maximun FL at the holding pattern
-
-
-class STAR(object):
-    # TODO this only covers basic AICM attributes.
-    # We need to support the whole procuedure_leg object in order to
-    # to support things like SLP and vertical limitations
-
-    def __init__(self, designator, rte):
-        self.designator = designator
-        self.rte = Route.Route(Route.get_waypoints(rte))
-        self.start_fix = designator[: -2]
-
-    def __str__(self):
-        return self.designator
-
-    def __repr__(self):
-        s = "STAR(%r, %s, end_fix: %s)" % (
-            self.designator, self.rte, self.start_fix)
-        return s
 
 
 class SID(object):
