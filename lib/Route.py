@@ -107,24 +107,24 @@ class Route(list):
         if self.check_wp(wp):
             list.append(self, wp)
         prev = list.__getitem__(self, -1)
-        prev.inbd_track = None
-        prev.outbd_track = None
+        prev.inboundTrack = None
+        prev.outboundTrack = None
         try:
-            list.__getitem__(self, -1).outbd_track = None
+            list.__getitem__(self, -1).outboundTrack = None
         except Exception:
             pass
 
     def insert(self, index, wp):
         if self.check_wp(wp):
             list.insert(self, index, wp)
-        wp.inbd_track = None
-        wp.outbd_track = None
+        wp.inboundTrack = None
+        wp.outboundTrack = None
         try:
-            list.__getitem__(self, index + 1).inbd_track = None
+            list.__getitem__(self, index + 1).inboundTrack = None
         except Exception:
             pass
         try:
-            list.__getitem__(self, index - 1).outbd_track = None
+            list.__getitem__(self, index - 1).outboundTrack = None
         except Exception:
             pass
 
@@ -213,8 +213,8 @@ class Route(list):
 
         if i >= 0 and i < length:
             wp = self[i]
-            if wp.inbd_track:
-                return wp.inbd_track
+            if wp.inboundTrack:
+                return wp.inboundTrack
         # else
 
         if i < 1:
@@ -229,17 +229,17 @@ class Route(list):
 
         (distance, bearing) = MathUtil.rp(
             MathUtil.r(wp_to.pos, wp_from.pos))
-        wp_to.inbd_track = bearing
+        wp_to.inboundTrack = bearing
         return bearing
 
     def get_outbd_track(self, wp):
         """Returns the outbound track after the given waypoint"""
         i = self.index(wp)
         wp = self[i]
-        if i >= 0 and i < len(self) and wp.outbd_track:
-            return wp.outbd_track
+        if i >= 0 and i < len(self) and wp.outboundTrack:
+            return wp.outboundTrack
         # else
-        wp.outbd_track = ot = self.get_inbd_track(i + 1)
+        wp.outboundTrack = ot = self.get_inbd_track(i + 1)
         return ot
 
     def legs(self):
@@ -268,7 +268,7 @@ class Route(list):
             for attr in ('sector_entry', 'sector_exit', 'eto', 'ato'):
                 if getattr(wp0, attr) and not getattr(wp1, attr):
                     setattr(wp1, attr, getattr(wp0, attr))
-            wp1.inbd_track = wp0.inbd_track
+            wp1.inboundTrack = wp0.inboundTrack
             return self[1:].reduce()
         else:
             return self[:1] + self[1:].reduce()
@@ -328,8 +328,8 @@ class Route(list):
 
     def clear_tracks(self):
         for wp in self:
-            wp.inbd_track = None
-            wp.outbd_track = None
+            wp.inboundTrack = None
+            wp.outboundTrack = None
 
 
 class WayPoint(object):
@@ -340,18 +340,18 @@ class WayPoint(object):
         if isinstance(fix, WayPoint):
             fix = fix.fix
 
-        self.fix          = fix.upper()
-        self.pos          = pos
-        self.type         = type
-        self.eto          = eto       # Estimated time overhead. Datetime object.
-        self.xfl          = xfl
-        self.xfl_type     = xfl_type  # Use one of the restriction constants AABV, ABLW, LVL
-        self.ato          = None      # Actual time over the waypoint
-        self.is_geo       = False     # Whether the waypoint was created using coordinates
-        self.inbd_track   = None
-        self.outbd_track  = None
-        self.sector_entry = None      # Sector this waypoint marks the entry to
-        self.sector_exit  = None      # Sector this waypoint marks the exit of
+        self.fix           = fix.upper()
+        self.pos           = pos
+        self.type          = type
+        self.eto           = eto       # Estimated time overhead. Datetime object.
+        self.xfl           = xfl
+        self.xfl_type      = xfl_type  # Use one of the restriction constants AABV, ABLW, LVL
+        self.ato           = None      # Actual time over the waypoint
+        self.is_geo        = False     # Whether the waypoint was created using coordinates
+        self.inboundTrack  = None
+        self.outboundTrack = None
+        self.sector_entry  = None      # Sector this waypoint marks the entry to
+        self.sector_exit   = None      # Sector this waypoint marks the exit of
 
         # If given in the appropriate format, store the position
         try:
