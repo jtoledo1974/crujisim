@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#-*- coding:iso8859-15 -*-
+# -*- coding:utf-8 -*-
 # $Id$
 # (c) 2005 CrujiMaster (crujisim@crujisim.cable.nu)
 #
@@ -22,7 +22,7 @@
 from __future__ import print_function
 from past.builtins import cmp
 from builtins import range
-from math import *
+from math import sqrt, pow, degrees, acos, radians, sin, cos
 import logging
 
 EXIT = 'EXIT'
@@ -114,7 +114,7 @@ def get_line_equation(pa0, pa1):
         m = (a1[1] - a0[1]) / d
         b = a0[1] - m * a0[0]
         return (m, b)
-    except:
+    except Exception:
         return (None, a0)
 
 
@@ -140,7 +140,7 @@ def get_cross_point(pa0, pa1, pb0, pb1):
         x1 = (l2[1] - l1[1]) / d
         y1 = (l2[1] * l1[0] - l1[1] * l2[0]) / d
         return (x1, y1)
-    except:
+    except Exception:
         pass
 
     # Didn't work, let's see the border cases
@@ -196,7 +196,7 @@ def get_bounding_cuadrangle(poly):
         return get_bounding_cuadrangle.bc[tuple(poly)]
     except AttributeError:
         get_bounding_cuadrangle.bc = {}
-    except:
+    except Exception:
         pass
     x0 = min((x for (x, y) in poly))
     y0 = min((y for (x, y) in poly))
@@ -227,13 +227,13 @@ def get_entry_exit_points(pA0, pA1, poly):
         return []
 
     pA0_in = point_within_polygon(pA0, poly)
-    pA1_in = point_within_polygon(pA1, poly)
+    # pA1_in = point_within_polygon(pA1, poly)
     N = len(poly)
     x_points = []
     # Find all intersectings points
     for i in range(0, N - 1):
         pA_x_poly = get_cross_point(pA0, pA1, poly[i], poly[i + 1])
-        if pA_x_poly != None:
+        if pA_x_poly is not None:
             # There is a crossing point, check if it is within segment poly[i]->poli[i+1] and
             # between pA0 -> pA1
             test1 = point_within_segment(pA_x_poly, poly[i], poly[i + 1])
@@ -260,4 +260,3 @@ def get_entry_exit_points(pA0, pA1, poly):
 def relative_angle(angle, ref):
     """Given two angles, return the minimum angle between them"""
     return (ref - angle + 180) % 360 - 180
-

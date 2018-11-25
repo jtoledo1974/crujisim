@@ -30,7 +30,8 @@ from builtins import object
 # Module imports
 from configparser import ConfigParser
 from .MathUtil import *
-from math import pi, tan
+
+from math import pi, tan, asin
 import codecs
 import logging
 from datetime import timedelta

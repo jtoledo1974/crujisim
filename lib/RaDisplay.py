@@ -20,7 +20,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Container module for the RaDisplay class, a generic radar display"""
 
-from math import floor, sqrt
+from math import floor, sqrt, atan2
 from time import time
 import logging
 import sys

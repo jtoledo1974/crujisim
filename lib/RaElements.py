@@ -20,7 +20,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """Building elements of a radar display"""
 
-from math import floor
+from math import floor, atan2
 import datetime
 import logging
 import sys
