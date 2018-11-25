@@ -33,11 +33,9 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from future import standard_library
-from builtins import range
 from builtins import object
 
-import logging
-
+from . import AIS
 from . import Route
 
 # Future
@@ -168,13 +166,23 @@ class Hold(object):
     # TODO this does not reflect AICM. We need to support the whole
     # procedure_leg in order to do this
 
-    def __init__(self, fix, inbd_track=180, outbd_time=1, std_turns=True, min_FL=000, max_FL=999):
-        self.fix = fix         # The fix on which this hold is based
-        self.inbd_track = inbd_track  # Inbound track of the holding pattern
-        self.outbd_time = outbd_time  # For how long to fly on the outbd track
-        self.std_turns = std_turns   # Standard turns are to the right
-        self.min_FL = min_FL        # minimun FL at the holding pattern
-        self.max_FL = max_FL        # maximun FL at the holding pattern
+    def __init__(
+            self,
+            holdingPoint,               # AIXM. Point on which the the holding pattern is based.
+            inbd_track=180,             # Inbound track of the holding pattern
+            outbd_time=1,               # For how long to fly on the outbd track
+            std_turns=True,             # Standard turns are to the right
+            min_FL=000,                 # Mininum FL
+            max_FL=999):                # maximun FL at the holding pattern
+
+        assert type(holdingPoint) is Point
+
+        self.holdingPoint = holdingPoint
+        self.inbd_track = inbd_track
+        self.outbd_time = outbd_time
+        self.std_turns = std_turns
+        self.min_FL = min_FL
+        self.max_FL = max_FL
 
 
 class STAR(object):

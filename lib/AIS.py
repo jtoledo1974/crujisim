@@ -242,16 +242,15 @@ def init(fir_file):
     # Published holding patterns
     if firdef.has_section('esperas_publicadas'):
         lista = firdef.items('esperas_publicadas')
+
         for (fijo, datos) in lista:
             (rumbo, tiempo_alej, lado) = datos.split(',')
-            rumbo, tiempo_alej, lado = float(
-                rumbo), float(tiempo_alej), lado.upper()
+            rumbo, tiempo_alej, lado = float(rumbo), float(tiempo_alej), lado.upper()
             if lado == 'D':
                 std_turns = True
             else:
                 std_turns = False
-            holds.append(
-                Hold(fijo.upper(), rumbo, tiempo_alej, std_turns))
+            holds.append(Hold(points[fijo.upper()], rumbo, tiempo_alej, std_turns))
 
     # IFR Runways
     if firdef.has_section('aeropuertos_con_procedimientos'):

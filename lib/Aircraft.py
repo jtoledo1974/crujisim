@@ -728,7 +728,6 @@ class Aircraft(object):
         """Given a rate in levels per hour, try to set it for the airplane.
         If the given rate is beyond the capabilities of the aircraft then return
         False and the maximum settable rate in levels per hour"""
-        # import ipdb; ipdb.set_trace()
         self.std_rate = False
         achievable = False
         max_rate = None
