@@ -69,7 +69,8 @@ class Point(object):
         altitudeInterpretation=None,
         speedLimit=None,
         speedReference=None,
-        speedInterpretation=None
+        speedInterpretation=None,
+        role=None
     ):
         self.designator = designator
         self.pos = pos
@@ -82,6 +83,7 @@ class Point(object):
         self.speedLimit = speedLimit
         self.speedReference = speedReference
         self.speedInterpretation = speedInterpretation
+        self.role = role
 
     def __repr__(self):
         extra = attr_repr(self, ('flyOver', 'upperLimitAltitude', 'lowerLimitAltitude',
@@ -107,6 +109,10 @@ class AirportHeliport(object):  # Aerodrome / Heliport
         # Operating
         self.runwayDirections = []
         self.rwyInUse = None
+
+        # Not in use yet, but they will have to to support LEMD, for example
+        self.departureRunways = None    # List of RunwayDirection
+        self.arrivalRunways = None      # List of RunwayDirection
 
     def get_sid(self, designator):
         return [sid for rwy in self.runwayDirections

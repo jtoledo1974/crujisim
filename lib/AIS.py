@@ -279,8 +279,7 @@ def init(fir_file):
         lista = firdef.items('star_' + pista)
         for (star_desig, star_points) in lista:
             star_desig = star_desig.upper()
-            rwy_direction.stdInstArrivals[star_desig] = STAR(
-                star_desig, star_points)
+            rwy_direction.stdInstArrivals[star_desig] = STAR(star_desig, star_points)
 
     # Instrument Approach Procedures
     for pista in (ad.designator + rwy.designator
