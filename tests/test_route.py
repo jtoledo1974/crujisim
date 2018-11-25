@@ -2,7 +2,7 @@ import random
 from datetime import datetime, timedelta
 import pytest
 
-from crujisim.lib import AIS, AIXM
+from crujisim.lib import AIS, features
 from crujisim.lib.Route import Route, WayPoint, get_waypoints
 
 
@@ -14,7 +14,7 @@ def fir():
                 pos = (100, 200)  # Fixed position for equality tests
             else:
                 pos = (random.random() * 100, random.random() * 100)
-            p = AIXM.Point(arg[0], pos)
+            p = features.Point(arg[0], pos)
             return p
 
     backup, d = AIS.points, PhonyDict()

@@ -38,7 +38,7 @@ from stat import *
 
 # Application imports
 from .MathUtil import *
-from .AIXM import Point, AirportHeliport, Hold, RunwayDirection, SID, STAR
+from .features import Point, AirportHeliport, Hold, RunwayDirection, SID, STAR
 
 standard_library.install_aliases()
 
