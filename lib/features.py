@@ -70,7 +70,7 @@ class Point(object):
         speedLimit=None,
         speedReference=None,
         speedInterpretation=None,
-        role=None
+        role=None                   # Insignia. Currently unsupported and not sure if necessary
     ):
         self.designator = designator
         self.pos = pos
@@ -164,24 +164,17 @@ class Runway(object):
         self.associatedAirportHeliport = associatedAirportHeliport
 
 
-# AIX can have a STAR point at multiple RWY directions
-# Insignia has duplicate entries, I believe
+class Hold(object):
+    # TODO this does not reflect AICM. We need to support the whole
+    # procedure_leg in order to do this
 
-class StandardInstrumentArrival(object):
-    # TODO this only covers basic AICM attributes.
-    # We need to support the whole procuedure_leg object in order to
-    # to support things like SLP and vertical limitations
-
-    def __init__(self, designator, isArrivalFor):
-        self.designator = designator
-
-    def __str__(self):
-        return self.designator
-
-    def __repr__(self):
-        s = "STAR(%r, %s, end_fix: %s)" % (
-            self.designator, self.rte, self.start_fix)
-        return s
+    def __init__(self, fix, inbd_track=180, outbd_time=1, std_turns=True, min_FL=000, max_FL=999):
+        self.fix = fix         # The fix on which this hold is based
+        self.inbd_track = inbd_track  # Inbound track of the holding pattern
+        self.outbd_time = outbd_time  # For how long to fly on the outbd track
+        self.std_turns = std_turns   # Standard turns are to the right
+        self.min_FL = min_FL        # minimun FL at the holding pattern
+        self.max_FL = max_FL        # maximun FL at the holding pattern
 
 
 class STAR(object):
@@ -201,45 +194,6 @@ class STAR(object):
         s = "STAR(%r, %s, end_fix: %s)" % (
             self.designator, self.rte, self.start_fix)
         return s
-
-
-class SID(object):
-    # TODO this only covers basic AICM attributes.
-    # We need to support the whole procuedure_leg object in order to
-    # to support things like SLP and vertical limitations
-
-    def __init__(self, designator, rte):
-        self.designator = designator
-        self.end_fix = designator[: -2]
-
-    def __str__(self):
-        return self.designator
-
-    def __repr__(self):
-        s = "SID(%r, %s, end_fix: %s)" % (
-            self.designator, self.rte, self.end_fix)
-        return s
-
-
-# TO BE SUBSTITUTED BY THE ONES ABOVE!
-
-# TODO
-# There is currently no support for lat/lon coordinates, so we are using
-# the non-standard attribute 'pos' to store the cartesian coordinates of objects,
-# rather than the aicm standard geo_lat and geo_lon
-
-
-class Hold(object):
-    # TODO this does not reflect AICM. We need to support the whole
-    # procedure_leg in order to do this
-
-    def __init__(self, fix, inbd_track=180, outbd_time=1, std_turns=True, min_FL=000, max_FL=999):
-        self.fix = fix         # The fix on which this hold is based
-        self.inbd_track = inbd_track  # Inbound track of the holding pattern
-        self.outbd_time = outbd_time  # For how long to fly on the outbd track
-        self.std_turns = std_turns   # Standard turns are to the right
-        self.min_FL = min_FL        # minimun FL at the holding pattern
-        self.max_FL = max_FL        # maximun FL at the holding pattern
 
 
 class SID(object):
