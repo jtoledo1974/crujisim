@@ -1,9 +1,10 @@
 import pytest
 
 from crujisim.lib.Aircraft import Aircraft, LANDED
-from crujisim.lib import FPM_TO_LEVELS_PER_HOUR
-from crujisim.lib.LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL
+from crujisim.lib import AIS, FPM_TO_LEVELS_PER_HOUR
+from crujisim.lib.LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL, HOLD
 from crujisim.lib.LNAV import get_target_heading
+from crujisim.lib.MathUtil import get_distance, sgn
 
 from datetime import datetime, timedelta
 
@@ -37,6 +38,44 @@ def test_init(gta):
     Aircraft("test_callsign", "A320", "LEMD", "LECE",
              320., 340., "BELEN,NORTA",
              next_wp="NORTA", next_wp_eto=eto, wake_hint="M")
+
+
+# Commands
+
+
+def test_hold(aircraft, td_1m):
+    # Set the aircraft to hold
+    aircraft.hold('TERRA')
+    aircraft.set_cfl(80)
+    aircraft.set_ias(220)
+    assert aircraft.lnav_mode == HOLD
+    assert 'TERRA' in aircraft.route
+
+    # Give it time to reach TERRA
+    aircraft.next(aircraft.t + 20 * td_1m)
+
+    # Make sure we stay close
+    prev_direction = -1  # Inbound at first
+    d = get_distance(aircraft.pos, AIS.points['TERRA'].pos)
+    reversals = 0
+
+    for i in range(30):
+        aircraft.next(aircraft.t + td_1m)
+
+        prev_d = d
+        d = get_distance(aircraft.pos, AIS.points['TERRA'].pos)
+
+        direction = sgn(d - prev_d)
+        if direction != prev_direction:
+            prev_direction = direction
+            reversals += 1
+
+        d_max = max(d, 0)
+        print(d_max)
+
+    assert 'TERRA' in aircraft.route
+    assert d_max < 4  # Distance in nm
+    assert reversals == 13  # At least 6 holding patterns in 30 minutes
 
 
 def test_int_ils(aircraft):
@@ -138,3 +177,5 @@ def test_complete_flightplan(gta):
     assert str(a.route) == 'BELEN, NORTA'
     a.complete_flight_plan()
     assert str(a.route) == 'BELEN, NORTA, _N1D01, _N1D02, _N1D03, _N1D04, _N1D05, _N1D06, _N1D07, _N1D08, _N1D09, _N1D10, _N1D11, TERRA'
+
+
