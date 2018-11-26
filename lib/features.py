@@ -35,6 +35,8 @@ from __future__ import absolute_import
 from future import standard_library
 from builtins import object
 
+import inspect
+
 from . import Route
 
 # Vertical Distance UOM
@@ -44,19 +46,34 @@ FL = 'FL'
 standard_library.install_aliases()
 
 
-def attr_repr(instance, attr_list):
-    """Get representation string for attributes that may be null"""
-    extra = ''
-    for attrib in attr_list:
-        value = getattr(instance, attrib)
-        if value:
-            extra += ", %r=%r" % (attrib, value)
-    return extra
+class Feature(object):
+    """Base class for features"""
+
+    def __str__(self):
+        return self.designator if hasattr(self, 'designator') else repr(self)
+
+    def __repr__(self):
+
+        # getargspec is deprecated, but the default in python 2
+        args, varargs, kwargs, defaults = inspect.getargspec(self.__init__)
+        n_defaults = len(defaults)
+
+        attr_list = []
+        for arg in args[1:-n_defaults]:
+            attr_list.append("%r" % (getattr(self, arg), ))
+
+        for arg, default in zip(args[-n_defaults:], defaults):
+            value = getattr(self, arg)
+            if value != default:
+                attr_list.append("%s=%r" % (arg, value))
+
+        res = "%s(%s)" % (self.__class__.__name__, ', '.join(attr_list))
+        return res
 
 
 # There are all kind of points defined both in AIXM and Insignia
 # This is the bare minimum needed
-class Point(object):
+class Point(Feature):
     def __init__(
         self,
         designator,                 # AIXM DesignatedPoint. Insignia DESIGNATEDPOINT_NAME
@@ -85,15 +102,8 @@ class Point(object):
         self.speedInterpretation = speedInterpretation
         self.role = role
 
-    def __repr__(self):
-        extra = attr_repr(self, ('flyOver', 'upperLimitAltitude', 'lowerLimitAltitude',
-                                 'upperLimitReference', 'lowerLimitReference',
-                                 'altitudeInterpretation', 'speedLimit',
-                                 'speedReference', 'speedInterpretation'))
-        return "Point(%r, %r%s)" % (self.designator, self.pos, extra)
 
-
-class AirportHeliport(object):  # Aerodrome / Heliport
+class AirportHeliport(Feature):  # Aerodrome / Heliport
 
     def __init__(
             self,
@@ -119,14 +129,8 @@ class AirportHeliport(object):  # Aerodrome / Heliport
                 for sid in rwy.stdInstDepartures.values()
                 if sid.designator == designator][0]
 
-    def __repr__(self):
-        extra = attr_repr(self, ('pos', 'fieldElev', 'runwayDirections', 'rwyInUse'))
-        s = "AirportHeliport(designator:%r%s)" % (
-            self.designator, extra)
-        return s
 
-
-class RunwayDirection(object):
+class RunwayDirection(Feature):
 
     def __init__(
             self,
@@ -147,24 +151,13 @@ class RunwayDirection(object):
         self.stdInstArrivals = {}
         self.iap_dict = {}
 
-    def __str__(self):
-        return self.designator
 
-    def __repr__(self):
-        s = ("RunwayDirection(designator=%r%s)" % (
-            self.designator,
-            attr_repr(self, ('trueBearing', 'elevationTDZ', 'usedRunway',
-                             'stdInstArrivals', 'stdInstDepartures',
-                             'iap_dict'))))
-        return s
-
-
-class Runway(object):
+class Runway(Feature):
     def __init__(self, designator, associatedAirportHeliport):
         self.associatedAirportHeliport = associatedAirportHeliport
 
 
-class Hold(object):
+class HoldingPattern(Feature):
     # TODO this does not reflect AICM. We need to support the whole
     # procedure_leg in order to do this
 
@@ -172,7 +165,7 @@ class Hold(object):
             self,
             holdingPoint,               # AIXM. Point on which the the holding pattern is based.
             inboundCourse=180,          # AIXM. Inbound track of the holding pattern. Insignia has them all as magnetic, so we don't bother to implement anything else for now
-            endTime=1,                  # AIXM. For how long to fly on the outbd track. There are about 163 holding in Insignia with point references. Unsupported by now.
+            endTime=1,                  # AIXM. For how long to fly on the outbd track in minutes. There are about 163 holding in Insignia with point references. Unsupported by now.
             std_turns=True,             # Standard turns are to the right. TODO Need to change to turnDirection and use a constant. About half in insignia are to the left
             lowerLimit=000,             # AIXM. These four are unused for now
             lowerLimitReference=FL,
@@ -191,7 +184,7 @@ class Hold(object):
         self.upperLimitReference = upperLimitReference
 
 
-class STAR(object):
+class STAR(Feature):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
@@ -201,16 +194,8 @@ class STAR(object):
         self.rte = Route.Route(Route.get_waypoints(rte))
         self.start_fix = designator[: -2]
 
-    def __str__(self):
-        return self.designator
 
-    def __repr__(self):
-        s = "STAR(%r, %s, end_fix: %s)" % (
-            self.designator, self.rte, self.start_fix)
-        return s
-
-
-class SID(object):
+class SID(Feature):
     # TODO this only covers basic AICM attributes.
     # We need to support the whole procuedure_leg object in order to
     # to support things like SLP and vertical limitations
@@ -219,12 +204,3 @@ class SID(object):
         self.designator = designator
         self.rte = Route.Route(Route.get_waypoints(rte))
         self.end_fix = designator[: -2]
-
-    def __str__(self):
-        return self.designator
-
-    def __repr__(self):
-        s = "SID(%r, %s, end_fix: %s)" % (
-            self.designator, self.rte, self.end_fix)
-        return s
-

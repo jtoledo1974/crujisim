@@ -38,7 +38,7 @@ from stat import *
 
 # Application imports
 from .MathUtil import *
-from .features import Point, AirportHeliport, Hold, RunwayDirection, SID, STAR
+from .features import Point, AirportHeliport, HoldingPattern, RunwayDirection, SID, STAR
 
 standard_library.install_aliases()
 
@@ -50,7 +50,7 @@ standard_library.install_aliases()
 # We might even want to consider whether we want to implement AIXM fully,
 # although AIXM does not support ATC procedures, which we need to save
 
-# All fir elements should be turned into classes, just as the Hold is now
+# All fir elements should be turned into classes, just as the HoldingPattern is now
 
 
 name = ""       # Name is used to verify that it matches an exercise file
@@ -65,7 +65,7 @@ airways = []            # List of airways... just for displaying on map
 tmas = []               # List of points defining TMAs
 local_maps = {}         # Dictionary of local maps
 aerodromes = {}         # Dictionary of AirportHeliport features
-holds = []              # List of published holds (See Hold class)
+holds = []              # List of published holds (See HoldingPattern class)
 stdInstDepartures = {}
 stdInstArrivals = {}
 standardInstrumentProcedures = {}
@@ -250,7 +250,7 @@ def init(fir_file):
                 std_turns = True
             else:
                 std_turns = False
-            holds.append(Hold(points[fijo.upper()], rumbo, tiempo_alej, std_turns))
+            holds.append(HoldingPattern(points[fijo.upper()], rumbo, tiempo_alej, std_turns))
 
     # IFR Runways
     if firdef.has_section('aeropuertos_con_procedimientos'):

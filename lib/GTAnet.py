@@ -225,7 +225,7 @@ class GTAnet(GTA):
                 logging.warning("Error while killing", exc_info=True)
 
         elif m['message'] == 'hold':
-            logging.debug("Hold " + str(m))
+            logging.debug("HoldingPattern " + str(m))
             try:
                 inboundCourse = m["inboundCourse"]
             except:
