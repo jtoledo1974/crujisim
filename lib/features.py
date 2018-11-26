@@ -169,7 +169,7 @@ class Hold(object):
     def __init__(
             self,
             holdingPoint,               # AIXM. Point on which the the holding pattern is based.
-            inbd_track=180,             # Inbound track of the holding pattern
+            inboundCourse=180,          # Inbound track of the holding pattern. Insignia has them all as magnetic, so we don't bother to implement anything else for now
             outbd_time=1,               # For how long to fly on the outbd track
             std_turns=True,             # Standard turns are to the right
             min_FL=000,                 # Mininum FL
@@ -178,7 +178,7 @@ class Hold(object):
         assert type(holdingPoint) is Point
 
         self.holdingPoint = holdingPoint
-        self.inbd_track = inbd_track
+        self.inboundCourse = inboundCourse
         self.outbd_time = outbd_time
         self.std_turns = std_turns
         self.min_FL = min_FL

@@ -502,7 +502,7 @@ class Aircraft(object):
                                     turn = 1.0
                                 else:
                                     turn = -1.0
-                                self.to_do_aux = [ph.fix, ph.inbd_track,
+                                self.to_do_aux = [ph.fix, ph.inboundCourse,
                                                   timedelta(
                                                       minutes=ph.outbd_time),
                                                   0.0, True, turn]
@@ -809,12 +809,12 @@ class Aircraft(object):
 
     # Commands
 
-    def hold(self, fix, inbd_track=None, outbd_time=None, std_turns=None):
+    def hold(self, fix, inboundCourse=None, outbd_time=None, std_turns=None):
         # If there is a published hold on the fix, use its defaults
         try:
             ph = [hold for hold in AIS.holds if hold.fix == fix][0]
-            if inbd_track is None:
-                inbd_track = ph.inbd_track
+            if inboundCourse is None:
+                inboundCourse = ph.inboundCourse
             if outbd_time is None:
                 outbd_time = ph.outbd_time
             if std_turns is None:
@@ -822,8 +822,8 @@ class Aircraft(object):
         except Exception:
             logging.debug("No published hold over " + str(fix))
         # Otherwise fill the blanks with defaults
-        if inbd_track is None:
-            inbd_track = self.route.get_inbd_track(fix)
+        if inboundCourse is None:
+            inboundCourse = self.route.get_inbd_track(fix)
         if outbd_time is None:
             outbd_time = 1  # One minute legs
         if std_turns is None:
@@ -834,7 +834,7 @@ class Aircraft(object):
         else:
             turn = -1.0
         self.lnav_mode = HOLD
-        self.to_do_aux = [fix, inbd_track, timedelta(
+        self.to_do_aux = [fix, inboundCourse, timedelta(
             minutes=outbd_time), 0.0, False, turn]
         self.cancel_app_auth()
 

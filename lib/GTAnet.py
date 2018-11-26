@@ -227,9 +227,9 @@ class GTAnet(GTA):
         elif m['message'] == 'hold':
             logging.debug("Hold " + str(m))
             try:
-                inbd_track = m["inbd_track"]
+                inboundCourse = m["inboundCourse"]
             except:
-                inbd_track = None
+                inboundCourse = None
             try:
                 outbd_time = m["outbd_time"]
             except:
@@ -239,7 +239,7 @@ class GTAnet(GTA):
             except:
                 std_turns = None
             try:
-                f.hold(m["fix"], inbd_track, outbd_time, std_turns)
+                f.hold(m["fix"], inboundCourse, outbd_time, std_turns)
             except:
                 logging.warning("Error while setting hold", exc_info=True)
 
