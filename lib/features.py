@@ -35,6 +35,7 @@ from __future__ import absolute_import
 from future import standard_library
 from builtins import object
 
+import logging
 import inspect
 
 from . import Route
@@ -54,18 +55,37 @@ class Feature(object):
 
     def __repr__(self):
 
+        def argrepr(argname):
+            value = getattr(self, arg)
+
+            if not hasattr(self, '_strargs') or arg not in self._strargs:
+                return repr(value)
+
+            if type(value) not in (list, dict, tuple):
+                return str(value)
+
+            if type(value) in (list, tuple, dict):
+                return str([str(item) for item in value])
+
+            logging.warning("Unhandled argument type %s for argument %s" % (type(value), value))
+            return repr(value)
+
         # getargspec is deprecated, but the default in python 2
         args, varargs, kwargs, defaults = inspect.getargspec(self.__init__)
+
+        defaults = defaults if defaults is not None else []
         n_defaults = len(defaults)
 
         attr_list = []
-        for arg in args[1:-n_defaults]:
-            attr_list.append("%r" % (getattr(self, arg), ))
+        arglist = args[1:-n_defaults] if n_defaults > 0 else args[1:]
+
+        for arg in arglist:  # Arguments with no default
+            attr_list.append("%s" % (argrepr(arg), ))
 
         for arg, default in zip(args[-n_defaults:], defaults):
             value = getattr(self, arg)
             if value != default:
-                attr_list.append("%s=%r" % (arg, value))
+                attr_list.append("%s=%s" % (arg, argrepr(arg)))
 
         res = "%s(%s)" % (self.__class__.__name__, ', '.join(attr_list))
         return res
@@ -109,7 +129,11 @@ class AirportHeliport(Feature):  # Aerodrome / Heliport
             self,
             designator,       # ICAO. AIXM allows others. Insignia ICAO_TXT
             pos=None,         # Old crujisim fir files didn't have airport positions
-            fieldElev=0       # Feet. AIXM name. Insignia ELEV_VAL in meters
+            fieldElev=0,      # Feet. AIXM name. Insignia ELEV_VAL in meters
+            runwayDirections=[],
+            rwyInUse=None,
+            departureRunways=None,
+            arrivalRunways=None
     ):
         # Descriptive
         self.designator = designator
@@ -124,6 +148,8 @@ class AirportHeliport(Feature):  # Aerodrome / Heliport
         self.departureRunways = None    # List of RunwayDirection
         self.arrivalRunways = None      # List of RunwayDirection
 
+        self._strargs = ['runwayDirections', 'departureRunways', 'arrivalRunways']
+
     def get_sid(self, designator):
         return [sid for rwy in self.runwayDirections
                 for sid in rwy.stdInstDepartures.values()
@@ -134,10 +160,13 @@ class RunwayDirection(Feature):
 
     def __init__(
             self,
-            designator,         # AIXM
-            trueBearing=None,   # AIXM
-            elevationTDZ=None,  # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
-            usedRunway=None     # Pointer to Runway instance
+            designator,             # AIXM
+            trueBearing=None,       # AIXM
+            elevationTDZ=None,      # AIXM, Insignia ELEVATIONTDZ (insignia in meters, has to be converted)
+            usedRunway=None,        # Pointer to Runway instance
+            stdInstDepartures={},
+            stdInstArrivals={},
+            iap_dict={}
     ):
         # designator must have between 2 and 3 characters, of which the first 2
         # may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T,
@@ -150,6 +179,8 @@ class RunwayDirection(Feature):
         self.stdInstDepartures = {}
         self.stdInstArrivals = {}
         self.iap_dict = {}
+
+        self._strargs = ['stdInstArrivals', 'stdInstDepartures', 'iap_dict']
 
 
 class Runway(Feature):
