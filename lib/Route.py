@@ -205,26 +205,29 @@ class Route(list):
         for i in range(len(self) - 1, i - 1, -1):
             self.pop(i)
 
-    def get_inbd_track(self, wp):
+    def get_inbd_track(self, wp, int_index=None):
         """Returns the inbound track to the given waypoint"""
-        i = self.index(wp)
+        if not int_index:
+            i = self.index(wp)
+        else:
+            i = wp
         length = len(self)
 
         if i >= 0 and i < length:
-            wp = self[i]
+            wp = list.__getitem__(self, i)
             if wp.inboundTrack:
                 return wp.inboundTrack
         # else
 
         if i < 1:
-            wp_to = self[1]
+            wp_to = list.__getitem__(self, 1)
             wp_from = wp
         elif i > length - 1:  # When calculating the outbound track of the last point
-            wp_to = self[length - 1]
-            wp_from = self[length - 2]
+            wp_to = list.__getitem__(self, length - 1)
+            wp_from = list.__getitem__(self, length - 2)
         else:
             wp_to = wp
-            wp_from = self[i - 1]
+            wp_from = list.__getitem__(self, i - 1)
 
         (distance, bearing) = MathUtil.rp(
             MathUtil.r(wp_to.pos, wp_from.pos))
@@ -234,11 +237,11 @@ class Route(list):
     def get_outbd_track(self, wp):
         """Returns the outbound track after the given waypoint"""
         i = self.index(wp)
-        wp = self[i]
+        wp = list.__getitem__(self, i)
         if i >= 0 and i < len(self) and wp.outboundTrack:
             return wp.outboundTrack
         # else
-        wp.outboundTrack = ot = self.get_inbd_track(i + 1)
+        wp.outboundTrack = ot = self.get_inbd_track(i + 1, int_index=True)
         return ot
 
     def legs(self):
