@@ -306,6 +306,9 @@ class Route(list):
         """Given a waypoint either as an index, a WP instance, or a fix name,
         return the route index of the first wp that matches"""
 
+        if isinstance(index, int):
+            return index
+
         if isinstance(index, WP):
             return list.index(self, index)
 
@@ -314,9 +317,6 @@ class Route(list):
             for pos, item in enumerate(self):
                 if index == item.fix:
                     return pos
-
-        if isinstance(index, int):
-            return index
 
         raise TypeError(
             "Unable to find route index for waypoint " + str(index))
