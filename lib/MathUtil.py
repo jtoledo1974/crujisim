@@ -44,7 +44,7 @@ def p(a, b):
 def rp(a):  # Rextangulares a polares
     x = a[0]
     y = a[1]
-    r = sqrt(pow(x, 2) + pow(y, 2))
+    r = sqrt(x * x + y * y)
     if r > 0:
         ang = degrees(acos(y / r))
     else:
