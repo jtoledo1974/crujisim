@@ -277,9 +277,9 @@ class Route(list):
 
     def copy(self):
         """Returns a copy of self using copied waypoints"""
-        r = Route()
-        for wp in self:
-            r.append(wp.copy())
+        r = Route.__new__(Route)
+        for wp in list.__iter__(self):
+            list.append(r, wp.copy())  # TODO Maybe there is a better way of initializing the underlying list all at once?
         return r
 
     # Helper methods, used internally within the object
@@ -379,7 +379,7 @@ class WayPoint(object):
         return self.pos
 
     def copy(self):
-        wp = WayPoint(self.fix)
+        wp = WayPoint.__new__(WayPoint)
         wp.__dict__ = self.__dict__.copy()
         return wp
 
