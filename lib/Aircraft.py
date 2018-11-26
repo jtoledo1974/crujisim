@@ -237,6 +237,7 @@ class Aircraft(object):
         self.eobt = eobt  # Estimated off block time
         self.next_wp = next_wp
         self.next_wp_eto = next_wp_eto
+        self.next_wp_check_t = None  # When to check if waypoint reached
         self.t = None
 
         self.route = None  # Route object (Route.py)
@@ -252,6 +253,8 @@ class Aircraft(object):
             self.t = self.eobt
         else:
             self.t = self.next_wp_eto
+        self.next_wp_check_t = self.t
+
         self.auto_depart = True  # Whether or not it departs automatically
 
         self.hdg = None  # Last calculated heading (deg magnetic)
@@ -1006,6 +1009,13 @@ class Aircraft(object):
         # aircraft must have been in the wrong hemiplane before.
         # Also, it only applies if the aircraft is within 1.5 the turn radius
         # to the waypoint
+
+        # This method is quite expensive. We try to minimize calls by estimating the time
+        # to reach and cheking again only after half the time
+
+        if self.t < self.next_wp_check_t:
+            return
+
         if len(self.route) == 0:
             return False  # No need to check.
         # Vector defining the hemiplane
@@ -1015,8 +1025,13 @@ class Aircraft(object):
         # When the dot product is positive, the aircraft is on the goal
         # hemiplane
         on_goal_hemiplane = dp(v1, v2) > 0
+
         dist = rp(v2)[0]
         turn_radius = self.tas / (62.8318 * self.get_rot())  # In nautical miles
+
+        # We will check again if at least half the time estimated to reach has passed
+        # TODO Should be recalculated if there is a route change, and should be a function of percentage of max_tas
+        self.next_wp_check_t = self.t + timedelta(hours=(0.5 * dist / self.tas))
 
         try:
             reached = not self._prev_on_goal and on_goal_hemiplane and dist < turn_radius * 1.5
@@ -1032,6 +1047,3 @@ class Aircraft(object):
 
     # def __del__(self):
     #    logging.debug("Aircraft.__del__ (%s)"%self.callsign)
-
-if __name__ == '__main__':
-    pass
