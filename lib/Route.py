@@ -136,10 +136,10 @@ class Route(list):
         return r
 
     def __contains__(self, item):
-        if is_str(item):
-            return item.upper() in (wp.fix for wp in self)
-        elif isinstance(item, WayPoint):
+        if type(item) == WayPoint:
             return list.__contains__(self, item)
+        elif is_str(item):
+            return item.upper() in (wp.fix for wp in self)
         else:
             raise TypeError("%s is not type str nor WayPoint" % item)
 
@@ -400,7 +400,7 @@ class WayPoint(object):
 
     def __eq__(self, other):
         """Check whether two waypoints may be considered the same (within 0.1 nm)"""
-        if not isinstance(other, WayPoint):
+        if not type(other) == WayPoint:
             return False
         try:
             if MathUtil.get_distance(self.pos, other.pos) < 0.1:
