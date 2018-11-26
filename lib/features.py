@@ -35,8 +35,10 @@ from __future__ import absolute_import
 from future import standard_library
 from builtins import object
 
-from . import AIS
 from . import Route
+
+# Vertical Distance UOM
+FL = 'FL'
 
 # Future
 standard_library.install_aliases()
@@ -171,9 +173,11 @@ class Hold(object):
             holdingPoint,               # AIXM. Point on which the the holding pattern is based.
             inboundCourse=180,          # AIXM. Inbound track of the holding pattern. Insignia has them all as magnetic, so we don't bother to implement anything else for now
             endTime=1,                  # AIXM. For how long to fly on the outbd track. There are about 163 holding in Insignia with point references. Unsupported by now.
-            std_turns=True,             # Standard turns are to the right
-            min_FL=000,                 # Mininum FL
-            max_FL=999):                # maximun FL at the holding pattern
+            std_turns=True,             # Standard turns are to the right. TODO Need to change to turnDirection and use a constant. About half in insignia are to the left
+            lowerLimit=000,             # AIXM. These four are unused for now
+            lowerLimitReference=FL,
+            upperLimit=999,
+            upperLimitReference=FL):
 
         assert type(holdingPoint) is Point
 
@@ -181,8 +185,10 @@ class Hold(object):
         self.inboundCourse = inboundCourse
         self.endTime = endTime
         self.std_turns = std_turns
-        self.min_FL = min_FL
-        self.max_FL = max_FL
+        self.lowerLimit = lowerLimit
+        self.lowerLimitReference = lowerLimitReference
+        self.upperLimit = upperLimit
+        self.upperLimitReference = upperLimitReference
 
 
 class STAR(object):
