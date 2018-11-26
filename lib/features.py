@@ -169,8 +169,8 @@ class Hold(object):
     def __init__(
             self,
             holdingPoint,               # AIXM. Point on which the the holding pattern is based.
-            inboundCourse=180,          # Inbound track of the holding pattern. Insignia has them all as magnetic, so we don't bother to implement anything else for now
-            outbd_time=1,               # For how long to fly on the outbd track
+            inboundCourse=180,          # AIXM. Inbound track of the holding pattern. Insignia has them all as magnetic, so we don't bother to implement anything else for now
+            endTime=1,                  # AIXM. For how long to fly on the outbd track. There are about 163 holding in Insignia with point references. Unsupported by now.
             std_turns=True,             # Standard turns are to the right
             min_FL=000,                 # Mininum FL
             max_FL=999):                # maximun FL at the holding pattern
@@ -179,7 +179,7 @@ class Hold(object):
 
         self.holdingPoint = holdingPoint
         self.inboundCourse = inboundCourse
-        self.outbd_time = outbd_time
+        self.endTime = endTime
         self.std_turns = std_turns
         self.min_FL = min_FL
         self.max_FL = max_FL

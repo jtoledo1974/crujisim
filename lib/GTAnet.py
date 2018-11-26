@@ -231,15 +231,15 @@ class GTAnet(GTA):
             except:
                 inboundCourse = None
             try:
-                outbd_time = m["outbd_time"]
+                endTime = m["endTime"]
             except:
-                outbd_time = None
+                endTime = None
             try:
                 std_turns = m["std_turns"]
             except:
                 std_turns = None
             try:
-                f.hold(m["fix"], inboundCourse, outbd_time, std_turns)
+                f.hold(m["fix"], inboundCourse, endTime, std_turns)
             except:
                 logging.warning("Error while setting hold", exc_info=True)
 
