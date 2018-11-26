@@ -44,10 +44,9 @@ TLPV = 2  # Added by the TLPV to calculate a sector entry time, for instance
 def is_str(item):
     """Check for str type in a python2 / python 3 compatible way"""
     try:
-        res = isinstance(item, str) or isinstance(item, unicode)
+        return type(item) == str or type(item) == unicode
     except NameError:
-        res = isinstance(item, str)
-    return res
+        return type(item) == str
 
 
 def get_waypoints(item):

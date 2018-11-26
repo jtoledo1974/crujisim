@@ -125,3 +125,21 @@ def test_reverse_index(route):
 def test_delete_from(route):
     route.delete_from('PARLA')
     assert str(route) == "PDT"
+
+
+def test_get_outbd_track():
+    p0, p1 = WayPoint('x0y0'), WayPoint('x0y1')
+    r = Route([p0, p1])
+
+    # Before the first calculation there is no outboundTrack
+    assert r[0].outboundTrack is None
+    assert r[1].inboundTrack is None
+
+    # After asking for it there should be an outboundTrack
+    assert r.get_outbd_track(0) == 0.0
+    assert r[0].outboundTrack == 0.0
+    assert r[1].inboundTrack == 0.0
+
+    # Make sure we get the cached track
+    r[0].outboundTrack = 11
+    assert r.get_outbd_track(0) == 11
