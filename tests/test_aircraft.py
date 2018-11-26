@@ -179,3 +179,5 @@ def test_complete_flightplan(gta):
     assert str(a.route) == 'BELEN, NORTA, _N1D01, _N1D02, _N1D03, _N1D04, _N1D05, _N1D06, _N1D07, _N1D08, _N1D09, _N1D10, _N1D11, TERRA'
 
 
+def test_lnav_armed(flight):
+    assert flight.lnav_armed == LANDED

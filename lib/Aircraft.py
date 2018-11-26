@@ -279,7 +279,8 @@ class Aircraft(object):
         self.ias = 0.0
         self.tgt_ias = None  # Target IAS to acquire (knots)
 
-        self.lnav_mode = NAV
+        self.lnav_mode = NAV        # LNAV mode
+        self.lnav_armed = ""        # LNAV armed mode
         self.to_do_aux = ''
         self.squawk = None  # Mode A transpoder code the aircraft is squawking
 
