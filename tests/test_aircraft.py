@@ -97,7 +97,7 @@ def test_set_cfl(flight, cfl, expected):
         assert flight.cfl == cfl
 
 
-def test_set_heading(flight):
+def test_set_tgt_heading(flight):
     flight.set_heading(185)
     assert flight.tgt_hdg == 185
 
