@@ -1014,11 +1014,9 @@ class Aircraft(object):
         # This method is quite expensive. We try to minimize calls by estimating the time
         # to reach and cheking again only after half the time
 
-        if self.t < self.next_wp_check_t:
-            return
-
-        if len(self.route) == 0:
+        if self.t < self.next_wp_check_t or len(self.route) == 0:
             return False  # No need to check.
+
         # Vector defining the hemiplane
         v1 = pr((1, self.route.get_outbd_track(0)))
         # Vector joining the wp and the aircraft
