@@ -858,16 +858,27 @@ class Aircraft(object):
         self._map = True
 
     def int_ils(self):
-        # Se supone que ha sido autorizado previamente
+        """Actions following and ATC ILS clearance"""
+
         try:
             (puntos_alt, llz, puntos_map) = AIS.iaps[self.iaf]
         except KeyError:
             logging.warning("No IAF when trying to intercept ILS")
             return
 
+        # Currently int_ils is the response to an ATC clearance
+        # The ILS clearance should have had a previous hdg clerance
+        # We assume here that it did, although I'm not certain that we should.
+        # It would be wrong to keep the heading when following an arc, for instance
+        # In the real world this would bring up a question from the pilot
+        # Or it could mean cleared ILS app at own discretion, which would require
+        # self positioning from the aircraft.
         if self.lnav_mode not in (HDG, TRK):
             self.tgt_hdg = self.hdg
 
+        # In the real world active mode would be HDG, and armed mode LOC
+        # And when the localizer became active the mode would turn into LOC*,
+        # and then LOC. We make it easier for us going straight into LOC
         self.lnav_mode = LOC_CAPTURE
         self.app_auth = True
 
