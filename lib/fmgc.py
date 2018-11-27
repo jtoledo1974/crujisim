@@ -18,8 +18,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 """
-Outputs desired course track for an LNAV mode
-All functions are passed the aircraft instance a
+Calculates target altitude and course, and deals with VNAV and LNAV
+mode transitions.
+All functions are passed the aircraft instance a .
 """
 
 import logging

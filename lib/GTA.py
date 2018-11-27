@@ -23,7 +23,6 @@
 """GTA (Generador de Tráfico Aéreo - Air Traffic Generator)
 This is the main simulation engine to which clients connect"""
 from future import standard_library
-from builtins import str
 from builtins import object
 
 
@@ -38,8 +37,6 @@ import datetime
 # Application imports
 from . import AIS
 from . import Aircraft
-from . import LNAV
-from . import Route
 from .Exercise import Exercise
 from . import TLPV
 

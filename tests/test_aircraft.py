@@ -2,8 +2,8 @@ import pytest
 
 from crujisim.lib.Aircraft import Aircraft, LANDED
 from crujisim.lib import AIS, FPM_TO_LEVELS_PER_HOUR
-from crujisim.lib.LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL, HOLD
-from crujisim.lib.LNAV import get_target_heading
+from crujisim.lib.fmgc import NAV, APP, RWY, LOC, LOC_CAPTURE, HDG, TRK, HDG_FIX, INT_RDL, HOLD
+from crujisim.lib.fmgc import get_target_heading
 from crujisim.lib.MathUtil import get_distance, sgn
 
 from datetime import datetime, timedelta

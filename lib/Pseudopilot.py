@@ -26,7 +26,7 @@ from time import time, sleep
 from RaDisplay import *  # This also imports all RaElements classes
 import Aircraft
 import Route
-import LNAV
+import fmgc
 
 SNDDIR='./snd/'
 
@@ -199,7 +199,7 @@ class PpDisplay(RaDisplay):
     def draw_fpr(self,track):
         canvas=self.c
         line=()
-        if track.lnav_mode == LNAV.NAV:
+        if track.lnav_mode == fmgc.NAV:
             line=line+self.do_scale(track.pos)
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             try: pto=self.do_scale(a.pos)
@@ -230,7 +230,7 @@ class PpDisplay(RaDisplay):
         canvas.delete(track.callsign+'fpr')
         canvas.delete(track.callsign+'wp')
         line=()
-        if track.lnav_mode == LNAV.NAV:
+        if track.lnav_mode == fmgc.NAV:
             line=line+do_scale(track.pos)
         for a in [wp for wp in track.route if wp.type==Route.WAYPOINT]:
             try: pto=do_scale(a.pos)

@@ -40,7 +40,7 @@ from . import AIS
 from . import BADA
 from . import Route
 from . import TLPV  # This is used as an optimization in set_route. Could be removed
-from . import LNAV
+from . import fmgc
 
 # Constants
 from . import CALLSIGN_FILE
@@ -73,7 +73,7 @@ LANDED = "8-LANDED"
 COASTING = "COASTING"
 
 # LNAV and VNAV
-from .LNAV import NAV, APP, RWY, LOC, LOC_CAPTURE, HOLD, HDG, TRK, HDG_FIX, INT_RDL, ORBIT
+from .fmgc import NAV, APP, RWY, LOC, LOC_CAPTURE, HOLD, HDG, TRK, HDG_FIX, INT_RDL, ORBIT
 
 # Globals
 
@@ -461,7 +461,7 @@ class Aircraft(object):
             self.ground_spd = self.tas + wind_paral
 
             wind_drift = degrees(asin(wind_perp / self.tas)) if self.tas > 0 else 0
-            target_hdg = LNAV.get_target_heading(self, wind_drift, t)
+            target_hdg = fmgc.get_target_heading(self, wind_drift, t)
 
             if target_hdg == LANDED:
                 self.pof = LANDED
