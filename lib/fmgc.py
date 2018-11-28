@@ -18,6 +18,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 """
+Performs functions similar to the Flight Management Guidance Computer in
+airbus aircraft.
 Calculates target altitude and course, and deals with VNAV and LNAV
 mode transitions.
 All functions are passed the aircraft instance a .
@@ -54,6 +56,10 @@ ORBIT = "ORBIT"
 # JTC 2018-10 This is still all spaghetti code. I moved LNAV methods here, but it still has
 # to be properly compartmentalized. Way too many obscure vect, to_do_aux,
 # etc. references, and wind_drift corrections should probably be done outside of this
+
+
+#######
+# LNAV
 
 
 def fpr(a, wind_drift):
