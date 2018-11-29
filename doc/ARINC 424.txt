@@ -1,0 +1,24 @@
+###########
+Documentation for ARINC 424 format files
+
+
+Here's the Runway record description in CIFP-files for all entries "^RWY:"
+01) Runway Identifier                                (5.46)
+02) Runway Gradient                                  (5.212)
+03) Ellipsoidal Height                               (5.225)
+04) Landing Threshold Elevation                      (5.68)
+05) TCH Value Indicator                              (5.270)
+06) Localizer/MLS/GLS Identifier                     (5.44)
+07) ILS/MLS/GLS Category                             (5.80)
+08) Threshold Crossing Height (TCH)                  (5.67)
+07) Latitude                                         (5.36)
+08) Longitude                                        (5.37)
+08) Threshold Displacement Distance                  (5.69)
+
+
+
+############################
+
+Other references:
+http://www.peter2000.co.uk/aviation/misc/rnavmanual1_8.pdf
+http://olravet.free.fr/ARINC424-18.pdf
