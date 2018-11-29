@@ -38,16 +38,16 @@ from .Route import WayPoint, Route
 # See http://www.aviaddicts.com/wiki/a330:flight_guidance_modes, for example
 
 # Managed
+RWY = "RWY"           # Not used yet, meant for departures
 NAV = "NAV"
-APP = "APP NAV"  # Not used yet, for navigation from IAF to IF
-RWY = "RWY"  # Not used yet
-LOC = "LOC"  # LOC AND LOC* are implemented using int_rdl functionality
-LOC_CAPTURE = "LOC*"
+APP = "APP NAV"       # Not used yet. In RW, for navigation after approach phase actived
 HOLD = "HOLD"
+LOC_CAPTURE = "LOC*"  # In the RW, start capture localizer signal
+LOC = "LOC"           # LOC AND LOC* are implemented using int_rdl functionality
 
 # Selected
 HDG = "HDG"
-TRK = "TRK"  # Not used
+TRK = "TRK"          # Not used
 HDG_FIX = "HDG<FIX"  # Follow heading after fix. Probably never used
 INT_RDL = "INT_RDL"  # Intercept a radial
 ORBIT = "ORBIT"
