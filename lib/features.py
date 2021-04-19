@@ -109,7 +109,7 @@ class Point(Feature):
         speedInterpretation=None,
         role=None                   # Insignia. Currently unsupported and not sure if necessary
     ):
-        self.designator = designator
+        self.designator = str(designator)
         self.pos = pos
         self.flyOver = flyOver
         self.upperLimitAltitude = upperLimitAltitude
@@ -136,7 +136,7 @@ class AirportHeliport(Feature):  # Aerodrome / Heliport
             arrivalRunways=None
     ):
         # Descriptive
-        self.designator = designator
+        self.designator = str(designator)
         self.pos = pos
         self.fieldElev = fieldElev
 
@@ -171,7 +171,7 @@ class RunwayDirection(Feature):
         # designator must have between 2 and 3 characters, of which the first 2
         # may be any digit between 0 and 9. Examples: 09, 09L, 09R, 09C, 09T,
         # etc..
-        self.designator = designator
+        self.designator = str(designator)
         self.trueBearing = trueBearing
         self.elevationTDZ = elevationTDZ
         self.usedRunway = usedRunway
