@@ -944,7 +944,7 @@ class Aircraft(object):
             wp = Route.WayPoint("_LLZ")
             wp.pos = llz[0]
             self.route.append(wp)
-        logging.debug("Autorizado aproximación: " + str(self.route))
+        logging.debug(u"Autorizado aproximación: " + str(self.route))
 
     def route_direct(self, fix):
         aux = None

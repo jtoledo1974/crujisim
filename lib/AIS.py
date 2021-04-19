@@ -410,7 +410,7 @@ def init(fir_file):
                     fijos_impresion[sector].append(q)
                     auxi = False
             if auxi:
-                logging.warning('No encontrado el fijo de impresión ' + a)
+                logging.warning(u'No encontrado el fijo de impresión ' + a)
         # Fijos de impresión secundarios
         if firdef.has_option(section, 'fijos_de_impresion_secundarios'):
             aux2 = firdef.get(
@@ -424,10 +424,10 @@ def init(fir_file):
                         auxi = False
                 if auxi:
                     logging.warning(
-                        'No encontrado el fijo secundario de impresión ' + a)
+                        u'No encontrado el fijo secundario de impresión ' + a)
         else:
             logging.debug(
-                'No hay fijos de impresión secundarios (no hay problema)')
+                u'No hay fijos de impresión secundarios (no hay problema)')
 
         # Local ADs
         try:
