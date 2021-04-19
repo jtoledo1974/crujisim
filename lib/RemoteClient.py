@@ -42,7 +42,7 @@ from twisted.protocols.basic import NetstringReceiver
 from . import AIS
 from .Pseudopilot import PpDisplay
 from .UCS import UCS
-from .FIR import *
+from .AIS import *
 from . import UI
 from .StripSeries import StripSeries
 from . import Route  # In order to set the fir object

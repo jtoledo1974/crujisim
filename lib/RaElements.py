@@ -30,7 +30,7 @@ import tkFont
 
 from twisted.internet import reactor
 
-from FIR import *
+from AIS import *
 from MathUtil import *
 
 import ConfMgr
