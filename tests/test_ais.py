@@ -22,9 +22,14 @@ def ais(request):
 
 def test_load_fir(ais_sample):
     assert len(AIS.points) == 69
-    assert repr(next(iter(AIS.points.values()))) == "Point('_TMA1', (80.77, 123.0))"
-    ad = next(iter(AIS.aerodromes.values()))
-    assert repr(ad) == "AirportHeliport('LECE', runwayDirections=['30', '12'], rwyInUse=RunwayDirection('30', stdInstDepartures=['NORTA1A', 'MANTO1A', 'ROKIS1A', 'TACOS1A', 'DUMAS1A'], stdInstArrivals=['NORTA1D', 'MANTO1E', 'ROKIS1E', 'TACOS1E', 'DUMAS1D']))"
+    assert "Point('_TMA1', (80.77, 123.0))" in [repr(p) for p in AIS.points.values()]
+    assert 'LECE' in [ad.designator for ad in AIS.aerodromes.values()]
+    lece = AIS.aerodromes['LECE']
+    assert {'30', '12'} == set([r.designator for r in lece.runwayDirections])
+    rwy = lece.rwyInUse
+    assert rwy.designator == '30'
+    assert {'NORTA1A', 'MANTO1A', 'ROKIS1A', 'TACOS1A', 'DUMAS1A'} == set(rwy.stdInstDepartures)
+    assert {'NORTA1D', 'MANTO1E', 'ROKIS1E', 'TACOS1E', 'DUMAS1D'} == set(rwy.stdInstArrivals)
 
 
 def test_points(ais):
