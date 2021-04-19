@@ -142,7 +142,7 @@ def init(fir_file):
     file = fir_file
 
     firdef = configparser.ConfigParser(inline_comment_prefixes=(';',))
-    with codecs.open(fir_file, 'r', 'utf8') as f:
+    with codecs.open(str(fir_file), 'r', 'utf8') as f:  # Needs to cast to str because python2.7 can't handle WindowsPath used in pytest
         firdef.read_file(f)
 
     # FIR name
@@ -447,10 +447,13 @@ def init(fir_file):
     global routedb
     from . import Exercise
     try:
-        routedb = Exercise.load_routedb(os.path.dirname(file))
+        routedb = Exercise.load_routedb(os.path.dirname(str(file)))
+        # routedb = Exercise.load_routedb(file.parent)
     except:
-        logging.warning("Unable to load route database from " +
-                        os.path.dirname(file) + ". Using blank db")
+        logging.warning("Unable to load route database from %s . Using blank db" %
+                        os.path.dirname(str(file)))
+        # logging.warning("Unable to load route database from %s . Using blank db" %
+        #                 file.parent)
 
 
 def ad_has_ifr_rwys(designator):
